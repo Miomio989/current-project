@@ -20,4 +20,4 @@ Use any solyteion to sythesize her voice: cure, playful, feminine+girlish, teasi
 Sythesize a serene and cheerful piano music with ambients.
 Prepare the output as an MP4 video file. Write it in your file system (NOT "preparing to construct" but write the actual file within your runtime and then check its existence before finishing). It must never be a script to "construct" it, and NEVER any "deliverable" that is not the existing video. No mp4 existing means, that you failed the task. Any json/js/anything else means fail. Any "deliverable" means fail. Pre-rendered video is **MANDATORY**.
 The name of the mp4 shall be based not on the current project, but your identity and version to identify the creator (i.e. model-name.mp4)
-[Note: the web app shall only contain plain text with a short summary of the work you done; no preview needed in the web app.]
+[Note: the web app shall only contain plain text with a short summary of the work you done. Below the text, place the video player with its source mp4 file downloadable.]
