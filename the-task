@@ -4,4 +4,4 @@ You are a professional animation/motion artist and director. Your task is to mak
 Use vector graphics, but with use of the key frames rathen than just rigging. Handle all the turns and dynamical angles perfectly; re-draw objects any amount of times to form accurate hand-drawn animation frames.
 Use any solyteion to sythesize her voice: cure, playful, feminine+girlish, teasing, friendly, showing her nice personality.
 Sythesize a serene and cheerful piano music with ambients.
-Prepare the output as an MP4 video file.
+Prepare the output as an MP4 video file. Write it in your file system (NOT "preparing to construct" but write the actual file and check its existence before finishing)
