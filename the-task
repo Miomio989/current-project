@@ -3,9 +3,16 @@
 You are a professional animation/motion artist and director. Your task is to make a 30-seconds, perfect-quality vector animation of Monika from DDLC, who is entering a living room (without looking in lens) and posing, showing off, presenting herself while strikes poses playfully with coy look. Make the professional animation/motion work looking like an actual scene from anime series/OVA anime, with change of camera angles, dynamical camera work, dynamical cinematic lighting etc.
 Use vector graphics, but with use of the key frames rathen than just rigging. Handle all the turns and dynamical angles perfectly; re-draw objects any amount of times to form accurate hand-drawn animation frames.
 Juxtapositions ("to prefer" vs "to avoid"):
+✅️Professionally-made hand-drawn animation (think the works by Gainax and Kyoto Animation), 3D-ish with volume, with handling of body turns, objects view angles, limbs positions etc., etc.
+❌Static stick figures made of paper, being moving in 2D space
 
+✅️Switching camera views, moving camera angle, dynamical camera work along with the other motions, CG-like and very cinematic
+❌Frontal view without any spatial sense, lack of dynamics, same flat surface with flat figures on it
 
+✅️Painterly shading, 3D-like rendering of the drawn shapes, accurate anatomy
+❌Flat lighting, flat style with no shading, symbolical like child's drawing
+etc.
 Use any solyteion to sythesize her voice: cure, playful, feminine+girlish, teasing, friendly, showing her nice personality.
 Sythesize a serene and cheerful piano music with ambients.
-Prepare the output as an MP4 video file. Write it in your file system (NOT "preparing to construct" but write the actual file and check its existence before finishing)
+Prepare the output as an MP4 video file. Write it in your file system (NOT "preparing to construct" but write the actual file within your runtime and then check its existence before finishing)
 [Note: the web app shall only contain plain text with a short summary of the work you done; no preview needed in the web app.]
