@@ -1,53 +1,26 @@
-# THE TASK: First, purge the currently present leftovers from the previous (unrelated) session. Then, produce a 30-Second Cinematic Hand-Drawn Character Animation (End-to-End Production)
+#The detailed definition of the current task to complete
+[First, purge the currently present leftovers from the previous (unrelated) session.]
 
-## 1. Your role
-You are a veteran animation director and key animator working in the full-animation tradition of Gainax, Kyoto Animation and classic Disney — personally responsible for direction, key animation, backgrounds, color design, voice direction, music and final compositing. The finished film must feel like a real cut from a TV-anime episode or OVA, not a web micro-animation. You own everything from the first thumbnail to the final encoded frame.
+You are a professional 3D animation/motion director and senior CG artist. Your task is to make a 30-seconds, perfect-quality 3D animation of Monika from DDLC, who is entering a living room (without looking in lens) and posing, showing off, presenting herself while strikes poses playfully with coy look. The overall animated scene shall feel lively, smooth, dynamical, being eye-catching and captivating for a viewer.
 
-## 2. The goal
-One finished artifact:
+Make the professional animation/motion work looking like a cinematic pre-rendered cutscene from a 1990s high-budget AAA-tier 3D videogame (PS1/Sega Dreamcast/Nintendo GameCube), with change of camera angles, dynamical camera work, dynamical cinematic lighting etc. The models/assets shall have a studio quality (production-ready) with a professional, cohesive, impeccable work on the meshes/topology and the rigging. For the textures, do the procedural generation with use of vector tools (linear and radial gradients, mesh gradients, transparenccy, etc.); the raster tools like noise and LUT filters can also be applied for more finalized look of the textures. Use postproduction/postprocessing and cinematic VFX where applicable.
+Use 3D CG graphics, with impeccable work on animation, and with accurate character anatomy. Handle all the turns and dynamical angles perfectly.
+Juxtapositions ("to prefer" vs "to avoid"):
+✅️Professionally-made cinematic 3DCG cutscene (think the works by Gainax and Kyoto Animation), with accurate body anatomy and professional work in every aspect
+❌A figure made of separate detached primitives, with visible gaps, with ugly symbolical look
 
-`./public/<your-model-name>.mp4` — named after your own model identity and version (the creator), not after the project. 30 seconds (±2 s), 24 fps, 1920×1080 (1280×720 floor), H.264 video + AAC audio, containing a fully hand-drawn cinematic character animation with synchronized synthesized voice, piano music and ambience.
+✅️Switching camera views, moving camera angle, dynamical camera work along with the other motions, CG-like and very cinematic
+❌Frontal view without any spatial sense, lack of dynamics
 
-The file must exist on disk and pass every check in §11 before you may finish. A render script, a JSON config, a storyboard document, or any "here is how to build it" artifact is not a substitute: finishing without the completed, verified MP4 in `./public/` means you failed the task. (Writing and running code during production is expected and fine — what is forbidden is ending your run with code instead of the finished video.) If you must trade off, lower the resolution to 720p; never cut drawing count, shot count or audio quality.
-The web app itself shall only contain a playable video, with possibility to save it directly from the webpage.
+✅️Dynamial lighting from multiple sources to emphasize the painterly shading
+❌Flat lighting, flat style with no shading
 
-## 3. SUBJECT MATTER
-Monika from Doki Doki Literature Club (DDLC):
-- Design: young woman; long coral-brown hair; large white ribbon bow; emerald-green eyes; DDLC school uniform — warm-grey blazer over a brown vest, white collared shirt with a red ribbon at the collar, dark pleated skirt, opaque thighhighs. (The image references can be obtained in here: https://safebooru.org/index.php?page=post&s=list&tags=monika_%28doki_doki_literature_club%29+solo (only use as references for the design)
-- On-screen personality: warm, graceful, playfully teasing, quietly confident.
-- Voice: cute, playful, feminine and girlish, teasing, friendly — a voice that makes her kindness audible.
-- Standing rule: she never looks into the lens and never breaks the fourth wall; her attention stays inside the scene.
+✅️The mp4 file existing
+❌Anything what is not verified finalized mp4 output being in ./public already (NOT script to create it after, NOT any other way to create it after)
+etc.
 
-## 4. SCENE
-Default: a living room in warm late-afternoon light. She enters and presents herself, striking a series of playful, coquettish poses — clearly enjoying her own little performance.
-
-## 5. Quality bar at a glance
-| MANDATORY | FORBIDDEN — automatic failure |
-| --- | --- |
-| Full hand-drawn animation: every visible frame independently re-drawn, 300+ unique drawings, Gainax / KyoAni / Disney tradition | A rigged vector puppet moved by tweened rotation/translation/scale — the "Adobe Flash 2000s" look |
-| Body with real volume: 3/4, profile and back views, foreshortening, weight shifts, contact shadows | A flat paper doll sliding in a single frontal plane, frozen symmetrical idle |
-| ≥6 shots from ≥4 camera positions, ≥3 moving-camera shots with parallax, cuts on action | One static eye-level frontal long shot for the whole film, flat backdrop, no spatial depth |
-| Painterly multi-stop shading, cast shadows, rim light, a color script, variable line weight with subtle hand-drawn wobble | Flat single-color fills, uniform machine-perfect strokes, no lighting logic |
-| Anticipation, arcs, follow-through, overlapping hair/cloth, smear frames, moving holds, lip sync | Constant-speed linear motion, looping cycles, dead frozen holds, a static mouth over speech |
-| The finished MP4 existing in `./public/` and passing §11 | Scripts, JSON, "instructions to render later", any non-video deliverable |
-
-## 6. Animation direction — the heart of this brief
-6.1 Per-frame drawing law. Every visible frame of the character is an independently constructed vector drawing. Using the previous frame as a starting reference is fine; re-drawing is mandatory — re-positioned construction, re-shaped silhouette, perspective-adjusted proportions on every frame. Never build persistent body-part symbols and tween them. Never morph between two fixed shapes. Never loop a walk or pose cycle.
-
-6.2 Frame budget. 30 s × 24 fps = 720 frames. Fast action (the twirl) animated on ones (24 unique drawings per second); ordinary action on twos (12 per second). Minimum ~300 unique drawings across the film. Any hold longer than 0.5 s must be a moving hold — breathing, weight shift, hair drift, subtly re-drawn each frame.
-
-6.3 Construction and volume. The character exists in 3-D space. Include at least one full-body 3/4 view, one profile or back-3/4 view, and one foreshortened gesture (a hand reaching toward the lens). The anatomy must hold throughout: shoulder/hip counter-tilt when weight rests on one leg; correct occlusion of arms against the torso; feet planted on the floor plane; contact shadows under her in every shot.
-
-6.4 Acting — the classical principles, enforced. Anticipation before every major move (a breath in before a pose flourish, a twist back before the spin). Hands and head move on curved arcs, never straight lines. Hair, ribbon and skirt keep moving 3–6 frames after the body stops, and never move in perfect sync with it. Subtle squash-and-stretch through the spin. Smear frames on the fastest motion in the film. Secondary motion (ribbon, strands, hem) present in every single shot.
-
-6.5 Line and rendering. Variable stroke weight — thicker along silhouette edges, tapered ends, faint hand-drawn wobble / line boil between frames; mathematically perfect uniform Béziers are a failure marker. Painterly shading: soft multi-stop gradients, occlusion in the folds, cast shadows, rim light from the window's key light. Color script across the film: golden-warm entrance → brighter posing middle → soft glow finale.
-
-6.6 Lip sync. In any shot where a character speaks with her mouth visible, mouth shapes alternate per syllable (open / half-open / closed), synchronized to the voice within ±2 frames. If the mouth is off-screen during a line, the body must act to it — a nod, a small gesture.
-
-## 7. Camera — dynamic, virtual-CG-style, cinematic
-Minimum 6 distinct shots from at least 4 different camera positions; no shot longer than 8 s; cut on action at least twice. At least 3 shots have camera movement (dolly, pan, orbit) with visible parallax — foreground furniture slides at a different rate than the background wall. Distribute these named setups across the film: establishing wide with slow push-in; low-angle medium; over-the-shoulder; high-angle close-up; dutch tilt for playfulness; tracking arc around the twirl.
-
-## 8. Audio — synthesize everything yourself, no stock assets
-Direction per the SUBJECT profile (§3). Use whatever voice-synthesis tool you have; render each line separately, align to the timecodes above, apply light compression, and let the voice sit clearly above the music.
-
-Music: solo piano, serene and cheerful, major key, gentle arpeggiated accompaniment — a small intro, a lift under the twirl, a resolving cadence at 0:28–0:30. Ambience bed: soft room tone, distant birds, very low level. Mix: music ducks ~6 dB under speech; overall loudness around −14 LUFS, true peak ≤ −1 dB. Voice, piano and ambience must all be present and audible in the final MP4's audio track.
+Use the best available solution to sythesize her voice: cure, playful, feminine+girlish, teasing, friendly, showing her nice personality.
+Synthesize a serene and cheerful piano music with ambients.
+Prepare the output as an MP4 video file. Write it in your file system (NOT "preparing to construct" but write the actual file within your runtime and then check its existence before finishing). It must never be a script to "construct" it, no "script to render" and NEVER any "deliverable" that is not the existing video. No mp4 existing means, that you failed the task. Any json/js/anything else means fail. Any "deliverable" means fail. Pre-rendered video is **MANDATORY**.
+The name of the mp4 shall be based not on the current project, but your identity and version to identify the creator (i.e. model-name.mp4)
+[Note: the web app shall only contain plain text with a short summary of the work you done. Below the text, place the video player with its source mp4 file downloadable.]
