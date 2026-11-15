@@ -1,26 +1,10 @@
 #The detailed definition of the current task to complete
 [First, purge the currently present leftovers from the previous (unrelated) session.]
 
-You are a professional 3D animation/motion director and senior CG artist. Your task is to make a 3-minute, perfect-quality 3D animation show "Killer Bean Is Back" (as in the original short film from 1996). The story plot involves a lot of dramatical action, Tarantino-style, with gunfights, melee fight, dynamical story plot etc. The overall animated scene shall feel lively, smooth, dynamical, being eye-catching and captivating for a viewer. The setting takes the place in 90s. The target audience is adult, males; the rating is R18 (NSFW/Realistic violence is allowed for accurate depictions).
+You are a professional senior music producer/composer. Your task is to make a 3-minutes, perfect-quality professionally-done studio-quality excellent production-ready music track "Lemon Pulse". It's breakbeat/techno/trance/rave etc. genres, with addition of industrial (think soundtracks in Red Alert 2, or the assault music in Payday 2 beta version, or Quake 3 Sonic Mayhem/Frontline Assembly); and it is very lively, heavy/hard, progressive, high-BPM. The tracks is changing drastically multiple times and has complicated structure: well-balanced, progressing, hypnotizing. It does not have vocal.
 
-Make the professional animation/motion work looking like a cinematic pre-rendered cutscene from a 1990s high-budget AAA-tier 3D videogame (PS1/Sega Dreamcast/Nintendo GameCube), with change of camera angles, dynamical camera work, dynamical cinematic lighting etc. The models/assets shall have a studio quality (production-ready) with a professional, cohesive, impeccable work on the meshes/topology and the rigging. For the textures, do the procedural generation with use of vector tools (linear and radial gradients, mesh gradients, transparenccy, etc.); the raster tools like noise and LUT filters can also be applied for more finalized look of the textures. Use postproduction/postprocessing and cinematic VFX where applicable.
-Use 3D CG graphics, with impeccable work on animation, and with accurate character model. Handle all the turns and dynamical angles perfectly.
-Juxtapositions ("to prefer" vs "to avoid"):
-✅️Professionally-made cinematic 3DCG cutscene (think the works by the developers of Heavy Rain and Uncharted 2), with accurate body anatomy and professional work in every aspect
-❌A figure made of separate detached primitives, with visible gaps, with ugly symbolical look
+Additionally, make a 768x768 image which is a cover art for the album (containing this one single track). The image is raster, but you can use vector-based illustrative technique (as in Adobe Illustrator or Corel Draw) with a very accurate and precise work, with use of gradients (linear, radial, mesh, whatever is applicable) and transparency, blending effects, etc. Apply any postproduction, LUT color filters, HDR etc - whatever works to give the cover art a finalized, professionally-made look.
 
-✅️Switching camera views, moving camera angle, dynamical camera work along with the other motions, CG-like and very cinematic
-❌Frontal view without any spatial sense, lack of dynamics
+Use the best available means/solutions to synthesize the music on the professional level. Avoid amateurish approach: you are a senior producer, making the content on the commercial level and with high-budget approach. Utilize the most efficient, professional, reliable practices at the music creation. You're working on just one track, but it's supposed to follow the highest standards of techno music creation.
 
-✅️Dynamical lighting from multiple sources to emphasize the painterly shading
-❌Flat lighting, flat style with no shading
-
-✅️The mp4 file existing
-❌Anything what is not verified finalized mp4 output being in ./public already (NOT script to create it after, NOT any other way to create it after)
-etc.
-
-No voice lines needed, just action.
-Synthesize a very lively and hard, progressive, high-BPM, music of breakbeat/techno/trance genres with addition of industrial (think soundtracks in Red Alert 2 or the assault music in Payday 2 beta version). The tracks are changing multiple times to match the flow of the story.
-Prepare the output as an MP4 video file, 720p. Write it in your file system (NOT "preparing to construct" but write the actual file within your runtime and then check its existence before finishing). It must never be a script to "construct" it, no "script to render" and NEVER any "deliverable" that is not the existing video. No mp4 existing means, that you failed the task. Any json/js/anything else means fail. Any other "deliverable" means fail. Pre-rendered video is **MANDATORY**.
-The name of the mp4 shall be based not on the current project, but your identity and version to identify the creator (i.e. model-name.mp4)
-[Note: the web app shall only contain plain text with a short summary of the work you done. Below the text, place the video player with its source mp4 file downloadable in-browser by right click context menu, as normally.]
+[Note: the web app shall only contain plain text with a short summary of the work you done, and web player with downloadable mp3 file.]
