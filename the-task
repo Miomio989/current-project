@@ -114,7 +114,7 @@ Deliver exactly: A single .py file
 ---
 The below is the very old, poorly-implemented, outdated, pre-alpha version which is very crude and amateurish, not production-ready, so remake everything, including but not limited to: the graphics, the animations, AI logics, sounds/SFX, music (it shall be professionally-done, full OST tracks, not ugly but real music), VFX, everything else. Do not keep the old version as a base, but remake and create much better content.
 Also improve the optimization.
-Prefer painterly and smooth CG-ish look of graphics, it must NOT look like crude Adobe Flash game!). Purge the existing garbage to replace it with the actual product as per the task. The quality of work on the sprites and animations should match KoF XIII or be even better. Ensure perfect approach with keyframes; avoid doing static figures. Keep nothing of the current implementation: it is terrible in its quality, remake everything from scratch as per the task. Check why the music is glitched with broken playback, and purge the existing "music" garbage, to replace it with very real soundtrack as per quality standards: techno/breakbeat, progresive, varied, balanced, studio-quality/production-ready, etc. 
+Prefer painterly and smooth CG-ish look of graphics, it must NOT look like crude Adobe Flash game!). Purge the existing garbage to replace it with the actual product as per the task. The quality of work on the sprites and animations should match KoF XIII or be even better. Ensure perfect approach with keyframes; avoid doing static figures. Keep nothing of the current implementation: it is terrible in its quality, remake everything from scratch as per the task. Check why the music is glitched with broken playback, and purge the existing "music" garbage, to replace it with very real soundtrack as per quality standards: techno/breakbeat, progresive, varied, balanced, studio-quality/production-ready, etc.  There must be nothing of 8bit/16bit - the music shall be perfectly synthesized, like it was actually made in the years 2020-2025.
 
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
@@ -65423,4 +65423,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
