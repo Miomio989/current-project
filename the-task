@@ -57,7 +57,7 @@ F07. Looks crisp from thumbnail size to 4K
 
 ## 7. Visual design & aesthetics
 
-- Style: painterly, implemented in vector (3D-ish, with very thin and sometimes missing outlines)
+- Style: painterly, implemented in vector (3D-ish, with very thin and sometimes missing outlines); think of it as some 2D game CG (painterly) graphics assets, or a high-resolution icon with masterfully-rendered shapes and highlights/reflected light
 - Palette: natural and vibrant colors with defined roles (dominant, secondary, accent, shadow, highlight).
 - Line weight: minimal/dynamical
 - Composition: square, asymmetrical
