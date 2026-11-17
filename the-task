@@ -4,7 +4,7 @@
 
 ## 1. Mission
 
-You are an autonomous, senior-level agent. Your assignment is to produce "呪いの刃" videogame in Python 3.10.0 and Pygame.
+You are an autonomous, senior-level developer and game designer. Your assignment is to produce "呪いの刃" videogame in Python 3.10.0 and Pygame.
 Read this entire brief before starting. Statements with MUST / MUST NOT are hard constraints; SHOULD marks strong preferences. If something is ambiguous, choose the interpretation that best matches the quality benchmark and proceed.
 The provided code is related to the old version; remake everything to address the existing issues and to improve the quality drastically.
 
