@@ -1,28 +1,28 @@
-[While starting, clean up everything from the previous (unrelated) session]
-
-# TASK BRIEF: Hiroko — anime character 3D model (for portfolio)
+# TASK BRIEF: 呪いの刃
 
 ## 1. Mission
 
-You are an autonomous, senior-level agent who is an expert in 3DCG. Your assignment is to produce a 3D graphics asset, "Hiroko — anime character 3D model (for portfolio)", i its completed state.
+You are an autonomous, senior-level agent. Your assignment is to produce "呪いの刃" videogame in Python 3.10.0 and Pygame.
 Read this entire brief before starting. Statements with MUST / MUST NOT are hard constraints; SHOULD marks strong preferences. If something is ambiguous, choose the interpretation that best matches the quality benchmark and proceed.
-
-Priority: VISUAL-FIRST. Visual / experiential quality leads; sound (if any) supports it.
 
 ## 2. Quality benchmark
 
 Do the work to the production standards, craftsmanship and quality-control level of:
 - SCE Japan Studio
 - Tecmo Koei
+- FromSoftware
 - Atlus
-- Square Enix
+- Capcom
+- Neowiz
+- Netease
 - NCSoft
-- NetEase
+- Nexon
+- Konami
 
 ### What to emulate
 
-- Match their level of polish, attention to detail when it comes to the characters models.
-- Treat the project as if a publisher's QA department will certify it tomorrow to include in a CG render.
+- Match their level of polish, attention to detail, game-feel tuning and internal QA rigor.
+- Treat the build as if a publisher's QA department will certify it tomorrow: no crashes, no soft-locks, no unreadable UI.
 
 ## 3. Implementation language / tool
 
@@ -30,690 +30,79 @@ Primary language / tool: [[Python 3.10.0 + pygame]]
 
 ### Constraints
 
-- The model comes with a very simple, basic viewer in Pygame as a single file (a .py file with both the model and the viewer)
+- (Keep it a single .py file, all game assets/resources are stored in the same file)
 
 ## 4. Concept
 
 ### Overall idea
 
-The face and hairstyle/appearance are based on the reference image: https://raw.githubusercontent.com/Miomio989/current-project/refs/heads/main/concept.png
+A 2D Fighting game. The current version features just one fully-implemented playable character: Cecilia Darkmoon, whose design is based on this reference: https://raw.githubusercontent.com/Miomio989/current-project/refs/heads/main/char.jpg
+Cecilia is a cute-looking woman with high black ponytail, with sidelocks (side hair strands) framing her face for cuter look, and vibrant yellow eyes. She is wearing a vibrant "gothic lolita" style minidress in black-and-red colors, with high collar and juliet sleeves, an with a black leather belt. On her legs, she has above-knee black leather boots with silver buckles. She is holding a large, demonic-looking two-handed sword with eerie aura around it. She looks confident, serene, a bit detached, proud and noble. Her visual design is following the typical style like in posts at Danbooru, Gelbooru, Safeboou, Zerochan, Pixiv etc.
+Implement a stage based on those references (do not copy it, just use for inspiration): https://raw.githubusercontent.com/Miomio989/current-project/refs/heads/main/stage.jpg An eerie and mysterious-lookings swamp with ruins of a romanesque cathedral in the middle of it, with damaged iron fences around. The ruins looks cursed and somewhat demonic. The sky is blood-red. It resembles level designs from the games like "Ghosts'n'Goblins" or "Devil May Cry 3".
+Tone: mystical, eerie, aggressive, daring, bold.
+Core experiece — what the player should feel: ecstatic, hypnotic trance.
 
-The body follows the anime-stylized anatomy canon, being overall accurate with carefully produced topology. The female character is wearing a swimsuit and sneakers, and glasses as in the reference.
+### Comparable existing products (study them; do NOT clone them)
+
+- In terms of gameplay: Samurai Shodown, The King of Fighters XIII, BlazBlue, Soulcalibur.
+- In terms of overall inspiration for the aesthetics, mood, feel and lore: Devil May Cry 3, Devil May Cry 4, Bayonetta, Vampire: The Masquerade - Bloodline, Hellgate: London
+- In terms of approach to gameplay mechanics and player experience: Demon's Souls, Dark Souls
 
 ## 5. Age rating & target audience
 
-Age rating: PG-13
+Age rating: R18+ — content, themes and tone MUST stay within this rating.
+
+### Target audience
+
+Explicit content allowed for realistic portrayal of combat mechanics.
+The target audience (for the visual design preferences / aesthetical preferences and preferable player experience): East Asia region user base (NOT westerners; you're catering to Asian preferences entirely, however the language is English only), adult males, East Asia gamers (players of South Korean online games / Chinese mobile games / userbase of Netease etc.), anime and manga fans/otaku and Visual Novel (VN, eroge) players, Japanese console players (PS3, PS4 userbase), audience of anime-adjacent digital art platforms (Pixiv/Gelbooru/Danbooru), users of WeChat/KakaoTalk and the like, users of Bilibili/Douyin/NicoNico etc., 2channel users, people with buddhist/shinto/taoist mentality, etc.
+The language of the game is English. There are no other languages implemented. For the game title, use the original Japanese name (no romaji).
 
 ## 6. Features to implement
 
 Implement ALL of the following. Every feature is mandatory unless marked optional.
-F01. The 3D model with rigging, and the viewer in Pygame (both as single .py file).
+F01. Everything what a fighting game needs (only one character in this version, and only one stage).
 
 ## 7. Visual design & aesthetics
 
-- Colors: based on the reference.
-- Textures: none, just plain color (possibly with use of linear/radial gradients where applicable)
-- Artistic stlyle: semirealistic, manga/anime character design but adapted to the 3D graphics
+- Style: vibrant, expressive, exaggerated, eye-catching, captivating
+- UI: has the UI elements that resembles of Soul Calibur, Ninja Gaiden Sigma, Devil May Cry 4, Bayonetta
+- All visuals generated procedurally in code.
+- Avoid look of a past-gen 16-bit game from SNES/GBA and Sega Genesis era; instead, give it a high-budget feel of AAA game (even if it uses 2D graphics with spritework) for PS3 or PS4, or Nitendo Switch, or modern-day high-end Android phones. Think of it as a PS4-exclusive AAA game developed by a company like Namco Bandai, Kojima Productions, Konami or SCE Japan Studio. Pursue the production-ready, studio quality, and avoid crude unprofessionally-done look. Avoid generic boring look, and avoid a feel of an amateurish game mafe in Adobe Flash.
+- Use vector tools to create the graphics assets. For animations, ensure perfect use of keyframes, when you consider every possible turn/angle/body part turn or position. Make a proper animation, with consideration of all the key frames; draw every required frame without simplifying it (NO adobe flash style rigs). Rely on the hand-drawn animation with keyframes and with all required angles, rather than on rigging/transformations. Make sure the horizontal/diagonal slashes with weapons are implemented properly (NOT just rotating the same sprite, but thorough use of animation frames). Overall, always prefer well-crafted animation keyframes, and avoid use of static figures that are just moving/rotating in 2D space. So, you're relying on hand-drawn animation first and foremost, and NOT on rigs of any type.
+- Keep the graphics expressive and stylized, not flat-looking and not vector-ish (despite using vector graphics to implement it), artistic, painterly, beautifully CG-like, with spatial sense and accurate lighting/shading. The sources of inspiration for the setting and art direction: Devil May Cry, Bayonetta, Vampire: The Masquerade - Bloodline. The setting/lore stays modern/contemporary but with mystical element like in VtM.
 
-## 8. Technical implementation requirements
+## 8. Sound & music direction (supporting)
+
+- The soundtrack is: perfect, professionally-done high-BPM OST sounding like Techno or Breakbeat genres (think assault music in Payday 2 beta version). Keep it hard and hypnotizing, captivating, matching the game's aesthetics, putting the player in a trance.
+- Implement any SFX required.
+
+## 9. Technical implementation requirements
 
 ### Quality standards (MUST)
 
-- Very accurate approach to modeling: NO separate primitives, NO detached look of body parts. The model is cohesive, completed, implemented like in videogame development. Keep everything professionally-done and production-ready.
+- Keep everything well-optimized, so it can run on ow-end laptops with no lags/freezes.
+- Always prefer hand-drawn frames-based animation on highest professional standards.
 
-## 9. Minimum scope
+## 10. DO vs DO NOT
 
-The finished product MUST contain at least 15000 lines of code to be considered complete. This size must come from real, meaningful functionality — padding, repetition, dead code or filler does not count.
+Each pair contrasts the expected behaviour with the shortcut that MUST be avoided.
+1. DO: Professionally-made hand-drawn animation (think the works by Gainax and Kyoto Animation), 3D-ish with volume, with handling of body turns, objects view angles, limbs positions etc., etc.
+   DO NOT: Static stick figures made of paper, being moving in 2D space
+2. DO: Painterly smooth shading, 3D-like rendering of the drawn shapes, accurate anatomy
+   DO NOT: Flat lighting, flat style with no shading, symbolical like child's drawing
 
-## 10. Mandatory output format
+## 11. Minimum scope
+
+The finished product MUST contain at least 20000 lines of code to be considered complete. This size must come from real, meaningful functionality — padding, repetition, dead code or filler does not count.
+
+## 12. Mandatory output format
 
 Deliver exactly: A single .py file
 
 ### Delivery details
 
-- Everything lives in one .py file; assets are generated procedurally in code.
-- Top-of-file comment: short summary.
+- Everything lives in one file; assets are generated procedurally in code.
+- Top-of-file comment contains a short summary of the project.
 
-## 11. Working protocol & definition of done
-
-- Deliver ONLY the mandatory output format. The web app itself has only a short report: what was built.
-
-The early/draft version: 
-
-# Hiroko: a procedural, rigged anime character and interactive Pygame 3D portfolio viewer.
-# Run with: python -m pip install pygame && python hiroko.py
-from __future__ import annotations
-
-import argparse
-import math
-import os
-import sys
-import time
-from dataclasses import dataclass
-from typing import Callable
-
-try:
-    import pygame
-except ImportError:
-    raise SystemExit("Pygame is required. Install it with: python -m pip install pygame")
-
-TAU = math.tau
-SKIN = (241, 190, 178)
-SKIN_LIGHT = (255, 215, 199)
-HAIR = (48, 47, 55)
-HAIR_MID = (65, 62, 73)
-HAIR_LIGHT = (88, 83, 99)
-INK = (28, 30, 39)
-SUIT = (38, 41, 49)
-SUIT_LIGHT = (60, 62, 72)
-VIOLET = (125, 78, 179)
-WHITE = (255, 249, 240)
-SHOE = (232, 231, 222)
-SOCK = (242, 236, 225)
-
-
-def clamp(v: float, lo: float = 0.0, hi: float = 1.0) -> float:
-    return max(lo, min(hi, v))
-
-
-def smooth(a: float, b: float, v: float) -> float:
-    t = clamp((v - a) / (b - a))
-    return t * t * (3.0 - 2.0 * t)
-
-
-def mix(a: float, b: float, t: float) -> float:
-    return a + (b - a) * t
-
-
-def mix_color(a: tuple[int, int, int], b: tuple[int, int, int], t: float) -> tuple[int, int, int]:
-    return tuple(int(mix(x, y, clamp(t))) for x, y in zip(a, b))
-
-
-def add(a, b):
-    return (a[0] + b[0], a[1] + b[1], a[2] + b[2])
-
-
-def sub(a, b):
-    return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
-
-
-def cross(a, b):
-    return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
-
-
-def dot(a, b):
-    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-
-
-def unit(a):
-    d = math.sqrt(dot(a, a)) or 1.0
-    return (a[0] / d, a[1] / d, a[2] / d)
-
-
-def rotate_z(p, angle, pivot):
-    x, y, z = sub(p, pivot)
-    c, s = math.cos(angle), math.sin(angle)
-    return (pivot[0] + x * c - y * s, pivot[1] + x * s + y * c, pivot[2] + z)
-
-
-def rotate_x(p, angle, pivot):
-    x, y, z = sub(p, pivot)
-    c, s = math.cos(angle), math.sin(angle)
-    return (pivot[0] + x, pivot[1] + y * c - z * s, pivot[2] + y * s + z * c)
-
-
-@dataclass
-class Mesh:
-    name: str
-    vertices: list[tuple[float, float, float]]
-    faces: list[tuple[int, int, int]]
-    colors: list[tuple[int, int, int]]
-    double_sided: bool = False
-    priority: int = 0
-
-
-class Builder:
-    def __init__(self, name: str, double_sided: bool = False, priority: int = 0):
-        self.mesh = Mesh(name, [], [], [], double_sided, priority)
-
-    def vertex(self, p):
-        self.mesh.vertices.append(tuple(p))
-        return len(self.mesh.vertices) - 1
-
-    def triangle(self, a, b, c, color):
-        self.mesh.faces.append((a, b, c))
-        self.mesh.colors.append(color)
-
-    def quad(self, a, b, c, d, color):
-        self.triangle(a, b, c, color)
-        self.triangle(a, c, d, color)
-
-    def ribbon(self, left, right, color):
-        prev = None
-        for a, b in zip(left, right):
-            pair = (self.vertex(a), self.vertex(b))
-            if prev:
-                self.quad(prev[0], prev[1], pair[1], pair[0], color)
-            prev = pair
-        return self.mesh
-
-    def tube(self, centers, widths, colors, sides=8, axis="z"):
-        previous = None
-        for i, (center, width) in enumerate(zip(centers, widths)):
-            ring = []
-            for k in range(sides):
-                a = TAU * k / sides
-                if axis == "z":
-                    p = (center[0] + math.cos(a) * width, center[1] + math.sin(a) * width, center[2])
-                elif axis == "y":
-                    p = (center[0] + math.cos(a) * width, center[1], center[2] + math.sin(a) * width)
-                else:
-                    p = (center[0], center[1] + math.cos(a) * width, center[2] + math.sin(a) * width)
-                ring.append(self.vertex(p))
-            if previous is not None:
-                for k in range(sides):
-                    self.quad(previous[k], previous[(k + 1) % sides], ring[(k + 1) % sides], ring[k], colors[min(i - 1, len(colors) - 1)])
-            previous = ring
-        return self.mesh
-
-
-def ellipsoid(x, y, z, cx, cy, cz, rx, ry, rz):
-    dx, dy, dz = (x - cx) / rx, (y - cy) / ry, (z - cz) / rz
-    return (math.sqrt(dx * dx + dy * dy + dz * dz) - 1.0) * min(rx, ry, rz)
-
-
-def capsule(x, y, z, a, b, radius_x, radius_z):
-    vx, vy, vz = sub(b, a)
-    t = clamp(((x-a[0])*vx + (y-a[1])*vy + (z-a[2])*vz) / (vx*vx+vy*vy+vz*vz))
-    px, py, pz = a[0]+t*vx, a[1]+t*vy, a[2]+t*vz
-    dx, dy, dz = (x-px)/radius_x, (y-py)/radius_x, (z-pz)/radius_z
-    return (math.sqrt(dx*dx + dy*dy + dz*dz) - 1.0) * min(radius_x, radius_z)
-
-
-def soft_union(a, b, k):
-    h = clamp(0.5 + 0.5 * (b-a) / k)
-    return mix(b, a, h) - k*h*(1-h)
-
-
-def body_field(x, y, z):
-    # Smooth unions create a single skin surface rather than a stack of visible primitives.
-    d = ellipsoid(x,y,z, 0,2.52,0, .315,.65,.205)       # ribcage and waist
-    d = soft_union(d, ellipsoid(x,y,z, 0,2.025,-.015,.355,.295,.235), .115)
-    d = soft_union(d, capsule(x,y,z,(0,2.89,0),(0,3.31,0),.105,.105), .09)
-    d = soft_union(d, ellipsoid(x,y,z, 0,3.625,.015,.348,.445,.305), .105)
-    d = soft_union(d, ellipsoid(x,y,z, 0,3.405,.105,.265,.222,.225), .13) # jaw
-    for side in (-1,1):
-        d = soft_union(d, ellipsoid(x,y,z, side*.34,3.59,.012,.075,.115,.085), .035)
-        d = soft_union(d, ellipsoid(x,y,z, side*.218,2.77,.12,.158,.205,.145), .11)
-        d = soft_union(d, capsule(x,y,z,(side*.30,2.93,0),(side*.48,2.52,.006),.115,.11), .085)
-        d = soft_union(d, capsule(x,y,z,(side*.48,2.52,.006),(side*.50,2.10,.09),.083,.077), .075)
-        d = soft_union(d, ellipsoid(x,y,z, side*.51,2.04,.10,.085,.155,.075), .05)
-        d = soft_union(d, capsule(x,y,z,(side*.205,1.99,-.02),(side*.21,1.12,-.018),.183,.175), .11)
-        d = soft_union(d, capsule(x,y,z,(side*.21,1.15,-.018),(side*.22,.29,-.035),.115,.115), .085)
-        d = soft_union(d, ellipsoid(x,y,z, side*.22,.19,.112,.147,.155,.285), .075)
-    return d
-
-
-def body_color(x, y, z):
-    if y < .245:
-        if y < .105: return (60, 63, 73)
-        if z > .25: return SHOE
-        return (219, 218, 211)
-    if y < .37: return SOCK
-    # A one-piece suit is a material region of the same continuous body surface.
-    if 1.92 < y < 2.92:
-        if y > 2.73 and z > .075 and abs(x) < .20 + (y-2.73)*.34:
-            return SKIN_LIGHT
-        if y > 2.79 and abs(x) > .29: return SKIN
-        if y < 2.065 and abs(x) > .28 + (y-1.92)*.20: return SKIN
-        if abs(x) > .34 and y < 2.14: return SKIN
-        return SUIT_LIGHT if z > .19 and y > 2.65 else SUIT
-    if y > 3.37:
-        if z > .18 and 3.46 < y < 3.76 and abs(x) < .31:
-            return mix_color(SKIN, SKIN_LIGHT, .35)
-        return SKIN_LIGHT
-    return SKIN
-
-
-def make_body(step=.078):
-    print("Sculpting continuous body surface...", flush=True)
-    xmin, ymin, zmin = -1.01, -.035, -.49
-    nx, ny, nz = 27, 54, 17
-    nx1, ny1, nz1 = nx+1, ny+1, nz+1
-    positions = []
-    values = []
-    for i in range(nx1):
-        x = xmin + i*step
-        for j in range(ny1):
-            y = ymin + j*step
-            for k in range(nz1):
-                z = zmin + k*step
-                positions.append((x,y,z))
-                values.append(body_field(x,y,z))
-    def idx(i,j,k): return (i*ny1+j)*nz1+k
-    builder = Builder("Continuous character silhouette")
-    cache = {}
-    tets = ((0,5,1,6),(0,1,2,6),(0,2,3,6),(0,3,7,6),(0,7,4,6),(0,4,5,6))
-    offsets = ((0,0,0),(1,0,0),(1,1,0),(0,1,0),(0,0,1),(1,0,1),(1,1,1),(0,1,1))
-    def edge(a,b):
-        key = (a,b) if a < b else (b,a)
-        if key in cache: return cache[key]
-        va,vb = values[a],values[b]
-        t = va/(va-vb)
-        p,q = positions[a],positions[b]
-        v = builder.vertex((mix(p[0],q[0],t),mix(p[1],q[1],t),mix(p[2],q[2],t)))
-        cache[key] = v
-        return v
-    def triangle(a,b,c):
-        pa,pb,pc = builder.mesh.vertices[a],builder.mesh.vertices[b],builder.mesh.vertices[c]
-        normal = cross(sub(pb,pa), sub(pc,pa))
-        center = tuple((pa[n]+pb[n]+pc[n])/3 for n in range(3))
-        e=.018
-        grad = (body_field(center[0]+e,center[1],center[2])-body_field(center[0]-e,center[1],center[2]),
-                body_field(center[0],center[1]+e,center[2])-body_field(center[0],center[1]-e,center[2]),
-                body_field(center[0],center[1],center[2]+e)-body_field(center[0],center[1],center[2]-e))
-        if dot(normal,grad)<0: b,c=c,b
-        builder.triangle(a,b,c,body_color(*center))
-    for i in range(nx):
-        for j in range(ny):
-            for k in range(nz):
-                cube = [idx(i+di,j+dj,k+dk) for di,dj,dk in offsets]
-                if all(values[n]>=0 for n in cube) or all(values[n]<0 for n in cube): continue
-                for tet in tets:
-                    inside=[cube[t] for t in tet if values[cube[t]]<0]
-                    outside=[cube[t] for t in tet if values[cube[t]]>=0]
-                    if len(inside)==1:
-                        a=inside[0]
-                        triangle(edge(a,outside[0]),edge(a,outside[1]),edge(a,outside[2]))
-                    elif len(inside)==3:
-                        a=outside[0]
-                        triangle(edge(a,inside[0]),edge(a,inside[1]),edge(a,inside[2]))
-                    elif len(inside)==2:
-                        a,b=inside; c,d=outside
-                        p,q,r,s=edge(a,c),edge(a,d),edge(b,c),edge(b,d)
-                        triangle(p,q,r); triangle(q,s,r)
-    print(f"Sculpt complete: {len(builder.mesh.vertices):,} welded vertices / {len(builder.mesh.faces):,} triangles",flush=True)
-    return builder.mesh
-
-
-def make_ellipsoid(name, center, radii, color, rings=12, segments=20, visible: Callable | None=None, priority=1):
-    b=Builder(name,priority=priority)
-    indices=[]
-    for j in range(rings+1):
-        phi=math.pi*j/rings
-        row=[]
-        for i in range(segments):
-            theta=TAU*i/segments
-            p=(center[0]+radii[0]*math.sin(phi)*math.cos(theta),
-               center[1]+radii[1]*math.cos(phi),
-               center[2]+radii[2]*math.sin(phi)*math.sin(theta))
-            row.append(b.vertex(p))
-        indices.append(row)
-    for j in range(rings):
-        for i in range(segments):
-            a,c=indices[j][i],indices[j][(i+1)%segments]
-            d,e=indices[j+1][i],indices[j+1][(i+1)%segments]
-            p=b.mesh.vertices[a]
-            if visible is None or visible(p): b.quad(a,c,e,d,color(p) if callable(color) else color)
-    return b.mesh
-
-
-def curve_mesh(name, points, radius, color, sides=7, priority=3):
-    b=Builder(name,priority=priority)
-    widths=[radius(i/(len(points)-1)) if callable(radius) else radius for i in range(len(points))]
-    colors=[color(i/(len(points)-1)) if callable(color) else color for i in range(len(points))]
-    b.tube(points,widths,colors,sides)
-    return b.mesh
-
-
-def bezier(a,b,c,d,t):
-    s=1-t
-    return tuple(s*s*s*a[i]+3*s*s*t*b[i]+3*s*t*t*c[i]+t*t*t*d[i] for i in range(3))
-
-
-def bezier_points(a,b,c,d,count=18):
-    return [bezier(a,b,c,d,i/(count-1)) for i in range(count)]
-
-
-def closed_loop(cx,cy,rx,ry,z,count=36):
-    return [(cx+rx*math.cos(TAU*i/count),cy+ry*math.sin(TAU*i/count),z) for i in range(count+1)]
-
-
-def make_hair():
-    meshes=[]
-    # Back-of-head cap, only the upper and rear-facing part of the scalp.
-    meshes.append(make_ellipsoid("Layered graphite hair cap",(0,3.685,-.038),(.367,.435,.324),
-                lambda p: mix_color(HAIR,HAIR_MID,clamp((p[1]-3.52)*.72)),
-                18,32,lambda p:p[1]>3.57 or p[2]<-.13,priority=1))
-    # A sweep of sculpted overlapping pointed hair cards follows the reference fringe.
-    for n in range(19):
-        t=n/18
-        start=(-.335+t*.62,4.017-abs(t-.35)*.085,.085+math.sin(t*math.pi)*.11)
-        end=(-.38+t*.62,3.57+math.sin(t*2.4)*.24,.31+math.sin(t*math.pi)*.052)
-        if n<13: end=(-.38+t*.49,3.53+math.sin(t*2.7)*.25,.315+math.sin(t*math.pi)*.06)
-        control1=(start[0]-.045,3.99,start[2]+.205)
-        control2=(end[0]-.1,3.72,end[2]+.055)
-        centers=bezier_points(start,control1,control2,end,14)
-        b=Builder("Tapered fringe %02d"%n,True,3)
-        left=[]; right=[]
-        width=.044+.022*math.sin(n*1.87)**2
-        for i,p in enumerate(centers):
-            u=i/(len(centers)-1)
-            w=width*(1-smooth(.69,1,u))*(.42+.58*math.sin(math.pi*clamp(u*.92+.08)))
-            left.append((p[0]-w,p[1],p[2]+.003))
-            right.append((p[0]+w,p[1]+.023*math.sin(math.pi*u),p[2]-.008))
-        shade=mix_color(HAIR,HAIR_MID,.18+(n%5)*.105)
-        b.ribbon(left,right,shade)
-        meshes.append(b.mesh)
-        if n%3==1:
-            highlight=[(p[0]-.014,p[1]+.004,p[2]+.009) for p in centers[3:10]]
-            meshes.append(curve_mesh("Fringe sheen",highlight,.0025,HAIR_LIGHT,4,4))
-    # Long locks are continuous curved tapered ribbons, not detached cylindrical strands.
-    for side in (-1,1):
-        for n in range(11):
-            spread=n/10
-            x=side*(.285+.1*spread)
-            front=.11+.13*(1-spread)
-            end_y=2.24+.45*math.sin(n*.84+side)**2
-            a=(x*.73,3.91,-.025)
-            p1=(x*1.38,3.52,front-.09)
-            p2=(x*1.22,2.76,front+.03)
-            d=(x*(1.04+spread*.19),end_y,front+.035)
-            centers=bezier_points(a,p1,p2,d,19)
-            b=Builder("Long layered side lock",True,3)
-            left=[];right=[]
-            for i,p in enumerate(centers):
-                u=i/(len(centers)-1)
-                w=(.033+.015*math.sin(n*2.1)**2)*(.7+.3*math.sin(u*math.pi))*(1-smooth(.85,1,u))
-                left.append((p[0]-w,p[1],p[2]+.009))
-                right.append((p[0]+w,p[1],p[2]-.012))
-            b.ribbon(left,right,mix_color(HAIR,HAIR_MID,.12+(n%4)*.105))
-            meshes.append(b.mesh)
-            if n%3==0:
-                highlight=[(p[0]-side*.018,p[1],p[2]+.014) for p in centers[4:15]]
-                meshes.append(curve_mesh("Side lock sheen",highlight,.0022,HAIR_LIGHT,4,4))
-    return meshes
-
-
-def make_face():
-    meshes=[]
-    for s in (-1,1):
-        x=s*.161
-        # Eyes consist of curved sclera, layered iris and pupil, catchlights and lids.
-        meshes.append(make_ellipsoid("Almond eye",(x,3.633,.417),(.104,.058,.037),WHITE,8,16,lambda p:p[2]>.416,4))
-        meshes.append(make_ellipsoid("Violet iris",(x+s*.006,3.631,.457),(.044,.049,.009),VIOLET,8,16,lambda p:p[2]>.457,5))
-        meshes.append(make_ellipsoid("Iris inner ring",(x+s*.006,3.631,.468),(.029,.041,.007),(76,48,121),7,14,lambda p:p[2]>.468,6))
-        meshes.append(make_ellipsoid("Pupil",(x+s*.006,3.633,.476),(.016,.032,.006),(35,28,52),7,14,lambda p:p[2]>.476,7))
-        meshes.append(make_ellipsoid("Eye glint",(x-s*.014,3.652,.486),(.016,.011,.004),(255,252,255),5,10,lambda p:p[2]>.486,8))
-        upper=bezier_points((x-s*.102,3.638,.445),(x-s*.058,3.711,.457),
-                            (x+s*.05,3.699,.456),(x+s*.108,3.637,.436),15)
-        meshes.append(curve_mesh("Upper eyelid",upper,.009,(58,42,57),6,7))
-        eyebrow=bezier_points((x-s*.105,3.75,.384),(x-s*.038,3.779,.42),
-                              (x+s*.05,3.785,.415),(x+s*.101,3.755,.37),12)
-        meshes.append(curve_mesh("Soft eyebrow",eyebrow,.0065,(72,53,61),5,5))
-        # A gentle translucent-looking blush is built from opaque small color facets.
-        for row in range(3):
-            for col in range(5):
-                xx=x+(col-2)*.025
-                yy=3.515+(row-1)*.018
-                z=.305+.015*(1-abs(col-2)/2)
-                b=Builder("Cheek blush",True,4)
-                a=b.vertex((xx-.015,yy,z)); c=b.vertex((xx+.015,yy,z))
-                d=b.vertex((xx,yy+.016,z+.002))
-                b.triangle(a,c,d,mix_color(SKIN_LIGHT,(245,153,151),.11+(.12 if row==1 else .02)))
-                meshes.append(b.mesh)
-        # Thick charcoal acetate spectacles: rims, bridge, temples and tiny glints.
-        meshes.append(curve_mesh("Glasses rim",closed_loop(x,3.605,.137,.111,.495,40),
-                                 .0145,(38,45,53),8,10))
-        meshes.append(curve_mesh("Glasses inner highlight",closed_loop(x,3.605,.125,.099,.505,40),
-                                 .0028,(113,120,124),5,11))
-        temple=bezier_points((s*.292,3.613,.489),(s*.33,3.64,.40),
-                             (s*.362,3.658,.265),(s*.373,3.654,.09),12)
-        meshes.append(curve_mesh("Glasses arm",temple,.012,(40,45,52),7,9))
-    meshes.append(curve_mesh("Spectacle bridge",bezier_points((-.03,3.644,.50),(-.015,3.667,.511),
-                         (.015,3.667,.511),(.03,3.644,.50),12),.012,(41,46,53),7,10))
-    meshes.append(curve_mesh("Small nose",[(0,3.541,.365),(.009,3.52,.375),(0,3.512,.376)],.0034,(161,115,112),5,7))
-    meshes.append(curve_mesh("Quiet mouth",bezier_points((-.046,3.429,.326),(-.015,3.437,.348),
-                         (.02,3.432,.348),(.047,3.433,.326),12),.0045,(124,83,86),5,7))
-    return meshes
-
-
-def make_details():
-    meshes=[]
-    # Swimsuit seam, V-neck piping, panels, tiny hardware and welt detailing.
-    for side in (-1,1):
-        neckline=bezier_points((0,2.747,.235),(side*.07,2.70,.245),
-                               (side*.18,2.747,.216),(side*.282,2.84,.15),17)
-        meshes.append(curve_mesh("Neckline piping",neckline,.011,(25,28,35),7,5))
-        seam=bezier_points((side*.255,2.77,.16),(side*.20,2.55,.227),
-                           (side*.23,2.24,.224),(side*.25,2.08,.16),22)
-        meshes.append(curve_mesh("Suit princess seam",seam,.0038,(89,90,99),5,4))
-        hip=bezier_points((side*.04,1.96,.213),(side*.14,2.035,.224),
-                          (side*.30,2.055,.17),(side*.35,2.055,.06),16)
-        meshes.append(curve_mesh("Leg opening piping",hip,.009,(25,28,34),6,5))
-        # Fine socks and trainers: uppers are colored on the continuous base mesh.
-        for y,z,r in ((.335,.17,.004),(.292,.19,.004)):
-            meshes.append(curve_mesh("Sock rib",[(side*.22+u*.11,y,z+.02*math.sin(math.pi*(u+1)/2))
-                                 for u in [-1,-.66,-.33,0,.33,.66,1]],r,(191,188,182),5,4))
-        for n in range(3):
-            yy=.192-n*.035
-            lace=[(side*.22-.058,yy,.307+n*.004),(side*.22+.055,yy-.008,.307+n*.004)]
-            meshes.append(curve_mesh("Sneaker lacing",lace,.0048,(88,91,102),5,5))
-        meshes.append(curve_mesh("Sneaker side panel",bezier_points((side*.31,.19,.245),
-                             (side*.36,.18,.25),(side*.365,.125,.26),(side*.31,.125,.33),12),
-                             .005,(120,121,130),5,5))
-    meshes.append(curve_mesh("Center neckline stitch",[(0,2.725,.241),(0,2.68,.248)],.003,(116,114,125),5,5))
-    return meshes
-
-
-class Rig:
-    """A compact hierarchical joint rig with smooth weights at every attachment."""
-    def __init__(self):
-        self.pose=0
-        self.time=0.0
-        self.poses=["At ease","Wave","Look back","Runway"]
-
-    def deform(self,p):
-        x,y,z=p
-        t=self.time
-        wave=math.sin(t*3.0)*.12
-        if y>3.18:
-            w=smooth(3.18,3.44,y)
-            angle=[.018,-.085,.13,-.08][self.pose]+math.sin(t*1.15)*.016
-            q=rotate_z(p,angle,(0,3.28,0))
-            return tuple(mix(p[i],q[i],w) for i in range(3))
-        if abs(x)>.345 and 1.83<y<3.10:
-            side=1 if x>0 else -1
-            weight=smooth(.345,.48,abs(x))*smooth(1.83,2.04,y)
-            shoulder=(side*.355,2.91,0)
-            upper_angle=side*([.035,-.02,.14,-.16][self.pose]+wave*.08)
-            if self.pose==1 and side==1: upper_angle=-2.45+wave
-            q=rotate_z(p,upper_angle,shoulder)
-            if y<2.51:
-                elbow=rotate_z((side*.48,2.52,.01),upper_angle,shoulder)
-                lower_angle=side*(.055 if self.pose!=1 else -.55)
-                q2=rotate_z(q,lower_angle,elbow)
-                q=tuple(mix(q[i],q2[i],smooth(2.54,2.43,y)) for i in range(3))
-            return tuple(mix(p[i],q[i],weight) for i in range(3))
-        if y<1.99 and abs(x)>.085:
-            side=1 if x>0 else -1
-            angle=side*[.003,.035,.035,.095][self.pose]
-            q=rotate_z(p,angle,(side*.20,1.98,-.02))
-            if y<1.12:
-                knee=rotate_z((side*.21,1.12,-.02),angle,(side*.20,1.98,-.02))
-                r=rotate_z(q,side*([0,0,.035,-.09][self.pose]),knee)
-                q=tuple(mix(q[i],r[i],smooth(1.18,.98,y)) for i in range(3))
-            weight=smooth(.085,.21,abs(x))*smooth(2.0,1.82,y)
-            return tuple(mix(p[i],q[i],weight) for i in range(3))
-        return p
-
-
-class Renderer:
-    def __init__(self,width=1100,height=800):
-        self.width,self.height=width,height
-        self.yaw=-.26
-        self.pitch=-.035
-        self.zoom=1.0
-        self.target_y=2.05
-        self.wire=False
-        self.angle_speed=.25
-        self.auto=True
-        self.bg=None
-        self.font=pygame.font.SysFont("arial",15)
-        self.small=pygame.font.SysFont("arial",12)
-        self.heading=pygame.font.SysFont("georgia",45)
-        self.subtitle=pygame.font.SysFont("arial",13,bold=True)
-        self._background()
-
-    def _background(self):
-        bg=pygame.Surface((self.width,self.height))
-        for y in range(self.height):
-            t=y/self.height
-            color=mix_color((32,37,51),(14,19,30),t)
-            pygame.draw.line(bg,color,(0,y),(self.width,y))
-        center=(int(self.width*.51),int(self.height*.48))
-        glow=pygame.Surface((self.width,self.height),pygame.SRCALPHA)
-        for radius in range(390,20,-5):
-            alpha=int(2.0*(1-radius/420))
-            pygame.draw.circle(glow,(103,87,131,alpha),center,radius,5)
-        bg.blit(glow,(0,0))
-        self.bg=bg
-
-    def camera(self,p):
-        x,y,z=p
-        c,s=math.cos(self.yaw),math.sin(self.yaw)
-        x,z=c*x+s*z,-s*x+c*z
-        y-=self.target_y
-        c,s=math.cos(self.pitch),math.sin(self.pitch)
-        y,z=c*y-s*z,s*y+c*z
-        return (x,y,z)
-
-    def project(self,p):
-        x,y,z=p
-        scale=min(self.width/3.6,self.height/4.85)*self.zoom
-        perspective=5.8/(5.8-z)
-        return (int(self.width*.51+x*scale*perspective),int(self.height*.51-y*scale*perspective))
-
-    def ground(self,surface):
-        cx=int(self.width*.51); cy=int(self.height*.51+2.05*min(self.width/3.6,self.height/4.85)*self.zoom)
-        floor=pygame.Surface((self.width,self.height),pygame.SRCALPHA)
-        for i in range(8,0,-1):
-            pygame.draw.ellipse(floor,(7,9,17,6+i*2),(cx-155-i*13,cy-12-i*3,310+i*26,24+i*6))
-        pygame.draw.ellipse(floor,(170,149,182,27),(cx-113,cy-20,226,40),1)
-        surface.blit(floor,(0,0))
-
-    def draw(self,surface,meshes,rig,ui=True):
-        surface.blit(self.bg,(0,0))
-        self.ground(surface)
-        triangles=[]
-        for mesh in meshes:
-            coords=[self.camera(rig.deform(p)) for p in mesh.vertices]
-            projected=[self.project(p) for p in coords]
-            for face,color in zip(mesh.faces,mesh.colors):
-                a,b,c=face
-                p,q,r=coords[a],coords[b],coords[c]
-                normal=cross(sub(q,p),sub(r,p))
-                length=math.sqrt(dot(normal,normal))
-                if length<1e-9: continue
-                n=(normal[0]/length,normal[1]/length,normal[2]/length)
-                if not mesh.double_sided and n[2]<-.08: continue
-                if mesh.double_sided and n[2]<0: n=(-n[0],-n[1],-n[2])
-                light=clamp(.82+.15*dot(n,unit((-.53,.73,.80)))+.04*n[2],.55,1.08)
-                if color==WHITE or color==(255,252,255): light=max(light,.88)
-                shaded=tuple(int(clamp(v*light,0,255)) for v in color)
-                depth=(p[2]+q[2]+r[2])/3 + mesh.priority*.00012
-                triangles.append((depth,shaded,(projected[a],projected[b],projected[c])))
-        triangles.sort(key=lambda t:t[0])
-        for _,color,poly in triangles:
-            pygame.draw.polygon(surface,color,poly)
-            if self.wire: pygame.draw.polygon(surface,(130,167,169),poly,1)
-        if ui:self.draw_ui(surface,rig,len(triangles))
-
-    def text(self,surface,text,pos,font,color):
-        surface.blit(font.render(text,True,color),pos)
-
-    def draw_ui(self,surface,rig,triangle_count):
-        w,h=self.width,self.height
-        pane=pygame.Surface((w,h),pygame.SRCALPHA)
-        pygame.draw.rect(pane,(10,14,24,165),(28,27,303,158),border_radius=17)
-        pygame.draw.rect(pane,(10,14,24,150),(w-287,27,258,153),border_radius=17)
-        pygame.draw.rect(pane,(10,14,24,165),(28,h-86,w-56,58),border_radius=14)
-        surface.blit(pane,(0,0))
-        self.text(surface,"CHARACTER STUDY   /   001",(50,45),self.subtitle,(198,172,212))
-        self.text(surface,"Hiroko",(47,65),self.heading,(249,241,234))
-        self.text(surface,"A procedural portrait in three dimensions",(51,127),self.font,(200,197,205))
-        self.text(surface,"CHARACTER   /   RIGGED",(w-265,49),self.subtitle,(198,172,212))
-        self.text(surface,"01  /  GRAPHITE HAIR",(w-265,82),self.small,(222,220,228))
-        self.text(surface,"02  /  VIOLET EYES",(w-265,106),self.small,(222,220,228))
-        self.text(surface,"03  /  CONTINUOUS MESH",(w-265,130),self.small,(222,220,228))
-        self.text(surface,f"{triangle_count:,} visible facets  ·  {rig.poses[rig.pose]}",(w-265,153),self.small,(157,153,168))
-        self.text(surface,"DRAG  orbit     SCROLL  zoom     1–4  pose     SPACE  turntable     W  wireframe     S  capture     R  reset",
-                  (48,h-65),self.small,(229,226,233))
-        self.text(surface,"PYGAME  /  PROCEDURAL 3D",(48,h-45),self.small,(156,151,171))
-
-
-def main():
-    parser=argparse.ArgumentParser(description="Hiroko — procedural character portfolio viewer")
-    parser.add_argument("--render-once",metavar="FILE",help="Render one PNG frame and exit (works with SDL_VIDEODRIVER=dummy)")
-    parser.add_argument("--size",default="1100x800",help="Window dimensions, e.g. 1100x800")
-    args=parser.parse_args()
-    try:
-        width,height=[int(v) for v in args.size.lower().split("x")]
-        if width<500 or height<450: raise ValueError()
-    except ValueError:
-        parser.error("--size must be WIDTHxHEIGHT, at least 500x450")
-    pygame.init()
-    pygame.display.set_caption("HIROKO  /  Character Study")
-    screen=pygame.display.set_mode((width,height),pygame.RESIZABLE)
-    meshes=[make_body()]+make_hair()+make_face()+make_details()
-    rig=Rig()
-    renderer=Renderer(width,height)
-    if args.render_once:
-        renderer.draw(screen,meshes,rig)
-        pygame.image.save(screen,args.render_once)
-        print("Saved",args.render_once)
-        pygame.quit()
-        return
-    clock=pygame.time.Clock()
-    dragging=False
-    running=True
-    while running:
-        dt=min(clock.tick(36)/1000,.07)
-        rig.time+=dt
-        if renderer.auto and not dragging: renderer.yaw+=renderer.angle_speed*dt
-        for event in pygame.event.get():
-            if event.type==pygame.QUIT: running=False
-            elif event.type==pygame.VIDEORESIZE:
-                width,height=max(500,event.w),max(450,event.h)
-                screen=pygame.display.set_mode((width,height),pygame.RESIZABLE)
-                renderer.width,renderer.height=width,height
-                renderer._background()
-            elif event.type==pygame.MOUSEBUTTONDOWN:
-                if event.button==1: dragging=True
-                if event.button==4: renderer.zoom=clamp(renderer.zoom*1.08,.55,2.1)
-                if event.button==5: renderer.zoom=clamp(renderer.zoom/1.08,.55,2.1)
-            elif event.type==pygame.MOUSEBUTTONUP and event.button==1: dragging=False
-            elif event.type==pygame.MOUSEMOTION and dragging:
-                renderer.yaw+=event.rel[0]*.007
-                renderer.pitch=clamp(renderer.pitch+event.rel[1]*.005,-.65,.55)
-            elif event.type==pygame.MOUSEWHEEL:
-                renderer.zoom=clamp(renderer.zoom*(1.08**event.y),.55,2.1)
-            elif event.type==pygame.KEYDOWN:
-                if event.key==pygame.K_ESCAPE:running=False
-                elif pygame.K_1<=event.key<=pygame.K_4:rig.pose=event.key-pygame.K_1
-                elif event.key==pygame.K_SPACE:renderer.auto=not renderer.auto
-                elif event.key==pygame.K_w:renderer.wire=not renderer.wire
-                elif event.key==pygame.K_r:
-                    renderer.yaw,renderer.pitch,renderer.zoom=-.26,-.035,1.0
-                    rig.pose=0
-                elif event.key==pygame.K_s:
-                    name="hiroko_capture_%s.png"%time.strftime("%Y%m%d_%H%M%S")
-                    pygame.image.save(screen,name)
-                    print("Saved",name)
-        renderer.draw(screen,meshes,rig)
-        pygame.display.flip()
-    pygame.quit()
-
-
-if __name__=="__main__":
-    main()
+[Note: the web app shall only contain plain text with a short summary of the work you done.]
