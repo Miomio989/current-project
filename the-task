@@ -3,6 +3,7 @@ Your task is to update this app and improve it, remaking and changing it drastic
 - Improve and finalize the SeeStation theme: it is inspired by the production of Sony/SCE Japan Studio, and any software related to Sony or PlayStation consoles (PS3/PS4/PS Vita and to less extent, PS2), their software UIs, their overall aesthetics and their approach to the designs, the Sony typical design asethetics at all, and the preferences of their customers/user base from East Asia region, etc. Reproduce it flawlessly, like it is designed by Sony/SCE, and made for a fan of PlayStation and other Sony's production and services. It is dark generally but in Sony's and PlayStation's way; ensure perfect visibility and readability while matching SCE/Sony/PlayStation visual designs and approach to creativity, and keeping a good optimization.
 - Make each of the three themes look more unique, not just with color scheme, but with its own distinctive UI/UX style applied where applicable (Gold is influenced by the aesthetics of "Deus Ex: Human Revolution"; Crimson is inspired by "Babymetal" band, "Blood-C" anime show and "Kuon" horror game, SeeStation is Sony/SCE and PlayStation style).
 - For the editor, fix glitches and errors, e.g. cropping the placed lens flare resulting in square borders visible.
+- Make the lens flares diverse in their shapes, details, overall style, but all of them shall stay the wide, anamorphic type.
 - The brush (the one to paint) in the editor must be perfectly optimized: no lags, no freezes when working with it to paint over the image.
 - Make sure I can hide the mask from view to see how the changes will be applied (when it's applied to masked area).
 - Improve every feature of editor, e.g. better controls over lens flares placement (resizing up/down, brigtness and saturation slider for it etc., etc.). Remake/improve the existing color filter present (5 for photos, 5 for anime illustrations) while keeping them universally applied. Improve/remake everything else in the editor. Ensure perfect optimization.
@@ -14,4 +15,3 @@ Note: no need to reduce the length of code (up to 30k lines of code is allowed),
 Send full updated py code.
 
 The old version:
-
