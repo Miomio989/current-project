@@ -1,12 +1,12 @@
 You are a senior developer, software engineer and UI/UX designer who is working for East Asia market (Japan first, South Korea and China/Taiwan second). Your standards are comparable to those of Sony and SCE Japan Studio, or Toshiba, Tecmo Koei, Konami, Atlus, Capcom, Square Enix, Samsung, etc.
 Your task is to remake and change this app drastically to improve everything, achieving an exceptionally high-quality, very polished and professionally-done, corporate-standards, production-ready software. Keep it a single py file (any of vector graphics assets are also inside the code).
-- Improve and finalize the SeeStation theme: it is inspired by the production of Sony/SCE Japan Studio, and any software related to Sony or PlayStation consoles (PS3/PS4/PS Vita and to less extent, PS2), their software UIs, their overall aesthetics and their approach to the designs, the Sony typical design asethetics at all, and the preferences of their customers/user base from East Asia region, etc. Reproduce it flawlessly, like it is designed by Sony/SCE, and made for a fan of PlayStation and other Sony's production and services. It is dark generally but in Sony's and PlayStation's way; ensure perfect visibility and readability while matching SCE/Sony/PlayStation visual designs and approach to creativity, and keeping a good optimization.
-- Make each of the three themes look more unique, not just with color scheme, but with its own distinctive UI/UX style applied where applicable (Gold is influenced by the aesthetics of "Deus Ex: Human Revolution"; Crimson is inspired by "Babymetal" band, "Blood-C" anime show and "Kuon" horror game, SeeStation is Sony/SCE and PlayStation style).
+- Make each of the three themes look more unique, not just with color scheme, but with its own distinctive UI/UX style applied where applicable (Gold is influenced by the aesthetics of "Deus Ex: Human Revolution"; Crimson is inspired by "Babymetal" band, "Blood-C" anime show and "Kuon" horror game, SeeStation is Sony/SCE and PlayStation style). They shall have their unique charisma, delivered though the creative, harmonious and inspirational visual design of each.
 - Fix any of the UI glitches and errors, implementing it in efficient way optimized for a laptop with small display, remaking the layout from scratch for the most efficient way.
-- Check why the text parts in editor has so many capslock and fix it, there shall be no overuse of uppercase text
-- Make the lens flares more diverse in their shapes, details, overall style, but all of them shall stay the wide, anamorphic type. You're implementing them in vector but with natural look - suitable to be placed on a photo. Some flares can consist of multiple colors (adjustable by their hues). Remove rotating them (they shall be horizontal, that's the point), and implent adding/adjusting multiple flares of various types
-- Improve every feature of editor, e.g. better controls over lens flares placement and state/condition, etc. Improve/remake everything else in the editor. Ensure perfect optimization everywhere (no lags, no freezes, no performance drops).
-- Improve every other aspect, the layout and overall logic of the UI; make any changes for better work. Make sure the small icons are distinctive/recognizable at their small scale, while still being properly stylized to match the UI aesthetics (in both of existing UI themes).
+- For the splitting of an image with a pixels-width gap, make a live preview of the gap line
+- In the editor, implement restoring of the fit view from the zoom, by CTRL+Right Mouse click anywhere on the image
+- Improve/remake anything else in the editor. Ensure perfect optimization everywhere (no lags, no freezes, no performance drops). Implement the features achievable by a Depth Map when it's available for a currently loaded image (a Depth Map marks the spatial qualities and distances, etc., so take advantage of: 1) Implementing smart, versatile/adjustable creation of a mask based on the Depth Map (more far/deep - more opaque mask, or vice versa, or a treshold where mask starts); 2) Any other effects applicable to the vector image with use of a depth mask, taking advantage of its presence to make the image look much more cinematic and completed, production-ready with postprocessing with those tools.
+- Make sure everything is visible in the UI (nothing is pushed out of view; everything is fitting the space), and the UI itself is versatile/adjustable (so I can move the border between left panel and right space, can scale up/down the UI by ctrl+/ctrl-). The UI shall be suitable for any screen sizes, including a small display of a laptop; it shall be navigable with good visibility even when it's 800x600 resolution, or a small window. Remake the layout completely if that's what it takes to prevent glitches or missing elements. For the panel with tabs, also make sure it will fit with no need to scroll the panel itself left/right.
+- Improve every other aspect, the design/the layout and overall logic of the UI; make any changes for better work. Make sure the small icons are distinctive/recognizable at their small scale, while still being properly stylized to match the UI aesthetics (in both of existing UI themes).
 - Remake/Remaster any other part of the UI, if some improvements can be done; ensure optimal placements/layout and good overall structure.
 
 The target audience (for the visual design preferences / aesthetical preferences and preferable user experience): East Asia region user base (NOT westerners; you're catering to Asian preferences entirely, however the language is English only), adult males, East Asia gamers (players of South Korean online games / Chinese mobile games / userbase of Netease etc.), anime and manga fans/otaku and Visual Novel (VN, eroge) players, Japanese console players (PS3, PS4 userbase), audience of anime-adjacent digital art platforms (Pixiv/Gelbooru/Danbooru), users of WeChat/KakaoTalk and the like, users of Bilibili/Douyin/NicoNico etc., 2channel users, people with buddhist/shinto/taoist mentality, etc.
@@ -204,7 +204,7 @@ except Exception:  # pragma: no cover - non-Windows platforms
 #  1. Constants, Workspace Paths & Legacy Migration
 # =============================================================================
 APP_NAME = "Horde Studio Lite"
-APP_VERSION = "5.0.0"
+APP_VERSION = "6.0.0"
 CLIENT_AGENT = f"HordeStudioLite:{APP_VERSION}:local-desktop"
 HORDE_URL = "https://aihorde.net/api/v2"
 ANON_KEY = "0000000000"
@@ -1440,284 +1440,284 @@ sys.excepthook = _global_excepthook
 
 
 # =============================================================================
-#  3. Three Flagship East-Asian Design Languages (v5.0 Corporate Remaster)
-#     - SeeStation      (Sony / SCE Japan Studio — PS3 XMB / PS4 / PS Vita OLED)
-#     - Sarif Gold      (Deus Ex: Human Revolution — chamfered amber cyber-noir)
-#     - Crimson Eclipse (Babymetal / Blood-C / Kuon — urushi lacquer & razor red)
+#  3. Three Flagship East-Asian Design Languages (v6.0 Corporate Remaster)
+#     - SeeStation      (Sony / SCE Japan Studio — PS3 XMB · PS4 · PS Vita OLED)
+#     - Sarif Gold      (Deus Ex: Human Revolution — chamfered carbon-amber HUD)
+#     - Crimson Eclipse (Babymetal · Blood-C · Kuon — urushi lacquer & crimson)
 # =============================================================================
 THEMES: Dict[str, Dict[str, str]] = {
     "gold": {
         "key": "gold",
-        "label": "GOLD",
+        "label": "Sarif Gold",
         "name": "Sarif Gold",
-        "hint": "Chamfered obsidian carbon + burnished Renaissance gold (Deus Ex: Human Revolution)",
-        "win": "#0c0a06",
-        "win2": "#070604",
-        "plate_hi": "#241e13",
-        "plate_lo": "#16120b",
-        "plate_edge": "#060503",
-        "plate_edge_top": "#665635",
-        "plate_edge_left": "#453922",
-        "deep": "#0a0804",
-        "sunken_edge": "#050402",
-        "sunken_bot": "#3d321e",
-        "field_top": "#080703",
-        "field_bot": "#14100a",
-        "text": "#f4ecd8",
-        "text_hi": "#fff9ea",
-        "muted": "#c2b08a",
-        "dim": "#827559",
-        "ghost": "#ae9f7a",
-        "line": "#383020",
-        "line_hi": "#635434",
-        "focus": "#f5be3b",
-        "btn_hi": "#362e1e",
-        "btn_mid": "#251f14",
-        "btn_lo": "#17130c",
-        "btn_hov_hi": "#4a3e27",
-        "btn_hov_mid": "#342b1a",
-        "btn_hov_lo": "#211b10",
-        "btn_pre_hi": "#120f09",
-        "btn_pre_lo": "#221d12",
-        "btn_edge": "#070603",
-        "btn_edge_top": "#756340",
-        "btn_edge_hov": "#cf9e3c",
-        "acc_spec": "#ffefad",
-        "acc_hi": "#fac748",
-        "acc_mid": "#d9941c",
-        "acc_lo": "#945f0c",
-        "acc_deep": "#573605",
-        "acc_hov_hi": "#ffdf73",
-        "acc_hov_mid": "#eba626",
-        "acc_hov_lo": "#b07210",
+        "hint": "Chamfered obsidian carbon + burnished Renaissance amber HUD (Deus Ex: Human Revolution)",
+        "win": "#0a0804",
+        "win2": "#050402",
+        "plate_hi": "#221c12",
+        "plate_lo": "#141009",
+        "plate_edge": "#050402",
+        "plate_edge_top": "#6e5a32",
+        "plate_edge_left": "#4a3c20",
+        "deep": "#090704",
+        "sunken_edge": "#040301",
+        "sunken_bot": "#42351d",
+        "field_top": "#070603",
+        "field_bot": "#130f08",
+        "text": "#f3ebd7",
+        "text_hi": "#fffaf0",
+        "muted": "#c4b187",
+        "dim": "#827355",
+        "ghost": "#ae9d78",
+        "line": "#3a301d",
+        "line_hi": "#6e5a33",
+        "focus": "#f7c23e",
+        "btn_hi": "#362d1b",
+        "btn_mid": "#241d12",
+        "btn_lo": "#16110a",
+        "btn_hov_hi": "#4c3f26",
+        "btn_hov_mid": "#352b19",
+        "btn_hov_lo": "#211b0f",
+        "btn_pre_hi": "#110e08",
+        "btn_pre_lo": "#221c10",
+        "btn_edge": "#060502",
+        "btn_edge_top": "#7d683d",
+        "btn_edge_hov": "#e0aa36",
+        "acc_spec": "#fff1b8",
+        "acc_hi": "#fcca4a",
+        "acc_mid": "#db961a",
+        "acc_lo": "#915d0a",
+        "acc_deep": "#523204",
+        "acc_hov_hi": "#ffe27d",
+        "acc_hov_mid": "#eda724",
+        "acc_hov_lo": "#b0710e",
         "acc_glow": "#f7c23e",
         "acc_text": "#120b02",
-        "acc_edge": "#ffe68a",
+        "acc_edge": "#ffe994",
         "acc_edge_lo": "#422603",
-        "tab_off_hi": "#211c12",
-        "tab_off_lo": "#13100a",
-        "tab_hov_hi": "#302819",
-        "tab_hov_lo": "#1d170f",
-        "tab_on_hi": "#3d321c",
-        "tab_on_lo": "#231c10",
-        "kicker": "#f0be4d",
-        "hdr_line": "#695328",
-        "hdr_dot": "#f7c544",
-        "ok": "#78d65c",
-        "warn": "#f5a73b",
-        "err": "#f04c3c",
-        "info": "#72c7ed",
-        "deck_hi": "#282115",
-        "deck_mid": "#1b160e",
-        "deck_lo": "#0f0c07",
-        "scroll_bg": "#0a0804",
-        "scroll_hi": "#4d4129",
-        "scroll_lo": "#2e2618",
-        "scroll_hov_hi": "#705d38",
-        "scroll_hov_lo": "#473a22",
-        "scroll_pre_hi": "#d4921e",
-        "scroll_pre_lo": "#915e0d",
-        "sel_bg": "#4f3a11",
-        "sel_border": "#f5c242",
-        "tag_hover_bg": "#403112",
-        "tag_hover_border": "#facb4d",
-        "tag_sel_bg": "#5e410f",
-        "tag_sel_border": "#ffe27a",
-        "beacon": "#ffda5c",
-        "svg_metal_1": "#ffea9e",
-        "svg_metal_2": "#eba92c",
-        "svg_metal_3": "#8c580b",
-        "svg_metal_4": "#362004",
-        "svg_body_1": "#383020",
-        "svg_body_2": "#1c1810",
-        "svg_body_3": "#0c0905",
-        "svg_bounce": "#ffd15e",
-        "svg_glass": "#fff8db",
-        "svg_rim": "#fac443",
-        "svg_watermark": "#d19d2c",
+        "tab_off_hi": "#201a10",
+        "tab_off_lo": "#120e08",
+        "tab_hov_hi": "#322918",
+        "tab_hov_lo": "#1d170e",
+        "tab_on_hi": "#40331b",
+        "tab_on_lo": "#231b0e",
+        "kicker": "#f2c14e",
+        "hdr_line": "#705929",
+        "hdr_dot": "#fac846",
+        "ok": "#7ad95f",
+        "warn": "#f7aa3b",
+        "err": "#f24c3d",
+        "info": "#74c9f0",
+        "deck_hi": "#261f13",
+        "deck_mid": "#19140c",
+        "deck_lo": "#0d0a06",
+        "scroll_bg": "#090703",
+        "scroll_hi": "#544528",
+        "scroll_lo": "#302716",
+        "scroll_hov_hi": "#786238",
+        "scroll_hov_lo": "#4a3c20",
+        "scroll_pre_hi": "#d9951c",
+        "scroll_pre_lo": "#8f5c0a",
+        "sel_bg": "#523b10",
+        "sel_border": "#f7c544",
+        "tag_hover_bg": "#423212",
+        "tag_hover_border": "#fccd4e",
+        "tag_sel_bg": "#61420d",
+        "tag_sel_border": "#ffe580",
+        "beacon": "#ffdc61",
+        "svg_metal_1": "#ffec9e",
+        "svg_metal_2": "#eda928",
+        "svg_metal_3": "#8c570a",
+        "svg_metal_4": "#361f03",
+        "svg_body_1": "#3a3120",
+        "svg_body_2": "#1c170f",
+        "svg_body_3": "#0b0804",
+        "svg_bounce": "#ffd461",
+        "svg_glass": "#fff8de",
+        "svg_rim": "#fcc744",
+        "svg_watermark": "#d9a32c",
     },
     "crimson": {
         "key": "crimson",
-        "label": "CRIMSON",
+        "label": "Crimson",
         "name": "Crimson Eclipse",
-        "hint": "Urushi pitch-black lacquer + razor shrine crimson (Babymetal / Blood-C / Kuon)",
-        "win": "#040404",
+        "hint": "Urushi mirror-black lacquer + arterial shrine crimson (Babymetal · Blood-C · Kuon)",
+        "win": "#040304",
         "win2": "#010101",
-        "plate_hi": "#171717",
-        "plate_lo": "#0d0d0d",
+        "plate_hi": "#161214",
+        "plate_lo": "#0b090a",
         "plate_edge": "#000000",
-        "plate_edge_top": "#3e3e3e",
-        "plate_edge_left": "#2a2a2a",
-        "deep": "#030303",
+        "plate_edge_top": "#452328",
+        "plate_edge_left": "#2b1619",
+        "deep": "#030203",
         "sunken_edge": "#000000",
-        "sunken_bot": "#262626",
-        "field_top": "#020202",
-        "field_bot": "#0b0b0b",
-        "text": "#f3f3f3",
-        "text_hi": "#ffffff",
-        "muted": "#b4b4b4",
-        "dim": "#6e6e6e",
-        "ghost": "#a3a3a3",
-        "line": "#252525",
-        "line_hi": "#474747",
-        "focus": "#ff1212",
-        "btn_hi": "#262626",
-        "btn_mid": "#171717",
-        "btn_lo": "#0d0d0d",
-        "btn_hov_hi": "#343434",
-        "btn_hov_mid": "#212121",
-        "btn_hov_lo": "#121212",
-        "btn_pre_hi": "#070707",
-        "btn_pre_lo": "#161616",
+        "sunken_bot": "#2d171b",
+        "field_top": "#020102",
+        "field_bot": "#0c0809",
+        "text": "#f5efea",
+        "text_hi": "#fffaf6",
+        "muted": "#bcaaa6",
+        "dim": "#736362",
+        "ghost": "#a89592",
+        "line": "#2c181b",
+        "line_hi": "#592229",
+        "focus": "#ff1a2c",
+        "btn_hi": "#261a1c",
+        "btn_mid": "#161011",
+        "btn_lo": "#0b0809",
+        "btn_hov_hi": "#3a1b20",
+        "btn_hov_mid": "#241114",
+        "btn_hov_lo": "#13090b",
+        "btn_pre_hi": "#080405",
+        "btn_pre_lo": "#1a0c0e",
         "btn_edge": "#000000",
-        "btn_edge_top": "#525252",
-        "btn_edge_hov": "#ff1414",
-        "acc_spec": "#ffa6a6",
-        "acc_hi": "#ff2222",
-        "acc_mid": "#db0000",
-        "acc_lo": "#8c0000",
-        "acc_deep": "#450000",
-        "acc_hov_hi": "#ff4242",
-        "acc_hov_mid": "#f20000",
-        "acc_hov_lo": "#a80000",
-        "acc_glow": "#ff0a0a",
-        "acc_text": "#ffffff",
-        "acc_edge": "#ff5959",
-        "acc_edge_lo": "#300000",
-        "tab_off_hi": "#151515",
-        "tab_off_lo": "#090909",
-        "tab_hov_hi": "#242424",
-        "tab_hov_lo": "#131313",
-        "tab_on_hi": "#2d0000",
-        "tab_on_lo": "#140000",
-        "kicker": "#ff2929",
-        "hdr_line": "#850000",
-        "hdr_dot": "#ff1212",
-        "ok": "#6fe364",
-        "warn": "#ff9e29",
-        "err": "#ff2424",
-        "info": "#80c9f7",
-        "deck_hi": "#191919",
-        "deck_mid": "#0e0e0e",
-        "deck_lo": "#050505",
-        "scroll_bg": "#030303",
-        "scroll_hi": "#3b3b3b",
-        "scroll_lo": "#1f1f1f",
-        "scroll_hov_hi": "#595959",
-        "scroll_hov_lo": "#333333",
-        "scroll_pre_hi": "#e80000",
-        "scroll_pre_lo": "#8f0000",
-        "sel_bg": "#520000",
-        "sel_border": "#ff1e1e",
-        "tag_hover_bg": "#300202",
-        "tag_hover_border": "#ff2222",
-        "tag_sel_bg": "#5e0000",
-        "tag_sel_border": "#ff4d4d",
-        "beacon": "#ff1e1e",
-        "svg_metal_1": "#ff8787",
-        "svg_metal_2": "#ff0a0a",
-        "svg_metal_3": "#8f0000",
-        "svg_metal_4": "#290000",
-        "svg_body_1": "#303030",
-        "svg_body_2": "#131313",
-        "svg_body_3": "#040404",
-        "svg_bounce": "#ff2e2e",
-        "svg_glass": "#ffffff",
-        "svg_rim": "#ff1414",
-        "svg_watermark": "#cc0000",
+        "btn_edge_top": "#632830",
+        "btn_edge_hov": "#ff2236",
+        "acc_spec": "#ffc2c8",
+        "acc_hi": "#ff283c",
+        "acc_mid": "#d90018",
+        "acc_lo": "#870010",
+        "acc_deep": "#420008",
+        "acc_hov_hi": "#ff4a5c",
+        "acc_hov_mid": "#f20a22",
+        "acc_hov_lo": "#a60013",
+        "acc_glow": "#ff142b",
+        "acc_text": "#fff8f8",
+        "acc_edge": "#ff6675",
+        "acc_edge_lo": "#300006",
+        "tab_off_hi": "#161012",
+        "tab_off_lo": "#090607",
+        "tab_hov_hi": "#291418",
+        "tab_hov_lo": "#140a0c",
+        "tab_on_hi": "#38060d",
+        "tab_on_lo": "#170205",
+        "kicker": "#ff3b4d",
+        "hdr_line": "#8f0a19",
+        "hdr_dot": "#ff1a2e",
+        "ok": "#6fe368",
+        "warn": "#ffa22e",
+        "err": "#ff293b",
+        "info": "#80cbf7",
+        "deck_hi": "#181113",
+        "deck_mid": "#0e090a",
+        "deck_lo": "#050304",
+        "scroll_bg": "#030203",
+        "scroll_hi": "#472227",
+        "scroll_lo": "#241114",
+        "scroll_hov_hi": "#6e2932",
+        "scroll_hov_lo": "#3b151a",
+        "scroll_pre_hi": "#eb0920",
+        "scroll_pre_lo": "#8c000f",
+        "sel_bg": "#590510",
+        "sel_border": "#ff2439",
+        "tag_hover_bg": "#36070e",
+        "tag_hover_border": "#ff2e42",
+        "tag_sel_bg": "#630512",
+        "tag_sel_border": "#ff5969",
+        "beacon": "#ff2438",
+        "svg_metal_1": "#ff99a3",
+        "svg_metal_2": "#ff1229",
+        "svg_metal_3": "#8f0010",
+        "svg_metal_4": "#290005",
+        "svg_body_1": "#2e1f22",
+        "svg_body_2": "#140c0e",
+        "svg_body_3": "#050203",
+        "svg_bounce": "#ff3347",
+        "svg_glass": "#fff5f6",
+        "svg_rim": "#ff2439",
+        "svg_watermark": "#cf061d",
     },
     "seestation": {
         "key": "seestation",
-        "label": "SEESTATION",
+        "label": "SeeStation",
         "name": "SeeStation",
         "hint": (
-            "Sony / SCE Japan Studio console lacquer — deep PlayStation sapphire-obsidian, "
-            "luminous XMB ice-blue glass & crisp OLED legibility (PS3 XMB / PS4 / PS Vita)"
+            "Sony / SCE Japan Studio console architecture — deep PlayStation midnight sapphire, "
+            "PS3 XMB silk-wave aurora, PS4 lightbar azure & PS Vita OLED glass legibility"
         ),
-        "win": "#070b13",
-        "win2": "#04070d",
-        "plate_hi": "#131c2c",
-        "plate_lo": "#0b111c",
-        "plate_edge": "#03060c",
-        "plate_edge_top": "#354b69",
-        "plate_edge_left": "#24354c",
-        "deep": "#050911",
-        "sunken_edge": "#020409",
-        "sunken_bot": "#213247",
-        "field_top": "#04070e",
-        "field_bot": "#0c1320",
-        "text": "#ecf2fa",
+        "win": "#050a14",
+        "win2": "#02050c",
+        "plate_hi": "#101d34",
+        "plate_lo": "#091222",
+        "plate_edge": "#02050b",
+        "plate_edge_top": "#3a5a85",
+        "plate_edge_left": "#223959",
+        "deep": "#040812",
+        "sunken_edge": "#02040a",
+        "sunken_bot": "#1f3554",
+        "field_top": "#030710",
+        "field_bot": "#0a1426",
+        "text": "#edf4fc",
         "text_hi": "#ffffff",
-        "muted": "#a3b8d1",
-        "dim": "#5f748c",
-        "ghost": "#8ea7c4",
-        "line": "#1d2a3d",
-        "line_hi": "#3b5270",
-        "focus": "#2b95ff",
-        "btn_hi": "#1a2538",
-        "btn_mid": "#121b2a",
-        "btn_lo": "#0a101a",
-        "btn_hov_hi": "#23334c",
-        "btn_hov_mid": "#182538",
-        "btn_hov_lo": "#0f1826",
-        "btn_pre_hi": "#070c14",
-        "btn_pre_lo": "#131d2d",
-        "btn_edge": "#03060c",
-        "btn_edge_top": "#4c678a",
-        "btn_edge_hov": "#3ca0ff",
-        "acc_spec": "#e3f3ff",
-        "acc_hi": "#4cb2ff",
-        "acc_mid": "#0f7ae5",
-        "acc_lo": "#074d9e",
-        "acc_deep": "#042c5c",
-        "acc_hov_hi": "#7ec9ff",
-        "acc_hov_mid": "#268ff7",
-        "acc_hov_lo": "#0d5cb5",
-        "acc_glow": "#2e9bff",
+        "muted": "#a3bddb",
+        "dim": "#617b9c",
+        "ghost": "#8faad0",
+        "line": "#1a2c47",
+        "line_hi": "#395a85",
+        "focus": "#38a8ff",
+        "btn_hi": "#162742",
+        "btn_mid": "#0f1c32",
+        "btn_lo": "#081020",
+        "btn_hov_hi": "#20385e",
+        "btn_hov_mid": "#152847",
+        "btn_hov_lo": "#0d1a30",
+        "btn_pre_hi": "#060d1a",
+        "btn_pre_lo": "#112038",
+        "btn_edge": "#02050c",
+        "btn_edge_top": "#4c72a3",
+        "btn_edge_hov": "#47b0ff",
+        "acc_spec": "#e8f6ff",
+        "acc_hi": "#54bcff",
+        "acc_mid": "#0070d1",
+        "acc_lo": "#05478f",
+        "acc_deep": "#032752",
+        "acc_hov_hi": "#85d0ff",
+        "acc_hov_mid": "#1f8ef2",
+        "acc_hov_lo": "#0a57ab",
+        "acc_glow": "#33a3ff",
         "acc_text": "#f7fbff",
-        "acc_edge": "#b3dcff",
-        "acc_edge_lo": "#052347",
-        "tab_off_hi": "#101826",
-        "tab_off_lo": "#080d16",
-        "tab_hov_hi": "#19263b",
-        "tab_hov_lo": "#0e1726",
-        "tab_on_hi": "#122b4d",
-        "tab_on_lo": "#0a1930",
-        "kicker": "#5cb6ff",
-        "hdr_line": "#1c548f",
-        "hdr_dot": "#3da2ff",
-        "ok": "#4ad98b",
-        "warn": "#ffb44d",
-        "err": "#ff5752",
-        "info": "#52b4ff",
-        "deck_hi": "#131e30",
-        "deck_mid": "#0c1422",
-        "deck_lo": "#070c16",
-        "scroll_bg": "#050810",
-        "scroll_hi": "#30445e",
-        "scroll_lo": "#192536",
-        "scroll_hov_hi": "#48658a",
-        "scroll_hov_lo": "#273952",
-        "scroll_pre_hi": "#1d86f2",
-        "scroll_pre_lo": "#084d9c",
-        "sel_bg": "#0d3d73",
-        "sel_border": "#42a4ff",
-        "tag_hover_bg": "#102845",
-        "tag_hover_border": "#57b3ff",
-        "tag_sel_bg": "#114882",
-        "tag_sel_border": "#94d0ff",
-        "beacon": "#3da2ff",
-        "svg_metal_1": "#d6ecff",
-        "svg_metal_2": "#3ca2ff",
-        "svg_metal_3": "#0e5ca8",
-        "svg_metal_4": "#041e3d",
-        "svg_body_1": "#1d2b42",
-        "svg_body_2": "#101929",
-        "svg_body_3": "#050912",
-        "svg_bounce": "#40a6ff",
-        "svg_glass": "#f5faff",
-        "svg_rim": "#4cb2ff",
-        "svg_watermark": "#2776c7",
+        "acc_edge": "#bce3ff",
+        "acc_edge_lo": "#042042",
+        "tab_off_hi": "#0e192b",
+        "tab_off_lo": "#070d18",
+        "tab_hov_hi": "#162845",
+        "tab_hov_lo": "#0c182c",
+        "tab_on_hi": "#103261",
+        "tab_on_lo": "#081b38",
+        "kicker": "#6ec2ff",
+        "hdr_line": "#1d5c9e",
+        "hdr_dot": "#47b2ff",
+        "ok": "#48de8f",
+        "warn": "#ffb852",
+        "err": "#ff5a54",
+        "info": "#59bcff",
+        "deck_hi": "#112038",
+        "deck_mid": "#0a1529",
+        "deck_lo": "#050b18",
+        "scroll_bg": "#040812",
+        "scroll_hi": "#2d496e",
+        "scroll_lo": "#172740",
+        "scroll_hov_hi": "#4870a3",
+        "scroll_hov_lo": "#243d61",
+        "scroll_pre_hi": "#1a88f5",
+        "scroll_pre_lo": "#074b99",
+        "sel_bg": "#0b3f7a",
+        "sel_border": "#4cb2ff",
+        "tag_hover_bg": "#0e2b4f",
+        "tag_hover_border": "#63bcff",
+        "tag_sel_bg": "#0e4d91",
+        "tag_sel_border": "#9ed6ff",
+        "beacon": "#47b2ff",
+        "svg_metal_1": "#def2ff",
+        "svg_metal_2": "#3da8ff",
+        "svg_metal_3": "#0957a8",
+        "svg_metal_4": "#031b38",
+        "svg_body_1": "#192d4a",
+        "svg_body_2": "#0d1a30",
+        "svg_body_3": "#040914",
+        "svg_bounce": "#4ab2ff",
+        "svg_glass": "#f7fbff",
+        "svg_rim": "#59bdff",
+        "svg_watermark": "#2578cf",
     },
 }
 
@@ -1725,22 +1725,149 @@ THEME_ORDER: Tuple[str, ...] = ("seestation", "gold", "crimson")
 C: Dict[str, str] = dict(THEMES["seestation"])
 
 THEME_UI: Dict[str, Dict[str, str]] = {
-    "gold": {"rad_lg": "1px", "rad_md": "1px", "rad_tab": "1px", "kick_ls": "2.1px", "btn_ls": "0.7px"},
-    "crimson": {"rad_lg": "0px", "rad_md": "0px", "rad_tab": "0px", "kick_ls": "2.8px", "btn_ls": "1.0px"},
-    "seestation": {"rad_lg": "7px", "rad_md": "5px", "rad_tab": "7px", "kick_ls": "1.3px", "btn_ls": "0.25px"},
+    "gold": {
+        "rad_lg": "1px", "rad_md": "1px", "rad_tab": "1px", "rad_pill": "1px",
+        "kick_ls": "0.8px", "btn_ls": "0.4px", "scroll_w": "13px",
+        "tab_accent": "border-top: 2px solid #f7c23e; border-bottom: 1px solid #141009;",
+        "panel_border": "border: 1px solid #4a3c20; border-top: 1px solid #7d683d;",
+        "focus_ring": "border: 1px solid #f7c23e;",
+    },
+    "crimson": {
+        "rad_lg": "0px", "rad_md": "0px", "rad_tab": "0px", "rad_pill": "0px",
+        "kick_ls": "0.9px", "btn_ls": "0.5px", "scroll_w": "13px",
+        "tab_accent": "border-top: 2px solid #ff1a2c; border-bottom: 1px solid #45060f;",
+        "panel_border": "border: 1px solid #3d181e; border-top: 1px solid #75222d;",
+        "focus_ring": "border: 1px solid #ff2438;",
+    },
+    "seestation": {
+        "rad_lg": "8px", "rad_md": "6px", "rad_tab": "8px", "rad_pill": "10px",
+        "kick_ls": "0.4px", "btn_ls": "0.2px", "scroll_w": "13px",
+        "tab_accent": "border-bottom: 2px solid #4cb2ff; border-top: 1px solid #4c72a3;",
+        "panel_border": "border: 1px solid #223959; border-top: 1px solid #4b72a6;",
+        "focus_ring": "border: 1px solid #59bdff;",
+    },
 }
+
+_THEME_BACKDROP_CACHE: Dict[Tuple[str, int, int], QPixmap] = {}
+
+
+def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str] = None) -> None:
+    """Cached, zero-lag signature backdrop per design language:
+    - SeeStation: authentic PS3 XMB luminous silk-ribbon aurora & soft bokeh dust
+    - Sarif Gold: Deus Ex HR obsidian carbon micro-triangle hex lattice + HUD frame
+    - Crimson Eclipse: Kuon / Blood-C urushi mirror lacquer + crimson mist & shrine lines
+    """
+    w, h = max(1, rect.width()), max(1, rect.height())
+    k = theme_key or C.get("key", "seestation")
+    ck = (k, w, h)
+    pm = _THEME_BACKDROP_CACHE.get(ck)
+    if pm is None:
+        pm = QPixmap(w, h)
+        p = QPainter(pm)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        bg = QLinearGradient(0, 0, 0, h)
+        if k == "seestation":
+            bg.setColorAt(0.0, QColor("#061124"))
+            bg.setColorAt(0.55, QColor("#040a17"))
+            bg.setColorAt(1.0, QColor("#02060f"))
+            p.fillRect(0, 0, w, h, bg)
+            # Iconic Sony PS3 XMB translucent diagonal silk wave ribbons
+            rad = QRadialGradient(w * 0.25, h * 0.18, max(w, h) * 0.72)
+            rad.setColorAt(0.0, QColor(0, 112, 209, 52))
+            rad.setColorAt(0.55, QColor(20, 75, 148, 20))
+            rad.setColorAt(1.0, QColor(0, 0, 0, 0))
+            p.fillRect(0, 0, w, h, rad)
+            for idx, (y0, amp, alpha, lw) in enumerate((
+                (0.36, 0.12, 34, 2.2),
+                (0.44, 0.16, 22, 1.4),
+                (0.54, 0.10, 18, 1.0),
+                (0.66, 0.14, 15, 0.9),
+            )):
+                ribbon = QPainterPath()
+                ribbon.moveTo(-20, h * y0)
+                ribbon.cubicTo(
+                    w * 0.28, h * (y0 - amp),
+                    w * 0.68, h * (y0 + amp * 1.15),
+                    w + 20, h * (y0 - amp * 0.45),
+                )
+                band = QPainterPath(ribbon)
+                band.lineTo(w + 20, h * (y0 + 0.12))
+                band.cubicTo(
+                    w * 0.66, h * (y0 + amp * 1.45),
+                    w * 0.28, h * (y0 - amp * 0.45),
+                    -20, h * (y0 + 0.10),
+                )
+                band.closeSubpath()
+                fg = QLinearGradient(0, h * (y0 - amp), 0, h * (y0 + amp + 0.14))
+                fg.setColorAt(0.0, QColor(84, 188, 255, alpha))
+                fg.setColorAt(0.55, QColor(0, 112, 209, int(alpha * 0.45)))
+                fg.setColorAt(1.0, QColor(0, 70, 150, 0))
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(fg)
+                p.drawPath(band)
+                p.setBrush(Qt.BrushStyle.NoBrush)
+                p.setPen(QPen(QColor(186, 232, 255, alpha + 22), lw))
+                p.drawPath(ribbon)
+            # Subtle Vita/PS4 floating glass dust motes
+            p.setPen(Qt.PenStyle.NoPen)
+            for mx, my, mr, ma in (
+                (0.14, 0.22, 2.1, 44), (0.31, 0.68, 1.6, 36), (0.58, 0.29, 2.4, 38),
+                (0.77, 0.48, 1.8, 42), (0.86, 0.21, 2.2, 34), (0.44, 0.81, 1.5, 30),
+                (0.22, 0.46, 1.3, 46), (0.69, 0.74, 2.0, 32),
+            ):
+                p.setBrush(QColor(196, 232, 255, ma))
+                p.drawEllipse(QPointF(w * mx, h * my), mr, mr)
+        elif k == "crimson":
+            bg.setColorAt(0.0, QColor("#090406"))
+            bg.setColorAt(0.55, QColor("#040203"))
+            bg.setColorAt(1.0, QColor("#010101"))
+            p.fillRect(0, 0, w, h, bg)
+            # Kuon / Blood-C subtle crimson shrine mist + fine urushi slash
+            mist = QRadialGradient(w * 0.72, h * 0.22, max(w, h) * 0.68)
+            mist.setColorAt(0.0, QColor(180, 0, 22, 42))
+            mist.setColorAt(0.55, QColor(85, 0, 12, 16))
+            mist.setColorAt(1.0, QColor(0, 0, 0, 0))
+            p.fillRect(0, 0, w, h, mist)
+            p.setPen(QPen(QColor(255, 32, 52, 26), 1.0))
+            p.drawLine(QPointF(14, 14), QPointF(w - 14, 14))
+            p.drawLine(QPointF(14, h - 14), QPointF(w - 14, h - 14))
+            p.setPen(QPen(QColor(220, 12, 32, 20), 1.4))
+            p.drawLine(QPointF(w * 0.65, 0), QPointF(w * 0.92, h))
+            p.drawLine(QPointF(w * 0.68, 0), QPointF(w * 0.95, h))
+        else:
+            bg.setColorAt(0.0, QColor("#0e0b06"))
+            bg.setColorAt(0.55, QColor("#090704"))
+            bg.setColorAt(1.0, QColor("#050402"))
+            p.fillRect(0, 0, w, h, bg)
+            # Deus Ex HR subtle triangular carbon-gold lattice
+            glow = QRadialGradient(w * 0.5, h * 0.35, max(w, h) * 0.65)
+            glow.setColorAt(0.0, QColor(218, 150, 26, 26))
+            glow.setColorAt(1.0, QColor(0, 0, 0, 0))
+            p.fillRect(0, 0, w, h, glow)
+            step = 36
+            p.setPen(QPen(QColor(215, 162, 52, 14), 0.8))
+            for y in range(0, h + step, step):
+                p.drawLine(0, y, w, y)
+            for x in range(-h, w + h, step):
+                p.drawLine(x, 0, x + h, h)
+                p.drawLine(x, h, x + h, 0)
+        p.end()
+        _THEME_BACKDROP_CACHE[ck] = pm
+        while len(_THEME_BACKDROP_CACHE) > 16:
+            _THEME_BACKDROP_CACHE.pop(next(iter(_THEME_BACKDROP_CACHE)))
+    painter.drawPixmap(rect.topLeft(), pm)
+
+
+def set_theme(name: str) -> None:
+    key = name if name in THEMES else "seestation"
+    C.clear()
+    C.update(THEMES[key])
+    _THEME_BACKDROP_CACHE.clear()
 
 
 def theme_name() -> str:
     return C["key"]
 
-
-def set_theme(name: str) -> str:
-    key = name if name in THEMES else "gold"
-    C.clear()
-    C.update(THEMES[key])
-    VECTOR_ASSETS.invalidate_theme()
-    return key
 
 # =============================================================================
 #  4. Late-2000s Glossy Lacquer Stylesheet (800x600 Optimized)
@@ -1805,10 +1932,7 @@ QToolTip {{
 
 QFrame#Plate {{
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['plate_hi']}, stop:1 {C['plate_lo']});
-    border-top: 1px solid {C['plate_edge_top']};
-    border-left: 1px solid {C['plate_edge_left']};
-    border-right: 1px solid {C['plate_edge']};
-    border-bottom: 1px solid {C['plate_edge']};
+    {U['panel_border']}
     border-radius: {U['rad_lg']};
 }}
 QFrame#Deck {{
@@ -1843,7 +1967,7 @@ QSplitter#VSplit::handle:hover {{
 QLabel#Kicker {{
     color: {C['kicker']};
     font-size: {f_xs}pt;
-    font-weight: bold;
+    font-weight: 600;
     letter-spacing: {U['kick_ls']};
 }}
 QLabel#Caption {{
@@ -3241,6 +3365,35 @@ _MINI_ICON_MOTIFS: Dict[str, str] = {
         "<path d='M5.8,18.6 L14.4,10.0 L15.6,11.2 L7.0,19.8 Z' fill='url(#glassArc)'/>"
     ),
     # ---- v4.0 new motifs ------------------------------------------------------
+    "flare_add": (
+        "<line x1='2.0' y1='12.0' x2='22.0' y2='12.0' stroke='url(#mGold)' stroke-width='2.4' stroke-linecap='round'/>"
+        "<circle cx='10.0' cy='12.0' r='3.6' fill='url(#coreGlow)' stroke='{}' stroke-width='1.1'/>"
+        "<path d='M18.0,4.5 L18.0,10.5 M15.0,7.5 L21.0,7.5' stroke='{}' stroke-width='2.1' stroke-linecap='round'/>"
+    ),
+    "solo": (
+        "<circle cx='12' cy='12' r='8.8' fill='url(#bodyLac)' stroke='url(#mGold)' stroke-width='2.0'/>"
+        "<circle cx='12' cy='12' r='3.8' fill='url(#coreGlow)'/>"
+    ),
+    "lock": (
+        "<rect x='5.2' y='10.6' width='13.6' height='9.8' rx='2.0' fill='url(#bodyLac)' stroke='url(#mGold)' stroke-width='2.0'/>"
+        "<path d='M8.2,10.6 L8.2,7.6 A3.8,3.8 0 0 1 15.8,7.6 L15.8,10.6' fill='none' stroke='{}' stroke-width='2.0' stroke-linecap='round'/>"
+        "<circle cx='12' cy='15.4' r='1.6' fill='url(#coreGlow)'/>"
+    ),
+    "unlock": (
+        "<rect x='5.2' y='10.6' width='13.6' height='9.8' rx='2.0' fill='url(#bodyLac)' stroke='url(#mGold)' stroke-width='2.0'/>"
+        "<path d='M8.2,10.6 L8.2,7.6 A3.8,3.8 0 0 1 15.4,6.2' fill='none' stroke='{}' stroke-width='2.0' stroke-linecap='round'/>"
+        "<circle cx='12' cy='15.4' r='1.6' fill='url(#coreGlow)'/>"
+    ),
+    "redo": (
+        "<path d='M12,3 A9,9 0 1 0 19.9,7.4' fill='none' stroke='url(#mGold)' stroke-width='2.4' stroke-linecap='round'/>"
+        "<path d='M21.4,3.2 L19.4,8 L14.6,6 Z' fill='url(#mVert)' stroke='{}' stroke-width='0.8'/>"
+        "<path d='M12,7.2 L12,12 L8.2,14.2' fill='none' stroke='{}' stroke-width='2.2' stroke-linecap='round'/>"
+    ),
+    "auto_fix": (
+        "<path d='M4.2,19.8 L14.4,9.6 L16.8,12.0 L6.6,22.2 Z' fill='url(#mVert)' stroke='{}' stroke-width='1.1'/>"
+        "<path d='M17.2,2.2 L18.3,5.8 L21.8,6.8 L18.3,7.8 L17.2,11.4 L16.1,7.8 L12.6,6.8 L16.1,5.8 Z' fill='url(#coreGlow)' stroke='{}' stroke-width='0.8'/>"
+        "<circle cx='8.4' cy='5.8' r='1.6' fill='url(#mGold)'/>"
+    ),
     "brush": (
         "<path d='M5.4,21.8 C7.8,21.4 9.0,20.2 9.2,18.2 L10.0,14.4 L13.6,18.0 L9.8,18.8 "
         "C7.8,19.0 6.8,20.0 5.4,21.8 Z' fill='url(#mGold)' stroke='{}' stroke-width='0.9' stroke-linejoin='round'/>"
@@ -4910,17 +5063,9 @@ def apply_edit_pipeline(
                 Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.FastTransformation,
             )
         result = _composite_masked(base.convertToFormat(QImage.Format.Format_RGB32), result, mask, invert_mask)
-    visible_flares = [f for f in (flares or []) if f.get("visible", True)]
+    visible_flares = _effective_visible_flares(flares)
     if visible_flares:
-        if _HAS_PIL and _PILImage is not None:
-            try:
-                pil = _qimg_to_pil(result.convertToFormat(QImage.Format.Format_RGB32)).convert("RGB")
-                pil = apply_flares_pil(pil, visible_flares)
-                result = _pil_to_qimg(pil).convertToFormat(QImage.Format.Format_RGB32)
-            except Exception:  # noqa: BLE001
-                result = apply_flares_qt(result, visible_flares)
-        else:
-            result = apply_flares_qt(result, visible_flares)
+        result = apply_flares_qt(result, visible_flares)
     return result, skipped
 
 
@@ -5221,7 +5366,7 @@ def build_side_by_side_edit(img: QImage) -> Tuple[QImage, QImage, int, int]:
 LUT_FILTERS: List[Dict[str, Any]] = [
     # ---- FIVE UNIVERSAL PHOTOGRAPHY CINEMA GRADES ---------------------------
     {
-        "key": "teal_orange", "name": "CINE TEAL & AMBER", "group": "photo",
+        "key": "teal_orange", "name": "Cine Teal & Amber", "group": "photo",
         "swatch": ("#0f3b4a", "#e69445"),
         "hint": "Kodak 2383 theatrical print look — deep cyan-slate shadows, natural golden "
                 "skin midtones, warm amber highlights & subtle crimson-orange film halation.",
@@ -5233,7 +5378,7 @@ LUT_FILTERS: List[Dict[str, Any]] = [
         "halation": 0.32, "hal_color": (255, 130, 82),
     },
     {
-        "key": "nordic_noir", "name": "SILVER NORDIC NOIR", "group": "photo",
+        "key": "nordic_noir", "name": "Silver Nordic Noir", "group": "photo",
         "swatch": ("#152232", "#c8d6e6"),
         "hint": "Bleach-bypass Nordic cinema — cool slate-cobalt shadows, tactile silver "
                 "midtones, controlled highlights & crisp atmosphere. Ideal for rain & architecture.",
@@ -5245,7 +5390,7 @@ LUT_FILTERS: List[Dict[str, Any]] = [
         "halation": 0.14, "hal_color": (185, 215, 255),
     },
     {
-        "key": "tokyo_night", "name": "SHINJUKU NEON 800T", "group": "photo",
+        "key": "tokyo_night", "name": "Shinjuku Neon 800T", "group": "photo",
         "swatch": ("#0b2240", "#ff6ea8"),
         "hint": "CineStill 800T midnight Tokyo stock — deep emerald-indigo wet shadows, "
                 "electric cyan & tungsten-magenta practical lights, signature red-pink halation.",
@@ -5257,7 +5402,7 @@ LUT_FILTERS: List[Dict[str, Any]] = [
         "halation": 0.48, "hal_color": (255, 92, 138),
     },
     {
-        "key": "portra_warm", "name": "PORTRA 400 SILK", "group": "photo",
+        "key": "portra_warm", "name": "Portra 400 Silk", "group": "photo",
         "swatch": ("#3c2b22", "#ffd5ad"),
         "hint": "Japanese editorial medium-format film — velvety lifted blacks, luminous "
                 "peach-ivory skin tones, feather-soft highlight shoulder. Universally flattering.",
@@ -5269,7 +5414,7 @@ LUT_FILTERS: List[Dict[str, Any]] = [
         "halation": 0.24, "hal_color": (255, 198, 152),
     },
     {
-        "key": "velvet_gold", "name": "KYOTO GOLDEN HOUR", "group": "photo",
+        "key": "velvet_gold", "name": "Kyoto Golden Hour", "group": "photo",
         "swatch": ("#2e1c0e", "#ffca70"),
         "hint": "Late-afternoon autumn cinema — rich espresso-bronze shadows, warm honeyed "
                 "highlights & sun-drenched golden optical bloom for sunsets and interiors.",
@@ -5282,7 +5427,7 @@ LUT_FILTERS: List[Dict[str, Any]] = [
     },
     # ---- FIVE UNIVERSAL ANIME / ILLUSTRATION GRADES -------------------------
     {
-        "key": "sakura_soft", "name": "SHINKAI SAKURA AIR", "group": "anime",
+        "key": "sakura_soft", "name": "Shinkai Sakura Air", "group": "anime",
         "swatch": ("#3b2a4a", "#ffc7d8"),
         "hint": "Modern anime theatrical key-visual — transparent twilight-blue shadow lift, "
                 "luminous petal-pink highlights & ethereal airy sky bloom without washing out ink.",
@@ -5294,7 +5439,7 @@ LUT_FILTERS: List[Dict[str, Any]] = [
         "halation": 0.34, "hal_color": (255, 190, 212),
     },
     {
-        "key": "pastel_field", "name": "GHIBLI MEADOW DAY", "group": "anime",
+        "key": "pastel_field", "name": "Ghibli Meadow Day", "group": "anime",
         "swatch": ("#243d34", "#e8ffd4"),
         "hint": "Hand-painted anime countryside daylight — botanical emerald-teal greens, "
                 "sunlit cream sky highlights, delicate contrast that keeps watercolor textures pure.",
@@ -5343,7 +5488,7 @@ LUT_FILTERS: List[Dict[str, Any]] = [
     },
 ]
 LUT_FILTER_BY_KEY: Dict[str, Dict[str, Any]] = {f["key"]: f for f in LUT_FILTERS}
-LUT_GROUP_LABELS: Dict[str, str] = {"photo": "PHOTO", "anime": "ANIME"}
+LUT_GROUP_LABELS: Dict[str, str] = {"photo": "Photo", "anime": "Anime"}
 
 
 def _lut_filmic_tone(s_curve: float, shoulder: float = 0.0, lift: float = 0.0) -> List[int]:
@@ -5488,7 +5633,13 @@ def _apply_lut_filter_qt(img: QImage, spec: Dict[str, Any], intensity: int) -> Q
 
 
 # =============================================================================
-#  6e. Wide Anamorphic Lens Flare Engine (v5.0 VFX — 12 Diverse Zero-Border Flares)
+#  6e. Wide Anamorphic Lens Flare Engine (v6.0 Pure-Vector Natural Cinema Optics)
+#      - 16 diverse, strictly horizontal wide-anamorphic optical presets
+#      - Pure vector QPainter rendering (QRadialGradient / QLinearGradient /
+#        QPainterPath iris geometry) with smooth zero-border Gaussian rolloff
+#      - Multi-color dual-hue control (`hue` primary + `hue2` accent/ghost/prism)
+#      - Zero rotation (true cylindrical horizontal anamorphic behavior)
+#      - Per-flare layer caching for butter-smooth multi-flare interaction
 # =============================================================================
 try:
     _PIL_FLIP_H = _PILImage.Transpose.FLIP_LEFT_RIGHT
@@ -5504,136 +5655,175 @@ except Exception:
 
 FLARE_PRESETS: List[Dict[str, Any]] = [
     {
-        "key": "azure_blade", "name": "SONY CINE AZURE", "hue": 212, "sat": 0.86,
-        "streak_style": "gaussian", "streak_len": 1.24, "streak_thick": 0.017, "streak_str": 0.94,
-        "core_r": 0.085, "core_str": 0.90, "core_oval": 0.62, "hot_line": True,
-        "dual_streak": False, "star_rays": 0, "prism_wings": 0.18,
-        "halo_ring": (0.17, 0.020, 0.30, 1.38),
-        "ghost_shape": "oval", "ghosts": [(0.34, 0.055, 0.34), (0.64, 0.075, 0.24), (0.88, 0.042, 0.30)],
-        "ghost_hue": 32, "ghost_sat": 0.58, "chroma": 0.58,
-        "hint": "Sony Venice / Panavision cobalt anamorphic blade with 2x oval bokeh, lens ring & amber ghosts.",
+        "key": "azure_blade", "name": "Sony Venice Azure", "hue": 212, "hue2": 32, "sat": 0.84, "sat2": 0.68,
+        "multi_color": True, "streak_style": "satin", "streak_len": 1.28, "streak_thick": 0.016, "streak_str": 0.92,
+        "core_r": 0.082, "core_str": 0.88, "core_oval": 0.58, "hot_line": True,
+        "dual_rail": False, "star_rays": 0, "prism_wings": 0.24, "veil": 0.16,
+        "halo_ring": (0.18, 0.018, 0.28, 1.40),
+        "ghost_shape": "oval", "ghosts": [(0.34, 0.056, 0.34), (0.64, 0.074, 0.24), (0.90, 0.040, 0.28)],
+        "chroma": 0.54,
+        "hint": "Sony CineAlta cobalt anamorphic ribbon with 2x oval bokeh, soft veil & warm amber counter-ghosts.",
     },
     {
-        "key": "amber_scope", "name": "PANAVISION AMBER", "hue": 34, "sat": 0.90,
-        "streak_style": "ribbon", "streak_len": 1.10, "streak_thick": 0.018, "streak_str": 0.86,
-        "core_r": 0.080, "core_str": 0.85, "core_oval": 0.78, "hot_line": True,
-        "dual_streak": False, "star_rays": 0, "prism_wings": 0.14,
-        "halo_ring": (0.21, 0.026, 0.24, 1.15),
-        "ghost_shape": "hex", "ghosts": [(0.38, 0.058, 0.32), (0.72, 0.046, 0.26), (1.02, 0.032, 0.20)],
-        "ghost_hue": -16, "ghost_sat": 0.62, "chroma": 0.48,
-        "hint": "Warm tungsten cinemascope ribbon with hexagonal aperture iris ghosts & golden lens arc.",
+        "key": "amber_scope", "name": "Panavision C-Series Amber", "hue": 34, "hue2": 18, "sat": 0.88, "sat2": 0.70,
+        "multi_color": False, "streak_style": "satin", "streak_len": 1.14, "streak_thick": 0.018, "streak_str": 0.86,
+        "core_r": 0.078, "core_str": 0.84, "core_oval": 0.72, "hot_line": True,
+        "dual_rail": False, "star_rays": 0, "prism_wings": 0.14, "veil": 0.20,
+        "halo_ring": (0.21, 0.022, 0.24, 1.22),
+        "ghost_shape": "hex", "ghosts": [(0.38, 0.058, 0.32), (0.72, 0.046, 0.25), (1.02, 0.032, 0.18)],
+        "chroma": 0.44,
+        "hint": "Classic tungsten cinemascope golden sweep with 6-blade hexagonal aperture iris ghosts.",
     },
     {
-        "key": "twin_horizon", "name": "TWIN HORIZON BEAM", "hue": 202, "sat": 0.82,
-        "streak_style": "razor", "streak_len": 1.38, "streak_thick": 0.013, "streak_str": 0.88,
-        "core_r": 0.068, "core_str": 0.82, "core_oval": 0.54, "hot_line": True,
-        "dual_streak": True, "dual_offset": 0.018, "star_rays": 4, "prism_wings": 0.22,
-        "halo_ring": (0.24, 0.016, 0.26, 1.55),
-        "ghost_shape": "oval", "ghosts": [(0.44, 0.062, 0.28), (0.82, 0.045, 0.22)],
-        "ghost_hue": 42, "ghost_sat": 0.55, "chroma": 0.50,
-        "hint": "Dual parallel horizon razor beams, crisp 4-point sparkle & stretched anamorphic halo ring.",
+        "key": "tokyo_pulse", "name": "Shinjuku Cyan-Magenta", "hue": 186, "hue2": 324, "sat": 0.94, "sat2": 0.90,
+        "multi_color": True, "streak_style": "harmonic", "streak_len": 1.24, "streak_thick": 0.015, "streak_str": 0.92,
+        "core_r": 0.074, "core_str": 0.86, "core_oval": 0.54, "hot_line": True,
+        "dual_rail": True, "dual_offset": 0.013, "star_rays": 0, "prism_wings": 0.56, "veil": 0.14,
+        "halo_ring": (0.19, 0.016, 0.26, 1.48),
+        "ghost_shape": "hex", "ghosts": [(0.28, 0.052, 0.40), (0.58, 0.070, 0.30), (0.92, 0.044, 0.34)],
+        "chroma": 0.78,
+        "hint": "Dual-hue electric cyan streak paired with neon magenta wings & hex bokeh for Tokyo night scenes.",
     },
     {
-        "key": "prism_spectrum", "name": "PRISM CHROMA ARC", "hue": 196, "sat": 0.88,
-        "streak_style": "gaussian", "streak_len": 1.28, "streak_thick": 0.019, "streak_str": 0.88,
-        "core_r": 0.088, "core_str": 0.90, "core_oval": 0.70, "hot_line": True,
-        "dual_streak": False, "star_rays": 0, "prism_wings": 0.85,
-        "halo_ring": (0.20, 0.028, 0.36, 1.32),
-        "ghost_shape": "ring", "ghosts": [(0.32, 0.065, 0.34), (0.60, 0.082, 0.26), (0.90, 0.052, 0.30)],
-        "ghost_hue": 95, "ghost_sat": 0.78, "chroma": 0.90,
-        "hint": "Wide anamorphic ribbon with spectral rainbow prism side wings & hollow prismatic ghost rings.",
+        "key": "prism_spectrum", "name": "Prism Spectrum Arc", "hue": 200, "hue2": 310, "sat": 0.88, "sat2": 0.86,
+        "multi_color": True, "streak_style": "prism_split", "streak_len": 1.32, "streak_thick": 0.018, "streak_str": 0.90,
+        "core_r": 0.086, "core_str": 0.88, "core_oval": 0.66, "hot_line": True,
+        "dual_rail": False, "star_rays": 0, "prism_wings": 0.92, "veil": 0.18,
+        "halo_ring": (0.21, 0.024, 0.34, 1.34),
+        "ghost_shape": "ring", "ghosts": [(0.32, 0.064, 0.34), (0.60, 0.080, 0.26), (0.90, 0.050, 0.30)],
+        "chroma": 0.92,
+        "hint": "Multi-color chromatic dispersion ribbon with spectral rainbow side-wings & hollow glass rings.",
     },
     {
-        "key": "tokyo_pulse", "name": "SHINJUKU CYBER PULSE", "hue": 184, "sat": 0.96,
-        "streak_style": "harmonic", "streak_len": 1.18, "streak_thick": 0.016, "streak_str": 0.92,
-        "core_r": 0.075, "core_str": 0.86, "core_oval": 0.56, "hot_line": True,
-        "dual_streak": True, "dual_offset": 0.012, "star_rays": 0, "prism_wings": 0.42,
-        "halo_ring": None,
-        "ghost_shape": "hex", "ghosts": [(0.28, 0.052, 0.42), (0.58, 0.072, 0.32), (0.92, 0.044, 0.36)],
-        "ghost_hue": 136, "ghost_sat": 0.88, "chroma": 0.76,
-        "hint": "Electric cyan harmonic ribbed streak with vivid magenta hexagonal ghosts for Tokyo night scenes.",
+        "key": "twin_horizon", "name": "Twin Horizon Razor", "hue": 204, "hue2": 42, "sat": 0.80, "sat2": 0.64,
+        "multi_color": True, "streak_style": "dual_rail", "streak_len": 1.42, "streak_thick": 0.012, "streak_str": 0.88,
+        "core_r": 0.066, "core_str": 0.82, "core_oval": 0.52, "hot_line": True,
+        "dual_rail": True, "dual_offset": 0.019, "star_rays": 4, "prism_wings": 0.24, "veil": 0.12,
+        "halo_ring": (0.24, 0.014, 0.26, 1.56),
+        "ghost_shape": "oval", "ghosts": [(0.44, 0.060, 0.28), (0.82, 0.044, 0.22)],
+        "chroma": 0.52,
+        "hint": "Parallel twin horizontal cinema rails, crisp 4-point diffraction star & warm amber counter-ovals.",
     },
     {
-        "key": "crimson_lance", "name": "CRIMSON DUAL LANCE", "hue": 357, "sat": 0.94,
-        "streak_style": "razor", "streak_len": 1.34, "streak_thick": 0.014, "streak_str": 0.92,
-        "core_r": 0.064, "core_str": 0.84, "core_oval": 0.58, "hot_line": True,
-        "dual_streak": True, "dual_offset": 0.016, "star_rays": 4, "prism_wings": 0.16,
-        "halo_ring": (0.16, 0.018, 0.32, 1.45),
+        "key": "crimson_lance", "name": "Crimson Katana Lance", "hue": 356, "hue2": 28, "sat": 0.94, "sat2": 0.78,
+        "multi_color": True, "streak_style": "razor", "streak_len": 1.38, "streak_thick": 0.013, "streak_str": 0.94,
+        "core_r": 0.064, "core_str": 0.86, "core_oval": 0.56, "hot_line": True,
+        "dual_rail": True, "dual_offset": 0.015, "star_rays": 4, "prism_wings": 0.20, "veil": 0.15,
+        "halo_ring": (0.16, 0.016, 0.30, 1.46),
         "ghost_shape": "ring", "ghosts": [(0.40, 0.052, 0.32), (0.78, 0.038, 0.26)],
-        "ghost_hue": -22, "ghost_sat": 0.68, "chroma": 0.42,
-        "hint": "Razor arterial-crimson dual anamorphic lance with 4-point diffraction star & hollow ruby rings.",
+        "chroma": 0.44,
+        "hint": "Razor arterial-crimson dual lance with ember-gold secondary edge & ruby lens halo.",
     },
     {
-        "key": "sakura_bloom", "name": "SAKURA ANAMORPHIC", "hue": 342, "sat": 0.62,
-        "streak_style": "ribbon", "streak_len": 1.12, "streak_thick": 0.022, "streak_str": 0.82,
-        "core_r": 0.110, "core_str": 0.88, "core_oval": 0.64, "hot_line": True,
-        "dual_streak": False, "star_rays": 0, "prism_wings": 0.24,
-        "halo_ring": (0.22, 0.032, 0.26, 1.24),
-        "ghost_shape": "oval", "ghosts": [(0.36, 0.072, 0.30), (0.70, 0.056, 0.24), (0.98, 0.042, 0.20)],
-        "ghost_hue": 24, "ghost_sat": 0.48, "chroma": 0.36,
-        "hint": "Dreamy pastel rose-peach wide anamorphic wash with tall soft oval bokeh for anime & portraits.",
+        "key": "sakura_bloom", "name": "Sakura Dual-Tone", "hue": 342, "hue2": 26, "sat": 0.66, "sat2": 0.56,
+        "multi_color": True, "streak_style": "caustic_wave", "streak_len": 1.18, "streak_thick": 0.022, "streak_str": 0.82,
+        "core_r": 0.105, "core_str": 0.86, "core_oval": 0.62, "hot_line": True,
+        "dual_rail": False, "star_rays": 0, "prism_wings": 0.30, "veil": 0.26,
+        "halo_ring": (0.22, 0.028, 0.24, 1.24),
+        "ghost_shape": "oval", "ghosts": [(0.36, 0.070, 0.28), (0.70, 0.054, 0.22), (0.98, 0.040, 0.18)],
+        "chroma": 0.38,
+        "hint": "Delicate rose-petal and warm peach wide anamorphic wash tailored for portraits and anime key visuals.",
     },
     {
-        "key": "icy_halo", "name": "ICE CRYSTAL STAR", "hue": 198, "sat": 0.42,
-        "streak_style": "razor", "streak_len": 1.02, "streak_thick": 0.012, "streak_str": 0.82,
-        "core_r": 0.125, "core_str": 0.96, "core_oval": 0.85, "hot_line": True,
-        "dual_streak": False, "star_rays": 6, "prism_wings": 0.28,
-        "halo_ring": (0.18, 0.020, 0.30, 1.22),
-        "ghost_shape": "ring", "ghosts": [(0.44, 0.078, 0.24), (0.82, 0.048, 0.20)],
-        "ghost_hue": 8, "ghost_sat": 0.30, "chroma": 0.34,
-        "hint": "Crystalline ice-blue wide bar paired with a sharp 6-point optical diffraction starburst.",
+        "key": "icy_halo", "name": "Ice Crystal Star-Bar", "hue": 198, "hue2": 225, "sat": 0.46, "sat2": 0.62,
+        "multi_color": False, "streak_style": "taper_needle", "streak_len": 1.12, "streak_thick": 0.011, "streak_str": 0.84,
+        "core_r": 0.118, "core_str": 0.94, "core_oval": 0.82, "hot_line": True,
+        "dual_rail": False, "star_rays": 6, "prism_wings": 0.28, "veil": 0.16,
+        "halo_ring": (0.18, 0.018, 0.28, 1.24),
+        "ghost_shape": "ring", "ghosts": [(0.44, 0.074, 0.24), (0.82, 0.046, 0.20)],
+        "chroma": 0.34,
+        "hint": "Tapered crystal-blue horizontal bar with 6-point optical star diffraction & sapphire halo.",
     },
     {
-        "key": "emerald_ghost", "name": "EMERALD OPTICS", "hue": 152, "sat": 0.86,
-        "streak_style": "harmonic", "streak_len": 1.15, "streak_thick": 0.015, "streak_str": 0.88,
-        "core_r": 0.076, "core_str": 0.82, "core_oval": 0.60, "hot_line": True,
-        "dual_streak": False, "star_rays": 0, "prism_wings": 0.34,
-        "halo_ring": (0.19, 0.022, 0.28, 1.36),
-        "ghost_shape": "oct", "ghosts": [(0.36, 0.062, 0.36), (0.72, 0.050, 0.28)],
-        "ghost_hue": 54, "ghost_sat": 0.56, "chroma": 0.52,
-        "hint": "Sci-fi emerald-cyan harmonic ribbed wide streak with octagonal iris ghosts & jade lens halo.",
+        "key": "emerald_ghost", "name": "Emerald Optics Hex", "hue": 154, "hue2": 208, "sat": 0.84, "sat2": 0.72,
+        "multi_color": True, "streak_style": "harmonic", "streak_len": 1.18, "streak_thick": 0.015, "streak_str": 0.88,
+        "core_r": 0.074, "core_str": 0.82, "core_oval": 0.58, "hot_line": True,
+        "dual_rail": False, "star_rays": 0, "prism_wings": 0.38, "veil": 0.16,
+        "halo_ring": (0.19, 0.020, 0.28, 1.38),
+        "ghost_shape": "oct", "ghosts": [(0.36, 0.062, 0.34), (0.72, 0.050, 0.26)],
+        "chroma": 0.52,
+        "hint": "Multi-coated vintage emerald-cyan ribbed streak with 8-blade octagonal aperture ghosts.",
     },
     {
-        "key": "solar_flare", "name": "SOLAR CORONA WIDE", "hue": 42, "sat": 0.78,
-        "streak_style": "ribbon", "streak_len": 1.46, "streak_thick": 0.024, "streak_str": 0.98,
-        "core_r": 0.130, "core_str": 1.00, "core_oval": 0.76, "hot_line": True,
-        "dual_streak": True, "dual_offset": 0.020, "star_rays": 6, "prism_wings": 0.45,
-        "halo_ring": (0.26, 0.030, 0.34, 1.28),
-        "ghost_shape": "hex", "ghosts": [(0.32, 0.075, 0.32), (0.58, 0.092, 0.22), (0.88, 0.054, 0.28)],
-        "ghost_hue": -26, "ghost_sat": 0.66, "chroma": 0.60,
-        "hint": "Full-power golden solar climax — sweeping wide anamorphic corona, 6-ray star & hex cascade.",
+        "key": "solar_flare", "name": "Solar Corona Sweep", "hue": 40, "hue2": 14, "sat": 0.80, "sat2": 0.86,
+        "multi_color": True, "streak_style": "caustic_wave", "streak_len": 1.48, "streak_thick": 0.024, "streak_str": 0.96,
+        "core_r": 0.126, "core_str": 0.98, "core_oval": 0.74, "hot_line": True,
+        "dual_rail": True, "dual_offset": 0.020, "star_rays": 6, "prism_wings": 0.46, "veil": 0.30,
+        "halo_ring": (0.26, 0.026, 0.32, 1.30),
+        "ghost_shape": "hex", "ghosts": [(0.32, 0.074, 0.30), (0.58, 0.088, 0.22), (0.88, 0.052, 0.26)],
+        "chroma": 0.58,
+        "hint": "Full-frame golden sunset anamorphic climax with warm tangerine corona & hex aperture cascade.",
     },
     {
-        "key": "violet_reverie", "name": "NOCTURNE STAGE FLARE", "hue": 274, "sat": 0.82,
-        "streak_style": "gaussian", "streak_len": 1.20, "streak_thick": 0.017, "streak_str": 0.88,
-        "core_r": 0.090, "core_str": 0.86, "core_oval": 0.56, "hot_line": True,
-        "dual_streak": True, "dual_offset": 0.014, "star_rays": 4, "prism_wings": 0.48,
-        "halo_ring": (0.18, 0.022, 0.28, 1.42),
-        "ghost_shape": "oval", "ghosts": [(0.34, 0.064, 0.32), (0.68, 0.054, 0.26), (0.96, 0.040, 0.30)],
-        "ghost_hue": -52, "ghost_sat": 0.72, "chroma": 0.64,
-        "hint": "Concert & idol-stage violet wide ribbon with twin oval pink-cyan bokeh & crisp star spikes.",
+        "key": "violet_reverie", "name": "Nocturne Violet-Cyan", "hue": 274, "hue2": 188, "sat": 0.84, "sat2": 0.82,
+        "multi_color": True, "streak_style": "prism_split", "streak_len": 1.24, "streak_thick": 0.016, "streak_str": 0.88,
+        "core_r": 0.088, "core_str": 0.86, "core_oval": 0.56, "hot_line": True,
+        "dual_rail": True, "dual_offset": 0.014, "star_rays": 4, "prism_wings": 0.54, "veil": 0.18,
+        "halo_ring": (0.18, 0.020, 0.28, 1.44),
+        "ghost_shape": "oval", "ghosts": [(0.34, 0.064, 0.32), (0.68, 0.052, 0.26), (0.96, 0.040, 0.28)],
+        "chroma": 0.66,
+        "hint": "Concert & stage violet horizontal beam split with luminous aqua-cyan wings & twin ovals.",
     },
     {
-        "key": "white_star", "name": "SILVER CINESCOPE", "hue": 216, "sat": 0.14,
-        "streak_style": "razor", "streak_len": 1.16, "streak_thick": 0.012, "streak_str": 0.84,
-        "core_r": 0.095, "core_str": 0.94, "core_oval": 0.72, "hot_line": True,
-        "dual_streak": False, "star_rays": 4, "prism_wings": 0.12,
-        "halo_ring": (0.17, 0.018, 0.24, 1.30),
-        "ghost_shape": "ring", "ghosts": [(0.48, 0.060, 0.24), (0.84, 0.040, 0.20)],
-        "ghost_hue": 0, "ghost_sat": 0.12, "chroma": 0.24,
-        "hint": "Ultra-clean platinum-white wide anamorphic bar with subtle glass ring — fits any lighting.",
+        "key": "white_star", "name": "Silver Cinescope", "hue": 216, "hue2": 200, "sat": 0.14, "sat2": 0.22,
+        "multi_color": False, "streak_style": "taper_needle", "streak_len": 1.22, "streak_thick": 0.011, "streak_str": 0.86,
+        "core_r": 0.092, "core_str": 0.92, "core_oval": 0.70, "hot_line": True,
+        "dual_rail": False, "star_rays": 4, "prism_wings": 0.12, "veil": 0.14,
+        "halo_ring": (0.17, 0.016, 0.22, 1.32),
+        "ghost_shape": "ring", "ghosts": [(0.48, 0.058, 0.22), (0.84, 0.038, 0.18)],
+        "chroma": 0.22,
+        "hint": "Neutral platinum-white anamorphic needle bar with clean optical ring — fits any photo naturally.",
+    },
+    {
+        "key": "kowa_copper", "name": "Kowa Copper Anamorphic", "hue": 24, "hue2": 196, "sat": 0.86, "sat2": 0.72,
+        "multi_color": True, "streak_style": "satin", "streak_len": 1.34, "streak_thick": 0.017, "streak_str": 0.90,
+        "core_r": 0.080, "core_str": 0.84, "core_oval": 0.56, "hot_line": True,
+        "dual_rail": False, "star_rays": 0, "prism_wings": 0.34, "veil": 0.22,
+        "halo_ring": (0.20, 0.022, 0.26, 1.38),
+        "ghost_shape": "crescent", "ghosts": [(0.36, 0.066, 0.34), (0.74, 0.054, 0.24)],
+        "chroma": 0.56,
+        "hint": "Vintage 1970s Japanese Kowa Prominar copper-amber streak with teal-blue crescent barrel ghosts.",
+    },
+    {
+        "key": "eclipse_crescent", "name": "Eclipse Crescent Halo", "hue": 220, "hue2": 46, "sat": 0.78, "sat2": 0.84,
+        "multi_color": True, "streak_style": "razor", "streak_len": 1.30, "streak_thick": 0.013, "streak_str": 0.88,
+        "core_r": 0.072, "core_str": 0.84, "core_oval": 0.62, "hot_line": True,
+        "dual_rail": False, "star_rays": 0, "prism_wings": 0.32, "veil": 0.18,
+        "halo_ring": (0.25, 0.024, 0.38, 1.36),
+        "ghost_shape": "crescent", "ghosts": [(0.30, 0.072, 0.36), (0.62, 0.058, 0.28), (0.94, 0.044, 0.24)],
+        "chroma": 0.60,
+        "hint": "Wide cobalt horizon blade framed by a luminous dual-tone crescent ring & gold-rimmed arc ghosts.",
+    },
+    {
+        "key": "amber_cyan_split", "name": "Amber-Cyan Cinema Split", "hue": 36, "hue2": 196, "sat": 0.90, "sat2": 0.88,
+        "multi_color": True, "streak_style": "prism_split", "streak_len": 1.36, "streak_thick": 0.016, "streak_str": 0.92,
+        "core_r": 0.084, "core_str": 0.88, "core_oval": 0.58, "hot_line": True,
+        "dual_rail": True, "dual_offset": 0.014, "star_rays": 0, "prism_wings": 0.68, "veil": 0.20,
+        "halo_ring": (0.20, 0.018, 0.28, 1.42),
+        "ghost_shape": "triplet", "ghosts": [(0.32, 0.056, 0.34), (0.64, 0.068, 0.28), (0.92, 0.042, 0.26)],
+        "chroma": 0.72,
+        "hint": "Signature dual-hue blockbuster split: golden core & left wing transitioning into cool cyan optics.",
+    },
+    {
+        "key": "neon_cross_wash", "name": "Neon Tri-Band Wash", "hue": 172, "hue2": 308, "sat": 0.92, "sat2": 0.88,
+        "multi_color": True, "streak_style": "harmonic", "streak_len": 1.40, "streak_thick": 0.019, "streak_str": 0.90,
+        "core_r": 0.078, "core_str": 0.84, "core_oval": 0.54, "hot_line": True,
+        "dual_rail": True, "dual_offset": 0.016, "star_rays": 4, "prism_wings": 0.74, "veil": 0.22,
+        "halo_ring": (0.22, 0.020, 0.30, 1.50),
+        "ghost_shape": "triplet", "ghosts": [(0.28, 0.058, 0.36), (0.58, 0.072, 0.28), (0.88, 0.048, 0.30)],
+        "chroma": 0.84,
+        "hint": "Three-band multi-color horizontal diffraction bar with vibrant mint-cyan & violet-pink bokeh cascade.",
     },
 ]
 FLARE_PRESET_BY_KEY: Dict[str, Dict[str, Any]] = {f["key"]: f for f in FLARE_PRESETS}
 DEFAULT_FLARE_STATE: Dict[str, Any] = {
     "scale": 100, "brightness": 100, "saturation": 100, "stretch": 100,
-    "hue": 0, "contrast": 0, "angle": 0, "visible": True,
+    "hue": 0, "hue2": 0, "contrast": 0, "opacity": 100,
+    "visible": True, "locked": False, "solo": False,
 }
 
-_FLARE_CACHE: Dict[Tuple[Any, ...], Any] = {}
-_FLARE_CACHE_MAX = 18
-_FLARE_MASK_CACHE: Dict[Tuple[Any, ...], Any] = {}
-_FLARE_MASK_CACHE_MAX = 48
+_FLARE_VEC_CACHE: Dict[Tuple[Any, ...], QImage] = {}
+_FLARE_VEC_CACHE_MAX = 24
 
 
 def _flare_rgb(hue: float, sat: float, val: float = 1.0) -> Tuple[int, int, int]:
@@ -5644,332 +5834,336 @@ def _flare_rgb(hue: float, sat: float, val: float = 1.0) -> Tuple[int, int, int]
     return (int(round(r * 255)), int(round(g * 255)), int(round(b * 255)))
 
 
-def _flare_zero_bell(u: float, k: float) -> float:
-    """Zero-endpoint bell on u in [-1, 1]: strictly 1 at 0, strictly 0 at |u|>=1."""
-    au = abs(u)
-    if au >= 1.0:
-        return 0.0
-    e_end = math.exp(-k)
-    g = (math.exp(-k * au * au) - e_end) / max(1e-6, 1.0 - e_end)
-    return max(0.0, min(1.0, g * ((1.0 - au * au) ** 1.35)))
+def _flare_qcol(hue: float, sat: float, alpha: float, lift_white: float = 0.0) -> QColor:
+    r, g, b = _flare_rgb(hue, sat, 1.0)
+    if lift_white > 0.0:
+        w = max(0.0, min(1.0, lift_white))
+        r = int(round(r + (255 - r) * w))
+        g = int(round(g + (255 - g) * w))
+        b = int(round(b + (255 - b) * w))
+    a = max(0, min(255, int(round(alpha * 255.0))))
+    return QColor(r, g, b, a)
 
 
-def _flare_streak_mask(length_px: int, thick_px: int, gamma: float, style: str = "gaussian"):
-    """Zero-border wide anamorphic streak alpha mask (strictly 0 on all 4 edges)."""
-    length_px = max(6, int(length_px))
-    thick_px = max(4, int(thick_px))
-    ckey = ("streak", style, round(gamma, 2))
-    base = _FLARE_MASK_CACHE.get(ckey)
-    if base is None:
-        gw, gh = 192, 48
-        k_v = {"razor": 5.8, "ribbon": 2.4, "harmonic": 3.8}.get(style, 3.6)
-        p_h = {"razor": 2.1, "ribbon": 1.35, "harmonic": 1.65}.get(style, 1.7)
-        v_prof = [_flare_zero_bell((y / (gh - 1.0)) * 2.0 - 1.0, k_v) for y in range(gh)]
-        h_prof = []
-        for x in range(gw):
-            u = abs((x / (gw - 1.0)) * 2.0 - 1.0)
-            if u >= 1.0:
-                hv = 0.0
-            else:
-                hv = ((1.0 - u) ** p_h) * ((1.0 - u * u) ** 1.1)
-                if style == "harmonic":
-                    hv *= 0.78 + 0.22 * (math.cos(u * math.pi * 7.0) ** 2)
-            h_prof.append(hv)
-        buf = bytearray(gw * gh)
-        for y in range(gh):
-            vy = v_prof[y]
-            if vy <= 0.0:
-                continue
-            off = y * gw
-            for x in range(gw):
-                val = vy * h_prof[x]
-                if val > 0.0:
-                    buf[off + x] = min(255, int(round((val ** gamma) * 255.0)))
-        base = _PILImage.frombytes("L", (gw, gh), bytes(buf))
-        if len(_FLARE_MASK_CACHE) >= _FLARE_MASK_CACHE_MAX:
-            _FLARE_MASK_CACHE.pop(next(iter(_FLARE_MASK_CACHE)))
-        _FLARE_MASK_CACHE[ckey] = base
-    return base.resize((length_px, thick_px), _PIL_RESAMPLE_BI)
-
-
-def _flare_shape_mask(
-    w_px: int, h_px: int, shape: str, edge_pow: float, gamma: float,
-    ring_pos: float = 0.72, ring_w: float = 0.14, star_rays: int = 4,
-):
-    """Unified zero-border optical mask generator (radial, 2x oval, ring, hex, oct, star).
-    Mathematically guarantees 0 along every border pixel (no square boxes ever!)."""
-    w_px = max(6, int(w_px))
-    h_px = max(6, int(h_px))
-    ckey = ("shape", shape, round(edge_pow, 2), round(gamma, 2), round(ring_pos, 2), round(ring_w, 2), int(star_rays))
-    base = _FLARE_MASK_CACHE.get(ckey)
-    if base is None:
-        g = 112
-        half = (g - 1) * 0.5
-        buf = bytearray(g * g)
-        sides = 6 if shape == "hex" else (8 if shape == "oct" else 0)
-        for y in range(g):
-            ny = (y - half) / half
-            off = y * g
-            for x in range(g):
-                nx = (x - half) / half
-                r = math.hypot(nx, ny)
-                if r >= 0.96:
-                    continue
-                outer_win = min(1.0, max(0.0, (0.96 - r) / 0.16))
-                outer_win = outer_win * outer_win * (3.0 - 2.0 * outer_win)
-                val = 0.0
-                if shape in ("radial", "oval"):
-                    val = ((1.0 - r / 0.96) ** edge_pow) * outer_win
-                    if shape == "oval":
-                        rim = math.exp(-(((r - 0.64) / 0.15) ** 2)) * 0.24 * outer_win
-                        val = min(1.0, val * 0.88 + rim)
-                elif shape == "ring":
-                    d = abs(r - ring_pos) / max(0.03, ring_w)
-                    if d < 1.8:
-                        val = math.exp(-d * d * 2.2) * outer_win
-                elif shape in ("hex", "oct"):
-                    ang = math.atan2(ny, nx)
-                    sec = (2.0 * math.pi) / sides
-                    a_local = ((ang + sec * 0.5) % sec) - sec * 0.5
-                    pr = r * math.cos(a_local) / math.cos(sec * 0.5)
-                    if pr < 0.85:
-                        et = min(1.0, max(0.0, (0.85 - pr) / 0.16))
-                        et = et * et * (3.0 - 2.0 * et)
-                        val = (0.48 + 0.42 * (pr / 0.85) ** 2.2) * et * outer_win
-                elif shape == "star":
-                    ang = math.atan2(ny, nx)
-                    n_r = max(4, int(star_rays))
-                    spike = abs(math.cos((ang + math.pi / n_r) * (n_r * 0.5))) ** 18.0
-                    val = spike * ((1.0 - r / 0.96) ** 1.85) * outer_win
-                if val > 0.001:
-                    buf[off + x] = min(255, int(round((min(1.0, val) ** gamma) * 255.0)))
-        base = _PILImage.frombytes("L", (g, g), bytes(buf))
-        if len(_FLARE_MASK_CACHE) >= _FLARE_MASK_CACHE_MAX:
-            _FLARE_MASK_CACHE.pop(next(iter(_FLARE_MASK_CACHE)))
-        _FLARE_MASK_CACHE[ckey] = base
-    return base.resize((w_px, h_px), _PIL_RESAMPLE_BI)
-
-
-def _flare_add_element(
-    canvas, mask, color: Tuple[int, int, int], strength: float,
-    x0: int, y0: int, angle_deg: float = 0.0,
-):
-    mw, mh = mask.size
-    if mw <= 1 or mh <= 1 or strength <= 0.003:
+def _draw_soft_ellipse(
+    p: QPainter, cx: float, cy: float, rx: float, ry: float,
+    hue: float, sat: float, alpha: float, gamma: float = 1.0, lift_white: float = 0.0,
+) -> None:
+    """Pure-vector smooth Gaussian-falloff horizontal ellipse — strictly 0 alpha at boundary."""
+    if rx < 1.0 or ry < 1.0 or alpha <= 0.004:
         return
-    if abs(angle_deg) > 0.25:
-        mask = mask.rotate(angle_deg, resample=_PIL_RESAMPLE_BI, expand=True, fillcolor=0)
-        cx_old, cy_old = x0 + mw * 0.5, y0 + mh * 0.5
-        mw, mh = mask.size
-        x0, y0 = int(round(cx_old - mw * 0.5)), int(round(cy_old - mh * 0.5))
-    cr, cg, cb = color
-    luts = (
-        [0 if v == 0 else min(255, int(round((v / 255.0) * cr * strength))) for v in range(256)],
-        [0 if v == 0 else min(255, int(round((v / 255.0) * cg * strength))) for v in range(256)],
-        [0 if v == 0 else min(255, int(round((v / 255.0) * cb * strength))) for v in range(256)],
+    p.save()
+    p.translate(cx, cy)
+    p.scale(1.0, max(0.008, ry / max(1.0, rx)))
+    grad = QRadialGradient(QPointF(0.0, 0.0), rx)
+    stops = (
+        (0.00, 1.00, lift_white),
+        (0.16, 0.78 ** gamma, lift_white * 0.65),
+        (0.36, 0.44 ** gamma, lift_white * 0.25),
+        (0.62, 0.16 ** gamma, 0.0),
+        (0.84, 0.035 ** gamma, 0.0),
+        (1.00, 0.00, 0.0),
     )
-    elem = _PILImage.merge("RGB", tuple(mask.point(l) for l in luts))
-    cl, ct = max(0, x0), max(0, y0)
-    crr, cbt = min(canvas.width, x0 + mw), min(canvas.height, y0 + mh)
-    if crr <= cl or cbt <= ct:
+    for pos, k, lw in stops:
+        grad.setColorAt(pos, _flare_qcol(hue, sat, alpha * k, lw))
+    p.setPen(Qt.PenStyle.NoPen)
+    p.setBrush(QBrush(grad))
+    p.drawEllipse(QPointF(0.0, 0.0), rx, rx)
+    p.restore()
+
+
+def _draw_poly_bokeh(
+    p: QPainter, cx: float, cy: float, rad: float, sides: int,
+    hue: float, sat: float, alpha: float,
+) -> None:
+    """Soft-edged polygonal iris aperture ghost (hex / oct) in pure vector QPainterPath."""
+    if rad < 2.0 or alpha <= 0.004:
         return
-    region = canvas.crop((cl, ct, crr, cbt))
-    sub = elem.crop((cl - x0, ct - y0, crr - x0, cbt - y0))
-    canvas.paste(_PIL_CHOPS.add(region, sub), (cl, ct))
+    poly = QPainterPath()
+    for i in range(sides):
+        ang = (2.0 * math.pi * i / sides) - math.pi * 0.5
+        px = cx + math.cos(ang) * rad
+        py = cy + math.sin(ang) * rad
+        if i == 0:
+            poly.moveTo(px, py)
+        else:
+            poly.lineTo(px, py)
+    poly.closeSubpath()
+    # Soft iris edge glow + inner translucent fill (true aperture ring distribution)
+    g = QRadialGradient(QPointF(cx, cy), rad)
+    g.setColorAt(0.00, _flare_qcol(hue, sat * 0.72, alpha * 0.46, 0.08))
+    g.setColorAt(0.66, _flare_qcol(hue, sat, alpha * 0.68, 0.04))
+    g.setColorAt(0.86, _flare_qcol(hue, min(1.0, sat * 1.08), alpha * 0.96, 0.15))
+    g.setColorAt(0.95, _flare_qcol(hue, sat, alpha * 0.42, 0.0))
+    g.setColorAt(1.00, _flare_qcol(hue, sat, 0.0, 0.0))
+    p.setPen(Qt.PenStyle.NoPen)
+    p.setBrush(QBrush(g))
+    p.drawPath(poly)
 
 
-def render_flare_light_map(
-    w: int, h: int, spec: Dict[str, Any], fx: float, fy: float,
-    hue_off: float = 0.0, brightness: int = 100, contrast: int = 0, stretch: int = 100,
-    scale: int = 100, saturation: int = 100, angle: float = 0.0,
-):
-    gamma = max(0.55, min(1.75, 1.0 - contrast / 240.0))
-    gain = max(0.08, min(2.6, brightness / 100.0))
-    stretch_k = max(0.35, min(2.6, stretch / 100.0))
-    scale_k = max(0.25, min(2.8, scale / 100.0))
-    sat_k = max(0.0, min(2.2, saturation / 100.0))
-    ang = max(-35.0, min(35.0, float(angle)))
-    canvas = _PILImage.new("RGB", (max(2, w), max(2, h)), (0, 0, 0))
-    cx = max(-0.8, min(1.8, float(fx))) * w
-    cy = max(-0.8, min(1.8, float(fy))) * h
-    mwh = min(w, h)
-    base_hue = float(spec.get("hue", 210)) + hue_off
-    sat = max(0.0, min(1.0, float(spec.get("sat", 0.8)) * sat_k))
-    chroma = float(spec.get("chroma", 0.5)) * min(1.3, sat_k)
-    style = str(spec.get("streak_style", "gaussian"))
+def _draw_ring_bokeh(
+    p: QPainter, cx: float, cy: float, rx: float, ry: float,
+    hue: float, hue2: float, sat: float, alpha: float, width_frac: float = 0.16,
+) -> None:
+    """Hollow chromatic glass halo ring — zero border artifact, pure vector."""
+    if rx < 3.0 or ry < 3.0 or alpha <= 0.004:
+        return
+    p.save()
+    p.translate(cx, cy)
+    p.scale(1.0, max(0.15, ry / max(1.0, rx)))
+    w = max(0.05, min(0.32, width_frac))
+    r_mid = 0.74
+    g = QRadialGradient(QPointF(0.0, 0.0), rx)
+    g.setColorAt(0.0, _flare_qcol(hue, sat, 0.0))
+    g.setColorAt(max(0.05, r_mid - w * 1.4), _flare_qcol(hue, sat, 0.0))
+    g.setColorAt(max(0.08, r_mid - w * 0.45), _flare_qcol(hue, sat, alpha * 0.65, 0.10))
+    g.setColorAt(r_mid, _flare_qcol(hue, sat * 0.78, alpha, 0.22))
+    g.setColorAt(min(0.94, r_mid + w * 0.55), _flare_qcol(hue2, sat, alpha * 0.68, 0.08))
+    g.setColorAt(min(0.99, r_mid + w * 1.4), _flare_qcol(hue2, sat, 0.0))
+    g.setColorAt(1.0, _flare_qcol(hue2, sat, 0.0))
+    p.setPen(Qt.PenStyle.NoPen)
+    p.setBrush(QBrush(g))
+    p.drawEllipse(QPointF(0.0, 0.0), rx, rx)
+    p.restore()
 
-    L = int(w * float(spec.get("streak_len", 1.1)) * stretch_k * scale_k)
-    T0 = max(6.0, w * float(spec.get("streak_thick", 0.015)) * scale_k * 2.1)
-    s_str = float(spec.get("streak_str", 0.9)) * gain
-    if L >= 8 and s_str > 0.01:
-        col_r = _flare_rgb(base_hue + 11.0 * chroma, min(1.0, sat * 0.92))
-        col_g = _flare_rgb(base_hue, min(1.0, sat * 0.86))
-        col_b = _flare_rgb(base_hue - 11.0 * chroma, min(1.0, sat * 0.92))
-        m_r = _flare_streak_mask(int(L * 1.06), max(6, int(T0 * (1.0 + 0.45 * chroma))), gamma, style)
-        m_g = _flare_streak_mask(L, max(6, int(T0)), gamma, style)
-        m_b = _flare_streak_mask(int(L * 0.93), max(6, int(T0 * max(0.55, 1.0 - 0.30 * chroma))), gamma, style)
-        _flare_add_element(canvas, m_r, col_r, s_str * 0.58, int(cx - m_r.width / 2), int(cy - m_r.height / 2), ang)
-        _flare_add_element(canvas, m_g, col_g, s_str * 0.68, int(cx - m_g.width / 2), int(cy - m_g.height / 2), ang)
-        _flare_add_element(canvas, m_b, col_b, s_str * 0.58, int(cx - m_b.width / 2), int(cy - m_b.height / 2), ang)
-        if spec.get("hot_line"):
-            m_hot = _flare_streak_mask(int(L * 0.50), max(5, int(T0 * 0.34)), max(0.55, gamma * 0.72), "razor")
-            _flare_add_element(canvas, m_hot, _flare_rgb(base_hue, min(1.0, sat * 0.32)),
-                               s_str * 0.92, int(cx - m_hot.width / 2), int(cy - m_hot.height / 2), ang)
-        if spec.get("dual_streak"):
-            dy_off = max(2.0, mwh * float(spec.get("dual_offset", 0.015)) * scale_k)
-            rad = math.radians(-ang)
-            ox, oy = -math.sin(rad) * dy_off, math.cos(rad) * dy_off
-            m_d = _flare_streak_mask(int(L * 0.72), max(5, int(T0 * 0.42)), gamma, "razor")
-            col_d = _flare_rgb(base_hue + 14.0 * chroma, min(1.0, sat * 0.75))
-            _flare_add_element(canvas, m_d, col_d, s_str * 0.48, int(cx + ox - m_d.width / 2), int(cy + oy - m_d.height / 2), ang)
-            _flare_add_element(canvas, m_d, col_d, s_str * 0.48, int(cx - ox - m_d.width / 2), int(cy - oy - m_d.height / 2), ang)
-        pw = float(spec.get("prism_wings", 0.0) or 0.0) * min(1.4, sat_k)
-        if pw > 0.05:
-            rad = math.radians(-ang)
-            dx_u, dy_u = math.cos(rad), math.sin(rad)
+
+def _draw_crescent_bokeh(
+    p: QPainter, cx: float, cy: float, rx: float, ry: float,
+    hue: float, hue2: float, sat: float, alpha: float, flip_side: float = 1.0,
+) -> None:
+    """Curved lens-barrel caustic crescent arc."""
+    if rx < 4.0 or ry < 4.0 or alpha <= 0.004:
+        return
+    p.save()
+    outer = QPainterPath()
+    outer.addEllipse(QPointF(cx, cy), rx, ry)
+    inner = QPainterPath()
+    inner.addEllipse(QPointF(cx - flip_side * rx * 0.24, cy), rx * 0.86, ry * 0.90)
+    crescent = outer.subtracted(inner)
+    g = QLinearGradient(cx - rx, cy, cx + rx, cy)
+    g.setColorAt(0.0, _flare_qcol(hue, sat, alpha * 0.88, 0.14))
+    g.setColorAt(0.5, _flare_qcol(hue2, sat, alpha * 0.62, 0.08))
+    g.setColorAt(1.0, _flare_qcol(hue, sat, alpha * 0.82, 0.12))
+    p.setPen(Qt.PenStyle.NoPen)
+    p.setBrush(QBrush(g))
+    p.drawPath(crescent)
+    p.restore()
+
+
+def render_vector_flare_layer(w: int, h: int, f: Dict[str, Any]) -> QImage:
+    """Render ONE strictly-horizontal wide anamorphic vector flare into a
+    black-backed ARGB32_Premultiplied light map for crisp Screen compositing.
+    100% pure vector QPainter math — zero Pillow dependency, zero box edges."""
+    spec = FLARE_PRESET_BY_KEY.get(str(f.get("preset") or ""), FLARE_PRESETS[0])
+    w, h = max(4, int(w)), max(4, int(h))
+    mwh = float(min(w, h))
+    fx = max(-0.5, min(1.5, float(f.get("x", 0.5))))
+    fy = max(-0.5, min(1.5, float(f.get("y", 0.5))))
+    cx, cy = fx * w, fy * h
+
+    scale_k = max(0.25, min(2.8, int(f.get("scale", 100)) / 100.0))
+    stretch_k = max(0.35, min(2.8, int(f.get("stretch", 100)) / 100.0))
+    gain = max(0.06, min(2.4, int(f.get("brightness", 100)) / 100.0))
+    opac = max(0.05, min(1.0, int(f.get("opacity", 100)) / 100.0))
+    sat_k = max(0.0, min(2.0, int(f.get("saturation", 100)) / 100.0))
+    contrast = max(-100, min(100, int(f.get("contrast", 0))))
+    gamma = max(0.55, min(1.85, 1.0 + contrast / 150.0))
+
+    h1 = (float(spec.get("hue", 210)) + float(f.get("hue", 0))) % 360.0
+    h2 = (float(spec.get("hue2", spec.get("hue", 210) + 32)) + float(f.get("hue2", 0))) % 360.0
+    s1 = max(0.0, min(1.0, float(spec.get("sat", 0.82)) * sat_k))
+    s2 = max(0.0, min(1.0, float(spec.get("sat2", s1)) * sat_k))
+    chroma = float(spec.get("chroma", 0.50)) * min(1.3, sat_k)
+    style = str(spec.get("streak_style", "satin"))
+    eff_gain = gain * opac
+
+    layer = QImage(w, h, QImage.Format.Format_ARGB32_Premultiplied)
+    layer.fill(QColor(0, 0, 0, 0))
+    p = QPainter(layer)
+    p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+    p.setCompositionMode(QPainter.CompositionMode.CompositionMode_Plus)
+
+    # 1. Soft atmospheric anamorphic veiling glare (natural photographic scatter)
+    veil = float(spec.get("veil", 0.16)) * eff_gain
+    if veil > 0.01:
+        _draw_soft_ellipse(p, cx, cy, w * 0.42 * scale_k, mwh * 0.24 * scale_k, h1, s1 * 0.70, min(0.32, veil * 0.55), gamma * 0.85)
+
+    # 2. Primary wide horizontal anamorphic streak (strictly 0° horizontal!)
+    half_len = w * 0.5 * float(spec.get("streak_len", 1.2)) * stretch_k * scale_k
+    half_thk = max(2.2, w * float(spec.get("streak_thick", 0.015)) * scale_k * 1.15)
+    s_str = min(1.0, float(spec.get("streak_str", 0.88)) * eff_gain)
+
+    if half_len >= 6.0 and s_str > 0.01:
+        # Outer atmospheric chromatic bloom around streak
+        _draw_soft_ellipse(p, cx, cy, half_len * 1.06, half_thk * 2.45, h1 + 10.0 * chroma, s1 * 0.88, s_str * 0.26, gamma)
+        _draw_soft_ellipse(p, cx, cy, half_len * 0.96, half_thk * 1.45, h1 - 8.0 * chroma, s1 * 0.92, s_str * 0.42, gamma)
+
+        if style == "prism_split":
+            # Multi-color horizontal split: left wing primary hue, right wing secondary hue + warm/cool weave
+            _draw_soft_ellipse(p, cx - half_len * 0.20, cy, half_len * 0.72, half_thk * 1.35, h1, s1, s_str * 0.52, gamma)
+            _draw_soft_ellipse(p, cx + half_len * 0.20, cy, half_len * 0.72, half_thk * 1.35, h2, s2, s_str * 0.52, gamma)
+            _draw_soft_ellipse(p, cx, cy, half_len * 0.88, half_thk * 0.65, h1, s1 * 0.55, s_str * 0.58, gamma, 0.45)
+        elif style == "harmonic":
+            # Optical ribbed diffraction horizontal nodes along the bar
+            _draw_soft_ellipse(p, cx, cy, half_len, half_thk * 0.95, h1, s1, s_str * 0.54, gamma)
+            for node_f, node_s, use_h2 in ((0.18, 0.22, False), (0.34, 0.16, True), (0.52, 0.12, True), (0.72, 0.09, False)):
+                nx = half_len * node_f
+                nh = h2 if use_h2 else h1
+                ns = s2 if use_h2 else s1
+                _draw_soft_ellipse(p, cx - nx, cy, half_len * 0.16, half_thk * (1.2 + node_f), nh, ns, s_str * node_s, gamma)
+                _draw_soft_ellipse(p, cx + nx, cy, half_len * 0.16, half_thk * (1.2 + node_f), nh, ns, s_str * node_s, gamma)
+        elif style == "taper_needle":
+            _draw_soft_ellipse(p, cx, cy, half_len * 1.08, half_thk * 0.62, h1, s1 * 0.82, s_str * 0.66, gamma * 1.12, 0.22)
+            _draw_soft_ellipse(p, cx, cy, half_len * 0.55, half_thk * 0.34, h1, s1 * 0.35, s_str * 0.78, gamma, 0.68)
+        elif style == "razor":
+            _draw_soft_ellipse(p, cx, cy, half_len * 1.04, half_thk * 0.72, h1, s1, s_str * 0.64, gamma * 1.15)
+            _draw_soft_ellipse(p, cx, cy, half_len * 0.64, half_thk * 0.32, h2, s2 * 0.50, s_str * 0.70, gamma, 0.55)
+        elif style == "caustic_wave":
+            _draw_soft_ellipse(p, cx, cy, half_len, half_thk * 1.65, h1, s1 * 0.86, s_str * 0.48, gamma * 0.90)
+            _draw_soft_ellipse(p, cx, cy, half_len * 0.72, half_thk * 0.90, h2, s2 * 0.72, s_str * 0.44, gamma, 0.28)
+        else:
+            # Satin / dual_rail classic smooth Panavision/Sony streak
+            _draw_soft_ellipse(p, cx, cy, half_len, half_thk * 1.05, h1, s1, s_str * 0.62, gamma)
+
+        # Hot white-tinted optical filament core along the horizontal axis
+        if spec.get("hot_line", True):
+            _draw_soft_ellipse(p, cx, cy, half_len * 0.52, max(1.5, half_thk * 0.30), h1, s1 * 0.28, min(0.95, s_str * 0.86), max(0.65, gamma * 0.85), 0.74)
+
+        # Dual parallel horizontal cinema rails (above/below primary streak)
+        if spec.get("dual_rail"):
+            dy_off = max(2.2, mwh * float(spec.get("dual_offset", 0.015)) * scale_k)
+            _draw_soft_ellipse(p, cx, cy - dy_off, half_len * 0.76, max(1.6, half_thk * 0.44), h2, s2 * 0.85, s_str * 0.44, gamma)
+            _draw_soft_ellipse(p, cx, cy + dy_off, half_len * 0.76, max(1.6, half_thk * 0.44), h1, s1 * 0.85, s_str * 0.44, gamma)
+
+        # Multi-color prismatic side-wings (flanking the core horizontally)
+        pw = float(spec.get("prism_wings", 0.0) or 0.0) * min(1.3, sat_k)
+        if pw > 0.06:
             for side in (-1.0, 1.0):
-                for h_shift, dist_f in ((-48.0, 0.20), (0.0, 0.27), (54.0, 0.34)):
-                    wx, wy = cx + side * dx_u * (L * dist_f), cy + side * dy_u * (L * dist_f)
-                    m_w = _flare_streak_mask(max(12, int(L * 0.24)), max(6, int(T0 * 0.85)), gamma, "ribbon")
-                    _flare_add_element(canvas, m_w, _flare_rgb(base_hue + h_shift, min(1.0, 0.85 * sat_k)),
-                                       s_str * 0.34 * pw, int(wx - m_w.width / 2), int(wy - m_w.height / 2), ang)
+                for hue_w, sat_w, dist_f, wf in (
+                    (h1 - 36.0 * chroma, s1, 0.22, 0.22),
+                    (h2, s2, 0.34, 0.26),
+                    (h2 + 42.0 * chroma, s2, 0.46, 0.20),
+                ):
+                    wx = cx + side * half_len * dist_f
+                    _draw_soft_ellipse(p, wx, cy, half_len * wf, half_thk * 1.12, hue_w, sat_w, s_str * 0.30 * pw, gamma)
 
-    core_str = float(spec.get("core_str", 0.82)) * gain
+    # 3. 2x Anamorphic Vertical-Oval Core Bloom + Incandescent Center
+    core_str = min(1.0, float(spec.get("core_str", 0.84)) * eff_gain)
     if core_str > 0.01:
-        D = max(12, int(2.6 * float(spec.get("core_r", 0.085)) * mwh * scale_k))
-        oval_ratio = float(spec.get("core_oval", 0.70))
-        core_w = max(10, int(D * (0.85 + 0.15 * stretch_k)))
-        core_h = max(10, int(D / max(0.45, oval_ratio) * 0.82))
-        m_core = _flare_shape_mask(core_w, core_h, "radial", 2.35, gamma)
-        _flare_add_element(canvas, m_core, _flare_rgb(base_hue, min(1.0, sat * 0.58)),
-                           core_str * 0.85, int(cx - m_core.width / 2), int(cy - m_core.height / 2), ang)
-        m_hotc = _flare_shape_mask(max(8, int(D * 0.42)), max(8, int(D * 0.42)), "radial", 2.8, max(0.55, gamma * 0.8))
-        _flare_add_element(canvas, m_hotc, _flare_rgb(base_hue, min(1.0, sat * 0.16)),
-                           core_str * 0.95, int(cx - m_hotc.width / 2), int(cy - m_hotc.height / 2), 0.0)
+        cr = float(spec.get("core_r", 0.082)) * mwh * scale_k * 1.25
+        oval = max(0.42, float(spec.get("core_oval", 0.62)))
+        cw = cr * (0.88 + 0.12 * stretch_k)
+        ch = cr / oval * 0.78
+        _draw_soft_ellipse(p, cx, cy, cw * 1.45, ch * 1.25, h2 if spec.get("multi_color") else h1, s2 * 0.55, core_str * 0.38, gamma)
+        _draw_soft_ellipse(p, cx, cy, cw, ch, h1, s1 * 0.62, core_str * 0.74, gamma, 0.24)
+        _draw_soft_ellipse(p, cx, cy, cr * 0.44, cr * 0.46, h1, s1 * 0.14, min(1.0, core_str * 0.94), max(0.6, gamma * 0.82), 0.86)
 
+    # 4. Crisp Optical Diffraction Star Glint (horizontal-balanced)
     star_rays = int(spec.get("star_rays", 0) or 0)
     if star_rays >= 4 and core_str > 0.02:
-        SD = max(18, int(3.1 * float(spec.get("core_r", 0.09)) * mwh * scale_k))
-        m_star = _flare_shape_mask(SD, SD, "star", 2.0, gamma, star_rays=star_rays)
-        _flare_add_element(canvas, m_star, _flare_rgb(base_hue, min(1.0, sat * 0.35)),
-                           core_str * 0.82, int(cx - m_star.width / 2), int(cy - m_star.height / 2), ang)
+        sr = float(spec.get("core_r", 0.088)) * mwh * scale_k * 1.85
+        for k_ray in range(star_rays // 2):
+            ang_deg = (180.0 / (star_rays // 2)) * k_ray
+            if star_rays == 4:
+                ang_deg += 45.0
+            elif star_rays == 6:
+                ang_deg += 30.0
+            p.save()
+            p.translate(cx, cy)
+            p.rotate(ang_deg)
+            _draw_soft_ellipse(p, 0.0, 0.0, sr, max(1.4, sr * 0.055), h1, s1 * 0.34, core_str * 0.46, gamma, 0.62)
+            p.restore()
 
+    # 5. Stretched Anamorphic Lens Halo Ring
     hring = spec.get("halo_ring")
-    if hring and gain > 0.05:
+    if hring and eff_gain > 0.05:
         hr_rad, hr_w, hr_str, hr_aspect = hring
-        rw = max(16, int(2.4 * hr_rad * mwh * scale_k * hr_aspect))
-        rh = max(16, int(2.4 * hr_rad * mwh * scale_k))
-        m_ring = _flare_shape_mask(rw, rh, "ring", 2.0, gamma, ring_pos=0.72, ring_w=max(0.06, hr_w * 4.5))
-        _flare_add_element(canvas, m_ring, _flare_rgb(base_hue + 18.0 * chroma, min(1.0, sat * 0.72)),
-                           hr_str * gain, int(cx - m_ring.width / 2), int(cy - m_ring.height / 2), ang)
+        rw = hr_rad * mwh * scale_k * hr_aspect * 1.18
+        rh = hr_rad * mwh * scale_k * 1.18
+        _draw_ring_bokeh(p, cx, cy, rw, rh, h1, h2, (s1 + s2) * 0.5, min(0.75, hr_str * eff_gain), max(0.08, hr_w * 5.2))
 
-    gh_hue = base_hue + float(spec.get("ghost_hue", 0))
-    gh_sat = max(0.0, min(1.0, float(spec.get("ghost_sat", 0.55)) * sat_k))
+    # 6. Opposite-Axis Aperture Iris Ghosts (along optical axis through frame center)
     g_shape = str(spec.get("ghost_shape", "oval"))
     for idx_g, (t, gr, gs) in enumerate(spec.get("ghosts", [])):
-        g_str = float(gs) * gain
+        g_str = min(0.85, float(gs) * eff_gain)
         if g_str <= 0.01:
             continue
         gx = w * 0.5 - (cx - w * 0.5) * float(t)
         gy = h * 0.5 - (cy - h * 0.5) * float(t)
-        GD = max(10, int(2.4 * float(gr) * mwh * scale_k))
+        g_rad = max(6.0, float(gr) * mwh * scale_k * 1.15)
+        gh = (h2 + idx_g * 18.0 * chroma) % 360.0
+        gsat = s2
         if g_shape == "oval":
-            m_g = _flare_shape_mask(max(8, int(GD * 0.68)), max(10, int(GD * 1.24)), "oval", 2.1, gamma)
+            _draw_soft_ellipse(p, gx, gy, g_rad * 0.64, g_rad * 1.24, gh, gsat, g_str * 0.82, gamma * 0.9)
+            _draw_ring_bokeh(p, gx, gy, g_rad * 0.70, g_rad * 1.30, gh, h1, gsat, g_str * 0.42, 0.16)
+        elif g_shape == "hex":
+            _draw_poly_bokeh(p, gx, gy, g_rad, 6, gh, gsat, g_str * 0.85)
+        elif g_shape == "oct":
+            _draw_poly_bokeh(p, gx, gy, g_rad, 8, gh, gsat, g_str * 0.85)
         elif g_shape == "ring":
-            m_g = _flare_shape_mask(GD, int(GD * 1.08), "ring", 2.0, gamma, ring_pos=0.68, ring_w=0.16)
-        elif g_shape in ("hex", "oct"):
-            m_g = _flare_shape_mask(GD, GD, g_shape, 2.0, gamma)
+            _draw_ring_bokeh(p, gx, gy, g_rad, g_rad * 1.12, gh, h1, gsat, g_str * 0.90, 0.18)
+        elif g_shape == "crescent":
+            flip = -1.0 if cx >= w * 0.5 else 1.0
+            _draw_crescent_bokeh(p, gx, gy, g_rad * 0.86, g_rad * 1.14, gh, h1, gsat, g_str * 0.78, flip)
+        elif g_shape == "triplet":
+            # Staggered multi-color chromatic triplet bokeh
+            _draw_soft_ellipse(p, gx - g_rad * 0.28, gy, g_rad * 0.62, g_rad * 1.12, h1, s1, g_str * 0.56, gamma)
+            _draw_poly_bokeh(p, gx, gy, g_rad * 0.84, 6, gh, gsat, g_str * 0.68)
+            _draw_ring_bokeh(p, gx + g_rad * 0.24, gy, g_rad * 0.58, g_rad * 1.02, h2, h1, s2, g_str * 0.52, 0.18)
         else:
-            m_g = _flare_shape_mask(GD, GD, "radial", 2.4, gamma)
-        _flare_add_element(canvas, m_g, _flare_rgb(gh_hue + idx_g * 14.0 * chroma, gh_sat),
-                           g_str, int(gx - m_g.width / 2), int(gy - m_g.height / 2), ang if g_shape == "oval" else 0.0)
-    return canvas
+            _draw_soft_ellipse(p, gx, gy, g_rad, g_rad, gh, gsat, g_str * 0.80, gamma)
+
+    p.end()
+    return layer
 
 
-def apply_flares_pil(pil, flares: List[Dict[str, Any]]):
-    if not flares or _PILImage is None:
-        return pil
-    w, h = pil.size
-    for f in flares:
-        if not f.get("visible", True):
-            continue
-        spec = FLARE_PRESET_BY_KEY.get(str(f.get("preset") or ""))
-        if spec is None:
-            continue
-        key = (
-            w, h, spec["key"], round(float(f.get("x", 0.5)), 4), round(float(f.get("y", 0.5)), 4),
-            int(f.get("hue", 0)), int(f.get("brightness", 100)), int(f.get("contrast", 0)),
-            int(f.get("stretch", 100)), int(f.get("scale", 100)), int(f.get("saturation", 100)),
-            int(f.get("angle", 0)),
-        )
-        light = _FLARE_CACHE.get(key)
-        if light is None:
-            try:
-                light = render_flare_light_map(
-                    w, h, spec, float(f.get("x", 0.5)), float(f.get("y", 0.5)),
-                    float(f.get("hue", 0)), int(f.get("brightness", 100)),
-                    int(f.get("contrast", 0)), int(f.get("stretch", 100)),
-                    int(f.get("scale", 100)), int(f.get("saturation", 100)), float(f.get("angle", 0)),
-                )
-            except Exception:
-                continue
-            _FLARE_CACHE[key] = light
-            while len(_FLARE_CACHE) > _FLARE_CACHE_MAX:
-                _FLARE_CACHE.pop(next(iter(_FLARE_CACHE)))
-        pil = _PIL_CHOPS.screen(pil, light)
-    return pil
+def _effective_visible_flares(flares: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+    if not flares:
+        return []
+    any_solo = any(bool(f.get("solo", False)) for f in flares)
+    if any_solo:
+        return [f for f in flares if bool(f.get("solo", False)) and bool(f.get("visible", True))]
+    return [f for f in flares if bool(f.get("visible", True))]
 
 
 def apply_flares_qt(img: QImage, flares: List[Dict[str, Any]]) -> QImage:
-    if img.isNull() or not flares:
+    """Screen-composite all active horizontal vector anamorphic flares onto `img`
+    with per-flare LRU caching so moving one flare never re-renders the others."""
+    active = _effective_visible_flares(flares)
+    if img.isNull() or not active:
         return img
     out = img.convertToFormat(QImage.Format.Format_ARGB32_Premultiplied)
     w, h = out.width(), out.height()
-    mwh = min(w, h)
     p = QPainter(out)
-    p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+    p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
     p.setCompositionMode(QPainter.CompositionMode.CompositionMode_Screen)
-    for f in flares:
-        if not f.get("visible", True):
-            continue
-        spec = FLARE_PRESET_BY_KEY.get(str(f.get("preset") or ""))
-        if spec is None:
-            continue
-        cx, cy = float(f.get("x", 0.5)) * w, float(f.get("y", 0.5)) * h
-        scale_k = max(0.25, min(2.8, int(f.get("scale", 100)) / 100.0))
-        stretch_k = max(0.35, min(2.6, int(f.get("stretch", 100)) / 100.0))
-        gain = max(0.08, min(1.5, int(f.get("brightness", 100)) / 100.0))
-        sat_k = max(0.0, min(2.0, int(f.get("saturation", 100)) / 100.0))
-        ang = float(f.get("angle", 0))
-        bh = float(spec.get("hue", 210)) + float(f.get("hue", 0))
-        bs = max(0.0, min(1.0, float(spec.get("sat", 0.8)) * sat_k))
-        r, g, b = _flare_rgb(bh, bs)
-        p.save()
-        p.translate(cx, cy)
-        if abs(ang) > 0.2:
-            p.rotate(ang)
-        L = w * float(spec.get("streak_len", 1.1)) * stretch_k * scale_k * 0.5
-        T = max(3.0, w * float(spec.get("streak_thick", 0.015)) * scale_k * 1.4)
-        sg = QRadialGradient(QPointF(0, 0), L)
-        sg.setColorAt(0.0, QColor(min(255, r + 60), min(255, g + 60), min(255, b + 60), min(255, int(210 * gain))))
-        sg.setColorAt(0.35, QColor(r, g, b, min(255, int(130 * gain))))
-        sg.setColorAt(1.0, QColor(r, g, b, 0))
-        p.save()
-        p.scale(1.0, max(0.02, T / max(1.0, L)))
-        p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(QBrush(sg))
-        p.drawEllipse(QPointF(0, 0), L, L)
-        p.restore()
-        cr = float(spec.get("core_r", 0.085)) * mwh * scale_k * 1.3
-        cg = QRadialGradient(QPointF(0, 0), cr)
-        cg.setColorAt(0.0, QColor(255, 255, 255, min(255, int(230 * gain))))
-        cg.setColorAt(0.4, QColor(r, g, b, min(255, int(145 * gain))))
-        cg.setColorAt(1.0, QColor(r, g, b, 0))
-        p.setBrush(QBrush(cg))
-        p.drawEllipse(QPointF(0, 0), cr, cr * 1.15)
-        p.restore()
+    for f in active:
+        ck = (
+            w, h, str(f.get("preset") or ""),
+            round(float(f.get("x", 0.5)), 4), round(float(f.get("y", 0.5)), 4),
+            int(f.get("scale", 100)), int(f.get("brightness", 100)),
+            int(f.get("saturation", 100)), int(f.get("stretch", 100)),
+            int(f.get("hue", 0)), int(f.get("hue2", 0)),
+            int(f.get("contrast", 0)), int(f.get("opacity", 100)),
+        )
+        layer = _FLARE_VEC_CACHE.get(ck)
+        if layer is None:
+            layer = render_vector_flare_layer(w, h, f)
+            _FLARE_VEC_CACHE[ck] = layer
+            while len(_FLARE_VEC_CACHE) > _FLARE_VEC_CACHE_MAX:
+                _FLARE_VEC_CACHE.pop(next(iter(_FLARE_VEC_CACHE)))
+        p.drawImage(0, 0, layer)
     p.end()
     return out.convertToFormat(QImage.Format.Format_RGB32)
+
+
+def apply_flares_pil(pil, flares: List[Dict[str, Any]]):
+    """Bridge PIL images through the exact same pure-vector QPainter flare engine."""
+    if not flares or _PILImage is None:
+        return pil
+    q = _pil_to_qimg(pil)
+    q = apply_flares_qt(q, flares)
+    return _qimg_to_pil(q).convert("RGB")
 
 
 # =============================================================================
@@ -7825,11 +8019,11 @@ class JobWorker(QThread):
                     notes.append(f"lora {md.get('ref', '')}: {md.get('value')}")
             if is_tile and was_censored:
                 censored += 1
-                STUDIO_LOG.warn("UPSCALE", f"Tile r{job.meta.get('tile_row')}c{job.meta.get('tile_col')} censored — skipped")
+                STUDIO_LOG.warn("Upscale", f"Tile r{job.meta.get('tile_row')}c{job.meta.get('tile_col')} censored — skipped")
                 continue
             if is_tile and is_black_placeholder_frame(data):
                 black += 1
-                STUDIO_LOG.warn("UPSCALE", f"Tile r{job.meta.get('tile_row')}c{job.meta.get('tile_col')} black placeholder — skipped")
+                STUDIO_LOG.warn("Upscale", f"Tile r{job.meta.get('tile_row')}c{job.meta.get('tile_col')} black placeholder — skipped")
                 continue
             meta = dict(job.meta)
             meta.update({
@@ -7982,7 +8176,7 @@ class AlchemyJobWorker(QThread):
                 out_img = hq_resize(img, target_w, target_h) if (target_w and target_h) else img
                 data = image_to_png_bytes(out_img)
                 path = self.store.save_tile(data, dict(job.meta, tile_target=target_path))
-                STUDIO_LOG.ok("UPSCALE", f"Local Lanczos base ready ({out_img.width()}x{out_img.height()})")
+                STUDIO_LOG.ok("Upscale", f"Local Lanczos base ready ({out_img.width()}x{out_img.height()})")
                 self.completed.emit(jid, [path], STATE_DONE)
             except Exception as exc:  # noqa: BLE001
                 self.failed.emit(jid, f"Lanczos upscale failed: {exc}", 0.0)
@@ -7999,7 +8193,7 @@ class AlchemyJobWorker(QThread):
             if not rid:
                 raise HordeError("Alchemy returned no interrogation id")
             self.progress.emit(jid, {"horde_id": rid, "state": STATE_PROCESSING})
-            STUDIO_LOG.info("UPSCALE", f"Whole-image Alchemy ({form_name}) submitted -> {rid[:10]}")
+            STUDIO_LOG.info("Upscale", f"Whole-image Alchemy ({form_name}) submitted -> {rid[:10]}")
             res = poll_interrogation(self.api, rid, form_name, self._cancel.is_set, self.poll_interval)
             if res is None:
                 self.completed.emit(jid, [], STATE_CANCELLED)
@@ -8019,7 +8213,7 @@ class AlchemyJobWorker(QThread):
                 img = hq_resize(img, target_w, target_h)
             out_data = image_to_png_bytes(img)
             path = self.store.save_tile(out_data, dict(job.meta, tile_target=target_path))
-            STUDIO_LOG.ok("UPSCALE", f"Alchemy base upscaled to {img.width()}x{img.height()}")
+            STUDIO_LOG.ok("Upscale", f"Alchemy base upscaled to {img.width()}x{img.height()}")
             self.completed.emit(jid, [path], STATE_DONE)
         except HordeError as exc:
             self.failed.emit(jid, exc.message, exc.retry_after or 0.0)
@@ -8906,8 +9100,8 @@ class SectionHeader(QWidget):
         self._lay.setSpacing(5)
         self.title_label = ElideLabel("")
         self.title_label.setObjectName("Kicker")
-        self.title_label.setFont(_font(8.8, True, 1.3))
-        self.title_label.setText(title.upper())
+        self.title_label.setFont(_font(9.2, True, 0.4))
+        self.title_label.setText(title)
         # Headers must compress (not push the whole scroll content wide) when a
         # tab is viewed on a narrow panel — the title elides gracefully.
         # v4 FIX: the title itself carries stretch 1 (the old trailing
@@ -8921,7 +9115,7 @@ class SectionHeader(QWidget):
         return QSize(26, 24)
 
     def set_title(self, title: str) -> None:
-        self.title_label.setText(title.upper())
+        self.title_label.setText(title)
 
     def add_right(self, w: QWidget) -> None:
         self._lay.addWidget(w)
@@ -11214,7 +11408,7 @@ class _ViewerCanvas(QWidget):
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
-        p.fillRect(self.rect(), QColor(C["deep"]))
+        paint_theme_backdrop(p, self.rect())
         pm = self._viewer._pixmap
         if pm is None or pm.isNull():
             # Cinematic themed vector centerpiece watermark
@@ -11223,19 +11417,19 @@ class _ViewerCanvas(QWidget):
             wx = (self.width() - sz) // 2
             wy = (self.height() - sz) // 2 - 16
             p.drawPixmap(wx, wy, wm)
-            p.setFont(_font(10.5, True, 2.2))
-            p.setPen(QColor(C["kicker"]))
+            p.setFont(_font(11.0, True, 0.9))
+            p.setPen(QColor(C["text_hi"]))
             p.drawText(
                 QRect(12, wy + sz + 4, self.width() - 24, 22),
                 Qt.AlignmentFlag.AlignCenter,
-                f"{APP_NAME.upper()}  {APP_VERSION}",
+                f"{APP_NAME}  v{APP_VERSION}  ·  {C['name']}",
             )
-            p.setFont(_font(8.5))
+            p.setFont(_font(8.8))
             p.setPen(QColor(C["muted"]))
             p.drawText(
                 QRect(12, wy + sz + 26, self.width() - 24, 20),
                 Qt.AlignmentFlag.AlignCenter,
-                "Type a prompt & press GENERATE (Ctrl+Enter)  \u2022  or drop an image here",
+                "Enter a prompt and press Generate (Ctrl+Enter)  ·  or drop an image here",
             )
             p.end()
             return
@@ -11750,8 +11944,8 @@ class GalleryBrowser(QWidget):
             self.size_btns[k] = b
             r2.addWidget(b)
         r2.addSpacing(4)
-        r2.addWidget(make_button("INFO", self._show_info, small=True))
-        r2.addWidget(make_button("PROMPT", self._copy_prompt, small=True, tip="Copy full prompt (Ctrl+P)"))
+        r2.addWidget(make_button("Info", self._show_info, small=True))
+        r2.addWidget(make_button("Prompt", self._copy_prompt, small=True, tip="Copy full prompt (Ctrl+P)"))
         r2.addWidget(make_button("COPY IMG", self._copy_image, small=True, tip="Copy image to clipboard (Ctrl+C)"))
         r2.addWidget(make_button("RENAME", self._rename_selected, small=True))
         r2.addWidget(make_button("DELETE", self._delete_selected, small=True))
@@ -12766,7 +12960,7 @@ class TemplateEditorDialog(QDialog):
         lr = QHBoxLayout()
         lr.addWidget(make_button("+ NEW", self._add, small=True, accent=True))
         lr.addWidget(make_button("DUP", self._dup, small=True))
-        lr.addWidget(make_button("DEL", self._del, small=True))
+        lr.addWidget(make_button("Delete", self._del, small=True))
         lr.addWidget(make_button("\u25B2", lambda: self._move(-1), small=True))
         lr.addWidget(make_button("\u25BC", lambda: self._move(1), small=True))
         ll.addLayout(lr)
@@ -12909,7 +13103,7 @@ class TagEditorDialog(QDialog):
         fr = QHBoxLayout()
         fr.addWidget(make_button("+ ADD", self._add_folder, small=True, accent=True))
         fr.addWidget(make_button("REN", self._ren_folder, small=True))
-        fr.addWidget(make_button("DEL", self._del_folder, small=True))
+        fr.addWidget(make_button("Delete", self._del_folder, small=True))
         fl.addLayout(fr)
 
         # Column 2: Groups in folder
@@ -12927,7 +13121,7 @@ class TagEditorDialog(QDialog):
         gr = QHBoxLayout()
         gr.addWidget(make_button("+ NEW", self._add_group, small=True, accent=True))
         gr.addWidget(make_button("DUP", self._dup_group, small=True))
-        gr.addWidget(make_button("DEL", self._del_group, small=True))
+        gr.addWidget(make_button("Delete", self._del_group, small=True))
         gr.addWidget(make_button("\u25B2", lambda: self._move_group(-1), small=True))
         gr.addWidget(make_button("\u25BC", lambda: self._move_group(1), small=True))
         gl.addLayout(gr)
@@ -14490,18 +14684,19 @@ class EditCanvas(QWidget):
                 s_hit = self._flare_scale_grip_at(pos)
                 if s_hit >= 0:
                     f = self._flares[s_hit]
-                    dr = self._doc_rect()
-                    hx = dr.left() + float(f.get("x", 0.5)) * dr.width()
-                    hy = dr.top() + float(f.get("y", 0.5)) * dr.height()
-                    self._scaling_flare = True
-                    self._scale_flare_start_dist = max(8.0, math.hypot(pos.x() - hx, pos.y() - hy))
-                    self._scale_flare_start_val = int(f.get("scale", 100))
+                    if not f.get("locked", False):
+                        dr = self._doc_rect()
+                        hx = dr.left() + float(f.get("x", 0.5)) * dr.width()
+                        hy = dr.top() + float(f.get("y", 0.5)) * dr.height()
+                        self._scaling_flare = True
+                        self._scale_flare_start_dist = max(8.0, math.hypot(pos.x() - hx, pos.y() - hy))
+                        self._scale_flare_start_val = int(f.get("scale", 100))
                     event.accept()
                     return
                 hit = self._flare_handle_at(pos)
                 if hit >= 0:
                     self._selected_flare = hit
-                    self._dragging_flare = True
+                    self._dragging_flare = not bool(self._flares[hit].get("locked", False))
                     self.flare_selected.emit(hit)
                 else:
                     doc = self._to_doc(pos)
@@ -14904,7 +15099,7 @@ class EditCanvas(QWidget):
         p.drawRect(dr.adjusted(0.5, 0.5, -0.5, -0.5))
 
         if not self._mask_visible and self.has_mask() and not self._compare and not rot:
-            txt = "MASK HIDDEN (ACTIVE · M TO SHOW)"
+            txt = "Mask hidden (active · Press M to show)"
             p.setFont(_font(7.8, True, 0.8))
             mw = QFontMetrics(p.font()).horizontalAdvance(txt) + 18
             mb = QRectF(12.0, 12.0, mw, 21.0)
@@ -14925,7 +15120,7 @@ class EditCanvas(QWidget):
                 p.drawLine(QPointF(cx, cy), QPointF(cx + dx * tick_len, cy))
                 p.drawLine(QPointF(cx, cy), QPointF(cx, cy + dy * tick_len))
             p.setFont(_font(8.0, True, 1.2))
-            rot_txt = f"TILT {rot:+.1f}°  —  PREVIEW"
+            rot_txt = f"Tilt {rot:+.1f}° · Preview"
             bw = QFontMetrics(p.font()).horizontalAdvance(rot_txt) + 18
             badge = QRectF(12.0, 12.0, bw, 22.0)
             p.setPen(Qt.PenStyle.NoPen)
@@ -14934,41 +15129,52 @@ class EditCanvas(QWidget):
             p.setPen(QColor(C["acc_spec"]))
             p.drawText(badge, Qt.AlignmentFlag.AlignCenter, rot_txt)
 
-        if self._flares and not self._compare and not rot:
+        if self._flares and self._tool == self.TOOL_FLARE and not self._compare and not rot:
             for i, f in enumerate(self._flares):
                 hx = dr.left() + float(f.get("x", 0.5)) * dr.width()
                 hy = dr.top() + float(f.get("y", 0.5)) * dr.height()
                 sel = (i == self._selected_flare)
                 vis = bool(f.get("visible", True))
+                locked = bool(f.get("locked", False))
                 col = QColor(C["acc_spec"]) if sel else QColor(C["acc_hi"])
-                col.setAlpha((240 if sel else 170) if vis else 85)
+                col.setAlpha((235 if sel else 155) if vis else 80)
                 hp = QPen(col, 1.6 if sel else 1.1)
                 if not vis:
                     hp.setStyle(Qt.PenStyle.DotLine)
                 p.setPen(hp)
                 p.setBrush(Qt.BrushStyle.NoBrush)
-                r = 12.0 if sel else 8.5
+                r = 11.0 if sel else 7.5
                 p.drawEllipse(QPointF(hx, hy), r, r)
-                p.drawLine(QPointF(hx - r - 5.0, hy), QPointF(hx - r + 1.5, hy))
-                p.drawLine(QPointF(hx + r - 1.5, hy), QPointF(hx + r + 5.0, hy))
-                p.drawLine(QPointF(hx, hy - r - 5.0), QPointF(hx, hy - r + 1.5))
-                p.drawLine(QPointF(hx, hy + r - 1.5), QPointF(hx, hy + r + 1.5))
+                # Horizontal anamorphic axis alignment ticks (strictly 0° horizontal)
+                p.drawLine(QPointF(hx - r - 10.0, hy), QPointF(hx - r + 1.5, hy))
+                p.drawLine(QPointF(hx + r - 1.5, hy), QPointF(hx + r + 10.0, hy))
+                p.drawLine(QPointF(hx, hy - r - 3.5), QPointF(hx, hy - r + 1.5))
+                p.drawLine(QPointF(hx, hy + r - 1.5), QPointF(hx, hy + r + 3.5))
                 if sel:
                     ring_r = self._flare_scale_ring_radius(f)
                     p.setPen(QPen(col, 1.0, Qt.PenStyle.DashLine))
                     p.drawEllipse(QPointF(hx, hy), ring_r, ring_r)
-                    p.setPen(QPen(QColor(0, 0, 0, 190), 1.0))
-                    p.setBrush(QColor(C["acc_spec"]))
-                    p.drawEllipse(QPointF(hx + ring_r, hy), 5.0, 5.0)
+                    if not locked:
+                        p.setPen(QPen(QColor(0, 0, 0, 190), 1.0))
+                        p.setBrush(QColor(C["acc_spec"]))
+                        p.drawEllipse(QPointF(hx + ring_r, hy), 4.8, 4.8)
                     sc_val = int(f.get("scale", 100))
-                    btxt = f"FLARE {i + 1} · {sc_val}%" + ("" if vis else " (OFF)")
-                    p.setFont(_font(7.5, True, 0.5))
+                    tags = []
+                    if locked:
+                        tags.append("Locked")
+                    if f.get("solo"):
+                        tags.append("Solo")
+                    if not vis:
+                        tags.append("Hidden")
+                    tag_s = f" ({', '.join(tags)})" if tags else ""
+                    btxt = f"Flare {i + 1} · {sc_val}%{tag_s}"
+                    p.setFont(_font(7.8, True, 0.2))
                     bw_f = QFontMetrics(p.font()).horizontalAdvance(btxt) + 12.0
-                    badge = QRectF(hx + 12.0, hy + 10.0, bw_f, 16.0)
+                    badge = QRectF(hx + 12.0, hy + 10.0, bw_f, 17.0)
                     p.setPen(Qt.PenStyle.NoPen)
-                    bg = QColor(C["acc_mid"]); bg.setAlpha(220)
+                    bg = QColor(C["acc_mid"]); bg.setAlpha(218)
                     p.setBrush(bg)
-                    p.drawRoundedRect(badge, 3, 3)
+                    p.drawRoundedRect(badge, 4, 4)
                     p.setPen(QColor(C["acc_text"]))
                     p.drawText(badge, Qt.AlignmentFlag.AlignCenter, btxt)
         # crop frame overlay
@@ -15199,6 +15405,7 @@ class MainWindow(QMainWindow):
         self.edit_source_path: Optional[str] = None
         self.edit_base: Optional[QImage] = None
         self.edit_undo_stack: List[QImage] = []
+        self.edit_redo_stack: List[QImage] = []
         self.edit_adjust: Dict[str, float] = default_edit_adjustments()
         self._edit_preview_timer = QTimer(self)
         self._edit_preview_timer.setSingleShot(True)
@@ -15414,7 +15621,7 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self._on_left_tab_changed)
         lay.addWidget(self.tabs, 1)
         lay.addWidget(self._build_deck(), 0)
-        w.setMinimumWidth(360)
+        w.setMinimumWidth(332)
         return w
 
     def _scroll_tab(self) -> Tuple[QScrollArea, QVBoxLayout]:
@@ -15557,7 +15764,7 @@ class MainWindow(QMainWindow):
         i2i_row.addWidget(self.i2i_from_viewer_btn)
         i2i_row.addWidget(self.i2i_open_btn)
         i2i_row.addWidget(self.i2i_clear_btn)
-        self.i2i_clear_mask_btn = make_button("CLR MASK", self._clear_img2img_mask, small=True,
+        self.i2i_clear_mask_btn = make_button("Clear Mask", self._clear_img2img_mask, small=True,
                                               tip="Detach the inpainting mask (back to plain img2img)")
         self.i2i_clear_mask_btn.setVisible(False)
         i2i_row.addWidget(self.i2i_clear_mask_btn)
@@ -15625,7 +15832,7 @@ class MainWindow(QMainWindow):
         # Seed row
         seed_row = QHBoxLayout()
         seed_row.setSpacing(5)
-        seed_kicker = make_label("SEED", "Kicker")
+        seed_kicker = make_label("Seed", "Kicker")
         self.seed_edit = QLineEdit()
         self.seed_edit.setPlaceholderText("random  (number or text)")
         self.seed_edit.textChanged.connect(lambda _t: self._schedule_save())
@@ -16746,7 +16953,7 @@ class MainWindow(QMainWindow):
 
         r1 = QHBoxLayout()
         r1.setSpacing(3)
-        r1.addWidget(make_button("CANCEL", lambda: self._queue_act("cancel"), small=True))
+        r1.addWidget(make_button("Cancel", lambda: self._queue_act("cancel"), small=True))
         r1.addWidget(make_button("RETRY", lambda: self._queue_act("retry"), small=True))
         r1.addWidget(make_button("REMOVE", lambda: self._queue_act("remove"), small=True))
         r1.addWidget(make_button("\u25B2", lambda: self._queue_act("up"), small=True,
@@ -17232,38 +17439,50 @@ class MainWindow(QMainWindow):
 
     # ---- Tab 9: Image Editor (grade / mask / inpaint / save-as-new) ---------
     def _build_edit_tab(self) -> QWidget:
-        """v4.1: the editor's CONTROL DECK. The image itself lives on the
-        full-size edit stage in the main viewer area (built by
-        _build_edit_stage) — this deck carries the parameter sections:
-        Adjustments, Cinematic LUT Grades, Anamorphic Flares, Split Studio
-        and Export."""
-        scroll, lay = self._scroll_tab()
-        hdr = SectionHeader("Editor")
+        """v6.0 Compact Laptop Editor Deck: pinned top action bar + 3 sleek
+        sub-tabs (Grade & LUT · Anamorphic Flares · Split & Export) so every
+        control is immediately reachable on 720p/768p screens without scroll
+        fatigue or capslock clutter."""
+        root_w = QWidget()
+        root_lay = QVBoxLayout(root_w)
+        root_lay.setContentsMargins(6, 6, 6, 4)
+        root_lay.setSpacing(5)
+
+        hdr = SectionHeader("Image Editor")
         self.edit_from_viewer_btn = make_button(
-            "FROM VIEWER", self.edit_from_viewer, small=True, accent=True,
+            "From Viewer", self.edit_from_viewer, small=True, accent=True,
             tip="Open the image currently shown in the viewer on the edit stage",
         )
-        self.edit_open_btn = make_button("OPEN\u2026", self.edit_open_file, small=True)
-        self.edit_undo_btn = make_button("UNDO", self._edit_undo_smart, small=True,
-                                         tip="Ctrl+Z — first undoes the newest stroke, then the last APPLY / crop / tilt")
+        self.edit_open_btn = make_button("Open…", self.edit_open_file, small=True)
+        self.edit_undo_btn = make_button(
+            "Undo", self._edit_undo_smart, small=True,
+            tip="Ctrl+Z — undo latest brush stroke or baked edit", icon_key="history", icon_size=13,
+        )
         self.edit_undo_btn.setEnabled(False)
+        self.edit_redo_btn = make_button(
+            "Redo", self.edit_redo, small=True,
+            tip="Ctrl+Y — redo previously undone edit", icon_key="redo", icon_size=13,
+        )
+        self.edit_redo_btn.setEnabled(False)
         hdr.add_right(self.edit_from_viewer_btn)
         hdr.add_right(self.edit_open_btn)
         hdr.add_right(self.edit_undo_btn)
-        lay.addWidget(hdr)
+        hdr.add_right(self.edit_redo_btn)
+        root_lay.addWidget(hdr)
 
         self.edit_source_caption = make_label(
-            "Open an image (viewer, gallery context menu, OPEN\u2026, or drop it onto the stage).", "Caption"
+            "Open an image via From Viewer, Open…, gallery menu, or drag-and-drop onto the stage.", "Caption"
         )
         self.edit_source_caption.setWordWrap(True)
-        lay.addWidget(self.edit_source_caption)
+        root_lay.addWidget(self.edit_source_caption)
 
-        # ---- Tone & Color (manual adjustments) ---------------------------------
-        adj_wrap = QWidget()
-        adj_wrap.setObjectName("Transparent")
-        al = QVBoxLayout(adj_wrap)
-        al.setContentsMargins(0, 2, 0, 0)
-        al.setSpacing(4)
+        self.edit_subtabs = QTabWidget()
+        self.edit_subtabs.setObjectName("EditSubTabs")
+
+        # ===================================================================
+        #  Sub-tab 1: Grade & LUT (Tone/Color + 10 Cinema/Anime LUTs)
+        # ===================================================================
+        grade_scroll, glay = self._scroll_tab()
         grid = QGridLayout()
         grid.setHorizontalSpacing(8)
         grid.setVerticalSpacing(2)
@@ -17284,7 +17503,7 @@ class MainWindow(QMainWindow):
             sl.setRange(-100, 100)
             sl.setValue(0)
             sl.setCursor(Qt.CursorShape.PointingHandCursor)
-            sl.setToolTip(f"{EDIT_ADJUST_TOOLTIPS.get(key, EDIT_ADJUST_LABELS[key])}  (-100 \u2026 +100)")
+            sl.setToolTip(f"{EDIT_ADJUST_TOOLTIPS.get(key, EDIT_ADJUST_LABELS[key])}  (-100 … +100)")
             sl.valueChanged.connect(lambda v, k=key: self._on_edit_slider(k, v))
             sl.sliderReleased.connect(lambda k=key: self._on_edit_slider_done(k))
             cell.addLayout(lr)
@@ -17294,124 +17513,119 @@ class MainWindow(QMainWindow):
             self.edit_slider_vals[key] = val
         grid.setColumnStretch(0, 1)
         grid.setColumnStretch(1, 1)
-        al.addLayout(grid)
+        glay.addLayout(grid)
 
         arow = QHBoxLayout()
-        self.edit_reset_adj_btn = make_button("RESET ADJUSTMENTS", self.edit_reset_adjustments, small=True)
-        # Masked scope radios (short labels so narrow panels never clip)
+        arow.setSpacing(4)
+        self.edit_auto_btn = make_button(
+            "Auto Balance", self.edit_auto_enhance, small=True,
+            tip="Apply balanced cinematic contrast, highlight recovery and vibrance",
+            icon_key="auto_fix", icon_size=13,
+        )
+        self.edit_reset_adj_btn = make_button("Reset", self.edit_reset_adjustments, small=True, icon_key="reset", icon_size=12)
+        arow.addWidget(self.edit_auto_btn)
+        arow.addWidget(self.edit_reset_adj_btn)
+        arow.addStretch(1)
+        glay.addLayout(arow)
+
         self.edit_scope_group = QButtonGroup(self)
         self.edit_scope_full = QRadioButton("Full")
         self.edit_scope_mask = QRadioButton("Masked")
         self.edit_scope_unmask = QRadioButton("Unmasked")
         self.edit_scope_full.setChecked(True)
-        self.edit_scope_full.setToolTip("Apply adjustments to the whole image")
-        self.edit_scope_mask.setToolTip("Apply adjustments only where the red mask is painted")
-        self.edit_scope_unmask.setToolTip("Apply adjustments only OUTSIDE the painted mask")
+        self.edit_scope_full.setToolTip("Apply adjustments and LUTs to the entire image")
+        self.edit_scope_mask.setToolTip("Apply only inside the painted mask")
+        self.edit_scope_unmask.setToolTip("Apply only outside the painted mask")
         for b in (self.edit_scope_full, self.edit_scope_mask, self.edit_scope_unmask):
             self.edit_scope_group.addButton(b)
             b.toggled.connect(lambda _c: self._edit_schedule_recompute())
-        arow.addWidget(self.edit_reset_adj_btn)
-        arow.addStretch(1)
-        al.addLayout(arow)
         scope_row = QHBoxLayout()
-        scope_row.addWidget(make_label("APPLY TO:", "Kicker"))
+        scope_row.addWidget(make_label("Apply to:", "Kicker"))
         scope_row.addWidget(self.edit_scope_full)
         scope_row.addWidget(self.edit_scope_mask)
         scope_row.addWidget(self.edit_scope_unmask)
         scope_row.addStretch(1)
-        al.addLayout(scope_row)
+        glay.addLayout(scope_row)
 
-        arow2 = QHBoxLayout()
-        self.edit_apply_btn = make_button(
-            "APPLY \u25B8 BAKE GRADE INTO IMAGE", self.edit_apply, accent=True,
-            tip="Bake EVERYTHING you currently see — manual adjustments, the cinematic LUT grade\n"
-                "and every placed lens flare — into the image. The mask (if scoped) is consumed.",
-        )
-        self.edit_apply_btn.setEnabled(False)
-        arow2.addWidget(self.edit_apply_btn, 1)
-        self.edit_engine_note = make_label("", "Caption")
-        self.edit_engine_note.setWordWrap(True)
-        if not _HAS_PIL:
-            self.edit_engine_note.setText(
-                "Pillow not installed: exposure / contrast / highlights / shadows / temperature / "
-                "desaturation work; over-saturation, vibrance, HDR, bloom, grain, LUT grades and "
-                "lens flares need Pillow."
-            )
-        al.addLayout(arow2)
-        al.addWidget(self.edit_engine_note)
-        self.edit_adjust_section = CollapsibleSection("Tone & Color (Adjustments)", adj_wrap, expanded=True)
-        self.edit_adjust_section.toggled.connect(lambda _b: self._schedule_save())
-        lay.addWidget(self.edit_adjust_section)
-
-        # ---- Cinematic LUT Grades (10 looks) ------------------------------------
-        lut_wrap = QWidget()
-        lut_wrap.setObjectName("Transparent")
-        cl = QVBoxLayout(lut_wrap)
-        cl.setContentsMargins(0, 2, 0, 0)
-        cl.setSpacing(4)
-        lrow = QHBoxLayout()
-        lrow.setSpacing(4)
+        glay.addWidget(SectionHeader("Cinematic LUT Grade"))
         self.edit_lut_combo = QComboBox()
-        self.edit_lut_combo.addItem("NONE — original colors", "")
+        self.edit_lut_combo.addItem("None — Original colors", "")
         for grp in ("photo", "anime"):
             members = [f for f in LUT_FILTERS if f["group"] == grp]
             if not members:
                 continue
             self.edit_lut_combo.insertSeparator(self.edit_lut_combo.count())
             for f in members:
-                self.edit_lut_combo.addItem(f"{LUT_GROUP_LABELS[grp]} \u00b7 {f['name']}", f["key"])
+                self.edit_lut_combo.addItem(f"{LUT_GROUP_LABELS[grp]} · {f['name']}", f["key"])
         self.edit_lut_combo.setToolTip(
-            "Cinematic postprocessing grade (Instagram-class). All ten looks are built from "
-            "soft-knee curves + split-toning: stylish, universal, and they never crush or "
-            "destroy the color data of the image."
+            "Universal color grades crafted with soft-knee tone curves and split-toning."
         )
         self.edit_lut_combo.currentIndexChanged.connect(lambda _i: self._on_edit_lut_changed())
-        lrow.addWidget(self.edit_lut_combo, 1)
-        cl.addLayout(lrow)
+        glay.addWidget(self.edit_lut_combo)
+
         irow = QHBoxLayout()
         irow.setSpacing(6)
-        irow.addWidget(make_label("INTENSITY", "Kicker"))
+        irow.addWidget(make_label("Intensity", "Kicker"))
         self.edit_lut_intensity_sl = QSlider(Qt.Orientation.Horizontal)
         self.edit_lut_intensity_sl.setRange(0, 100)
         self.edit_lut_intensity_sl.setValue(100)
         self.edit_lut_intensity_sl.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.edit_lut_intensity_sl.setToolTip("Strength of the grade (0 = untouched, 100 = full look)")
         self.edit_lut_intensity_sl.valueChanged.connect(lambda _v: self._on_edit_lut_changed())
         irow.addWidget(self.edit_lut_intensity_sl, 1)
         self.edit_lut_intensity_val = make_label("100%", "Value")
         self.edit_lut_intensity_val.setMinimumWidth(36)
         self.edit_lut_intensity_val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         irow.addWidget(self.edit_lut_intensity_val)
-        cl.addLayout(irow)
+        glay.addLayout(irow)
+
         self.edit_lut_hint = make_label("", "Caption")
         self.edit_lut_hint.setWordWrap(True)
-        cl.addWidget(self.edit_lut_hint)
-        self.edit_lut_section = CollapsibleSection("Cinematic LUT Grades (5 photo \u00b7 5 anime)", lut_wrap, expanded=False)
-        self.edit_lut_section.toggled.connect(lambda _b: self._schedule_save())
-        lay.addWidget(self.edit_lut_section)
+        glay.addWidget(self.edit_lut_hint)
 
-        # ---- Anamorphic Lens Flares (VFX) ---------------------------------------
-        fl_wrap = QWidget()
-        fl_wrap.setObjectName("Transparent")
-        fl = QVBoxLayout(fl_wrap)
-        fl.setContentsMargins(0, 2, 0, 0)
-        fl.setSpacing(4)
+        self.edit_engine_note = make_label("", "Caption")
+        self.edit_engine_note.setWordWrap(True)
+        if not _HAS_PIL:
+            self.edit_engine_note.setText(
+                "Note: Pillow not installed — core tone adjustments and pure-vector anamorphic flares remain active."
+            )
+        glay.addWidget(self.edit_engine_note)
+        glay.addStretch(1)
+
+        # Compatibility stubs for settings save/restore
+        self.edit_adjust_section = CollapsibleSection("Tone & Color", QWidget(), expanded=True)
+        self.edit_lut_section = CollapsibleSection("Cinematic LUT", QWidget(), expanded=False)
+        self.edit_flare_section = CollapsibleSection("Anamorphic Flares", QWidget(), expanded=False)
+        self.edit_split_section = CollapsibleSection("Split Studio", QWidget(), expanded=False)
+        self.edit_export_section = CollapsibleSection("Export", QWidget(), expanded=True)
+
+        # ===================================================================
+        #  Sub-tab 2: Anamorphic Lens Flares (Multi-Flare, Dual-Hue, Strictly Horizontal)
+        # ===================================================================
+        fl_scroll, fl = self._scroll_tab()
         prow = QHBoxLayout()
         prow.setSpacing(4)
-        prow.addWidget(make_label("PRESET", "Kicker"))
+        prow.addWidget(make_label("Style", "Kicker"))
         self.edit_flare_combo = QComboBox()
         for f in FLARE_PRESETS:
-            self.edit_flare_combo.addItem(f["name"], f["key"])
+            tag = "Dual" if f.get("multi_color") else "Mono"
+            self.edit_flare_combo.addItem(f"{f['name']}  ({tag})", f["key"])
         self.edit_flare_combo.setToolTip(
-            "Ten vector-rendered cinematic anamorphic lens flares. Pick one, then use the FLARE "
-            "tool on the stage and click a distant light source in the photo."
+            "16 natural pure-vector horizontal wide anamorphic lens flares. "
+            "Stack multiple flares of different styles and tune Primary & Accent hues independently."
         )
         self.edit_flare_combo.currentIndexChanged.connect(lambda _i: self._on_flare_preset_changed())
         prow.addWidget(self.edit_flare_combo, 1)
+        self.edit_flare_add_btn = make_button(
+            "Add", self.edit_flare_add_center, small=True, accent=True,
+            tip="Add a new horizontal anamorphic flare onto the photo (or click any light source with Flare tool)",
+            icon_key="flare_add", icon_size=13,
+        )
+        prow.addWidget(self.edit_flare_add_btn)
         fl.addLayout(prow)
+
         self.edit_flare_hint = make_label(
-            "Pick the FLARE tool on the stage toolbar, then click a light source in the image. "
-            "Click an existing handle to select it, drag to move.", "Caption",
+            "Select the Flare tool (F) and click a light source, or press Add. Drag handles to move; drag ring or Shift+Wheel to resize.",
+            "Caption",
         )
         self.edit_flare_hint.setWordWrap(True)
         fl.addWidget(self.edit_flare_hint)
@@ -17420,13 +17634,14 @@ class MainWindow(QMainWindow):
         fgrid.setHorizontalSpacing(8)
         fgrid.setVerticalSpacing(2)
         _flare_specs = (
-            ("SIZE", "scale", 30, 250, 100, "Resize flare up/down proportionally (30…250% · Shift+Wheel or drag ring)"),
-            ("BRIGHT", "brightness", 10, 220, 100, "Brightness / luminous power of the selected flare (10…220%)"),
-            ("SAT", "saturation", 0, 200, 100, "Color saturation: 0% = pure crystal white, 100% = preset, 200% = vivid neon"),
-            ("STRETCH", "stretch", 40, 240, 100, "Wide anamorphic horizontal streak elongation (40…240%)"),
-            ("HUE", "hue", -180, 180, 0, "Color hue rotation of the selected flare (-180°…+180°)"),
-            ("ANGLE", "angle", -35, 35, 0, "Anamorphic streak horizon tilt angle (-35°…+35°)"),
-            ("FALLOFF", "contrast", -100, 100, 0, "Optical falloff contrast: negative = softer glow, positive = crisp core"),
+            ("Size", "scale", 30, 250, 100, "Resize flare proportionally (30…250% · Shift+Wheel or drag ring)"),
+            ("Opacity", "opacity", 10, 100, 100, "Overall blend strength of the selected flare (10…100%)"),
+            ("Brightness", "brightness", 10, 220, 100, "Luminous power of the selected flare (10…220%)"),
+            ("Saturation", "saturation", 0, 200, 100, "Color intensity: 0% crystal white, 100% preset, 200% vivid"),
+            ("Stretch", "stretch", 40, 260, 100, "Horizontal wide anamorphic elongation (40…260%)"),
+            ("Falloff", "contrast", -100, 100, 0, "Optical falloff curve: negative = airy glow, positive = sharp core"),
+            ("Primary Hue", "hue", -180, 180, 0, "Primary streak & core hue rotation (-180°…+180°)"),
+            ("Accent Hue", "hue2", -180, 180, 0, "Secondary multi-color wing, halo & aperture ghost hue (-180°…+180°)"),
         )
         for idx_fs, (label, key, lo, hi, default, tip) in enumerate(_flare_specs):
             cell = QVBoxLayout()
@@ -17447,148 +17662,169 @@ class MainWindow(QMainWindow):
             cell.addLayout(lr)
             cell.addWidget(sl)
             r_pos, c_pos = divmod(idx_fs, 2)
-            if idx_fs == len(_flare_specs) - 1 and c_pos == 0:
-                fgrid.addLayout(cell, r_pos, 0, 1, 2)
-            else:
-                fgrid.addLayout(cell, r_pos, c_pos)
+            fgrid.addLayout(cell, r_pos, c_pos)
             setattr(self, f"edit_flare_sl_{key}", sl)
             setattr(self, f"edit_flare_val_{key}", val)
         fgrid.setColumnStretch(0, 1)
         fgrid.setColumnStretch(1, 1)
         fl.addLayout(fgrid)
 
+        # Fine numeric X/Y placement row
+        pos_row = QHBoxLayout()
+        pos_row.setSpacing(5)
+        pos_row.addWidget(make_label("Position", "Kicker"))
+        self.edit_flare_x_spin = QDoubleSpinBox()
+        self.edit_flare_x_spin.setRange(-20.0, 120.0)
+        self.edit_flare_x_spin.setSingleStep(1.0)
+        self.edit_flare_x_spin.setDecimals(1)
+        self.edit_flare_x_spin.setPrefix("X ")
+        self.edit_flare_x_spin.setSuffix("%")
+        self.edit_flare_x_spin.setValue(50.0)
+        self.edit_flare_x_spin.valueChanged.connect(self._on_flare_xy_spin)
+        self.edit_flare_y_spin = QDoubleSpinBox()
+        self.edit_flare_y_spin.setRange(-20.0, 120.0)
+        self.edit_flare_y_spin.setSingleStep(1.0)
+        self.edit_flare_y_spin.setDecimals(1)
+        self.edit_flare_y_spin.setPrefix("Y ")
+        self.edit_flare_y_spin.setSuffix("%")
+        self.edit_flare_y_spin.setValue(50.0)
+        self.edit_flare_y_spin.valueChanged.connect(self._on_flare_xy_spin)
+        pos_row.addWidget(self.edit_flare_x_spin, 1)
+        pos_row.addWidget(self.edit_flare_y_spin, 1)
+        fl.addLayout(pos_row)
+
+        fl.addWidget(make_label("Placed Flare Layers (up to 16)", "Kicker"))
         self.edit_flare_list = QListWidget()
         self.edit_flare_list.setObjectName("FlareList")
-        self.edit_flare_list.setMaximumHeight(92)
-        self.edit_flare_list.setToolTip("Placed flares — click to select, Del to remove")
+        self.edit_flare_list.setMinimumHeight(86)
+        self.edit_flare_list.setMaximumHeight(128)
+        self.edit_flare_list.setToolTip("Placed horizontal anamorphic flares — click to select, Del to remove")
         self.edit_flare_list.currentRowChanged.connect(self._on_flare_list_selected)
         fl.addWidget(self.edit_flare_list)
-        frbtn = QHBoxLayout()
-        frbtn.setSpacing(4)
-        self.edit_flare_dup_btn = make_button("DUP", self.edit_flare_duplicate_selected, small=True,
-                                              tip="Duplicate the selected flare slightly offset", icon_key="duplicate", icon_size=12)
-        self.edit_flare_vis_btn = make_button("HIDE", self.edit_flare_toggle_selected_visible, small=True,
-                                              tip="Temporarily hide/show the selected flare", icon_key="eye", icon_size=12)
-        self.edit_flare_reset_btn = make_button("RESET", self.edit_flare_reset_params, small=True,
-                                                tip="Reset flare parameters to preset defaults", icon_key="reset", icon_size=12)
-        self.edit_flare_remove_btn = make_button("REMOVE", self.edit_flare_remove_selected, small=True,
-                                                 tip="Remove the selected flare (Del)")
-        self.edit_flare_clear_btn = make_button("CLEAR", self.edit_flare_clear_all, small=True,
-                                                tip="Remove every placed flare")
-        for wb in (self.edit_flare_dup_btn, self.edit_flare_vis_btn, self.edit_flare_reset_btn,
-                   self.edit_flare_remove_btn, self.edit_flare_clear_btn):
-            frbtn.addWidget(wb)
-        frbtn.addStretch(1)
-        fl.addLayout(frbtn)
-        self.edit_flare_section = CollapsibleSection("Anamorphic Lens Flares (VFX)", fl_wrap, expanded=False)
-        self.edit_flare_section.toggled.connect(lambda _b: self._schedule_save())
-        lay.addWidget(self.edit_flare_section)
 
-        # ---- Split Studio --------------------------------------------------------
-        sp_wrap = QWidget()
-        sp_wrap.setObjectName("Transparent")
-        sl = QVBoxLayout(sp_wrap)
-        sl.setContentsMargins(0, 2, 0, 0)
-        sl.setSpacing(4)
+        frbtn = QHBoxLayout()
+        frbtn.setSpacing(3)
+        self.edit_flare_dup_btn = make_button("Copy", self.edit_flare_duplicate_selected, small=True,
+                                              tip="Duplicate selected flare", icon_key="duplicate", icon_size=12)
+        self.edit_flare_vis_btn = make_button("Hide", self.edit_flare_toggle_selected_visible, small=True,
+                                              tip="Show or hide selected flare", icon_key="eye", icon_size=12)
+        self.edit_flare_solo_btn = make_button("Solo", self.edit_flare_toggle_selected_solo, small=True,
+                                               tip="Preview only the selected flare", icon_key="solo", icon_size=12)
+        self.edit_flare_lock_btn = make_button("Lock", self.edit_flare_toggle_selected_locked, small=True,
+                                               tip="Lock selected flare position and size", icon_key="unlock", icon_size=12)
+        for wb in (self.edit_flare_dup_btn, self.edit_flare_vis_btn, self.edit_flare_solo_btn, self.edit_flare_lock_btn):
+            frbtn.addWidget(wb, 1)
+        fl.addLayout(frbtn)
+
+        frbtn2 = QHBoxLayout()
+        frbtn2.setSpacing(3)
+        self.edit_flare_reset_btn = make_button("Reset", self.edit_flare_reset_params, small=True,
+                                                tip="Reset flare parameters to defaults", icon_key="reset", icon_size=12)
+        self.edit_flare_remove_btn = make_button("Remove", self.edit_flare_remove_selected, small=True,
+                                                 tip="Remove selected flare (Del)")
+        self.edit_flare_clear_btn = make_button("Clear All", self.edit_flare_clear_all, small=True,
+                                                tip="Remove all placed flares")
+        for wb in (self.edit_flare_reset_btn, self.edit_flare_remove_btn, self.edit_flare_clear_btn):
+            frbtn2.addWidget(wb, 1)
+        fl.addLayout(frbtn2)
+        fl.addStretch(1)
+
+        # ===================================================================
+        #  Sub-tab 3: Split Studio & Export
+        # ===================================================================
+        exp_scroll, el = self._scroll_tab()
+        el.addWidget(SectionHeader("Split Studio"))
         orow = QHBoxLayout()
         orow.setSpacing(0)
         self.edit_split_group = QButtonGroup(self)
-        self.edit_split_vert = QPushButton("VERTICAL \u2502")
+        self.edit_split_vert = QPushButton("Vertical │")
         self.edit_split_vert.setObjectName("SegL")
         self.edit_split_vert.setCheckable(True)
         self.edit_split_vert.setChecked(True)
-        self.edit_split_vert.setToolTip("Split into a LEFT half and a RIGHT half")
-        self.edit_split_horz = QPushButton("HORIZONTAL \u2014")
+        self.edit_split_vert.setToolTip("Split into left and right halves")
+        self.edit_split_horz = QPushButton("Horizontal —")
         self.edit_split_horz.setObjectName("SegR")
         self.edit_split_horz.setCheckable(True)
-        self.edit_split_horz.setToolTip("Split into a TOP half and a BOTTOM half")
+        self.edit_split_horz.setToolTip("Split into top and bottom halves")
         for b in (self.edit_split_vert, self.edit_split_horz):
             b.setCursor(Qt.CursorShape.PointingHandCursor)
             self.edit_split_group.addButton(b)
             orow.addWidget(b, 1)
         self.edit_split_group.buttonClicked.connect(lambda _b: self._on_split_params_changed())
-        sl.addLayout(orow)
+        el.addLayout(orow)
+
         grow = QHBoxLayout()
         grow.setSpacing(6)
-        grow.addWidget(make_label("GAP", "Kicker"))
+        grow.addWidget(make_label("Center Gap", "Kicker"))
         self.edit_split_gap = QSlider(Qt.Orientation.Horizontal)
         self.edit_split_gap.setRange(1, 100)
         self.edit_split_gap.setValue(1)
         self.edit_split_gap.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.edit_split_gap.setToolTip(
-            "Width of the bar EXCLUDED from the middle while splitting (1\u2013100 px). "
-            "The two halves stay equal-sized; the bar is simply cut away."
-        )
         self.edit_split_gap.valueChanged.connect(lambda _v: self._on_split_params_changed())
         grow.addWidget(self.edit_split_gap, 1)
         self.edit_split_gap_val = make_label("1 px", "Value")
         self.edit_split_gap_val.setMinimumWidth(40)
         self.edit_split_gap_val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         grow.addWidget(self.edit_split_gap_val)
-        sl.addLayout(grow)
+        el.addLayout(grow)
+
         self.edit_split_dims = make_label("", "Caption")
         self.edit_split_dims.setWordWrap(True)
-        sl.addWidget(self.edit_split_dims)
+        el.addWidget(self.edit_split_dims)
+
         sbtn1 = QHBoxLayout()
         sbtn1.setSpacing(4)
-        self.edit_split_copy_a = make_button("COPY LEFT", self.edit_split_copy_first, small=True,
-                                             tip="Copy the left (or top) half to the clipboard")
-        self.edit_split_copy_b = make_button("COPY RIGHT", self.edit_split_copy_second, small=True,
-                                             tip="Copy the right (or bottom) half to the clipboard")
+        self.edit_split_copy_a = make_button("Copy Left", self.edit_split_copy_first, small=True)
+        self.edit_split_copy_b = make_button("Copy Right", self.edit_split_copy_second, small=True)
         sbtn1.addWidget(self.edit_split_copy_a, 1)
         sbtn1.addWidget(self.edit_split_copy_b, 1)
-        sl.addLayout(sbtn1)
-        sbtn2 = QHBoxLayout()
-        sbtn2.setSpacing(4)
+        el.addLayout(sbtn1)
+
         self.edit_split_save_btn = make_button(
-            "SAVE BOTH \u25B8 OUTPUTS/", self.edit_split_save_both, accent=True,
-            tip="Save both halves as separate PNG files in outputs/ \u2014 each carries a copy of "
-                "the source image's JSON metadata",
+            "Save Both Halves to Outputs", self.edit_split_save_both, accent=True,
+            tip="Save both halves as PNGs in outputs/ with source metadata",
             icon_key="split", icon_size=13,
         )
         self.edit_split_save_btn.setEnabled(False)
-        sbtn2.addWidget(self.edit_split_save_btn, 1)
-        sl.addLayout(sbtn2)
-        self.edit_split_section = CollapsibleSection("Split Studio (two halves + gap bar)", sp_wrap, expanded=False)
-        self.edit_split_section.toggled.connect(lambda _b: self._schedule_save())
-        lay.addWidget(self.edit_split_section)
+        el.addWidget(self.edit_split_save_btn)
 
-        # ---- Export & Save -------------------------------------------------------
-        exp_wrap = QWidget()
-        exp_wrap.setObjectName("Transparent")
-        el = QVBoxLayout(exp_wrap)
-        el.setContentsMargins(0, 2, 0, 0)
-        el.setSpacing(4)
+        el.addSpacing(6)
+        el.addWidget(SectionHeader("Export & Inpaint"))
         self.edit_inpaint_btn = make_button(
-            "SEND TO IMG2IMG \u25B8 INPAINT", self.edit_send_inpaint, accent=True,
-            tip="Attach this image + painted mask as an inpainting request (white = repainted area).\n"
-                "Paint the mask with the BRUSH on the stage toolbar first.",
+            "Send to Img2Img Inpaint", self.edit_send_inpaint, accent=True,
+            tip="Attach this image and painted mask as an inpainting request (white = repainted area)",
             icon_key="brush", icon_size=13,
         )
         self.edit_inpaint_btn.setEnabled(False)
         el.addWidget(self.edit_inpaint_btn)
-        srow = QHBoxLayout()
+
         self.edit_save_btn = make_button(
-            "SAVE AS NEW \u25B8 outputs/", self.edit_save_new, accent=True,
-            tip="Write the edited image into outputs/ as a NEW file - the original's JSON metadata is copied",
+            "Save Copy to Outputs", self.edit_save_new, accent=True,
+            tip="Save edited image into outputs/ as a new PNG file preserving JSON metadata",
             icon_key="image", icon_size=13,
         )
         self.edit_save_btn.setEnabled(False)
-        srow.addWidget(self.edit_save_btn, 1)
-        el.addLayout(srow)
-        self.edit_delete_original_check = QCheckBox("delete original after save")
-        self.edit_delete_original_check.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.edit_delete_original_check.setToolTip(
-            "After the edited copy is written, delete the original image\n"
-            "(and its depth map / sidecar metadata) from disk."
-        )
-        el.addWidget(self.edit_delete_original_check)
-        self.edit_export_section = CollapsibleSection("Export (Inpaint / Save As New)", exp_wrap, expanded=True)
-        self.edit_export_section.toggled.connect(lambda _b: self._schedule_save())
-        lay.addWidget(self.edit_export_section)
-        lay.addStretch(1)
+        el.addWidget(self.edit_save_btn)
 
-        # Editor keyboard map (scoped to this control deck)
+        self.edit_delete_original_check = QCheckBox("Delete original file after saving copy")
+        self.edit_delete_original_check.setCursor(Qt.CursorShape.PointingHandCursor)
+        el.addWidget(self.edit_delete_original_check)
+        el.addStretch(1)
+
+        self.edit_subtabs.addTab(grade_scroll, "Grade & LUT")
+        self.edit_subtabs.addTab(fl_scroll, "Flares")
+        self.edit_subtabs.addTab(exp_scroll, "Split & Export")
+        root_lay.addWidget(self.edit_subtabs, 1)
+
+        # Pinned footer Apply CTA (always visible on small laptop displays)
+        self.edit_apply_btn = make_button(
+            "Apply & Bake Changes", self.edit_apply, accent=True,
+            tip="Bake adjustments, LUT grade, retouch strokes, and all placed anamorphic flares into the image",
+        )
+        self.edit_apply_btn.setEnabled(False)
+        root_lay.addWidget(self.edit_apply_btn)
+
+        # Editor keyboard map
         for seq, fn in (
             ("B", lambda: self._set_edit_tool("brush")),
             ("E", lambda: self._set_edit_tool("erase")),
@@ -17601,17 +17837,21 @@ class MainWindow(QMainWindow):
             ("X", self._edit_toggle_paint_erase),
             ("M", self._edit_toggle_mask_visible),
             ("A", self._edit_poly_close_key),
-            ("[", lambda: self._nudge_brush(-8)),
-            ("]", lambda: self._nudge_brush(8)),
             ("Delete", self.edit_flare_remove_selected),
             ("Ctrl+Z", self._edit_undo_smart),
+            ("Ctrl+Y", self.edit_redo),
+            ("Ctrl+Shift+Z", self.edit_redo),
+            ("[", lambda: self._nudge_brush(-8)),
+            ("]", lambda: self._nudge_brush(8)),
         ):
-            sc = QShortcut(QKeySequence(seq), scroll)
+            sc = QShortcut(QKeySequence(seq), root_w)
             sc.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
             sc.activated.connect(fn)
-        return scroll
+        esc = QShortcut(QKeySequence("Esc"), root_w)
+        esc.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        esc.activated.connect(self._edit_escape_key)
+        return root_w
 
-    # ---- Command Deck (Always-Visible Bottom Console) -----------------------
     def _build_deck(self) -> QWidget:
         deck = BevelDeck()
         lay = QVBoxLayout(deck)
@@ -17620,7 +17860,7 @@ class MainWindow(QMainWindow):
 
         r1 = QHBoxLayout()
         r1.setSpacing(2)
-        r1.addWidget(make_label("MODEL", "Kicker"))
+        r1.addWidget(make_label("Model", "Kicker"))
         r1.addSpacing(4)
         self.model_group = QButtonGroup(self)
         self.model_group.setExclusive(True)
@@ -17648,7 +17888,7 @@ class MainWindow(QMainWindow):
         self.n_spin.setToolTip("Images per GENERATE request")
         self.n_spin.valueChanged.connect(self._on_batch_changed)
         self.batch_btn = make_button(
-            "BATCH\u2026", self.open_batch_queue_dialog, small=True, accent=True,
+            "Batch\u2026", self.open_batch_queue_dialog, small=True, accent=True,
             tip="Batch Prompt Queue — paste a list of single-line prompts from the clipboard; "
                 "every line is queued with the current template, negative prompt and LoRAs  (Ctrl+Shift+V)",
             icon_key="batch", icon_size=13,
@@ -17665,7 +17905,7 @@ class MainWindow(QMainWindow):
         lay.addLayout(r0)
 
         # Full-width hero promotional Generate ignition button
-        self.gen_btn = IgnitionGenerateButton("GENERATE")
+        self.gen_btn = IgnitionGenerateButton("Generate")
         self.gen_btn.setToolTip("Queue image generation on AI Horde  (Ctrl+Enter). Press repeatedly to stack the queue!")
         self.gen_btn.clicked.connect(lambda: self.on_generate())
         lay.addWidget(self.gen_btn)
@@ -17680,13 +17920,13 @@ class MainWindow(QMainWindow):
         # LoRA counter, img2img indicator and Horde connection state.
         self.chip_lora = QToolButton()
         self.chip_lora.setObjectName("Small")
-        self.chip_lora.setText("LORA 0/5")
+        self.chip_lora.setText("LoRA 0/5")
         self.chip_lora.setCursor(Qt.CursorShape.PointingHandCursor)
         self.chip_lora.setToolTip("Enabled LoRAs on the active model stack (max 5 per request) — click to open the LoRA manager")
         self.chip_lora.clicked.connect(lambda: self.tabs.setCurrentIndex(TAB_LORA))
         self.chip_i2i = QToolButton()
         self.chip_i2i.setObjectName("Small")
-        self.chip_i2i.setText("IMG2IMG")
+        self.chip_i2i.setText("Img2Img")
         self.chip_i2i.setCursor(Qt.CursorShape.PointingHandCursor)
         self.chip_i2i.setToolTip("img2img source active — click to open its drawer")
         self.chip_i2i.clicked.connect(lambda: self.tabs.setCurrentIndex(TAB_PROMPT))
@@ -17758,7 +17998,7 @@ class MainWindow(QMainWindow):
         self.zoom_in_btn.setText("+")
         self.zoom_in_btn.setFixedWidth(24)
         self.zoom_in_btn.clicked.connect(lambda: self.viewer.zoom_by(1.25))
-        self.zoom_label = QLabel("FIT")
+        self.zoom_label = QLabel("Fit")
         self.zoom_label.setObjectName("InfoBar")
         self.zoom_label.setMinimumWidth(46)
         self.zoom_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -17776,7 +18016,7 @@ class MainWindow(QMainWindow):
         self.slide_btn.toggled.connect(self._on_slideshow_toggled)
         self.gallery_btn = QToolButton()
         self.gallery_btn.setObjectName("Small")
-        self.gallery_btn.setText("STRIP")
+        self.gallery_btn.setText("Strip")
         self.gallery_btn.setCheckable(True)
         self.gallery_btn.setChecked(True)
         self.gallery_btn.setToolTip("Show / hide recent filmstrip  (Ctrl+G)")
@@ -17813,23 +18053,23 @@ class MainWindow(QMainWindow):
 
         act = QHBoxLayout()
         act.setSpacing(3)
-        self.save_btn = make_button("SAVE \u25B8 OUTPUTS", self.save_current, accent=True,
+        self.save_btn = make_button("Save to Outputs", self.save_current, accent=True,
                                     tip="Save current render into outputs/  (Ctrl+S)")
         self.save_btn.setObjectName("ActAccent")
         act.addWidget(self.save_btn, 3)
         for text, slot, tip in (
-            ("PROMPT", lambda: self.use_from_image("prompt"), "Load prompt + negative into editor"),
-            ("SEED", lambda: self.use_from_image("seed"), "Load seed into editor"),
-            ("ALL", lambda: self.use_from_image("all"), "Load prompt, negative, seed, model, size & LoRAs"),
-            ("EDITOR", self.edit_from_viewer, "Open current render directly in the full-size Image Editor (LUTs, Flares, Retouch, Mask)"),
-            ("I2I EDIT", lambda: self.edit_via_side_by_side(self._current_image()),
+            ("Prompt", lambda: self.use_from_image("prompt"), "Load prompt + negative into editor"),
+            ("Seed", lambda: self.use_from_image("seed"), "Load seed into editor"),
+            ("All", lambda: self.use_from_image("all"), "Load prompt, negative, seed, model, size & LoRAs"),
+            ("Editor", self.edit_from_viewer, "Open current render directly in the full-size Image Editor (LUTs, Flares, Retouch, Mask)"),
+            ("I2I Edit", lambda: self.edit_via_side_by_side(self._current_image()),
              "Side-by-side img2img EDIT workaround: the image is doubled left/right, the right\n"
              "half is masked for inpainting and the request is sized under 1 MP (2:1 aspect).\n"
              "Describe the FULL edited picture in the prompt - the left half stays locked."),
             ("VLM", lambda: self._send_image_to_vlm(self._current_image()), "Send this image to the Vision Prompt Extractor (LLM tab)"),
-            ("UPSCALE", self.ups_take_from_gallery, "Send current image to Tile Upscale tab"),
-            ("INFO", self.show_current_info, "Inspect complete metadata & parameters"),
-            ("DEL", self.delete_current, "Delete render from disk"),
+            ("Upscale", self.ups_take_from_gallery, "Send current image to Tile Upscale tab"),
+            ("Info", self.show_current_info, "Inspect complete metadata & parameters"),
+            ("Delete", self.delete_current, "Delete render from disk"),
         ):
             b = make_button(text, slot, tip=tip)
             b.setObjectName("Act")
@@ -17866,8 +18106,8 @@ class MainWindow(QMainWindow):
         self.right_stack.addWidget(viewer_tab)     # index 0 — normal viewer
         self.right_stack.addWidget(self.edit_stage)  # index 1 — editor stage
 
-        self.right_tabs.addTab(self.right_stack, "VIEWER")
-        self.right_tabs.addTab(self.gallery_tab, "OUTPUTS GALLERY")
+        self.right_tabs.addTab(self.right_stack, "Viewer")
+        self.right_tabs.addTab(self.gallery_tab, "Gallery")
         self.right_tabs.currentChanged.connect(self._on_right_tab_changed)
         return self.right_tabs
 
@@ -17902,17 +18142,17 @@ class MainWindow(QMainWindow):
         self.edit_tool_group = QButtonGroup(self)
         self.edit_tool_btns: Dict[str, QPushButton] = {}
         for k, lbl, obj, tip in (
-            ("nav", "NAV", "SegL", "Navigate: drag to pan, wheel to zoom (N)"),
-            ("brush", "MASK", "Seg", "Paint the adjustment mask (B)"),
-            ("erase", "UNMASK", "Seg", "Erase the adjustment mask (E)"),
-            ("paint", "PAINT", "Seg", "Retouch brush for small raster fixes — "
+            ("nav", "Pan", "SegL", "Navigate: drag to pan, wheel to zoom (N)"),
+            ("brush", "Mask", "Seg", "Paint the adjustment mask (B)"),
+            ("erase", "Unmask", "Seg", "Erase the adjustment mask (E)"),
+            ("paint", "Paint", "Seg", "Retouch brush for small raster fixes — "
                                      "Alt+Click picks the color under the cursor (P)"),
-            ("poly", "LASSO", "Seg", "Polygonal mask selection — click points, "
+            ("poly", "Lasso", "Seg", "Polygonal mask selection — click points, "
                                      "A closes, Esc cancels (G)"),
-            ("crop", "CROP", "Seg", "Crop frame with the generation aspect set (C)"),
-            ("rotate", "TILT", "Seg", "Tilt / straighten — borders stay static, "
+            ("crop", "Crop", "Seg", "Crop frame with the generation aspect set (C)"),
+            ("rotate", "Tilt", "Seg", "Tilt / straighten — borders stay static, "
                                       "the image rotates under them (R)"),
-            ("flare", "FLARE", "SegR", "Place / select anamorphic lens flares (F)"),
+            ("flare", "Flare", "SegR", "Place / select anamorphic lens flares (F)"),
         ):
             b = QPushButton(lbl)
             b.setObjectName(obj)
@@ -17939,7 +18179,7 @@ class MainWindow(QMainWindow):
         self.edit_zoom_out_btn.setFixedWidth(24)
         self.edit_zoom_out_btn.setText("\u2212")
         self.edit_zoom_out_btn.clicked.connect(lambda: self.edit_canvas.zoom_by(1.0 / 1.25))
-        self.edit_zoom_lbl = QLabel("FIT")
+        self.edit_zoom_lbl = QLabel("Fit")
         self.edit_zoom_lbl.setObjectName("InfoBar")
         self.edit_zoom_lbl.setMinimumWidth(44)
         self.edit_zoom_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -17950,7 +18190,7 @@ class MainWindow(QMainWindow):
         self.edit_zoom_in_btn.clicked.connect(lambda: self.edit_canvas.zoom_by(1.25))
         self.edit_fit_btn = QToolButton()
         self.edit_fit_btn.setObjectName("Small")
-        self.edit_fit_btn.setText("FIT")
+        self.edit_fit_btn.setText("Fit")
         self.edit_fit_btn.clicked.connect(self.edit_canvas.fit_view)
         self.edit_11_btn = QToolButton()
         self.edit_11_btn.setObjectName("Small")
@@ -17963,7 +18203,7 @@ class MainWindow(QMainWindow):
         self.edit_mask_vis_btn.setObjectName("Small")
         self.edit_mask_vis_btn.setCheckable(True)
         self.edit_mask_vis_btn.setChecked(True)
-        self.edit_mask_vis_btn.setText("MASK ON")
+        self.edit_mask_vis_btn.setText("Mask")
         self.edit_mask_vis_btn.setIcon(VECTOR_ASSETS.icon("eye", 13))
         self.edit_mask_vis_btn.setIconSize(QSize(13, 13))
         self.edit_mask_vis_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
@@ -17978,7 +18218,7 @@ class MainWindow(QMainWindow):
         self.edit_split_cmp_btn = QToolButton()
         self.edit_split_cmp_btn.setObjectName("Small")
         self.edit_split_cmp_btn.setCheckable(True)
-        self.edit_split_cmp_btn.setText("WIPE")
+        self.edit_split_cmp_btn.setText("Wipe")
         self.edit_split_cmp_btn.setIcon(VECTOR_ASSETS.icon("compare", 13))
         self.edit_split_cmp_btn.setIconSize(QSize(13, 13))
         self.edit_split_cmp_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
@@ -17987,7 +18227,7 @@ class MainWindow(QMainWindow):
         self.edit_split_cmp_btn.toggled.connect(self._on_edit_split_compare_toggled)
         t1.addWidget(self.edit_split_cmp_btn)
 
-        self.edit_compare_btn = QPushButton("HOLD ORIG")
+        self.edit_compare_btn = QPushButton("Original")
         self.edit_compare_btn.setObjectName("Small")
         self.edit_compare_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.edit_compare_btn.setToolTip("Hold to reveal the untouched original under the current grade")
@@ -18046,8 +18286,8 @@ class MainWindow(QMainWindow):
         ml.setContentsMargins(0, 0, 0, 0)
         ml.setSpacing(4)
         mrow, m_sl, m_lab = _sliders_row([
-            ("size", "SIZE", 4, 400, 48, "Mask brush diameter in image pixels ([ and ] adjust)"),
-            ("soft", "SOFT", 0, 100, 45, "Mask brush edge softness (0 = hard round, 100 = very soft)"),
+            ("size", "Size", 4, 400, 48, "Mask brush diameter in image pixels ([ and ] adjust)"),
+            ("soft", "Soft", 0, 100, 45, "Mask brush edge softness (0 = hard round, 100 = very soft)"),
         ])
         ml.addLayout(mrow)
         self.edit_brush_size = m_sl["size"]
@@ -18061,15 +18301,15 @@ class MainWindow(QMainWindow):
         self.edit_mask_opaque_btn.setObjectName("Small")
         self.edit_mask_opaque_btn.setCheckable(True)
         self.edit_mask_opaque_btn.setChecked(True)
-        self.edit_mask_opaque_btn.setText("OPAQUE")
+        self.edit_mask_opaque_btn.setText("Opaque")
         self.edit_mask_opaque_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.edit_mask_opaque_btn.setToolTip("Show the mask as opaque red or 45% ghost red")
         self.edit_mask_opaque_btn.toggled.connect(self._on_edit_mask_opacity)
         ml.addWidget(self.edit_mask_opaque_btn)
-        self.edit_mask_clear_btn = make_button("CLR MASK", self.edit_canvas_clear_mask, small=True,
+        self.edit_mask_clear_btn = make_button("Clear Mask", self.edit_canvas_clear_mask, small=True,
                                                tip="Clear the painted mask and any lasso selection")
         ml.addWidget(self.edit_mask_clear_btn)
-        self.edit_mask_invert_btn = make_button("INVERT", self.edit_canvas_invert_mask, small=True,
+        self.edit_mask_invert_btn = make_button("Invert", self.edit_canvas_invert_mask, small=True,
                                                 tip="Invert the painted mask")
         ml.addWidget(self.edit_mask_invert_btn)
         self.edit_coverage_lbl = make_label("mask 0%", "Value")
@@ -18085,9 +18325,9 @@ class MainWindow(QMainWindow):
         pl.setContentsMargins(0, 0, 0, 0)
         pl.setSpacing(4)
         prow, p_sl, p_lab = _sliders_row([
-            ("psize", "SIZE", 2, 400, 36, "Retouch brush diameter in image pixels"),
-            ("psoft", "SOFT", 0, 100, 55, "Retouch brush edge softness (Photoshop-style falloff)"),
-            ("popac", "FLOW", 5, 100, 100, "Stroke flow / opacity in %"),
+            ("psize", "Size", 2, 400, 36, "Retouch brush diameter in image pixels"),
+            ("psoft", "Soft", 0, 100, 55, "Retouch brush edge softness (Photoshop-style falloff)"),
+            ("popac", "Flow", 5, 100, 100, "Stroke flow / opacity in %"),
         ])
         pl.addLayout(prow)
         self.edit_paint_size = p_sl["psize"]
@@ -18099,7 +18339,7 @@ class MainWindow(QMainWindow):
         for s in (self.edit_paint_size, self.edit_paint_soft, self.edit_paint_opacity):
             s.valueChanged.connect(self._on_edit_brush_changed)
         pl.addSpacing(6)
-        pl.addWidget(make_label("COLOR", "Kicker"))
+        pl.addWidget(make_label("Color", "Kicker"))
         self.edit_paint_swatch = QToolButton()
         self.edit_paint_swatch.setObjectName("Small")
         self.edit_paint_swatch.setFixedSize(46, 22)
@@ -18113,7 +18353,7 @@ class MainWindow(QMainWindow):
         self.edit_paint_erase_btn = QToolButton()
         self.edit_paint_erase_btn.setObjectName("Small")
         self.edit_paint_erase_btn.setCheckable(True)
-        self.edit_paint_erase_btn.setText("ERASER")
+        self.edit_paint_erase_btn.setText("Eraser")
         self.edit_paint_erase_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.edit_paint_erase_btn.setToolTip(
             "Paint ERASER: removes only the painted strokes — the photo underneath "
@@ -18121,7 +18361,7 @@ class MainWindow(QMainWindow):
         )
         self.edit_paint_erase_btn.toggled.connect(self._on_edit_paint_erase_toggled)
         pl.addWidget(self.edit_paint_erase_btn)
-        self.edit_paint_clear_btn = make_button("CLR PAINT", self.edit_paint_clear, small=True,
+        self.edit_paint_clear_btn = make_button("Clear Paint", self.edit_paint_clear, small=True,
                                                 tip="Remove every retouch stroke")
         pl.addWidget(self.edit_paint_clear_btn)
         pl.addStretch(1)
@@ -18137,7 +18377,7 @@ class MainWindow(QMainWindow):
         self.edit_poly_smooth_btn.setObjectName("Small")
         self.edit_poly_smooth_btn.setCheckable(True)
         self.edit_poly_smooth_btn.setChecked(True)
-        self.edit_poly_smooth_btn.setText("SMOOTH")
+        self.edit_poly_smooth_btn.setText("Smooth")
         self.edit_poly_smooth_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.edit_poly_smooth_btn.setToolTip(
             "Turn the point series into a vector-like rounded/curved selection"
@@ -18145,7 +18385,7 @@ class MainWindow(QMainWindow):
         self.edit_poly_smooth_btn.toggled.connect(self._on_edit_poly_smooth)
         gl.addWidget(self.edit_poly_smooth_btn)
         gl.addSpacing(6)
-        gl.addWidget(make_label("GROW", "Kicker"))
+        gl.addWidget(make_label("Grow", "Kicker"))
         self.edit_poly_shrink_btn = QToolButton()
         self.edit_poly_shrink_btn.setObjectName("Small")
         self.edit_poly_shrink_btn.setText("\u2212 6px")
@@ -18164,7 +18404,7 @@ class MainWindow(QMainWindow):
         self.edit_poly_grow_btn.clicked.connect(lambda: self._edit_poly_expand(+6.0))
         gl.addWidget(self.edit_poly_grow_btn)
         gl.addSpacing(6)
-        gl.addWidget(make_label("EDGE SOFT", "Kicker"))
+        gl.addWidget(make_label("Feather", "Kicker"))
         self.edit_poly_feather_sl = QSlider(Qt.Orientation.Horizontal)
         self.edit_poly_feather_sl.setRange(0, 120)
         self.edit_poly_feather_sl.setValue(0)
@@ -18177,11 +18417,11 @@ class MainWindow(QMainWindow):
         self.edit_poly_feather_val = make_label("0 px", "Value")
         self.edit_poly_feather_val.setMinimumWidth(40)
         gl.addWidget(self.edit_poly_feather_val)
-        self.edit_poly_commit_btn = make_button("ADD TO MASK", self.edit_poly_commit, small=True, accent=True,
+        self.edit_poly_commit_btn = make_button("Add to Mask", self.edit_poly_commit, small=True, accent=True,
                                                 tip="Union the selection into the red mask (the mask "
                                                     "brush keeps working alongside it)")
         gl.addWidget(self.edit_poly_commit_btn)
-        self.edit_poly_discard_btn = make_button("DISCARD", self.edit_poly_discard, small=True,
+        self.edit_poly_discard_btn = make_button("Discard", self.edit_poly_discard, small=True,
                                                  tip="Throw the selection away (Esc)")
         gl.addWidget(self.edit_poly_discard_btn)
         gl.addStretch(1)
@@ -18193,9 +18433,9 @@ class MainWindow(QMainWindow):
         cl = QHBoxLayout(page_crop)
         cl.setContentsMargins(0, 0, 0, 0)
         cl.setSpacing(4)
-        cl.addWidget(make_label("ASPECT", "Kicker"))
+        cl.addWidget(make_label("Aspect", "Kicker"))
         self.edit_crop_aspect = QComboBox()
-        self.edit_crop_aspect.addItem("FREE", "free")
+        self.edit_crop_aspect.addItem("Free", "free")
         for a in ASPECTS:
             self.edit_crop_aspect.addItem(f"{a['key']}  \u00b7  {a['w']}\u00d7{a['h']}", a["key"])
         self.edit_crop_aspect.setToolTip(
@@ -18207,10 +18447,10 @@ class MainWindow(QMainWindow):
         self.edit_crop_dims = make_label("\u2014", "Value")
         self.edit_crop_dims.setMinimumWidth(110)
         cl.addWidget(self.edit_crop_dims)
-        self.edit_crop_apply_btn = make_button("APPLY CROP", self._edit_apply_crop, small=True, accent=True,
+        self.edit_crop_apply_btn = make_button("Apply Crop", self._edit_apply_crop, small=True, accent=True,
                                                tip="Crop the working image in memory (nothing is saved yet)")
         cl.addWidget(self.edit_crop_apply_btn)
-        self.edit_crop_cancel_btn = make_button("CANCEL", self._edit_cancel_crop, small=True,
+        self.edit_crop_cancel_btn = make_button("Cancel", self._edit_cancel_crop, small=True,
                                                 tip="Drop the crop frame (Esc)")
         cl.addWidget(self.edit_crop_cancel_btn)
         cl.addStretch(1)
@@ -18222,7 +18462,7 @@ class MainWindow(QMainWindow):
         rl = QHBoxLayout(page_rot)
         rl.setContentsMargins(0, 0, 0, 0)
         rl.setSpacing(4)
-        rl.addWidget(make_label("ANGLE", "Kicker"))
+        rl.addWidget(make_label("Tilt", "Kicker"))
         self.edit_rot_slider = QSlider(Qt.Orientation.Horizontal)
         self.edit_rot_slider.setRange(-1800, 1800)   # 0.1-degree resolution
         self.edit_rot_slider.setValue(0)
@@ -18238,47 +18478,56 @@ class MainWindow(QMainWindow):
         self.edit_rot_val = make_label("0.0\u00b0", "Value")
         self.edit_rot_val.setMinimumWidth(52)
         rl.addWidget(self.edit_rot_val)
-        self.edit_rot_apply_btn = make_button("APPLY TILT", self._edit_apply_rotate, small=True, accent=True,
+        self.edit_rot_apply_btn = make_button("Apply Tilt", self._edit_apply_rotate, small=True, accent=True,
                                               tip="Bake the rotation into the working image "
                                                   "(transparent corners can be filled with PAINT)")
         rl.addWidget(self.edit_rot_apply_btn)
-        self.edit_rot_reset_btn = make_button("RESET", self._edit_reset_rotate, small=True,
+        self.edit_rot_reset_btn = make_button("Reset", self._edit_reset_rotate, small=True,
                                               tip="Back to 0.0\u00b0")
         rl.addWidget(self.edit_rot_reset_btn)
         rl.addStretch(1)
         self.edit_ctx_stack.addWidget(page_rot)
 
-        # -- page: FLARE (v5.0 inline quick resize / bright / sat controls) -----
+        # -- page: FLARE (v6.0 inline horizontal multi-flare quick controls) -----
         page_flare = QWidget()
         page_flare.setObjectName("Transparent")
         fl = QHBoxLayout(page_flare)
         fl.setContentsMargins(0, 0, 0, 0)
         fl.setSpacing(5)
+        self.edit_stage_flare_add = make_button(
+            "Add", self.edit_flare_add_center, small=True, accent=True,
+            tip="Add a new horizontal anamorphic flare", icon_key="flare_add", icon_size=12,
+        )
+        fl.addWidget(self.edit_stage_flare_add)
         frow, f_sl, f_lab = _sliders_row([
-            ("fsize", "SIZE", 30, 250, 100, "Resize selected flare (30\u2026250% \u00b7 Shift+Wheel or drag ring)"),
-            ("fbright", "BRIGHT", 10, 220, 100, "Brightness of selected flare (10\u2026220%)"),
-            ("fsat", "SAT", 0, 200, 100, "Saturation of selected flare (0\u2026200%)"),
+            ("fsize", "Size", 30, 250, 100, "Resize selected flare (30…250% · Shift+Wheel or drag ring)"),
+            ("fbright", "Bright", 10, 220, 100, "Brightness of selected flare (10…220%)"),
+            ("fhue", "Hue", -180, 180, 0, "Primary streak hue shift (-180°…+180°)"),
+            ("fhue2", "Accent", -180, 180, 0, "Secondary multi-color wing/ghost hue shift (-180°…+180°)"),
         ])
         fl.addLayout(frow)
         self.edit_stage_flare_size = f_sl["fsize"]
         self.edit_stage_flare_bright = f_sl["fbright"]
-        self.edit_stage_flare_sat = f_sl["fsat"]
+        self.edit_stage_flare_hue = f_sl["fhue"]
+        self.edit_stage_flare_hue2 = f_sl["fhue2"]
         self._edit_stage_flare_size_lab = f_lab["fsize"]
         self._edit_stage_flare_bright_lab = f_lab["fbright"]
-        self._edit_stage_flare_sat_lab = f_lab["fsat"]
+        self._edit_stage_flare_hue_lab = f_lab["fhue"]
+        self._edit_stage_flare_hue2_lab = f_lab["fhue2"]
         self._edit_stage_flare_size_lab.setText("100%")
         self._edit_stage_flare_bright_lab.setText("100%")
-        self._edit_stage_flare_sat_lab.setText("100%")
+        self._edit_stage_flare_hue_lab.setText("0°")
+        self._edit_stage_flare_hue2_lab.setText("0°")
         self.edit_stage_flare_size.valueChanged.connect(lambda v: self.edit_flare_sl_scale.setValue(v))
         self.edit_stage_flare_bright.valueChanged.connect(lambda v: self.edit_flare_sl_brightness.setValue(v))
-        self.edit_stage_flare_sat.valueChanged.connect(lambda v: self.edit_flare_sl_saturation.setValue(v))
-        self.edit_stage_flare_dup = make_button("DUP", self.edit_flare_duplicate_selected, small=True,
+        self.edit_stage_flare_hue.valueChanged.connect(lambda v: self.edit_flare_sl_hue.setValue(v))
+        self.edit_stage_flare_hue2.valueChanged.connect(lambda v: self.edit_flare_sl_hue2.setValue(v))
+        self.edit_stage_flare_dup = make_button("Copy", self.edit_flare_duplicate_selected, small=True,
                                                 tip="Duplicate selected flare", icon_key="duplicate", icon_size=12)
-        self.edit_stage_flare_del = make_button("DEL", self.edit_flare_remove_selected, small=True,
+        self.edit_stage_flare_del = make_button("Remove", self.edit_flare_remove_selected, small=True,
                                                 tip="Remove selected flare (Del)")
         fl.addWidget(self.edit_stage_flare_dup)
         fl.addWidget(self.edit_stage_flare_del)
-        fl.addWidget(make_label("Click to place \u00b7 Drag ring or Shift+Wheel = resize", "Caption"))
         fl.addStretch(1)
         self.edit_ctx_stack.addWidget(page_flare)
 
@@ -18506,7 +18755,7 @@ class MainWindow(QMainWindow):
             self.edit_flare_combo.setCurrentIndex(max(0, ix_f))
             self.edit_flare_combo.blockSignals(False)
             fparams = ui.get("edit_flare_params") or {}
-            for k in ("scale", "brightness", "saturation", "stretch", "hue", "angle", "contrast"):
+            for k in ("scale", "brightness", "saturation", "stretch", "hue", "hue2", "contrast", "opacity"):
                 sl = getattr(self, f"edit_flare_sl_{k}")
                 lab = getattr(self, f"edit_flare_val_{k}")
                 lo, hi = sl.minimum(), sl.maximum()
@@ -18721,7 +18970,7 @@ class MainWindow(QMainWindow):
                 "edit_flare_preset": str(self.edit_flare_combo.currentData() or FLARE_PRESETS[0]["key"]),
                 "edit_flare_params": {
                     k: int(getattr(self, f"edit_flare_sl_{k}").value())
-                    for k in ("scale", "brightness", "saturation", "stretch", "hue", "angle", "contrast")
+                    for k in ("scale", "brightness", "saturation", "stretch", "hue", "hue2", "contrast", "opacity")
                 },
                 "edit_split_gap": int(self.edit_split_gap.value()),
                 "edit_split_horizontal": bool(self.edit_split_horz.isChecked()),
@@ -19014,7 +19263,7 @@ class MainWindow(QMainWindow):
         # Folder chip strip (one line, scrolls horizontally, per-folder counts)
         self.lora_folder_flow.clear_items()
         self.lora_folder_btns: Dict[str, FolderChipButton] = {}
-        chips: List[Tuple[str, str, str]] = [("ALL", C["acc_hi"], f"ALL \u00b7 {len(stack)}")]
+        chips: List[Tuple[str, str, str]] = [("All", C["acc_hi"], f"ALL \u00b7 {len(stack)}")]
         for f in folders:
             cnt = sum(1 for e in stack if e.get("folder") == f)
             chips.append((f, lora_folder_color(f), f"{f} \u00b7 {cnt}"))
@@ -21222,14 +21471,14 @@ class MainWindow(QMainWindow):
         return out
 
     def _on_edit_mask_opacity(self, opaque: bool) -> None:
-        self.edit_mask_opaque_btn.setText("OPAQUE" if opaque else "GHOST 45%")
+        self.edit_mask_opaque_btn.setText("Opaque" if opaque else "Ghost 45%")
         self.edit_canvas.set_mask_display_opaque(opaque)
 
     def _on_edit_mask_visible_toggled(self, visible: bool) -> None:
         vis = bool(visible)
         self.edit_canvas.set_mask_visible(vis)
         if hasattr(self, "edit_mask_vis_btn"):
-            self.edit_mask_vis_btn.setText("MASK ON" if vis else "MASK HIDDEN")
+            self.edit_mask_vis_btn.setText("Mask" if vis else "Hidden")
             self.edit_mask_vis_btn.setIcon(VECTOR_ASSETS.icon("eye" if vis else "eye_off", 13))
         self._schedule_save()
 
@@ -21243,7 +21492,7 @@ class MainWindow(QMainWindow):
         self.edit_canvas.set_split_compare(bool(on))
 
     def _on_edit_zoom(self, scale: float, fit: bool) -> None:
-        self.edit_zoom_lbl.setText("FIT" if fit else f"{int(round(scale * 100))}%")
+        self.edit_zoom_lbl.setText("Fit" if fit else f"{int(round(scale * 100))}%")
 
     def _on_edit_slider(self, key: str, value: int) -> None:
         self.edit_adjust[key] = float(value)
@@ -21266,7 +21515,7 @@ class MainWindow(QMainWindow):
             self.edit_base, self.edit_adjust,
             mask=mask,
             invert_mask=self.edit_scope_unmask.isChecked(),
-            max_side=560,
+            max_side=960,
             lut_key=self.edit_lut_key,
             lut_intensity=self.edit_lut_intensity,
             flares=self.edit_flares,
@@ -21345,7 +21594,10 @@ class MainWindow(QMainWindow):
         self.edit_source_path = path
         self.edit_base = img
         self.edit_undo_stack.clear()
+        self.edit_redo_stack.clear()
         self.edit_undo_btn.setEnabled(False)
+        if hasattr(self, 'edit_redo_btn'):
+            self.edit_redo_btn.setEnabled(False)
         # a fresh document starts clean: flares are view-relative decorations
         self.edit_flares = []
         self._edit_flare_sel = -1
@@ -21354,7 +21606,7 @@ class MainWindow(QMainWindow):
         self.edit_canvas.set_paint_erase(False)
         self.edit_paint_erase_btn.blockSignals(True)
         self.edit_paint_erase_btn.setChecked(False)
-        self.edit_paint_erase_btn.setText("ERASER")
+        self.edit_paint_erase_btn.setText("Eraser")
         self.edit_paint_erase_btn.blockSignals(False)
         self.edit_poly_feather_sl.blockSignals(True)
         self.edit_poly_feather_sl.setValue(0)
@@ -21427,18 +21679,57 @@ class MainWindow(QMainWindow):
         px = max(1, self.edit_base.width() * self.edit_base.height())
         max_states = max(2, min(10, int(160 * 1024 * 1024 // (px * 4))))
         self.edit_undo_stack.append(self.edit_base.copy())
+        self.edit_redo_stack.clear()
         while len(self.edit_undo_stack) > max_states:
             self.edit_undo_stack.pop(0)
         self.edit_undo_btn.setEnabled(True)
+        if hasattr(self, "edit_redo_btn"):
+            self.edit_redo_btn.setEnabled(False)
 
     def edit_undo(self) -> None:
         if not self.edit_undo_stack:
             return
+        if self.edit_base is not None:
+            self.edit_redo_stack.append(self.edit_base.copy())
         self.edit_base = self.edit_undo_stack.pop()
         self.edit_canvas.set_document(self.edit_base)
         self.edit_undo_btn.setEnabled(bool(self.edit_undo_stack))
+        if hasattr(self, "edit_redo_btn"):
+            self.edit_redo_btn.setEnabled(bool(self.edit_redo_stack))
         self._edit_recompute_now()
         self._flash_summary("Editor: undo applied")
+
+    def edit_redo(self) -> None:
+        if not self.edit_redo_stack:
+            return
+        if self.edit_base is not None:
+            self.edit_undo_stack.append(self.edit_base.copy())
+        self.edit_base = self.edit_redo_stack.pop()
+        self.edit_canvas.set_document(self.edit_base)
+        self.edit_undo_btn.setEnabled(bool(self.edit_undo_stack))
+        if hasattr(self, "edit_redo_btn"):
+            self.edit_redo_btn.setEnabled(bool(self.edit_redo_stack))
+        self._edit_recompute_now()
+        self._flash_summary("Editor: redo applied")
+
+    def edit_auto_enhance(self) -> None:
+        """One-click balanced cinematic polish (subtle contrast, shadow lift, highlight recovery, vibrance)."""
+        preset = {
+            "exposure": 4, "contrast": 14, "highlights": -10, "shadows": 12,
+            "temperature": 3, "saturation": 4, "vibrance": 14, "hdr": 10,
+            "bloom": 6, "sharpness": 12, "vignette": 8, "grain": 0,
+        }
+        for key, val in preset.items():
+            if key in self.edit_sliders:
+                sl = self.edit_sliders[key]
+                sl.blockSignals(True)
+                sl.setValue(val)
+                sl.blockSignals(False)
+                self.edit_adjust[key] = float(val)
+                self.edit_slider_vals[key].setText(str(val))
+        self._edit_recompute_now()
+        self._schedule_save()
+        self._flash_summary("Auto balance applied")
 
     def edit_apply(self) -> None:
         """Bake everything currently visible — manual adjustments, the
@@ -21502,49 +21793,66 @@ class MainWindow(QMainWindow):
         self._edit_schedule_recompute()
         self._schedule_save()
 
-    # ---- Anamorphic flare VFX handlers (v5.0) ---------------------------------
+    # ---- Anamorphic flare VFX handlers (v6.0 pure-vector dual-hue horizontal) --
     @staticmethod
     def _format_flare_val(key: str, value: int) -> str:
-        if key in ("scale", "brightness", "saturation", "stretch"):
+        if key in ("scale", "brightness", "saturation", "stretch", "opacity"):
             return f"{value}%"
-        if key in ("hue", "angle"):
+        if key in ("hue", "hue2"):
             return f"{'+' if value > 0 else ''}{value}°"
         return f"{'+' if value > 0 else ''}{value}"
 
     def _sync_stage_flare_quick_sliders(self) -> None:
         if not hasattr(self, "edit_stage_flare_size"):
             return
-        for sl_src, sl_dst, lab_dst in (
-            (self.edit_flare_sl_scale, self.edit_stage_flare_size, self._edit_stage_flare_size_lab),
-            (self.edit_flare_sl_brightness, self.edit_stage_flare_bright, self._edit_stage_flare_bright_lab),
-            (self.edit_flare_sl_saturation, self.edit_stage_flare_sat, self._edit_stage_flare_sat_lab),
+        for sl_src, sl_dst, lab_dst, k in (
+            (self.edit_flare_sl_scale, self.edit_stage_flare_size, self._edit_stage_flare_size_lab, "scale"),
+            (self.edit_flare_sl_brightness, self.edit_stage_flare_bright, self._edit_stage_flare_bright_lab, "brightness"),
+            (self.edit_flare_sl_hue, self.edit_stage_flare_hue, self._edit_stage_flare_hue_lab, "hue"),
+            (self.edit_flare_sl_hue2, self.edit_stage_flare_hue2, self._edit_stage_flare_hue2_lab, "hue2"),
         ):
             v = int(sl_src.value())
             sl_dst.blockSignals(True)
             sl_dst.setValue(v)
             sl_dst.blockSignals(False)
-            lab_dst.setText(f"{v}%")
+            lab_dst.setText(self._format_flare_val(k, v))
 
     def _flare_defaults(self) -> Dict[str, Any]:
         return {
             "preset": str(self.edit_flare_combo.currentData() or FLARE_PRESETS[0]["key"]),
-            "x": 0.5, "y": 0.5,
+            "x": 0.5, "y": 0.42,
             "scale": int(self.edit_flare_sl_scale.value()),
             "brightness": int(self.edit_flare_sl_brightness.value()),
             "saturation": int(self.edit_flare_sl_saturation.value()),
             "stretch": int(self.edit_flare_sl_stretch.value()),
             "hue": int(self.edit_flare_sl_hue.value()),
-            "angle": int(self.edit_flare_sl_angle.value()),
+            "hue2": int(self.edit_flare_sl_hue2.value()),
             "contrast": int(self.edit_flare_sl_contrast.value()),
+            "opacity": int(self.edit_flare_sl_opacity.value()),
             "visible": True,
+            "locked": False,
+            "solo": False,
         }
+
+    def edit_flare_add_center(self) -> None:
+        if self.edit_base is None or self.edit_base.isNull():
+            self._flash_summary("Open an image in the editor first.")
+            return
+        if len(self.edit_flares) >= 16:
+            self._flash_summary("Flare limit reached (16) — remove a flare first.")
+            return
+        off = (len(self.edit_flares) % 5) * 0.06
+        fx = min(0.86, 0.36 + off)
+        fy = min(0.80, 0.34 + (len(self.edit_flares) % 3) * 0.12)
+        self._set_edit_tool("flare")
+        self._on_flare_placed(fx, fy)
 
     def _on_flare_preset_changed(self) -> None:
         pkey = str(self.edit_flare_combo.currentData() or "")
         spec = FLARE_PRESET_BY_KEY.get(pkey)
         if spec is not None:
             self.edit_flare_hint.setText(
-                f"{spec['hint']}  Click a light source to place; drag ring or Shift+Wheel to resize."
+                f"{spec['hint']}  Click a light source or press Add; drag ring or Shift+Wheel to resize."
             )
             sel = self._edit_flare_sel
             if 0 <= sel < len(self.edit_flares) and self.edit_flares[sel].get("preset") != pkey:
@@ -21564,8 +21872,16 @@ class MainWindow(QMainWindow):
         self._sync_stage_flare_quick_sliders()
         self._schedule_save()
 
+    def _on_flare_xy_spin(self) -> None:
+        sel = self._edit_flare_sel
+        if 0 <= sel < len(self.edit_flares) and not self.edit_flares[sel].get("locked", False):
+            self.edit_flares[sel]["x"] = float(self.edit_flare_x_spin.value()) / 100.0
+            self.edit_flares[sel]["y"] = float(self.edit_flare_y_spin.value()) / 100.0
+            self.edit_canvas.set_flares(self.edit_flares, self._edit_flare_sel)
+            self._edit_schedule_recompute()
+
     def _on_flare_scaled(self, index: int, new_scale: int) -> None:
-        if 0 <= index < len(self.edit_flares):
+        if 0 <= index < len(self.edit_flares) and not self.edit_flares[index].get("locked", False):
             self._edit_flare_sel = index
             clamped = max(30, min(250, int(new_scale)))
             self.edit_flares[index]["scale"] = clamped
@@ -21580,26 +21896,35 @@ class MainWindow(QMainWindow):
     def _on_flare_placed(self, fx: float, fy: float) -> None:
         if self.edit_base is None or self.edit_base.isNull():
             return
-        if len(self.edit_flares) >= 12:
-            self._flash_summary("Flare limit reached (12) — remove one before placing another.")
+        if len(self.edit_flares) >= 16:
+            self._flash_summary("Flare limit reached (16) — remove one before placing another.")
             return
         self.edit_flares.append(self._flare_defaults())
         self.edit_flares[-1]["x"] = float(fx)
         self.edit_flares[-1]["y"] = float(fy)
         self._edit_flare_sel = len(self.edit_flares) - 1
+        if hasattr(self, "edit_subtabs"):
+            self.edit_subtabs.setCurrentIndex(1)
         self._sync_flare_ui()
         self._edit_schedule_recompute()
-        STUDIO_LOG.info("SYS", f"Editor: flare placed ({fx:.2f}, {fy:.2f})")
+        STUDIO_LOG.info("SYS", f"Editor: horizontal flare placed ({fx:.2f}, {fy:.2f})")
 
     def _on_flare_handle_selected(self, index: int) -> None:
         self._edit_flare_sel = int(index)
         self._sync_flare_ui()
 
     def _on_flare_moved(self, index: int, fx: float, fy: float) -> None:
-        if 0 <= index < len(self.edit_flares):
+        if 0 <= index < len(self.edit_flares) and not self.edit_flares[index].get("locked", False):
             self.edit_flares[index]["x"] = float(fx)
             self.edit_flares[index]["y"] = float(fy)
             self._edit_flare_sel = index
+            if hasattr(self, "edit_flare_x_spin"):
+                self.edit_flare_x_spin.blockSignals(True)
+                self.edit_flare_x_spin.setValue(fx * 100.0)
+                self.edit_flare_x_spin.blockSignals(False)
+                self.edit_flare_y_spin.blockSignals(True)
+                self.edit_flare_y_spin.setValue(fy * 100.0)
+                self.edit_flare_y_spin.blockSignals(False)
             self.edit_canvas.set_flares(self.edit_flares, self._edit_flare_sel)
             self._edit_schedule_recompute()
 
@@ -21611,12 +21936,14 @@ class MainWindow(QMainWindow):
     def edit_flare_duplicate_selected(self) -> None:
         if not (0 <= self._edit_flare_sel < len(self.edit_flares)):
             return
-        if len(self.edit_flares) >= 12:
-            self._flash_summary("Flare limit reached (12).")
+        if len(self.edit_flares) >= 16:
+            self._flash_summary("Flare limit reached (16).")
             return
         dup = dict(self.edit_flares[self._edit_flare_sel])
-        dup["x"] = min(0.96, float(dup.get("x", 0.5)) + 0.06)
-        dup["y"] = min(0.96, float(dup.get("y", 0.5)) + 0.04)
+        dup["x"] = min(0.95, float(dup.get("x", 0.5)) + 0.06)
+        dup["y"] = min(0.95, float(dup.get("y", 0.5)) + 0.04)
+        dup["locked"] = False
+        dup["solo"] = False
         self.edit_flares.append(dup)
         self._edit_flare_sel = len(self.edit_flares) - 1
         self._sync_flare_ui()
@@ -21631,9 +21958,27 @@ class MainWindow(QMainWindow):
         self._sync_flare_ui()
         self._edit_schedule_recompute()
 
+    def edit_flare_toggle_selected_solo(self) -> None:
+        if not (0 <= self._edit_flare_sel < len(self.edit_flares)):
+            return
+        cur = bool(self.edit_flares[self._edit_flare_sel].get("solo", False))
+        for f in self.edit_flares:
+            f["solo"] = False
+        self.edit_flares[self._edit_flare_sel]["solo"] = not cur
+        self._sync_flare_ui()
+        self._edit_schedule_recompute()
+
+    def edit_flare_toggle_selected_locked(self) -> None:
+        if not (0 <= self._edit_flare_sel < len(self.edit_flares)):
+            return
+        f = self.edit_flares[self._edit_flare_sel]
+        f["locked"] = not bool(f.get("locked", False))
+        self._sync_flare_ui()
+        self.edit_canvas.update()
+
     def edit_flare_reset_params(self) -> None:
         sel = self._edit_flare_sel
-        for key in ("scale", "brightness", "saturation", "stretch", "hue", "angle", "contrast"):
+        for key in ("scale", "brightness", "saturation", "stretch", "hue", "hue2", "contrast", "opacity"):
             dv = int(DEFAULT_FLARE_STATE[key])
             sl = getattr(self, f"edit_flare_sl_{key}")
             lab = getattr(self, f"edit_flare_val_{key}")
@@ -21672,7 +22017,7 @@ class MainWindow(QMainWindow):
                 self.edit_flare_combo.blockSignals(True)
                 self.edit_flare_combo.setCurrentIndex(ix)
                 self.edit_flare_combo.blockSignals(False)
-        for key in ("scale", "brightness", "saturation", "stretch", "hue", "angle", "contrast"):
+        for key in ("scale", "brightness", "saturation", "stretch", "hue", "hue2", "contrast", "opacity"):
             sl = getattr(self, f"edit_flare_sl_{key}")
             lab = getattr(self, f"edit_flare_val_{key}")
             v = int(values.get(key, DEFAULT_FLARE_STATE.get(key, 0)))
@@ -21680,11 +22025,25 @@ class MainWindow(QMainWindow):
             sl.setValue(v)
             sl.blockSignals(False)
             lab.setText(self._format_flare_val(key, v))
+        if hasattr(self, "edit_flare_x_spin"):
+            self.edit_flare_x_spin.blockSignals(True)
+            self.edit_flare_x_spin.setValue(float(values.get("x", 0.5)) * 100.0)
+            self.edit_flare_x_spin.blockSignals(False)
+            self.edit_flare_y_spin.blockSignals(True)
+            self.edit_flare_y_spin.setValue(float(values.get("y", 0.5)) * 100.0)
+            self.edit_flare_y_spin.blockSignals(False)
         self._sync_stage_flare_quick_sliders()
         if hasattr(self, "edit_flare_vis_btn"):
             vis = bool(values.get("visible", True))
-            self.edit_flare_vis_btn.setText("HIDE" if vis else "SHOW")
+            self.edit_flare_vis_btn.setText("Hide" if vis else "Show")
             self.edit_flare_vis_btn.setIcon(VECTOR_ASSETS.icon("eye" if vis else "eye_off", 12))
+        if hasattr(self, "edit_flare_solo_btn"):
+            solo = bool(values.get("solo", False))
+            self.edit_flare_solo_btn.setText("Unsolo" if solo else "Solo")
+        if hasattr(self, "edit_flare_lock_btn"):
+            locked = bool(values.get("locked", False))
+            self.edit_flare_lock_btn.setText("Unlock" if locked else "Lock")
+            self.edit_flare_lock_btn.setIcon(VECTOR_ASSETS.icon("lock" if locked else "unlock", 12))
 
     def _sync_flare_ui(self) -> None:
         if not hasattr(self, "edit_flare_list"):
@@ -21696,9 +22055,16 @@ class MainWindow(QMainWindow):
             spec = FLARE_PRESET_BY_KEY.get(str(f.get("preset") or ""))
             name = spec["name"] if spec else str(f.get("preset"))
             sc = int(f.get("scale", 100))
-            off_tag = " [HIDDEN]" if not f.get("visible", True) else ""
+            flags = []
+            if f.get("solo"):
+                flags.append("Solo")
+            if f.get("locked"):
+                flags.append("Locked")
+            if not f.get("visible", True):
+                flags.append("Hidden")
+            flag_txt = f" [{', '.join(flags)}]" if flags else ""
             self.edit_flare_list.addItem(
-                f"{i + 1}  ·  {name}  ·  {sc}% ({f.get('x', 0.5) * 100:.0f}%, {f.get('y', 0.5) * 100:.0f}%){off_tag}"
+                f"{i + 1} · {name} · {sc}% ({f.get('x', 0.5) * 100:.0f}%, {f.get('y', 0.5) * 100:.0f}%){flag_txt}"
             )
         if 0 <= keep < len(self.edit_flares):
             self.edit_flare_list.setCurrentRow(keep)
@@ -21711,9 +22077,11 @@ class MainWindow(QMainWindow):
         has_sel = 0 <= self._edit_flare_sel < len(self.edit_flares)
         self.edit_flare_remove_btn.setEnabled(has_sel)
         self.edit_flare_clear_btn.setEnabled(has)
-        if hasattr(self, "edit_flare_dup_btn"):
-            self.edit_flare_dup_btn.setEnabled(has_sel)
-            self.edit_flare_vis_btn.setEnabled(has_sel)
+        for btn_name in ("edit_flare_dup_btn", "edit_flare_vis_btn", "edit_flare_solo_btn", "edit_flare_lock_btn"):
+            b = getattr(self, btn_name, None)
+            if b is not None:
+                b.setEnabled(has_sel)
+        if hasattr(self, "edit_flare_reset_btn"):
             self.edit_flare_reset_btn.setEnabled(True)
         if hasattr(self, "edit_stage_flare_dup"):
             self.edit_stage_flare_dup.setEnabled(has_sel)
@@ -22143,7 +22511,7 @@ class MainWindow(QMainWindow):
             return
         opts = self._options()
         if (not opts.get("nsfw")) or opts.get("censor_nsfw"):
-            STUDIO_LOG.warn("UPSCALE", "Preflight: NSFW disabled or censoring active — workers may return black placeholder tiles.")
+            STUDIO_LOG.warn("Upscale", "Preflight: NSFW disabled or censoring active — workers may return black placeholder tiles.")
         plan = plan_tile_grid(img.width(), img.height(), self.ups_scale_spin.value(), self.ups_overlap_spin.value())
         gid = self._ups_next_gid
         self._ups_next_gid += 1
@@ -22340,7 +22708,7 @@ class MainWindow(QMainWindow):
         run["merged_path"] = dest
         self.gallery_tab.mark_dirty()
         self.refresh_gallery(select=dest)
-        STUDIO_LOG.ok("UPSCALE", f"Tile Upscale #{gid} merged & saved: {os.path.basename(dest)}")
+        STUDIO_LOG.ok("Upscale", f"Tile Upscale #{gid} merged & saved: {os.path.basename(dest)}")
         SOUNDS.play("upscale")
         return dest
 
@@ -22511,7 +22879,17 @@ class MainWindow(QMainWindow):
         if hasattr(self, "edit_save_btn"):
             self.edit_save_btn.setIcon(VECTOR_ASSETS.icon("image", 13))
         if hasattr(self, "edit_undo_btn"):
-            self.edit_undo_btn.setIcon(VECTOR_ASSETS.icon("history", 14))
+            self.edit_undo_btn.setIcon(VECTOR_ASSETS.icon("history", 13))
+        if hasattr(self, "edit_redo_btn"):
+            self.edit_redo_btn.setIcon(VECTOR_ASSETS.icon("redo", 13))
+        if hasattr(self, "edit_auto_btn"):
+            self.edit_auto_btn.setIcon(VECTOR_ASSETS.icon("auto_fix", 13))
+        if hasattr(self, "edit_flare_add_btn"):
+            self.edit_flare_add_btn.setIcon(VECTOR_ASSETS.icon("flare_add", 13))
+        if hasattr(self, "edit_stage_flare_add"):
+            self.edit_stage_flare_add.setIcon(VECTOR_ASSETS.icon("flare_add", 12))
+        if hasattr(self, "edit_flare_solo_btn"):
+            self.edit_flare_solo_btn.setIcon(VECTOR_ASSETS.icon("solo", 12))
         if hasattr(self, "edit_canvas"):
             self.edit_canvas.update()
         self.gallery_tab.view.viewport().update()
@@ -22570,7 +22948,7 @@ class MainWindow(QMainWindow):
         self.fit_btn.setChecked(not fit)
 
     def _on_viewer_zoom(self, scale: float, fit: bool) -> None:
-        self.zoom_label.setText("FIT" if fit else f"{scale * 100:.0f}%")
+        self.zoom_label.setText("Fit" if fit else f"{scale * 100:.0f}%")
 
     def _on_slideshow_toggled(self, on: bool) -> None:
         if on:
