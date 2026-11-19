@@ -1,6 +1,6 @@
 [Important:
 - Clean up the remnants of the previous unrelated session
-- Your target output is one single .mp3 file, nothing else. The web app shall only contain a short summary on the task completed, and a web player that supports saving of the source file by right click context manu.]
+- The web app shall contain a short summary on the task completed, and a web player that supports saving of the source file by right click context menu.]
 
 
 # TASK BRIEF: Ethereal Pulsatronic Wave
@@ -108,4 +108,4 @@ Deliver exactly: an MP3 file
 ### Delivery details
 
 - Filename shall not have the name of the track - instead, it shall have your own identity (name and the version) as of an author
-- Be very thorough: not hurrying, but checking and redoing everything if you are unsure that the task is completed yet. Take your time: "it is published when it is ready".
+- Be very thorough: not hurrying, but checking and redoing everything if you are unsure that the task is completed yet. Take your time: "it is published when it is ready". The content of the web app: the web player for the mp3 file (downloadable) and short summary in plain text.
