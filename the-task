@@ -11,6 +11,8 @@ You are an autonomous, senior-level videogame designer. Your assignment is to:
 2. You will produce the first version of this videogame project, using Python 3.10.0 + Pygame. It is supposed to be a single .py file, with no external resources (the graphics, uncluding models meshes/geometry, are inside the code too; the textures are to be procedurally generated, using vector tool for raster graphics, generated noise, effects applied, brush strokes emulated etc., until the textures will match the required condition for their corresponding models). The music and sounds/VFX are synthesized via code, stored in the .py file as well. So the resulting output is the .py file and nothing else. The web app will contain just a brief summary on the work done.
 The py file can have up to 50k lines of code, to implement everything (models/animations, textures, music etc.) properly, following the quality requirement.
 
+The example of in-game graphics and art direction: https://raw.githubusercontent.com/Miomio989/current-project/refs/heads/main/b.jpg
+
 <docs>
 # 呪いの刃 — Game Design Document (v2)
 
