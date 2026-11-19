@@ -2,110 +2,756 @@
 - Clean up the remnants of the previous unrelated session
 - The web app shall contain a short summary on the task completed, and a web player that supports saving of the source file by right click context menu.]
 
-
-# TASK BRIEF: Ethereal Pulsatronic Wave
+# TASK BRIEF: 呪いの刃 fighting videogame
 
 ## 1. Mission
 
-You are an autonomous, professional, senior-level composer, DJ and content creator. Your assignment is to produce "Ethereal Pulse" - a single track, studio-quality, production-ready.
-Read this entire brief before starting. Statements with MUST / MUST NOT are hard constraints; SHOULD marks strong preferences. If something is ambiguous, choose the interpretation that best matches the quality benchmark and proceed.
+You are an autonomous, senior-level videogame designer. Your assignment is to:
+1. Learn, study and deconstruct the core idea (design document, concept description) of "呪いの刃" videogame, as per <docs> Design Document. After you will have enough of understanding, proceed to the development.
+2. You will produce the first version of this videogame project, using Python 3.10.0 + Pygame. It is supposed to be a single .py file, with no external resources (the graphics, uncluding models meshes/geometry, are inside the code too; the textures are to be procedurally generated, using vector tool for raster graphics, generated noise, effects applied, brush strokes emulated etc., until the textures will match the required condition for their corresponding models). The music and sounds/VFX are synthesized via code, stored in the .py file as well. So the resulting output is the .py file and nothing else. The web app will contain just a brief summary on the work done.
+The py file can have up to 50k lines of code, to implement everything (models/animations, textures, music etc.) properly, following the quality requirement.
+
+<docs>
+# 呪いの刃 — Game Design Document (v2)
+
+- **Sacred vocabulary:** All real-world sacred vocabulary is replaced with invented terms. Karma is now **Toll**, Samsara is **the Turning**, Realm Tendency is **Tide**, Pilgrimage is **the Long Walk**, and Sects are **Courts and Pacts**.
+- **Setting:** The Romanesque cathedral is replaced by the **Sunken Pagoda**, an impossible tower stitched together from the ruins of several mountain temples.
+- **Iconography:** The visual language is unified under the **Aesthetic Fusion Bible** (§0.1).
+- **Roster:** The two flagship designs, Cecilia and Kiri, are rebuilt. The wider roster is reconciled to a consistent 16 fighters, and the old minimum age of "16+" is corrected to **adults only (20+ apparent age)**.
+- **Style direction:** Fighters lean cute, stylish and fanservice-forward (thigh-highs, heels, garter straps, ribbon scarves, side slits, keyhole bodices), with no nudity and no sexual content.
+- **Boss:** The final boss is redesigned as a colossal hollow stone idol.
+- **Audio and HUD:** Both are retuned to the new aesthetic.
+
+---
+
+## 0. Overview
+
+**呪いの刃** is a 2D-plane, fully-3D-rendered, weapon-based fighting game. Two cursed duelists fight in the thin places where the **Six Rings** leak into the modern world.
+
+Each round is a ritual in three acts: a hushed **Prelude**, a breakbeat **Rupture**, and a **Frenzy** where music, camera, stage and UI spiral into a hypnotic, ecstatic climax. Blades are lethal and every commitment matters. The matches are built to read as hard techno made playable.
+
+**Tone:** mystical, eerie, aggressive, daring, bold, ornate.
+**Core feeling:** ecstatic, hypnotic trance.
+**Rating:** R18+. Explicit stylized violence is shown in combat. All characters are adults. There is no nudity and no sexual content.
+
+**Aesthetic pillars**
+1. **Sacred geometry as gameplay.** Floors, HUD and menus are radial diagrams that pulse with the beat.
+2. **Many hands.** Silhouettes echo themselves through spectral arms, afterimages and ribbons.
+3. **Ornament as armor.** Gold filigree, halos, bells and beads are worn by every fighter.
+4. **Stillness before storm.** Quiet, symmetrical Preludes break into chaos.
+
+### 0.1 Aesthetic Fusion Bible
+
+These motifs come from the temple, mountain and ritual-craft traditions of South, East and Southeast Asia. They are **abstracted into invented iconography**. We borrow shape, color and craft, never named figures, texts or rites.
+
+| Motif | Design language | Where it appears |
+|---|---|---|
+| **Halos and flame-aureoles** | Thin gold rings, eclipse discs and flame-edged mandorlas that sit behind heads and backs | Possession states, boss, the Pulse ring, portrait frames |
+| **Many arms** | Translucent extra arms in poised, graceful gestures | Cecilia's Phantom Arms, the boss, Possession silhouettes |
+| **Radial floor diagrams** | Concentric petal rings, spoked wheels and octagonal glyph rings | Every stage's Pulse sigil, menu backgrounds |
+| **Lotus forms** | Petal layers in skirts, thrones, UI frames and FX | Costumes, stage floors, hit-spark flipbooks |
+| **Cloud scrolls and ribbon scarves** | Spiral clouds in embroidery and long floating translucent scarves | Cloth physics, FX trails, costume trim |
+| **Bells, bowls and incense** | Handbells, hanging wind-bells, resonant bowls, drifting smoke | Weapon FX, audio, Marei's kit, Severance |
+| **Talisman strips and seals** | Narrow paper tags with invented glyphs, red thread, ink stamps | Zhao's kit, stage dressing, Fester rune texture |
+| **Hand-seals** | Stylized finger poses | Curse Art idle poses, Rite wind-ups, character select |
+| **Bead strands** | Looped strands of beads | Trance Gauge, accessories, weapon tassels |
+| **Tiered towers and domes** | Multi-eave pagodas, domed mounds, tapering carved spires | The Sunken Pagoda, background landmarks |
+| **Guardian statues** | Stone lion-dogs, fierce door-guardians, small stone figures wrapped in red cloth | Stage props whose eyes track the fighters |
+| **Spirit beasts** | Fox, serpent, crane, crow-winged warrior, dragon, whale | Curses, Possessions, stage creatures |
+| **Five-phase cycle** | Timber, Flame, Soil, Ore, Tide, as color-coded stances | Zhao's kit, the Tempo color script |
+| **Lanterns** | Paper lanterns, cage lanterns, floating lights | Stage lighting, Sumi's kit, Hitodama |
+
+**Cultural-reference guardrails**
+- No real-world faith figures, named deities, scripture, clergy or ritual acts appear.
+- Motifs are recombined into invented orders, creatures and symbols.
+- Glyphs are decorative or invented, and none are quoted from real texts.
+
+---
+
+## 1. Setting & Lore
+
+### 1.1 The World
+Our world is contemporary. Beneath it lie **Fissures**, demonic gates opened by grievous debts of blood and sorrow. Through a Fissure, a fragment of one of the **Six Rings** overlays a real place:
+
+Sentinels fight because **the Fissures are sealed only by duels**. Toll spilled in a fair fight pins the wound shut. Nobody fully understands why, and each faction has a theory.
+
+### 1.2 The Factions
+- **The Thousand-Seal Court.** Ash-and-ivory sealwrights who keep a tiered archive-tower, with ink, bell and incense rituals. They believe in sealing Curses.
+- **The Fox-Fire Pact.** Folk mystics, dancers and tricksters. They believe in bargaining with Curses.
+- **The Lotus Lantern Hall.** Wandering ascetics and talisman-smiths. They believe in transcending Curses.
+
+### 1.3 The Central Mystery
+In 1926 an industrialist bought the ruins of several collapsed mountain temples (a thirteen-eaved tower, a domed relic mound and a carved gate) and shipped them, stone by stone, to Japan. They were never assembled, and the crates rotted in a marsh. He performed a rite among them and the first great Fissure opened.
+
+The patchwork tower now rises from the mire as a **cursed fragment of the Cinder Ring**, and it is the first stage the player visits.
+
+At the end of the Six Fissures waits **the Unmoved Warden of the Seventh Gate**, a corrupted, hollow stone guardian. It weighs all Toll and is the game's final boss.
+
+### 1.4 Endings (the Long Walk)
+- **Severance:** destroy the Curse.
+- **Embrace:** accept it.
+- **The Turning:** the loop continues.
+
+Endings are determined by the player's Vow choices and the Tide, not by dialogue picks.
+
+---
+
+## 2. Core Gameplay
+
+### 2.1 Match Structure
+- Best of three rounds, 60-second timer.
+- Vitality is 1000 points. A typical round lasts 35–50 seconds.
+- A round has no loading and restarts instantly. Round transitions are beat-synced wipes so the trance never breaks.
+- **Final Round Eclipse.** In round three, each stage shifts into its most extreme color script.
+
+### 2.2 Controls
+Six buttons. Two input schemes ship in the box:
+- **Duelist (Classic):** motion inputs (quarter-circles and similar). Arcade-stick friendly.
+- **Ritual (Simplified):** one-button specials and an auto-combo. It plays on the same rules, just with an easier route to the same moves, and it is fully legal in online play.
+
+| Button | Function |
+|---|---|
+| Light Slash | Fast, low-damage, links and cancels |
+| Heavy Slash | Slow, high-damage, costs 6 Resolve |
+| Kick | Body strikes: low sweeps, launchers, pushbacks |
+| Curse Art | Character-defining moves, performed with a hand-seal pose; inflicts Fester |
+| Guard | Block (hold) / Severance (tap) |
+| Trance | Spend gauge: Curse Cancel, Rite, Possession |
+
+Extra inputs:
+- **Seize (throw):** Light + Kick.
+- **Roll:** Guard + Kick. 20 frames, invulnerable on frames 4–16, costs 20 Resolve (20% of the bar).
+
+### 2.3 Attack Tells (Readability Code)
+Each weapon has a flicker of colored light at the instant of commitment. Each color also has a distinct shape for colorblind players.
+- **White glint (circle):** standard mid.
+- **Gold glint (diamond):** overhead (stand-block only).
+- **Blue glint (wedge):** low (crouch-block only).
+- **Red glint (jagged):** *Maledict* (guard-unblockable). It must be rolled, jumped, or beaten with a Severance. This is the only unblockable class, and it always telegraphs for at least 20 frames.
+
+### 2.4 Resources
+**Vitality** (1000)
+- Light hits do 28–40, heavies 80–120, Rites 280–380.
+- Combos typically land 220–380 after scaling, and a "decisive cut" counter-hit can cost 30–40% of the bar (300–400).
+
+**Resolve** (100)
+- It drains when blocking: a light costs 8 and a heavy costs 18. Rolling costs 20 and a Heavy Slash costs 6.
+- It regenerates at about 12 per second when idle (not while blocking).
+- At zero the fighter is **Staggered** for 90 frames (1.5 s, dizzy, open to a free punish), then returns at 40 Resolve.
+- The HUD shows it as a thin silver thread that frays and sparks as it depletes.
+
+**Trance Gauge** (3 stocks, shown as a bead strand)
+- It fills from attacking, landing Sync Hits, and Severance. It does not fill during Possession.
+- Spend 1 for an EX Curse Art or a **Curse Cancel** (cancel any move on hit, block, or whiff into neutral).
+- Spend 2 for a **Rite** (cinematic super).
+- Spend 3 for **Possession**.
+
+### 2.5 Fester (the Curse Bargain)
+- Curse Arts and Rites inflict **Fester**. Part of the damage is deferred and appears as a violet, glyph-crawling segment on the victim's Vitality bar.
+- After **5 seconds** (300 frames), any remaining Fester becomes real damage.
+- The victim cleans it by **landing any hit** (clears a chunk) or by **Severance** (clears the remainder).
+- The attacker can detonate Fester early with **Reap**: any Heavy Slash on a Festering target converts a portion instantly, with a signature "seal-burst" FX.
+- The attacker is rewarded for pressure and the defender for counter-aggression. Turtling is a losing strategy.
+
+### 2.6 The Tempo (the Shared Arc)
+A match-wide meter from 0 to 100, shown as a glowing halo ring around the timer. It has three phases.
+
+| Phase | Range | Effects |
+|---|---|---|
+| **Prelude** | 0–33 | Baseline. Sparse half-time music. |
+| **Rupture** | 34–66 | +5% damage, Pulse windows widen, breakbeat music. |
+| **Frenzy** | 67–100 | +10% damage, +20% Resolve damage, +25% Trance gain, double-time music, stage overload. |
+
+- Tempo rises with hits, blocks, Severances and Sync Hits.
+- It also has timer floors: at **40 s remaining** it is raised to at least 34 (Rupture), and at **20 s remaining** to at least 67 (Frenzy).
+- It **ratchets**: it may fluctuate inside a phase but never drops to a lower phase within the round.
+- Every round resolves as a rising arc.
+
+### 2.7 The Pulse (the Heartbeat)
+- A giant stage sigil pulses on the beat, visible on the floor and at the HUD ring edges.
+- A hit landing within ±3 frames of the Pulse (a 7-frame window) is a **Sync Hit**, worth +2 hitstop frames, +50% Trance gain, a bell-chime in the stage's key, and a lotus-petal-burst FX.
+- It is never required, and an option can disable it.
+- Training Mode includes a metronome.
+
+### 2.8 Severance (Just Guard)
+- Tapping Guard in the 8-frame window before a hit is a **Severance**. It also works against Maledict attacks.
+- The attacker's weapon is deflected, with a ring of sparks.
+- **Hush:** the music low-passes into a resonant drone and the screen desaturates for about 0.5 seconds. On your first counter-input the music slams back at full volume with a bass drop.
+- A miss costs 15 Resolve and 20 frames of recovery.
+- A Severance clears all Fester.
+
+### 2.9 Blade Lock (Clash)
+When both fighters swing into each other in the same frame window, the weapons lock.
+- Each player picks **Push** (Heavy), **Slip** (Roll) or **Pull** (Kick), as rock-paper-scissors: Push beats Pull, Pull beats Slip, Slip beats Push.
+- The pick must be made within 20 frames.
+- A tie is resolved by whoever is closer to the Pulse.
+
+### 2.10 Possession (the Awakened State)
+- Costs 3 Trance stocks and lasts about 12 seconds.
+- Each character transforms visually, usually with a halo, an aureole or a spectral beast, and gains unique rules (see roster).
+- When it ends, **Backlash** converts 10% of the user's max Vitality (100 points) into self-inflicted Fester.
+- If the opponent clears the Fester, the Backlash is wasted. Possession is a gamble.
+
+### 2.11 Feel Targets
+- **Hitstop:** light 6f, heavy 11f, counter-hit +4f, Sync Hit +2f, Rite finisher 24f plus two impact frames.
+- **Input buffer:** 5f.
+- **Camera:** it nudges toward the point of impact on heavy hits.
+- **Smear frames** on all swings, with ribbon-scarf trails on cloth.
+- **Impact frames:** a two-frame inverted ink flash on heavy hits, decisive cuts, and Rite finishers. It is subtle on ordinary hits.
+- Controller rumble is tied to the Pulse during Frenzy, so the pad "breathes" with the music.
+
+---
+
+## 3. Characters
+
+### 3.1 Roster Rules
+- **All fighters are adults.** Default ages are 20+, and "ancient" characters read as adult in every outfit.
+- **Every fighter is either a woman, or a full-armor, marionette-like figure whose gender is deliberately unclear.** The unclear ones have full-coverage armor or shell, exposed ball joints, a painted or sealed faceplate, a processed neutral voice, and no gendered pronouns in text or dialogue.
+- **Costume language:** cute, stylish, confident. Thigh-highs, garter straps, heels and platform geta, ribbon scarves, keyhole bodices, side slits and bare shoulders are encouraged. There is no nudity and no sexual content.
+- Each fighter belongs to one Ring, has a home stage, and has one unique HUD widget.
+- **Launch roster: 16 fighters plus the boss.**
+
+| Ring | Fighters | Gatekeeper (Long Walk) |
+|---|---|---|
+| Cinder | Marei, Goki, Lilian | Goki |
+| Famine | Ye-rin, Tsubaki, Ume | Ume |
+| Fang | Kiri, Midori, Nautilus | Midori |
+| Strife | Cecilia, Karasu, Tomoe | Tomoe |
+| Dust | Zhao Wuyan, Sumi | Sumi |
+| Radiance | Lucienne, Pavane | Pavane |
+| Final | The Unmoved Warden (boss) | — |
+
+### 3.2 Cecilia Darkmoon — "The Eclipse-Crowned Queen of Six Hands"
+*Age 23. Last heir of a house that sealed a pact with a six-armed war-spirit king along an ancient trade road.*
+
+**Look**
+- Long black hair in a high ponytail looped through a thin **gold halo-ring** that floats behind her head like an eclipse disc. A red ribbon and a fine silver chain trail from the loop.
+- Long sidelocks framing her face.
+- Vivid yellow eyes with slit-ring highlights, lined in crimson.
+- A black-and-crimson **gothic ceremonial minidress**: a high collar, a keyhole front with beaded lacing, gold cloud-scroll embroidery, and off-shoulder Juliet sleeves that end in gold cuff-bangles.
+- A **layered petal skirt**, black outside and crimson inside, with the tiers opening like lotus petals as she moves.
+- Long translucent crimson **sash-scarves** that float and trail.
+- Sheer black **thigh-highs** with red lace tops and gold chain garters, and black stiletto boots with gold lotus-bud heels.
+- An eclipse brooch (a silver crescent crossing a disc) at the collar.
+- A strand of black beads is wound around her wrist.
+- Her sword **Duskmaw** is a huge two-handed blade of black iron with glowing red vein-cracks, tasseled with bead cord. Its crossguard is shaped like a screaming mouth. A violet-black aura around it forms faint, shifting faces.
+- **Demeanor:** serene, detached, proud and noble. She rests the sword on her shoulder, blinks slowly and tilts her head. She never raises her voice.
+
+**Fighting Style: "Echo Slash"**
+- A heavy, long-reach, high-commitment swordswoman. Slow starts and enormous payoffs.
+- **Phantom Arms (Echo Strikes):** spectral arms strike a delayed second hit after her blade. Holding the button delays the echo by up to 20 frames, creating timing mix-ups that feel like a rhythm broken and re-caught.
+- **Umbra (0–3 stacks):** gained from landing Heavies and Echo Strikes. Each stack adds a visible spectral arm (each in a different graceful hand-seal) and a hit to her Curse Arts. Whiffing a Heavy costs one stack.
+
+**Key Moves**
+| Move | Input | Notes |
+|---|---|---|
+| Duskmaw's Hunger | Heavy (hold) | Wide arc, delayable echo |
+| Moonfall | ↓↘→ + Curse | Overhead sweep; leaves Fester |
+| Black Eclipse | →↓↘ + Curse | Counter stance; the halo-ring flares and absorbs one hit, then launches |
+| Umbra Step | ←← + Kick | Backward glide; phantom-arm retreat slash |
+| Seize: Void Embrace | Light + Kick | Lifts the opponent on the sword tip |
+
+**Rites**
+- **Umbral Requiem (2 stocks):** a cinematic flurry of six spectral arms.
+- **Duskmaw Devours the Moon (2 stocks, requires Umbra 3):** the screen blacks out under a black sun and the sword swallows the opponent.
+
+**Possession: War-Spirit Manifest**
+- A three-faced, six-armed spectral figure rises behind her, haloed by a ring of eclipse flame.
+- Echo Strikes fire automatically at no cost, and each Curse Art gains a bonus arm hit.
+- Her entire palette shifts to black, gold and crimson.
+
+**Strengths:** damage, range, punishing whiffs, hypnotic mix-ups.
+**Weaknesses:** slow, large hurtbox, vulnerable to rushdown and to being out-spaced.
+**Alt looks:** *Crimson Mass* (red-dominant), *Pale Veil* (white-and-black), *Gilded Ascendant* (gold-dominant, extra ribbon-scarves), *Contemporary Street Goth* (modern fashion set, with the halo as a hair accessory).
+
+### 3.3 Kiri — "The Nameless Masked Dancer"
+*Age 22. Bound to a fox spirit. Every technique costs her a memory, and she hunts the Sunken Pagoda to recover her own name.*
+
+**Look**
+- Slim, agile, a little shorter than the cast.
+- Brown twintails tied with red-and-white bead cords, with a few loose strands.
+- A **white fox mask with red markings that fully covers her face.** It is never removed. It "emotes" through light and angle, and the eye slits flare when she is excited.
+- A **festival-dancer outfit**: a white cropped jacket with wide, trailing sleeves trimmed in vermilion and gold cloud-scrolls, and a short layered vermilion skirt with translucent petal tiers.
+- A beaded sash-belt hung with small gold bells and a tiny lantern.
+- Long **ribbon-scarves** that flutter behind her.
+- White **thigh-highs** with red bands, and tall single-tooth **platform geta-heels** with a bell on each.
+- Two short swords with bell-hilts and red tassels, held reverse-grip.
+- Her hair and tassels leave trails of fox-fire (pale blue-white flame). A faint ring of **nine small flames** orbits her back, like a broken halo.
+
+**Fighting Style: "Bell Dance"**
+- A fast, evasive, cunning rushdown/trickster. Light, graceful, dance-like.
+- **Bell Notes:** each *different* attack in a chain rings a bell tone on an ascending pentatonic scale.
+  - Repeating a move resets the scale.
+  - Five unique notes complete a **Verse**, which gives a buff and a free cancel on her next special.
+  - This forces variety and turns her offense into a played melody.
+- **Two Stances:** *Dew* (flowing offense) and *Frost* (counter-focused). Curse Art + direction switches stance.
+
+**Key Moves**
+| Move | Input | Notes |
+|---|---|---|
+| Mist Step | ↓↙← + Kick | Teleport behind the opponent |
+| Fox-Fire Toss | ↓↘→ + Curse | Projectile; Fester |
+| Decoy Twin | →↓↘ + Curse | Illusion bait; deals damage if hit |
+| Air Dash | Jump + Kick | One per jump |
+| Seize: Silk Rend | Light + Kick | Reverse-grip cut and spin-kick |
+
+**Rites**
+- **Fox-Fire Dance (2 stocks):** a spiral of flame and slashes.
+- **Nameless Dance of a Thousand Cuts (Possession only, no stock cost):** a black-and-white ink-wash cutscene. It ends Possession, and if it connects, Backlash is cancelled.
+
+**Possession: Nine-Tail Masquerade**
+- Nine spectral tails of fox-fire unfurl as a halo-fan behind her. Every normal spawns a phantom echo hit.
+- Mist Step is free.
+- Her mask visibly cracks as the state ends, and a sliver of eye glints through the crack for a single frame.
+
+**Strengths:** speed, mix-ups, evasion, air control, setups.
+**Weaknesses:** low damage, low Vitality, struggles to open guarded opponents, and loses to zoners.
+**Alt looks:** *Night Festival* (yukata, fireworks), *Black Fox* (dark inverted palette), *Contemporary* (oversized hoodie, short shorts, thigh-highs, bell-laced sneakers).
+
+### 3.4 The Wider Roster
+
+#### Cinder Ring
+
+**Marei Shimabara — "The Smoke-Veiled Attendant"** *(27, Thousand-Seal Court)*
+- **Look:** ash-silver hair in a long side braid with a lotus hairpin, and a sheer ash veil. A high-collared black bodice dress with a keyhole front and a long-slit skirt of layered ash gauze. Floating scarf-ribbons, a bead strand on her wrist, black thigh-highs with silver lace tops, and ankle-strap heels with tiny bells.
+- **Weapon:** a brass censer flail on a bell-tasseled chain.
+- **Gimmick:** incense smoke lingers as zone control, and the censer glows brighter with Tempo.
+- **Possession, Smoke Halo:** the censer becomes a burning halo ring orbiting her, and smoke clouds drain the opponent's Resolve.
+- **Widget:** the censer's ember ring.
+
+**Goki — "The Cinder Ogress"** *(looks 26, centuries old, independent)*
+- **Look:** a tall, warm-flushed oni with a single cracked horn capped in gold. A low black ponytail with steel hairpins. An open short black jacket over chest wraps and a short flared skirt. Full-sleeve glowing tattoos (koi, dragon, cloud-scrolls, a flame-aureole across the shoulders). Black thigh-highs and tall platform geta-heels.
+- **Weapon:** a spiked iron club.
+- **Gimmick:** a super-armor grappler. Her tattoos pulse with Tempo, and the brighter they burn, the more armor hits she absorbs.
+- **Possession, Cinder Unleashed:** a second horn grows, the tattoos burn red, a flame aureole erupts behind her, and all grabs gain armor.
+- **Widget:** the tattoo glow level.
+
+**Lilian — "The Forgotten Vessel"** *(age unknown; gender unclear; Marionette)*
+- **Look:** full black-lacquer iron plate edged in gilt, engraved with cloud-scrolls, with flared hip plates. Lacquered-wood ball joints at the neck, elbows and knees. A serene porcelain faceplate with closed eyes and a small gold bead in the brow. A thin gilded halo-disc hangs behind the head and never turns. Black silk strings run from shoulders and hands upward and out of frame.
+- **Weapon:** a spear and a bell-shaped tower shield.
+- **Gimmick:** *Cut Strings.* Detach an arm or the shield to fight independently for 3 seconds, such as a shield that blocks a lane or an arm that holds the spear thrust.
+- **Possession, Puppeteer Revealed:** the strings go taut toward a gigantic shadow-hand above the stage, and all limbs detach freely.
+- **Widget:** a string-tension gauge.
+
+#### Famine Ring
+
+**Ye-rin Han — "The Barefoot Ribbon Dancer"** *(25, Fox-Fire Pact)*
+- **Look:** a white cropped jacket with five-color striped sleeves and a high-waisted red skirt tied up at the thigh with a long slit. A long braid with a ribbon. She is barefoot with ankle bells, toeless thigh-high stockings with ribbon garters, and five-color ribbons that trail from her wrists.
+- **Weapon:** twin bell-knives and a ribbon-fan.
+- **Gimmick:** she gains gauge by dancing (rhythmic forward and back inputs). Barefoot blade-walking mix-ups. She summons a Banner General spirit.
+- **Possession, General Descends:** the spirit possesses her armor-clad, gaining heavy normals and a larger hurtbox.
+- **Widget:** a rhythm ring.
+
+**Tsubaki — "The Spider Hostess"** *(looks 30, much older, independent)*
+- **Look:** an elegant spider-woman in a black-and-violet off-shoulder evening dress with a high slit and a spider-lily pattern. Her hair is pinned with spider-leg hairpins. A single red thread is wound through her fingers. Sheer black thigh-highs with web-lace tops and red-soled heels.
+- **Weapon:** a parasol-blade and silk threads from her fingertips.
+- **Gimmick:** a trap and wire zoner. Threads strung between stage anchors snare and trip.
+- **Possession, Web Banquet:** eight spectral spider legs unfold like a halo, and the whole stage becomes a web.
+- **Widget:** a web-node counter.
+
+**Ume — "The Bottomless Bowl"** *(22, independent)*
+- **Look:** pale, with lilac hair in long twintails and a tiny bowl-shaped hat. An oversized funeral-white dress with sleeves printed in paper-money patterns. An elegantly long, slender neck with a beaded choker. White thigh-highs with paper-tag garters, and platform shoes shaped like upturned bowls.
+- **Weapon:** a giant ladle-polearm and a floating porcelain bowl.
+- **Gimmick:** *Hunger.* The bowl swallows projectiles and stores them, and she spends them to fire back a ghostly feast-volley.
+- **Possession, Endless Feast:** the bowl swells to swallow whole attacks, and a ring of ghostly diners joins in with chopstick stabs.
+- **Widget:** the bowl's fill level.
+
+#### Fang Ring
+
+**Midori — "The River Serpent Dancer"** *(24, independent)*
+- **Look:** jade-green hair in a high twist with gold pins, and a flared cobra-hood collar of green scales. A cropped, high-collared top with a keyhole front and a long-slit skirt with a gold coin-chain belt. Scale-patterned thigh-highs, gold ankle chains, and pointed high heels.
+- **Weapon:** a segmented whip-sword that coils.
+- **Gimmick:** *Coil.* The blade segments extend and lay coils on the stage that trip and snare.
+- **Possession, Great Serpent Rises:** a huge jade serpent coils the stage, and her sword gains screen-wide reach.
+- **Widget:** coil segments.
+
+**Nautilus — "The Abyssal Diver"** *(age unknown; gender unclear; Marionette)*
+- **Look:** an antique brass diving suit with a round fogged helmet that shows nothing inside and a lantern that beams out like petals. Ball-jointed brass hands and knees. Pearl-bead air hoses rise upward like marionette strings and vanish off-frame.
+- **Weapon:** a trident.
+- **Gimmick:** *Pressure.* It builds with Tempo and releases as a decompression blast. Cutting the hoses briefly staggers them.
+- **Possession, Leviathan Call:** a spectral whale rises behind, haloed by sonar rings, and the stage floods ankle-deep.
+- **Widget:** a depth-gauge dial.
+
+#### Strife Ring
+
+**Karasu — "The Crow-Winged Master"** *(looks 27, ancient, Lotus Lantern Hall)*
+- **Look:** long silver-white hair in a high topknot with loose strands. A long-nosed red mask pushed up on her forehead. An indigo cropped training jacket worn off one shoulder with a feather mantle, and a short pleated black skirt. Black thigh-highs with feather trim, and tall platform geta-heels.
+- **Weapon:** a wooden bokken and a large feathered fan.
+- **Gimmick:** a counter-hitter. After a Severance her bokken "cuts like steel" for 5 seconds.
+- **Possession, Great Crow-Wing:** black feathered wings spread as a halo, and the fan creates pushback wind.
+- **Widget:** a feather count.
+
+**Tomoe — "The Ceaseless Naginata"** *(28, independent)*
+- **Look:** tall, with a short black warrior's knot. Black-lacquer shoulder and hip plates with red lacing over a short white tunic, and a short armored skirt. Thigh-highs under armored greaves, with heeled sabatons. A tattered war banner on her back crowned with a faint flame-aureole.
+- **Weapon:** a naginata.
+- **Gimmick:** *Banner.* It grows with consecutive hits, extending her reach and range of normals.
+- **Possession, Ceaseless War:** a ghost army marches behind her and echoes her swings.
+- **Widget:** the banner length.
+
+#### Dust Ring
+
+**Zhao Wuyan — "The Coin-Sword Talisman Smith"** *(29, Lotus Lantern Hall)*
+- **Look:** a Hong Kong ritual-smith with a short bob and a talisman-paper hair clip. A modernized indigo-black cropped jacket with wide sleeves hung with yellow talisman strips, and a short pleated skirt with a qipao-style slit. Thigh-highs embroidered with cloud-scrolls, and platform boots with copper-coin charms.
+- **Weapon:** a sword of bound copper coins and paper talismans.
+- **Gimmick:** a five-phase stance cycle (Timber → Flame → Soil → Ore → Tide). Each hit advances the stance.
+- **Possession, Sky-Seal Descent:** talismans orbit her in a halo, and all five stances are active at once.
+- **Widget:** a five-phase wheel.
+
+**Sumi — "The Lantern Attendant"** *(26, independent)*
+- **Look:** long dark hair under a small paper crown clipped with a name-tag charm. A white-and-ash fitted tunic dress with layered lotus-petal skirt tiers. White thigh-highs with ash-pink ribbon garters, and low white heels with petal-shaped heel caps.
+- **Weapon:** a lotus-bud lantern on a chain and a slender ink-brush blade.
+- **Gimmick:** *Vigil.* She sets paper lanterns around the stage, and each one stores a free follow-up hit. As Tempo rises they burn out into petals.
+- **Possession, Full Bloom:** every lantern ignites and a storm of razor ash-petals circles her.
+- **Widget:** the lantern count.
+
+#### Radiance Ring
+
+**Lucienne Verhaeren — "The Gilded Countess"** *(looks 30, centuries old, independent)*
+- **Look:** a pale Belgian noblewoman in a wine-and-ivory dress cut like a riding habit with a short front hem, a high collar, a gold-filigree crown fragment floating as a cracked halo, and long silk ribbon-scarves. Wine thigh-highs with gold garter clasps, and pointed heels.
+- **Weapon:** a cane-sword.
+- **Gimmick:** *Blood Debt.* She converts her own Vitality into damage. A pale "Debt" segment appears on her bar and heals back only if she lands hits.
+- **Possession, Sanguine Court:** spectral guests in a gilded ballroom attack in time with her cane-sword, and Blood Debt is free.
+- **Widget:** the Debt segment.
+
+**Pavane — "The Clockwork Courtier"** *(age unknown; gender unclear; Marionette)*
+- **Look:** full gilded plate armor sculpted like overlapping lotus petals into a ballgown skirt. Porcelain ball joints, a serenely smiling painted faceplate, a gilded halo of slow gears, and a wind-up key turning on the back. Gold chains hang from a floating gilded crossbar overhead like marionette strings.
+- **Weapon:** a rapier and a main-gauche.
+- **Gimmick:** *Wind-Up.* The key turns with Tempo and speeds up her attacks. At full wind she stalls briefly ("Run Down"), so she must spend winding on specials.
+- **Possession, Grand Finale:** a waltz of mirrored afterimages, with every normal echoed at triple speed.
+- **Widget:** the key-wind dial.
+
+#### Boss
+
+**The Unmoved Warden** *(gender unclear)*
+- **Look:** a colossal hollow stone idol seated on a throne of upturned blades shaped like lotus petals. It has six arms in constantly shifting hand-seals, a smooth serene closed-eyed stone face with a hairline seam, and a halo ring of hanging wind-bells. Its hollow torso houses a judgment bell.
+- **Weapon:** a ringed stone staff and the judgment bell.
+- **Gimmick:** it reads the player's Toll and Vows, and shows them as attack patterns. Each of the six hands represents a different Vow category.
+
+---
+
+## 4. Stages
+
+Each stage has its own **Pulse sigil** on the floor, its own **Tempo-reactive environment** (lights, flora, fog that react to Tempo), and **three lighting scripts** (Prelude, Rupture, Frenzy/Eclipse). Round 3 always uses the Final Round Eclipse color script.
+
+**Stage Transitions (the Break).** Once per match, a heavy hit or launcher into a marked stage edge breaks it. Both fighters carry over into a second area in 90 frames with no loading screen. The second area uses the same Pulse sigil and carries over the Tempo.
+
+| Ring | Stages |
+|---|---|
+| Cinder | The Sunken Pagoda, Crimson Spring Bathhouse |
+| Fang | Ten Thousand Gates, Drowned Menagerie |
+| Strife | Field of Endless War, Iron Banner Dockyard |
+| Dust | Lantern Walled City, Hanami Hospice |
+| Radiance | Gilded Decay Penthouse, Sky Garden of Fading Radiance |
+| Special | The Last Platform (hub), Hall of Strings (secret), Hollow Threshold (final) |
+
+### 4.1 The Sunken Pagoda (Cinder Fissure) — Signature Stage
+*Inspired by Ghosts 'n Goblins and Devil May Cry 3.*
+
+**Setting.** A stagnant swamp. At its center rises the **Patchwork Pagoda**, the impossible tower of §1.3: a thirteen-eaved tower with sagging curved roofs hung with iron wind-bells, a pale domed relic mound at its base, and a ruined vermilion-pillared hall. A cracked circular **moon-window** glows red above the entrance, and the main gate is carved with tormented figures in tiered reliefs. Stone lion-dogs and fierce door-guardians flank the stairs, their eyes glowing and tracking the fighters. Their faces are subtly carved with six-armed motifs.
+
+**Fighting area.** A cracked flagstone causeway in front of the gate.
+- **Left:** a graveyard of leaning stone stelae and rows of small weeping stone figures wrapped in blood-stained red cloth.
+- **Right:** a collapsed bell-tower base with a half-sunken giant bronze bell.
+
+**Iron railings.** Bent, rusted wrought-iron railings with lotus-bud finials, half-submerged and hung with chains and lantern cages. The railings at the stage edges are breakable (see Stage Transitions).
+
+**Atmosphere**
+- Bare dead trees and drifting fog layers.
+- Pale green-gold *hitodama* soul-lights hover above the mire and pulse on the beat.
+- Zombie-like hands occasionally push up through the mud, then sink again (a Ghosts 'n Goblins nod).
+- Crows wheel overhead, and the wind-bells chime out of tune.
+- **Sky:** a blood-red painterly sky with layered storm clouds, and a **black eclipsed sun** with a red corona hanging behind the tower like a halo.
+
+**The Pulse sigil:** an *eclipse-lotus medallion*, a ring of petals around a black disc with spokes and cloud-scroll borders, carved into the flagstones and glowing red on each beat.
+
+**Round progression**
+- **Round 1:** dim blood-red dusk.
+- **Round 2:** the moon-window ignites, the eclipse deepens, and the Break leads into the hall.
+- **Round 3:** full Eclipse. The sky turns deep crimson-black with a bright corona, and the hall floods with red light.
+
+**Second area (the Hall).** A vast interior with toppled lacquer pillars, a collapsed roof open to the sky, shafts of red light through the moon-window, and iron lantern-cages on chains. A great hollow seated statue looms in the dark at the far end, foreshadowing the final boss. The Pulse sigil continues on the floor.
+
+**Tide variants:** the community-determined state alters the stage (calmer red dusk vs. a boiling blood-black storm).
+
+### 4.2 Crimson Spring Bathhouse (Cinder) — *Goki's home*
+- **Setting:** a Beppu-style "blood pond" hot spring. A vast red-orange mineral pool is ringed with stone lanterns and a derelict Showa-era bathhouse whose cracked blue-tile Mt. Fuji mural peels in the steam. Oni statues loom over the water.
+- **Play space and Break:** a wooden deck and stone bath rim. Breaking the painted dividing wall opens the boiling shallows, where fighters wade knee-deep in red water.
+- **Tempo:** geysers erupt on the beat, and steam thickens through Frenzy until silhouettes blur.
+- **Sigil and accent:** a vermilion mask-ripple of concentric petals. Accent: sulfur yellow.
+
+### 4.3 Ten Thousand Gates (Fang) — *Kiri's and Midori's home*
+- **Setting:** a mountain path of endless vermilion gates at night, lined with stone foxes and swaying lanterns. The fox statues wear red cloth bibs.
+- **Play space and Break:** a stone landing between two gate corridors. Smashing through a gate opens an inner cedar hollow.
+- **Tempo:** lanterns shift from warm orange to fox-fire blue as Tempo rises, and statue eyes begin to glow in Frenzy.
+- **Sigil and accent:** a swirling three-comma spiral inside a fox-fire ring. Accent: vermilion and fox-fire blue.
+
+### 4.4 Drowned Menagerie (Fang) — *Nautilus's home*
+- **Setting:** a flooded abandoned aquarium. A glass tunnel with cracked tanks, drifting jellyfish and the giant shadow of a whale. Seawater seeps through the floor.
+- **Play space and Break:** the tunnel floor. Shattering a tank wall floods the arena into a drowned main tank, with waist-deep water and floating debris (no swimming).
+- **Tempo:** sonar rings and jellyfish pulse on the beat. The whale shadow draws closer through each phase.
+- **Sigil and accent:** concentric sonar ripples. Accent: bioluminescent teal.
+
+### 4.5 Field of Endless War (Strife) — *Cecilia's home*
+- **Setting:** a perpetual battlefield of floating broken skyscrapers, tattered war banners, thunder and a red sun ringed by a halo of storm cloud.
+- **Play space and Break:** a cracked highway slab drifting among debris. A heavy hit shatters it and drops the duel to a lower slab.
+- **Tempo:** lightning strikes on the beat, and the ghost armies in the background march closer each phase.
+- **Sigil and accent:** an eight-spoke war wheel and war drum. Accent: molten gold and storm violet.
+
+### 4.6 Iron Banner Dockyard (Strife) — *Tomoe's and Karasu's home*
+- **Setting:** a rusting dry dock with a half-scrapped battleship, red-orange sunset, cranes hung with war banners, and chains and anchors.
+- **Play space and Break:** the dock floor. Breaking the hull plate drops fighters into the ship's hold.
+- **Tempo:** welding sparks rain from the cranes and sync to the beat in Frenzy.
+- **Sigil and accent:** a compass rose fused with a war wheel. Accent: rust orange.
+
+### 4.7 Lantern Walled City (Dust) — *Zhao's home*
+- **Setting:** a vertical walled city in perpetual rain, with neon lanterns, paper effigies burning in the wet, and a slow procession of paper figures and drummers passing on the next rooftop.
+- **Play space and Break:** a rooftop alley with water tanks and laundry lines. Breaking the rooftop drops the duel into the alley below.
+- **Tempo:** the procession's drums join the track, and neon signs in English flicker on the beat.
+- **Sigil and accent:** a neon octagon of broken-line glyphs. Accent: jade green and neon cyan.
+
+### 4.8 Hanami Hospice (Dust) — *Sumi's home*
+- **Setting:** a derelict hospital courtyard where cherry trees shed ash-grey petals. Empty wheelchairs, drip stands, name-labelled paper lanterns and a lit nurse-station window.
+- **Play space and Break:** the paved courtyard. Smashing the sunroom glass opens the ward corridor, with flickering fluorescent lights and rows of beds.
+- **Tempo:** a heart-monitor beep supports the Pulse. Petals shift from pink to ash as Tempo rises.
+- **Sigil and accent:** a circular cardiogram line inscribed as a lotus. Accent: ash pink.
+
+### 4.9 Gilded Decay Penthouse (Radiance) — *Lucienne's home*
+- **Setting:** an opulent high-rise ballroom with cracked gold, falling petals and chandeliers that sway to the beat. Floor-to-ceiling windows show a skyline of dead lights, and a grand piano plays itself.
+- **Play space and Break:** a marble floor with gold inlay. Smashing the window wall opens a wind-swept balcony.
+- **Tempo:** the chandeliers swing wider with each phase, and gold plating flakes from the walls in Frenzy.
+- **Sigil and accent:** a many-petaled golden lotus. Accent: champagne gold and magenta.
+
+### 4.10 Sky Garden of Fading Radiance (Radiance) — *Pavane's home*
+- **Setting:** a glass-domed rooftop garden above a sea of clouds. Statues of winged, haloed attendants stand among flowers in a golden pavilion.
+- **Play space and Break:** a mosaic floor. Shattering the dome opens its bare metal frame above the clouds.
+- **Tempo:** the **five omens of fading** play out through the match: flowers wilt, gold tarnishes, statue halos dim, the garden's light flickers, and the statues crack, in sequence. In Frenzy, flowers bloom and wither on every beat.
+- **Sigil and accent:** an eight-petal golden lotus medallion. Accent: pale gold and sky blue.
+
+### 4.11 The Last Platform (Hub)
+- **Setting:** an abandoned subway station where a train that never arrives passes at the start of each Frenzy, its windows full of silhouettes.
+- **Play space and Break:** the platform edge. Smashing the tiled wall opens a service tunnel with tracks.
+- **Sigil and accent:** a signal-light ring. Accent: sodium yellow.
+
+### 4.12 Hall of Strings (Secret) — *home of the marionette fighters*
+Unlocked by defeating all three marionette fighters.
+- **Setting:** an abandoned bunraku/karakuri puppet theatre with red curtains, hanging puppets and strings in the fly gallery, footlights and a wooden stage with trapdoors. A seated audience of wooden dolls turns its heads to follow the fight.
+- **Play space and Break:** the revolving stage. Stepping through a trapdoor breaks into the under-stage workshop of gears.
+- **Tempo:** the strings pull the props and the dolls rise from their seats on each phase shift.
+- **Sigil and accent:** a revolving-stage turntable with a gear. Accent: lacquer red and candle amber.
+
+### 4.13 Hollow Threshold (Final)
+- **Setting:** a white void with a single gate. The Pulse is the only light, and the Warden sits unseen beyond it.
+- **Play space:** no Break. In Frenzy the gate cracks open, and in round three the palette inverts to a black void with white light.
+- **Sigil and accent:** concentric rings of light. Accent: none.
+
+---
+
+## 6. Progression & Customization
+
+- **Relics:** collectable items whose descriptions fragment the lore (item-description storytelling, as in Dark Souls).
+- **Vows:** pre-match modifiers that trade a restriction for a bonus. Example: "Vow of Iron" disables back-dashing but gives +15% damage. Vows are disabled in ranked play except for one standardized option.
+- **Palettes and outfits:** each fighter has 8 palettes and 4 outfits (default plus 3 alternates), with accessories (halos, ribbon-scarves, bead strands, hairpins, stockings and heel styles) and weapon skins.
+- **Nameplates and titles** earned through play and faction rank.
+
+---
+
+## 7. Visual Direction & Graphics Scope
+
+### 7.1 Style Statement
+Vibrant, expressive, exaggerated and captivating. It is the key-art style of Pixiv and Danbooru illustration, with ornate temple-craft detailing, rendered as **PS2/PSP-era 3D with a high-budget Japanese AAA finish**. Beauty comes from stylization, composition and color design, not from polygon counts.
+
+### 7.2 Graphics Implementation Scope
+
+| Element | Scope |
+|---|---|
+| **Characters** | 7–10k triangles each (armored marionettes at the upper end); hand-painted 512px textures; two-tone cel shading with a painted shadow layer and thin inked outlines (variable weight); strong rim light |
+| **Faces** | Texture-swap expressions (eyes, brows, mouth), as on PS2 games; large Danbooru-style eyes with highlight shapes. Armored fighters have fixed painted faceplates that change only through light and cracks |
+| **Hair and cloth** | Simple bone-chain secondary motion for ponytails, twintails, skirts, tassels, ribbon-scarves, strings and hoses |
+| **Halos and extra arms** | Halos are billboarded geometry discs with scrolling emissive textures. Spectral arms are translucent skinned meshes sharing the character skeleton with delayed playback |
+| **Stages** | 40–70k triangles; baked lighting; hand-painted textures; painted sky domes; alpha-card fog layers, light shafts and fake volumetrics |
+| **Shadows** | Projected planar shadows and blob shadows |
+| **Lighting** | One key light plus a rim light per fighter, color-scripted per Tempo phase |
+| **Water** | Mirrored geometry and a painted ripple overlay |
+| **FX** | flipbook sprites (ink brush slashes, blood ribbons, lotus petals, sparks, incense smoke) billboarded in 3D |
+| **Animation** | Stepped, limited-key animation with smear frames |
+| **Impact frames** | Two-frame inverted ink flashes |
+| **Frame rate** | Locked 60 fps at 720p, scaling up |
+
+### 7.4 Camera
+- A 2.5D side-on camera with a slightly low angle and a mild telephoto feel.
+- It zooms for impacts and swings in 3D for Rites and stage transitions.
+- Faux depth-of-field comes from painted blurred foreground cards (reeds, railings, wind-bell tassels).
+
+### 7.5 Gore and Violence Presentation
+- Stylized but explicit: thick painterly blood ribbons, arterial sprays, wound decals, and dismemberment silhouettes on Rite finishers.
+- Marionette fighters bleed splinters, porcelain shards and black silk instead of blood.
+- Gore can be toggled down in options.
+
+---
+
+## 8. UI / UX
+
+### 8.1 HUD (references: Soulcalibur, Ninja Gaiden Sigma, Devil May Cry 4, Bayonetta)
+- **Vitality bars:** curved blade-shaped bars in black lacquer with fine gold filigree and cloud-scroll borders, filled with flowing red liquid. The Fester segment is violet with a crawling glyph texture.
+- **Resolve thread:** a thin silver line below the bar that frays and sparks.
+- **Portraits:** circular halo-ring medallions that flare during Possession.
+- **Timer:** an ornate central dial wrapped in the **Tempo halo ring**.
+- **Round counter:** moon phases that progress to eclipse as rounds are won.
+- **Trance Gauge:** three large beads on a strand curving around each lower corner. They glow as they fill.
+- **Combo counter:** a Bayonetta/DMC-style brush-script counter at the side, with grade words: *Callous, Cruel, Vicious, Ruthless, Sublime.*
+- **Pulse indicator:** a ring on the floor sigil and at the HUD rim.
+- **Character-unique widgets:** one per fighter (see Characters), such as Cecilia's Umbra arms and Kiri's Bell-Note staff.
+
+### 8.2 Screens
+- **Menus:** a hypnotic, slowly rotating red-and-gold radial medallion (a lotus-and-gear wheel) that pulses with the menu music.
+- **Character select:** a 16-portrait grid with large Danbooru-style bust art and a 3D idle turntable. Characters hold their Curse Art hand-seal poses when highlighted.
+- **Stage select:** a wheel of the Six Rings, with two stage thumbnails per ring and special stages at the hub.
+- **Versus screen:** a diagonal split with bold brush-script names and a kanji-like ornamental seal motif (decorative only, invented glyphs).
+- **Text:** all text in English. Neon signs and signage in stages use English text.
+
+### 8.3 Flow
+- Instant rematch, with no loading breaks between rounds.
+- Round-start and KO banners are brush-script.
+- A **Final Round Eclipse** flash marks the start of round three.
+
+---
+
+## 9. Audio Direction
+
+### 9.1 Music
+Hard, hypnotic, high-BPM **techno and breakbeat**, with an assault-music feel in the vein of Payday 2's beta tracks: relentless, driving, dark. Traditional instruments (temple bells, resonant bowls, long horns, drone strings, hand drums) are layered into the grid.
+
+**Adaptive structure**
+- Each stage track is authored at **one BPM** with **three rhythmic gears**: a **Prelude** half-time pulse (sparse, ominous), a **Rupture** breakbeat on the same grid, and a **Frenzy** double-time hardcore kick with rolling hats.
+- Transitions land on bar lines, so shifts feel seamless.
+- **Duel Duet:** each fighter has a leitmotif stem that layers into the stage track when they are in the match.
+- **Hush:** a resonant low-pass drone on a Severance, then slam.
+
+**Stage tracks**
+| Stage | Track | BPM | Style |
+|---|---|---|---|
+| The Sunken Pagoda | "Eclipse Procession" | 172 | Long-horn drones, temple bells, acid techno, breakbeat |
+| Crimson Spring Bathhouse | "Boiling Lotus" | 165 | Steam-hiss acid techno, taiko, tile reverb |
+| Scramble of the Hollow | "Famished Neon" | 168 | Hard techno and vocal chops |
+| Banquet of Empty Bowls | "Offering Table" | 150 | Dark breaks with gayageum, janggu and gongs |
+| Ten Thousand Gates | "Ten Thousand Gates" | 160 | Breakbeat with taiko, shamisen and koto |
+| Drowned Menagerie | "Pressure Lullaby" | 158 | Dub techno into hard breaks, sonar pings |
+| Field of Endless War | "War Without End" | 180 | Industrial drum-and-bass, rolling hand-drum patterns, conch horns |
+| Iron Banner Dockyard | "Rust and Banner" | 176 | Industrial hardcore, riveting percussion, war horns |
+| Lantern Walled City | "Rain Over Lanterns" | 156 | Dark breaks with erhu and guzheng |
+| Hanami Hospice | "Ash Blossom" | 148 | Melancholy hard trance, koto, resonant bowls, heart-monitor hats |
+| Gilded Decay Penthouse | "Gilded Decay" | 170 | Hard trance with detuned harpsichord and sitar-like drone |
+| Sky Garden of Fading Radiance | "Five Omens" | 174 | Euphoric trance with music-box lead and chiming bowls |
+| The Last Platform | "Last Train" | 162 | Dark minimal techno with train rhythms |
+| Hall of Strings | "Strings Pulled" | 164 | Glitched breakbeat, pizzicato strings, wooden clacks |
+| Hollow Threshold | "Silence Has a Pulse" | 140→200 | Accelerating ritual techno |
+
+All vocals are wordless chant or invented syllables. No lyrics in any language.
+
+### 9.2 Sound Effects (production list)
+- **Weapon swings:** pitched by weight, from a thin whistle (Kiri) to a low whoosh with a ghostly choir (Cecilia).
+- **Hits:** a wet thud, a glass-shatter crack and a sub-bass boom, scaled by hit strength. Marionette fighters get wood-crack and porcelain-shatter layers instead of the wet thud.
+- **Severance:** a bell-and-bowl ring followed by the Hush drone.
+- **Blade Lock:** a deep gong.
+- **Kiri's bells:** a light chime per step and ascending Bell-Note tones.
+- **Cecilia's sword:** a low eerie hum that rises with Umbra.
+- **Marionettes:** wooden joint clacks, silk-string twangs, a wound-key ratchet (Pavane), and brass hose hiss (Nautilus).
+- **Fester:** a crawling whisper, with a sizzling pop on conversion.
+- **Pulse:** a low heartbeat thump under the music.
+- **Stage ambience:** each stage has its own bed, such as swamp frogs, out-of-tune wind-bells, crows and clinking chains at the Sunken Pagoda, or sonar pings and dripping glass in the Menagerie.
+
+### 9.3 Voice
+English only. Minimal and restrained.
+- Cecilia: calm, precise mezzo.
+- Kiri: nearly silent, with breaths, fox yips and a few words.
+- Marionette fighters and the Warden: processed, neutral, chorus-like voices with no gendered pronouns.
+- Announcer: a low, ceremonial voice.
+
+---
+
+## 10. Accessibility & Comfort
+
+- **Photosensitivity-safe mode:** disables impact-frame flashes and the Frenzy radial overlay.
+- Pulse indicator off/on.
+- Gore level options.
+- Colorblind-safe tell shapes (white = circle, gold = diamond, blue = wedge, red = jagged).
+- Two control schemes (Duelist and Ritual).
+- Full button remapping.
+
+---
+
+## 11. Quality Bar (Design-Level Gates)
+
+Every character, move, stage and UI element must pass:
+- **Silhouette test:** every move reads as a unique shape, including halos, ribbons and spectral arms.
+- **Mute test:** every hit and tell can be read with the sound off.
+- **Squint test:** the screen's value structure reads at a glance.
+- **Three-second test:** a new viewer can tell who is winning within three seconds.
+- **Roster test:** every fighter reads as an adult (20+) in every outfit, and no fighter reads as male. Armored fighters must not signal gender through silhouette, voice or text.
+- **Guardrail test:** no real-world faith figures, named deities, scripture, clergy or ritual acts appear in names, art, text or audio. All motifs are abstracted into invented iconography (§0.1).
+- **Fairness rules:** no unblockable without a tell, no infinites, and every Maledict has at least 20 frames of warning.
+- **Feel review:** every move is reviewed for anticipation, impact and follow-through before sign-off.
+- **Polish pass:** consistent line weights, palette discipline, and a final audio mix against all three Tempo phases.
+</docs>
 
 ## 2. Quality benchmark
 
-Do the work to the production standards, craftsmanship and quality-control level of:
-- Daft Punk
-- Frank Klepacki
-- Lazerhawk
+it is to be done in production standards, craftsmanship and quality-control level of:
+- SCE Japan Studio
+- Tecmo Koei
+- FromSoftware
+- Atlus
+- Capcom
+- Neowiz
+- Netease
+- NCSoft
+- Nexon
+- Konami
 
 ### What to emulate
 
-- Their melodic craft, arrangement density, sound-design detail and mix-and-master quality.
-- Every section should have a purpose; nothing is a placeholder loop.
+- The videogame (its code, graphics, design work, overall approach to the project) will match their level of polish, attention to detail, game-feel tuning and internal QA rigor.
 
-## 3. Implementation language / tool
-
-Primary language / tool: [[Python + numpy (offline synthesis → MP3)]]
-
-### Constraints
-
-- Sample rate 44.1 kHz, 16- or 24-bit stereo.
-- Synthesis, sequencing and mixing all done in code; no external samples unless provided.
-
-## 4. Concept
+## 3. Concept
 
 ### Overall idea
 
-An amazing, mindblowing, hypnotizing, captivating track of the genres: breakbeat, progressive techno, techno-trance, rave.
+A 3D Fighting game (the arenas are implemented in two dimensions like in the clasical fightings, but the graphics are fully 3D to bypass the downsides of working with 2D raster or vector graphics).
+An example of playable characters:
+Cecilia Darkmoon: a cute-looking woman with high black ponytail, with sidelocks (side hair strands) framing her face for cuter look, and vibrant yellow eyes. She is wearing a vibrant "gothic lolita" style minidress in black-and-red colors, with high collar and juliet sleeves, an with a black leather belt. On her legs, she has above-knee black leather boots with silver buckles. She is holding a large, demonic-looking two-handed sword with eerie aura around it. She looks confident, serene, a bit detached, proud and noble. Her fighting style is eerie, and her powers are Asura-related (asuras are like demons but in hinduism/buddhism). Her visual design is following the typical style like in posts at Danbooru, Gelbooru, Safeboou, Zerochan, Pixiv etc.
+Kiri: a slightly short, young japanese woman with brown hair in twintails, wearing a kitsune ask so her face is hidden, and dress in red and white colors. She is wearing two Japanese short swords, moving fast and graciously, like dancing. She is fast and cunning type of a fighter, not "heavy" nor "strong".
+There are more of characters to implement in the future version.
+Also, a stage: an eerie and mysterious-lookings swamp with ruins of a romanesque cathedral in the middle of it, with damaged iron fences around. The ruins looks cursed and somewhat demonic. The sky is blood-red. It resembles level designs from the games like "Ghosts'n'Goblins" or "Devil May Cry 3".
+Tone: mystical, eerie, aggressive, daring, bold.
+Core experience — what the player should feel: ecstatic, hypnotic trance.
 
 ### Comparable existing products (study them; do NOT clone them)
 
-- Frank Clepacki (e.g. C&C OSTs) — borrow: the rhythmical, repeating parts with hypnotizing effects
-- Quake III Arena OST (e.g. Frontline Assembly, Sonic Mayhem) — borrow: approach to hard, aggressive, brutal techno
-Also: Payday 2 Beta ost (assault tracks especially), Tekken 6 Synthetic Pulse OST, Vocaloid Techno music producers (such as AVtechNO or Wowaka, though your current project has none of vocal), the rhythmical Touhou Project BGMs, and the like.
+- In terms of gameplay: Samurai Shodown, The King of Fighters XIII, BlazBlue, Soulcalibur.
+- In terms of overall inspiration for the aesthetics, mood, feel and lore: Devil May Cry 3, Devil May Cry 4, Bayonetta, Vampire: The Masquerade - Bloodline, Hellgate: London
+- In terms of approach to gameplay mechanics and player experience: Demon's Souls, Dark Souls
 
-## 5. Age rating & target audience
+## 4. Age rating & target audience
+
+Age rating: R18+ — content, themes and tone MUST stay within this rating.
 
 ### Target audience
 
-Can also be suitable as a soundtrack for a game (Action game / Fighting game)
+Explicit content allowed for realistic portrayal of combat mechanics.
+The target audience (for the visual design preferences / aesthetical preferences and preferable player experience): East Asia region user base (NOT westerners; you're catering to Asian preferences entirely, however the language is English only), adult males, East Asia gamers (players of South Korean online games / Chinese mobile games / userbase of Netease etc.), anime and manga fans/otaku and Visual Novel (VN, eroge) players, Japanese console players (PS3, PS4 userbase), audience of anime-adjacent digital art platforms (Pixiv/Gelbooru/Danbooru), users of WeChat/KakaoTalk and the like, users of Bilibili/Douyin/NicoNico etc., 2channel users, people with buddhist/shinto/taoist mentality, etc.
+The language of the game is English. There are no other languages implemented. For the game title, use the original Japanese name (no romaji).
 
-## 6. Features to implement
+## 5. Visual design & aesthetics
 
-Implement ALL of the following. Every feature is mandatory unless marked optional.
-F01. A variety of distinct sections (intro, A, B, bridge, outro) with clear transitions
-F02. A memorable lead melody / motif that returns in varied form
-F03. Harmony with at least one deliberate modulation or reharmonisation
-F04. Drums / percussion with humanised timing and velocity
-F05. Bass line that locks with the groove
-F06. Stereo image: pads wide, bass and kick centred
-F07. Satisfying ending (not a hard cut-off)
+- Style: vibrant, expressive, exaggerated, eye-catching, captivating
+- UI: has the UI elements that resembles of Soul Calibur, Ninja Gaiden Sigma, Devil May Cry 4, Bayonetta
+- It should avoid having a look of a cheap indie game; instead it shall have a look of a high-budget feel of AAA game (even if the 3D graphics are on the past-gen level) for PS3 or PS4, or Nitendo Switch, or modern-day high-end Android phones. Think of it as a PS4-exclusive AAA game developed by a company like Namco Bandai, Kojima Productions, Konami or SCE Japan Studio. Pursue the production-ready, studio quality, and avoid crude unprofessionally-done look. Avoid generic boring look, and avoid a feel of an amateurish game mafe in Adobe Flash.
+- The 3D graphics are on the level of PS2, GameCube, Dreamcast or PSP, or 3D games for mobile (Android) devices with low requirements for hardware. It is supposed to be well-optimized, to run even on a laptop from late-2000s. The graphics are amazing because of a perfect visual design work (stylization, composing, original and creative ideas) rather that due to amount of polygons or complicated raytraced lighting.
+Make sure the graphics can run on Mobile Intel 4 Series Express Chipset of an old Samsung laptop in 30 FPS, no freezes/lags; use the compatible OpenGL. Think of it as a mobile game for platforms like Android or PlayStation Portable (perfectly optimized 3D graphics, but NOT modern graphics, not PS4/Nintendo Switch tier).
+- Keep the graphics expressive and stylized, (despite the PS2-era/highly optimized graphics), artistic, painterly, beautifully CG-like, with spatial sense and accurate lighting/shading. The sources of inspiration for the setting and art direction: Devil May Cry, Bayonetta, Vampire: The Masquerade - Bloodline. The setting/lore stays modern/contemporary but with mystical element like in VtM.
 
-## 7. Sound & music direction
+## 6. Sound & music direction (supporting)
 
-- Genre: Techno, Techno-Trance, Breakbeat. Tempo: high (above 100 BPM).
-- 4 minutes length.
-- Instrumentation: whatever goes for the idea. No vocal.
-- Sound design: warm, slightly detuned oscillators, filter envelopes, subtle reverb and delay sends.
+- The soundtrack is: perfect, professionally-done high-BPM OST sounding like Techno or Breakbeat genres (think assault music in Payday 2 beta version). Keep it hard and hypnotizing, captivating, matching the game's aesthetics, putting the player in a trance.
+- Implement any SFX required.
 
-## 8. Technical implementation requirements
-
-### Quality standards (MUST)
-
-- Music theory respected: rhythmic variety, phrase lengths in 4 / 8 / 16 bars
-- Velocity, timing and filter automation so nothing sounds mechanical
-- Proper gain staging, EQ separation and bus compression
-- Fade-in/out and click-free edits (zero-crossing or short crossfades)
-- In terms of the theory mastery, knowledge and approach: inspiration from the classical music, from traditional/folk music etc., applying and adjusting the best practices seamlessly for the composition of your target genre
-
-### Amateurish approaches to AVOID (MUST NOT)
-
-- Copy-pasted identical loops for the whole length
-- Pure sine / default waveform sounds with no envelopes or filtering
-- Everything quantised perfectly with equal velocities
-- Clipping, DC offset or clicks at loop and section boundaries
-- Muddy mix with all instruments in the same frequency range
-
-## 9. DO vs DO NOT
-
-Each pair contrasts the expected behaviour with the shortcut that MUST be avoided.
-1. DO: Develop motifs: vary rhythm, register, harmony and orchestration across sections
-   DO NOT: Repeat the same 4 bars unchanged
-2. DO: Leave space in the mix and give each part its own frequency band
-   DO NOT: Stack every layer at full volume in the same range
-3. DO: Listen to / analyse the render (levels, spectrum, length) before delivering
-   DO NOT: Deliver audio you have never verified
-4. DO: Keep the output self-contained and exactly in the mandatory format
-   DO NOT: Add extra files, unrequested dependencies or external services
-
-## 10. Minimum scope
-
-The finished product MUST contain at least 4 minutes of audio to be considered complete. This size must come from real, meaningful functionality — padding, repetition, dead code or filler does not count.
-
-## 11. Mandatory output format
-
-Deliver exactly: an MP3 file
-
-### Delivery details
-
-- Filename shall not have the name of the track - instead, it shall have your own identity (name and the version) as of an author
-- Be very thorough: not hurrying, but checking and redoing everything if you are unsure that the task is completed yet. Take your time: "it is published when it is ready". The content of the web app: the web player for the mp3 file (downloadable) and short summary in plain text.
