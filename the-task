@@ -4,23 +4,11 @@
 
 You are a senior developer, software engineer and UI/UX designer who is working for East Asia market (Japan first, South Korea and China/Taiwan second). Your standards are comparable to those of Sony and SCE Japan Studio, or Toshiba, Tecmo Koei, Konami, Atlus, Capcom, Square Enix, Samsung, etc.
 Your task is to remake and change this app drastically to improve everything, achieving an exceptionally high-quality, very polished and professionally-done, corporate-standards, production-ready software. Keep it a single py file (any of vector graphics assets are also inside the code).
-- Make each of the three themes look more unique, not just with color scheme, but with its own distinctive UI/UX style applied where applicable (Gold is influenced by the aesthetics of "Deus Ex: Human Revolution"; Crimson is inspired by "Babymetal" band, "Blood-C" anime show and "Kuon" horror game, SeeStation is Sony/SCE and PlayStation style). They shall have their unique charisma, delivered though the creative, harmonious and inspirational visual design of each.
+- Make each of the three themes look more unique, not just with color scheme, but with its own distinctive UI/UX style applied where applicable (Gold is influenced by the aesthetics of "Deus Ex: Human Revolution"; Crimson is inspired by "Babymetal" band, "Blood-C" anime show and "Kuon" horror game, SeeStation is Sony/SCE and PlayStation style). They shall have their unique charisma, delivered though the creative, harmonious and inspirational visual design of each. (Note: The red colors in "Crimson" theme must NOT be purple-ish; it shall be a pure, high-saturation red with nothing purple in it. The black shall be neutral and true deep-black, NOT red-ish nor purple-ish hue of black.)
 - Fix any of the UI glitches and errors, implementing it in efficient way optimized for a laptop with small display, remaking the layout from scratch for the most efficient way.
 - Make sure everything is visible in the UI (nothing is pushed out of view; everything is fitting the space), and the UI itself is versatile/adjustable (so I can move the border between left panel and right space, can scale up/down the UI by ctrl+/ctrl-). The UI shall be suitable for any screen sizes, including a small display of a laptop; it shall be navigable with good visibility even when it's 800x600 resolution, or a small window. Remake the layout completely if that's what it takes to prevent glitches or missing elements. For the panel with tabs, also make sure it will fit with no need to scroll the panel itself left/right.
 - Improve every other aspect, the design/the layout and overall logic of the UI; make any changes for better work. Make sure the small icons are distinctive/recognizable at their small scale, while still being properly stylized to match the UI aesthetics (in both of existing UI themes).
 - Remake/Remaster any other part of the UI, if some improvements can be done; ensure optimal placements/layout and good overall structure.
-- Fix the error:     raise SystemExit(main())
-  File "D:\Documents\python\HordeLite\hl.py", line 25115, in main
-    win = MainWindow()
-  File "D:\Documents\python\HordeLite\hl.py", line 16941, in __init__
-    self._build_ui()
-  File "D:\Documents\python\HordeLite\hl.py", line 16982, in _build_ui
-    self.left = self._build_left()
-  File "D:\Documents\python\HordeLite\hl.py", line 17100, in _build_left
-    self._build_edit_tab(),
-  File "D:\Documents\python\HordeLite\hl.py", line 18965, in _build_edit_tab
-    self.edit_subtabs.currentChanged.connect(self._on_edit_subtab_changed)
-AttributeError: 'MainWindow' object has no attribute '_on_edit_subtab_changed'
 
 The target audience (for the visual design preferences / aesthetical preferences and preferable user experience): East Asia region user base (NOT westerners; you're catering to Asian preferences entirely, however the language is English only), adult males, East Asia gamers (players of South Korean online games / Chinese mobile games / userbase of Netease etc.), anime and manga fans/otaku and Visual Novel (VN, eroge) players, Japanese console players (PS3, PS4 userbase), audience of anime-adjacent digital art platforms (Pixiv/Gelbooru/Danbooru), users of WeChat/KakaoTalk and the like, users of Bilibili/Douyin/NicoNico etc., 2channel users, people with buddhist/shinto/taoist mentality, etc.
 
@@ -223,7 +211,7 @@ except Exception:  # pragma: no cover - non-Windows platforms
 #  1. Constants, Workspace Paths & Legacy Migration
 # =============================================================================
 APP_NAME = "Horde Studio Lite"
-APP_VERSION = "7.0.0"
+APP_VERSION = "8.0.0"
 CLIENT_AGENT = f"HordeStudioLite:{APP_VERSION}:local-desktop"
 HORDE_URL = "https://aihorde.net/api/v2"
 ANON_KEY = "0000000000"
@@ -983,7 +971,7 @@ def suggest_motion_mode(n_images: int) -> str:
     return "i2va" if n_images == 1 else "refs"
 
 DEFAULT_SETTINGS: Dict[str, Any] = {
-    "version": 7,
+    "version": 8,
     "prompt": "",
     "negatives": dict(DEFAULT_NEGATIVES),
     "negative_visible": False,
@@ -1770,14 +1758,44 @@ THEME_UI: Dict[str, Dict[str, str]] = {
 _THEME_BACKDROP_CACHE: Dict[Tuple[str, int, int], QPixmap] = {}
 
 
+def _chamfer_path(r: QRectF, ch: float) -> QPainterPath:
+    """Crisp 45-degree Deus Ex: HR octagonal chamfered frame."""
+    c = max(0.0, min(ch, r.width() * 0.35, r.height() * 0.35))
+    path = QPainterPath()
+    path.moveTo(r.left() + c, r.top())
+    path.lineTo(r.right() - c, r.top())
+    path.lineTo(r.right(), r.top() + c)
+    path.lineTo(r.right(), r.bottom() - c)
+    path.lineTo(r.right() - c, r.bottom())
+    path.lineTo(r.left() + c, r.bottom())
+    path.lineTo(r.left(), r.bottom() - c)
+    path.lineTo(r.left(), r.top() + c)
+    path.closeSubpath()
+    return path
+
+
+def _theme_frame_path(r: QRectF, tkey: Optional[str] = None, rad_see: float = 7.0, ch_gold: float = 5.0) -> QPainterPath:
+    """Return the signature silhouette path for the active East-Asian design language."""
+    k = tkey or C.get("key", "seestation")
+    path = QPainterPath()
+    if k == "seestation":
+        path.addRoundedRect(r, rad_see, rad_see)
+        return path
+    if k == "gold":
+        return _chamfer_path(r, ch_gold)
+    path.addRect(r)
+    return path
+
+
 def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str] = None) -> None:
-    """Cached, zero-lag signature backdrop per East-Asian design language (v7.0):
+    """Cached, zero-lag signature backdrop per East-Asian design language (v8.0):
     - SeeStation: Sony/SCE PS3 XMB luminous silk-wave aurora, PS4 lightbar glow,
-      Vita floating bokeh motes & subtle etched console geometric micro-symbols
-    - Sarif Gold: Deus Ex HR Neo-Baroque cyber-renaissance fractured isometric
-      triangle mosaic, amber telemetry scanlines & 45-deg HUD corner brackets
-    - Crimson Eclipse: Babymetal / Blood-C / Kuon Kuro-Urushi lacquer shrine,
-      blood-moon aura, vermilion torii lintel rules, katana light-slashes & embers
+      PS Vita OLED bokeh orbs & etched PlayStation four-symbol geometry
+    - Sarif Gold: Deus Ex: Human Revolution Neo-Baroque cyber-renaissance fractured
+      isometric triangle mosaic, amber HUD scanlines, 45-deg brackets & telemetry ticks
+    - Crimson Eclipse: Babymetal / Blood-C / Kuon Kuro-Urushi mirror lacquer shrine,
+      blood-moon eclipse rings, sacred asanoha hemp-leaf lattice, vermilion torii
+      double-lintel rules, diagonal katana light-slashes & drifting higanbana embers
     """
     w, h = max(1, rect.width()), max(1, rect.height())
     k = theme_key or C.get("key", "seestation")
@@ -1789,25 +1807,25 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
         p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         bg = QLinearGradient(0, 0, 0, h)
         if k == "seestation":
-            bg.setColorAt(0.0, QColor("#07152e"))
-            bg.setColorAt(0.45, QColor("#040c1c"))
-            bg.setColorAt(1.0, QColor("#02050d"))
+            bg.setColorAt(0.0, QColor("#081938"))
+            bg.setColorAt(0.42, QColor("#040e22"))
+            bg.setColorAt(1.0, QColor("#02060f"))
             p.fillRect(0, 0, w, h, bg)
-            rad = QRadialGradient(w * 0.24, h * 0.16, max(w, h) * 0.78)
-            rad.setColorAt(0.0, QColor(0, 128, 235, 64))
-            rad.setColorAt(0.48, QColor(14, 72, 152, 26))
+            rad = QRadialGradient(w * 0.25, h * 0.14, max(w, h) * 0.80)
+            rad.setColorAt(0.0, QColor(0, 146, 255, 72))
+            rad.setColorAt(0.46, QColor(12, 78, 168, 30))
             rad.setColorAt(1.0, QColor(0, 0, 0, 0))
             p.fillRect(0, 0, w, h, rad)
-            rad2 = QRadialGradient(w * 0.82, h * 0.80, max(w, h) * 0.55)
-            rad2.setColorAt(0.0, QColor(74, 184, 255, 30))
+            rad2 = QRadialGradient(w * 0.82, h * 0.82, max(w, h) * 0.58)
+            rad2.setColorAt(0.0, QColor(88, 202, 255, 36))
             rad2.setColorAt(1.0, QColor(0, 0, 0, 0))
             p.fillRect(0, 0, w, h, rad2)
             for y0, amp, alpha, lw in (
-                (0.32, 0.13, 40, 2.3),
-                (0.42, 0.17, 28, 1.6),
-                (0.53, 0.11, 22, 1.15),
-                (0.65, 0.15, 18, 0.95),
-                (0.76, 0.09, 13, 0.75),
+                (0.30, 0.14, 44, 2.3),
+                (0.41, 0.18, 32, 1.7),
+                (0.52, 0.12, 24, 1.25),
+                (0.64, 0.15, 20, 1.0),
+                (0.75, 0.10, 14, 0.8),
             ):
                 ribbon = QPainterPath()
                 ribbon.moveTo(-24, h * y0)
@@ -1817,7 +1835,7 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
                     w + 24, h * (y0 - amp * 0.42),
                 )
                 band = QPainterPath(ribbon)
-                band.lineTo(w + 24, h * (y0 + 0.13))
+                band.lineTo(w + 24, h * (y0 + 0.14))
                 band.cubicTo(
                     w * 0.65, h * (y0 + amp * 1.48),
                     w * 0.27, h * (y0 - amp * 0.44),
@@ -1825,136 +1843,158 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
                 )
                 band.closeSubpath()
                 fg = QLinearGradient(0, h * (y0 - amp), 0, h * (y0 + amp + 0.15))
-                fg.setColorAt(0.0, QColor(92, 198, 255, alpha))
-                fg.setColorAt(0.50, QColor(0, 112, 209, int(alpha * 0.50)))
+                fg.setColorAt(0.0, QColor(98, 206, 255, alpha))
+                fg.setColorAt(0.50, QColor(0, 118, 224, int(alpha * 0.52)))
                 fg.setColorAt(1.0, QColor(0, 62, 140, 0))
                 p.setPen(Qt.PenStyle.NoPen)
                 p.setBrush(fg)
                 p.drawPath(band)
                 p.setBrush(Qt.BrushStyle.NoBrush)
-                p.setPen(QPen(QColor(200, 238, 255, min(255, alpha + 28)), lw))
+                p.setPen(QPen(QColor(210, 242, 255, min(255, alpha + 34)), lw))
                 p.drawPath(ribbon)
             p.setPen(Qt.PenStyle.NoPen)
             for mx, my, mr, ma in (
-                (0.12, 0.20, 2.6, 46), (0.28, 0.66, 1.8, 38), (0.56, 0.27, 3.0, 34),
-                (0.76, 0.46, 2.0, 44), (0.88, 0.19, 2.5, 36), (0.43, 0.80, 1.6, 32),
-                (0.21, 0.44, 1.4, 52), (0.68, 0.73, 2.2, 34), (0.84, 0.62, 1.5, 42),
+                (0.11, 0.19, 2.8, 50), (0.28, 0.67, 1.9, 42), (0.55, 0.25, 3.2, 36),
+                (0.76, 0.46, 2.1, 46), (0.88, 0.18, 2.6, 40), (0.43, 0.81, 1.7, 34),
+                (0.20, 0.43, 1.5, 56), (0.68, 0.73, 2.3, 38), (0.84, 0.61, 1.6, 44),
             ):
-                p.setBrush(QColor(186, 232, 255, ma // 2))
-                p.drawEllipse(QPointF(w * mx, h * my), mr * 2.0, mr * 2.0)
-                p.setBrush(QColor(225, 246, 255, ma))
+                p.setBrush(QColor(186, 234, 255, ma // 2))
+                p.drawEllipse(QPointF(w * mx, h * my), mr * 2.1, mr * 2.1)
+                p.setBrush(QColor(232, 249, 255, ma))
                 p.drawEllipse(QPointF(w * mx, h * my), mr, mr)
-            if w >= 240 and h >= 160:
-                bx, by = w - 84.0, h - 22.0
+            top_bar = QLinearGradient(0, 0, w, 0)
+            top_bar.setColorAt(0.0, QColor(0, 140, 255, 0))
+            top_bar.setColorAt(0.5, QColor(126, 214, 255, 92))
+            top_bar.setColorAt(1.0, QColor(0, 140, 255, 0))
+            p.setPen(QPen(QBrush(top_bar), 1.6))
+            p.drawLine(QPointF(16, 2), QPointF(w - 16, 2))
+            if w >= 220 and h >= 140:
+                bx, by = w - 82.0, h - 22.0
                 p.setBrush(Qt.BrushStyle.NoBrush)
-                p.setPen(QPen(QColor(86, 212, 140, 36), 1.3))
+                p.setPen(QPen(QColor(86, 224, 148, 44), 1.35))
                 p.drawPolygon(QPolygonF([QPointF(bx, by + 9), QPointF(bx + 5, by), QPointF(bx + 10, by + 9)]))
-                p.setPen(QPen(QColor(235, 102, 102, 36), 1.3))
+                p.setPen(QPen(QColor(242, 108, 108, 44), 1.35))
                 p.drawEllipse(QPointF(bx + 23, by + 4.5), 4.6, 4.6)
-                p.setPen(QPen(QColor(96, 178, 255, 38), 1.3))
+                p.setPen(QPen(QColor(104, 186, 255, 48), 1.35))
                 p.drawLine(QPointF(bx + 36, by + 0.5), QPointF(bx + 44, by + 8.5))
                 p.drawLine(QPointF(bx + 44, by + 0.5), QPointF(bx + 36, by + 8.5))
-                p.setPen(QPen(QColor(216, 118, 224, 36), 1.3))
+                p.setPen(QPen(QColor(224, 126, 232, 44), 1.35))
                 p.drawRect(QRectF(bx + 54, by + 0.5, 8.5, 8.5))
         elif k == "crimson":
-            bg.setColorAt(0.0, QColor("#0c0306"))
-            bg.setColorAt(0.50, QColor("#050103"))
+            bg.setColorAt(0.0, QColor("#0e0306"))
+            bg.setColorAt(0.46, QColor("#060103"))
             bg.setColorAt(1.0, QColor("#010001"))
             p.fillRect(0, 0, w, h, bg)
-            moon = QRadialGradient(w * 0.78, h * 0.22, max(w, h) * 0.64)
-            moon.setColorAt(0.0, QColor(215, 0, 28, 56))
-            moon.setColorAt(0.32, QColor(125, 0, 18, 28))
-            moon.setColorAt(0.68, QColor(48, 0, 8, 12))
+            mx_c, my_c = w * 0.78, h * 0.22
+            moon = QRadialGradient(mx_c, my_c, max(w, h) * 0.66)
+            moon.setColorAt(0.0, QColor(228, 0, 32, 64))
+            moon.setColorAt(0.28, QColor(142, 0, 22, 34))
+            moon.setColorAt(0.64, QColor(52, 0, 9, 14))
             moon.setColorAt(1.0, QColor(0, 0, 0, 0))
             p.fillRect(0, 0, w, h, moon)
-            if w >= 220 and h >= 160:
-                mr = min(w, h) * 0.20
-                p.setPen(QPen(QColor(255, 30, 52, 26), 1.4))
+            if w >= 200 and h >= 140:
+                mr = min(w, h) * 0.19
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(QColor(4, 1, 2, 130))
+                p.drawEllipse(QPointF(mx_c - mr * 0.08, my_c + mr * 0.04), mr * 0.88, mr * 0.88)
                 p.setBrush(Qt.BrushStyle.NoBrush)
-                p.drawEllipse(QPointF(w * 0.78, h * 0.22), mr, mr)
-                p.setPen(QPen(QColor(255, 92, 108, 14), 0.9))
-                p.drawEllipse(QPointF(w * 0.78, h * 0.22), mr * 1.14, mr * 1.14)
-            p.setPen(QPen(QColor(255, 24, 46, 36), 1.3))
-            p.drawLine(QPointF(12, 12), QPointF(w - 12, 12))
-            p.setPen(QPen(QColor(180, 10, 26, 22), 0.9))
-            p.drawLine(QPointF(22, 17), QPointF(w - 22, 17))
-            p.drawLine(QPointF(12, h - 12), QPointF(w - 12, h - 12))
-            slash = QLinearGradient(w * 0.56, 0, w * 0.92, h)
+                p.setPen(QPen(QColor(255, 34, 58, 42), 1.6))
+                p.drawEllipse(QPointF(mx_c, my_c), mr, mr)
+                p.setPen(QPen(QColor(255, 110, 124, 20), 0.9))
+                p.drawEllipse(QPointF(mx_c, my_c), mr * 1.18, mr * 1.18)
+            p.setPen(QPen(QColor(210, 14, 34, 16), 0.7))
+            cell = 34
+            max_x, max_y = min(w, 260), min(h, 210)
+            for ay in range(0, max_y, cell):
+                for ax in range(0, max_x, cell):
+                    cx, cy = ax + cell * 0.5, ay + cell * 0.5
+                    p.drawLine(QPointF(ax, ay), QPointF(ax + cell, ay + cell))
+                    p.drawLine(QPointF(ax + cell, ay), QPointF(ax, ay + cell))
+                    p.drawLine(QPointF(cx, ay), QPointF(cx, ay + cell))
+                    p.drawLine(QPointF(ax, cy), QPointF(ax + cell, cy))
+            p.setPen(QPen(QColor(255, 22, 46, 54), 2.0))
+            p.drawLine(QPointF(10, 10), QPointF(w - 10, 10))
+            p.setPen(QPen(QColor(186, 12, 28, 30), 1.0))
+            p.drawLine(QPointF(22, 16), QPointF(w - 22, 16))
+            p.drawLine(QPointF(10, h - 10), QPointF(w - 10, h - 10))
+            slash = QLinearGradient(w * 0.54, 0, w * 0.92, h)
             slash.setColorAt(0.0, QColor(255, 22, 46, 0))
-            slash.setColorAt(0.45, QColor(255, 28, 48, 34))
+            slash.setColorAt(0.45, QColor(255, 42, 62, 44))
             slash.setColorAt(1.0, QColor(160, 0, 18, 0))
-            p.setPen(QPen(QBrush(slash), 2.0))
-            p.drawLine(QPointF(w * 0.58, 0), QPointF(w * 0.88, h))
+            p.setPen(QPen(QBrush(slash), 2.2))
+            p.drawLine(QPointF(w * 0.56, 0), QPointF(w * 0.88, h))
             p.setPen(QPen(QBrush(slash), 1.0))
-            p.drawLine(QPointF(w * 0.62, 0), QPointF(w * 0.92, h))
+            p.drawLine(QPointF(w * 0.61, 0), QPointF(w * 0.93, h))
             p.drawLine(QPointF(w * 0.14, h), QPointF(w * 0.34, 0))
             p.setPen(Qt.PenStyle.NoPen)
             for ex, ey, er, ea in (
-                (0.18, 0.28, 2.2, 52), (0.36, 0.72, 1.8, 42), (0.64, 0.34, 2.6, 56),
-                (0.82, 0.54, 1.7, 46), (0.72, 0.18, 2.1, 62), (0.50, 0.84, 1.5, 36),
-                (0.26, 0.52, 1.6, 44), (0.89, 0.74, 2.0, 48),
+                (0.18, 0.28, 2.3, 58), (0.36, 0.72, 1.9, 46), (0.64, 0.34, 2.7, 62),
+                (0.82, 0.54, 1.8, 52), (0.72, 0.18, 2.2, 68), (0.50, 0.84, 1.6, 40),
+                (0.26, 0.52, 1.7, 48), (0.89, 0.74, 2.1, 52),
             ):
-                p.setBrush(QColor(255, 36, 56, ea))
+                p.setBrush(QColor(255, 40, 62, ea))
                 p.save()
                 p.translate(w * ex, h * ey)
                 p.rotate(-28.0)
-                p.drawEllipse(QPointF(0, 0), er * 1.8, er * 0.72)
+                p.drawEllipse(QPointF(0, 0), er * 1.9, er * 0.70)
                 p.restore()
-            p.setBrush(QColor(215, 0, 24, 60))
-            p.drawPolygon(QPolygonF([QPointF(0, 0), QPointF(18, 0), QPointF(0, 18)]))
-            p.drawPolygon(QPolygonF([QPointF(w, h), QPointF(w - 18, h), QPointF(w, h - 18)]))
+            p.setBrush(QColor(225, 0, 28, 72))
+            p.drawPolygon(QPolygonF([QPointF(0, 0), QPointF(20, 0), QPointF(0, 20)]))
+            p.drawPolygon(QPolygonF([QPointF(w, h), QPointF(w - 20, h), QPointF(w, h - 20)]))
         else:
-            bg.setColorAt(0.0, QColor("#120e07"))
+            bg.setColorAt(0.0, QColor("#140f07"))
             bg.setColorAt(0.50, QColor("#0a0804"))
-            bg.setColorAt(1.0, QColor("#050402"))
+            bg.setColorAt(1.0, QColor("#040301"))
             p.fillRect(0, 0, w, h, bg)
-            glow = QRadialGradient(w * 0.52, h * 0.30, max(w, h) * 0.72)
-            glow.setColorAt(0.0, QColor(235, 168, 32, 38))
-            glow.setColorAt(0.52, QColor(145, 92, 14, 16))
+            glow = QRadialGradient(w * 0.50, h * 0.28, max(w, h) * 0.76)
+            glow.setColorAt(0.0, QColor(245, 178, 36, 46))
+            glow.setColorAt(0.50, QColor(152, 98, 16, 18))
             glow.setColorAt(1.0, QColor(0, 0, 0, 0))
             p.fillRect(0, 0, w, h, glow)
-            step = 40
+            step = 38
             row_h = int(step * 0.866)
-            p.setPen(Qt.PenStyle.NoPen)
             for row_i, y in enumerate(range(0, h + row_h, row_h)):
                 x_off = (step // 2) if (row_i % 2) else 0
                 for col_i, x in enumerate(range(-step, w + step, step)):
-                    hval = ((row_i * 31 + col_i * 17) ^ (row_i * 7)) % 11
-                    if hval == 0:
-                        p.setBrush(QColor(247, 194, 62, 14))
+                    hval = ((row_i * 31 + col_i * 17) ^ (row_i * 7)) % 13
+                    if hval in (0, 5):
+                        p.setPen(QPen(QColor(255, 212, 96, 22), 0.7))
+                        p.setBrush(QColor(247, 194, 62, 18 if hval == 0 else 11))
                         p.drawPolygon(QPolygonF([
                             QPointF(x + x_off, y),
                             QPointF(x + x_off + step, y),
                             QPointF(x + x_off + step * 0.5, y + row_h),
                         ]))
                     elif hval == 3:
-                        p.setBrush(QColor(180, 122, 18, 10))
+                        p.setPen(QPen(QColor(210, 148, 32, 18), 0.6))
+                        p.setBrush(QColor(186, 128, 20, 13))
                         p.drawPolygon(QPolygonF([
                             QPointF(x + x_off + step * 0.5, y),
                             QPointF(x + x_off + step, y + row_h),
                             QPointF(x + x_off, y + row_h),
                         ]))
-            p.setPen(QPen(QColor(225, 172, 58, 16), 0.75))
-            for y in range(0, h + row_h, row_h):
-                p.drawLine(0, y, w, y)
-            for x in range(-h, w + h, step):
-                p.drawLine(QPointF(x, 0), QPointF(x + h * 0.577, h))
-                p.drawLine(QPointF(x, h), QPointF(x + h * 0.577, 0))
-            p.setPen(QPen(QColor(247, 194, 62, 48), 1.3))
-            bl = 16.0
-            for cx, cy, sx, sy in (
+            p.setPen(QPen(QColor(235, 182, 58, 11), 1.0))
+            for sy in range(4, h, 6):
+                p.drawLine(0, sy, w, sy)
+            p.setPen(QPen(QColor(247, 194, 62, 74), 1.5))
+            bl = 18.0
+            for (x0, y0, dx, dy) in (
                 (10, 10, 1, 1), (w - 10, 10, -1, 1),
                 (10, h - 10, 1, -1), (w - 10, h - 10, -1, -1),
             ):
-                p.drawLine(QPointF(cx, cy + sy * bl), QPointF(cx, cy + sy * 5))
-                p.drawLine(QPointF(cx, cy + sy * 5), QPointF(cx + sx * 5, cy))
-                p.drawLine(QPointF(cx + sx * 5, cy), QPointF(cx + sx * bl, cy))
+                p.drawLine(QPointF(x0, y0), QPointF(x0 + dx * bl, y0))
+                p.drawLine(QPointF(x0, y0), QPointF(x0, y0 + dy * bl))
+            if w >= 220 and h >= 140:
+                p.setPen(QPen(QColor(247, 194, 62, 34), 1.0))
+                for ti in range(6):
+                    ty = 34 + ti * 11
+                    tl = 10 if (ti % 2 == 0) else 5
+                    p.drawLine(QPointF(w - 10 - tl, ty), QPointF(w - 10, ty))
         p.end()
+        if len(_THEME_BACKDROP_CACHE) > 24:
+            _THEME_BACKDROP_CACHE.clear()
         _THEME_BACKDROP_CACHE[ck] = pm
-        while len(_THEME_BACKDROP_CACHE) > 20:
-            _THEME_BACKDROP_CACHE.pop(next(iter(_THEME_BACKDROP_CACHE)))
     painter.drawPixmap(rect.topLeft(), pm)
-
 
 def set_theme(name: str) -> None:
     key = name if name in THEMES else "seestation"
@@ -2994,55 +3034,52 @@ def _svg_defs_common(p: Dict[str, str]) -> str:
     )
 
 
-def _seestation_four_symbols(scale: float = 1.0, stroke: float = 2.1) -> str:
-    """The instantly recognizable Sony PlayStation four-symbol motif
-    (triangle / circle / cross / square) arranged in a tight 2x2 grid.
-    Colors stay close to the iconic green/red/blue/pink, muted for lacquer."""
-    s = scale
-    sw = stroke
+def _seestation_four_symbols(cx: float = 32.0, cy: float = 32.0, size: float = 28.0, stroke: float = 2.1) -> str:
+    """Mathematically centered Sony PlayStation four-symbol motif
+    (triangle / circle / cross / square) in a tight 2x2 grid centered at (cx, cy)."""
+    q = size * 0.25
+    r = size * 0.145
+    x1, x2 = cx - q, cx + q
+    y1, y2 = cy - q, cy + q
     return (
-        f"<g transform='translate({14 * s},{14 * s})'>"
-        # triangle (top-left)
-        f"<path d='M{4 * s},{7.4 * s} L{10.4 * s},{7.4 * s} L{7.2 * s},{2.0 * s} Z' "
-        f"fill='none' stroke='#3fbf72' stroke-width='{sw}' stroke-linejoin='round'/>"
-        # circle (top-right)
-        f"<circle cx='{21.6 * s}' cy='{5.0 * s}' r='{3.5 * s}' fill='none' stroke='#e05c5c' stroke-width='{sw}'/>"
-        # cross (bottom-left)
-        f"<path d='M{3.4 * s},{16.6 * s} L{11.0 * s},{24.2 * s} M{11.0 * s},{16.6 * s} L{3.4 * s},{24.2 * s}' "
-        f"stroke='#5aa2e8' stroke-width='{sw}' stroke-linecap='round'/>"
-        # square (bottom-right)
-        f"<rect x='{18.2 * s}' y='{16.6 * s}' width='{7.0 * s}' height='{7.0 * s}' rx='{1.1 * s}' "
-        f"fill='none' stroke='#c95fc9' stroke-width='{sw}'/>"
+        f"<g>"
+        f"<path d='M{x1 - r:.2f},{y1 + r * 0.88:.2f} L{x1 + r:.2f},{y1 + r * 0.88:.2f} L{x1:.2f},{y1 - r:.2f} Z' "
+        f"fill='none' stroke='#46d482' stroke-width='{stroke:.2f}' stroke-linejoin='round'/>"
+        f"<circle cx='{x2:.2f}' cy='{y1:.2f}' r='{r:.2f}' fill='none' stroke='#f06565' stroke-width='{stroke:.2f}'/>"
+        f"<path d='M{x1 - r * 0.88:.2f},{y2 - r * 0.88:.2f} L{x1 + r * 0.88:.2f},{y2 + r * 0.88:.2f} "
+        f"M{x1 + r * 0.88:.2f},{y2 - r * 0.88:.2f} L{x1 - r * 0.88:.2f},{y2 + r * 0.88:.2f}' "
+        f"stroke='#62b2ff' stroke-width='{stroke:.2f}' stroke-linecap='round'/>"
+        f"<rect x='{x2 - r * 0.88:.2f}' y='{y2 - r * 0.88:.2f}' width='{r * 1.76:.2f}' height='{r * 1.76:.2f}' "
+        f"rx='{max(0.6, r * 0.18):.2f}' fill='none' stroke='#db6ee0' stroke-width='{stroke:.2f}'/>"
         "</g>"
     )
 
 
 def _tab_shell_svg(p: Dict[str, str]) -> str:
-    """Theme-distinct tab-icon container bezel (32x32 viewBox) with bold silhouette
-    clarity even at 16px-20px laptop tab rail scale."""
+    """Theme-distinct tab-icon container bezel (32x32 viewBox) with unmistakable
+    silhouette & high contrast even at 16px-20px 800x600 laptop rail scale."""
     k = p.get("key", "seestation")
     if k == "seestation":
         return (
-            f"<rect x='1.5' y='1.5' width='29' height='29' rx='7.5' fill='url(#bodyLac)' stroke='{p['line_hi']}' stroke-width='1.3'/>"
-            f"<rect x='2.8' y='2.8' width='26.4' height='11.2' rx='5.8' fill='url(#glassArc)' opacity='0.82'/>"
-            f"<path d='M6.5,27.8 Q16,24.6 25.5,27.8' fill='none' stroke='{p['svg_rim']}' stroke-opacity='0.75' stroke-width='1.4' stroke-linecap='round'/>"
+            f"<rect x='1.4' y='1.4' width='29.2' height='29.2' rx='8.2' fill='url(#bodyLac)' stroke='{p['line_hi']}' stroke-width='1.35'/>"
+            f"<rect x='2.8' y='2.8' width='26.4' height='11.4' rx='6.2' fill='url(#glassArc)' opacity='0.86'/>"
+            f"<path d='M7.2,28.0 Q16,25.2 24.8,28.0' fill='none' stroke='{p['svg_rim']}' stroke-opacity='0.88' stroke-width='1.55' stroke-linecap='round'/>"
         )
     if k == "crimson":
         return (
-            f"<rect x='1.5' y='1.5' width='29' height='29' rx='0' fill='url(#bodyLac)' stroke='{p['hdr_line']}' stroke-width='1.3'/>"
-            f"<polygon points='1.5,1.5 10.5,1.5 1.5,10.5' fill='{p['svg_metal_2']}' opacity='0.94'/>"
-            f"<polygon points='30.5,30.5 21.5,30.5 30.5,21.5' fill='{p['svg_metal_3']}' opacity='0.86'/>"
-            f"<rect x='2.8' y='2.8' width='26.4' height='9.5' rx='0' fill='url(#glassArc)' opacity='0.44'/>"
-            f"<line x1='3' y1='29.2' x2='21' y2='29.2' stroke='{p['svg_rim']}' stroke-opacity='0.55' stroke-width='1.0'/>"
+            f"<rect x='1.4' y='1.4' width='29.2' height='29.2' rx='0' fill='url(#bodyLac)' stroke='{p['hdr_line']}' stroke-width='1.35'/>"
+            f"<polygon points='1.4,1.4 10.2,1.4 1.4,10.2' fill='{p['svg_metal_2']}' opacity='0.96'/>"
+            f"<polygon points='30.6,30.6 22.0,30.6 30.6,22.0' fill='{p['svg_metal_3']}' opacity='0.90'/>"
+            f"<rect x='2.6' y='2.6' width='26.8' height='8.6' rx='0' fill='url(#glassArc)' opacity='0.36'/>"
+            f"<line x1='3.0' y1='29.2' x2='20.5' y2='29.2' stroke='{p['svg_rim']}' stroke-opacity='0.75' stroke-width='1.15'/>"
         )
     return (
-        f"<polygon points='6.5,1.5 25.5,1.5 30.5,6.5 30.5,25.5 25.5,30.5 6.5,30.5 1.5,25.5 1.5,6.5' "
-        f"fill='url(#bodyLac)' stroke='{p['acc_lo']}' stroke-width='1.35'/>"
-        f"<polygon points='7,2.8 25,2.8 29.2,7 29.2,13 2.8,13 2.8,7' fill='url(#glassArc)' opacity='0.64'/>"
-        f"<path d='M7,2.4 L25,2.4' stroke='{p['svg_rim']}' stroke-opacity='0.80' stroke-width='1.2'/>"
-        f"<path d='M2.8,24.8 L7.2,29.2' stroke='{p['svg_rim']}' stroke-opacity='0.70' stroke-width='1.2'/>"
+        f"<polygon points='7.0,1.4 25.0,1.4 30.6,7.0 30.6,25.0 25.0,30.6 7.0,30.6 1.4,25.0 1.4,7.0' "
+        f"fill='url(#bodyLac)' stroke='{p['acc_mid']}' stroke-width='1.4'/>"
+        f"<polygon points='7.4,2.8 24.6,2.8 29.2,7.4 29.2,12.8 2.8,12.8 2.8,7.4' fill='url(#glassArc)' opacity='0.62'/>"
+        f"<path d='M7.4,2.4 L24.6,2.4' stroke='{p['svg_rim']}' stroke-opacity='0.92' stroke-width='1.35'/>"
+        f"<path d='M2.8,24.4 L7.6,29.2' stroke='{p['svg_rim']}' stroke-opacity='0.78' stroke-width='1.2'/>"
     )
-
 
 def build_svg_document(asset_key: str, palette: Optional[Dict[str, str]] = None) -> str:
     """Return a complete, valid multi-layer SVG string for the given UI/UX asset
@@ -3076,7 +3113,7 @@ def build_svg_document(asset_key: str, palette: Optional[Dict[str, str]] = None)
             )
             inner_motif = (
                 f"<rect x='11' y='10' width='42' height='42' rx='11' fill='url(#bodyLac)' stroke='url(#mGold)' stroke-width='1.5'/>"
-                f"{_seestation_four_symbols(1.05, 2.4)}"
+                f"{_seestation_four_symbols(32.0, 31.0, 30.0, 2.5)}"
                 f"<circle cx='32' cy='31' r='24' fill='url(#coreGlow)' opacity='0.26'/>"
                 f"<path d='M6,51 C19,43 27,57 40,49 C50,43 56,50 60,46' fill='none' stroke='{p['svg_metal_1']}' "
                 f"stroke-opacity='0.72' stroke-width='1.6' stroke-linecap='round'/>"
@@ -3161,34 +3198,36 @@ def build_svg_document(asset_key: str, palette: Optional[Dict[str, str]] = None)
     if asset_key == "tab_horde":
         return (
             f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'>{defs}{shell}"
-            f"<path d='M14,5 L18,5 L19,8.2 L22.2,9.5 L25,7.8 L27.5,10.3 L25.8,13.1 L27,16.3 L25.8,19.4 L27.5,22.2 "
-            f"L25,24.7 L22.2,23 L19,24.3 L18,27.5 L14,27.5 L13,24.3 L9.8,23 L7,24.7 L4.5,22.2 L6.2,19.4 "
-            f"L5,16.3 L6.2,13.1 L4.5,10.3 L7,7.8 L9.8,9.5 L13,8.2 Z' fill='url(#mGold)' stroke='{p['svg_metal_4']}' stroke-width='0.9'/>"
-            f"<circle cx='16' cy='16.2' r='4.6' fill='url(#bodyLac)' stroke='{p['svg_metal_1']}' stroke-width='1.2'/>"
-            f"<circle cx='16' cy='16.2' r='2.3' fill='url(#coreGlow)'/></svg>"
+            f"<path d='M13.6,5.2 L18.4,5.2 L19.2,8.4 L21.6,9.4 L24.4,7.6 L27.0,10.2 L25.2,13.0 L26.2,15.4 "
+            f"L29.2,16.2 L29.2,18.2 L26.2,19.0 L25.2,21.2 L27.0,23.8 L24.4,26.4 L21.6,24.6 L19.2,25.6 "
+            f"L18.4,28.4 L13.6,28.4 L12.8,25.6 L10.4,24.6 L7.6,26.4 L5.0,23.8 L6.8,21.2 L5.8,19.0 "
+            f"L2.8,18.2 L2.8,16.2 L5.8,15.4 L6.8,13.0 L5.0,10.2 L7.6,7.6 L10.4,9.4 L12.8,8.4 Z' "
+            f"transform='translate(0,-0.8) scale(0.92) translate(1.4,1.2)' "
+            f"fill='url(#mGold)' stroke='{p['svg_glass']}' stroke-opacity='0.72' stroke-width='0.9'/>"
+            f"<circle cx='16' cy='16' r='5.0' fill='url(#bodyLac)' stroke='{p['svg_metal_1']}' stroke-width='1.4'/>"
+            f"<circle cx='16' cy='16' r='2.3' fill='url(#coreGlow)'/></svg>"
         )
 
     if asset_key == "tab_upscale":
         return (
             f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'>{defs}{shell}"
-            f"<rect x='6' y='6' width='9' height='9' rx='1.2' fill='url(#mVert)' stroke='{p['svg_metal_1']}' stroke-width='0.8'/>"
-            f"<rect x='17' y='6' width='9' height='9' rx='1.2' fill='url(#bodyLac)' stroke='url(#mGold)' stroke-width='1.1'/>"
-            f"<rect x='6' y='17' width='9' height='9' rx='1.2' fill='url(#bodyLac)' stroke='url(#mGold)' stroke-width='1.1'/>"
-            f"<rect x='17' y='17' width='9' height='9' rx='1.2' fill='url(#mGold)' stroke='{p['svg_metal_1']}' stroke-width='0.8'/>"
-            f"<path d='M13,13 L23,23 M18,23 L23,23 L23,18' fill='none' stroke='{p['svg_glass']}' stroke-width='2.0' stroke-linecap='round' stroke-linejoin='round'/></svg>"
+            f"<rect x='5.8' y='5.8' width='9.2' height='9.2' rx='1.4' fill='url(#mVert)' stroke='{p['svg_glass']}' stroke-opacity='0.75' stroke-width='0.9'/>"
+            f"<rect x='17.0' y='5.8' width='9.2' height='9.2' rx='1.4' fill='url(#bodyLac)' stroke='url(#mGold)' stroke-width='1.2'/>"
+            f"<rect x='5.8' y='17.0' width='9.2' height='9.2' rx='1.4' fill='url(#bodyLac)' stroke='url(#mGold)' stroke-width='1.2'/>"
+            f"<rect x='17.0' y='17.0' width='9.2' height='9.2' rx='1.4' fill='url(#mGold)' stroke='{p['svg_glass']}' stroke-opacity='0.8' stroke-width='0.9'/>"
+            f"<path d='M12.5,12.5 L23.2,23.2 M17.5,23.2 L23.2,23.2 L23.2,17.5' fill='none' stroke='{p['svg_glass']}' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'/></svg>"
         )
 
     if asset_key == "tab_edit":
+        hi = p["svg_glass"] if is_crimson else p["svg_metal_1"]
         return (
             f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'>{defs}{shell}"
-            f"<rect x='5.5' y='6' width='13' height='12' rx='1.5' fill='url(#bodyLac)' stroke='url(#mGold)' stroke-width='1.3'/>"
-            f"<circle cx='9' cy='10' r='1.8' fill='url(#coreGlow)'/>"
-            f"<path d='M7,16.5 L11.5,11.5 L14,14 L17,10.5' fill='none' stroke='{p['svg_metal_1']}' stroke-width='1.4' stroke-linejoin='round'/>"
-            f"<path d='M23,5 L26,8 L15,19 L12,16 Z' fill='url(#mGold)' stroke='{p['svg_metal_4']}' stroke-width='0.9' stroke-linejoin='round'/>"
-            f"<circle cx='21.5' cy='22.5' r='5.4' fill='url(#bodyLac)' stroke='url(#mGold)' stroke-width='1.5'/>"
-            f"<line x1='21.5' y1='22.5' x2='25.2' y2='19.6' stroke='{p['svg_metal_1']}' stroke-width='1.7' stroke-linecap='round'/>"
-            f"<circle cx='21.5' cy='22.5' r='1.2' fill='{p['svg_glass']}'/>"
-            f"<ellipse cx='16' cy='28' rx='10' ry='2.8' fill='url(#bounce)'/></svg>"
+            f"<circle cx='15.5' cy='16.5' r='8.4' fill='url(#bodyLac)' stroke='url(#mGold)' stroke-width='1.8'/>"
+            f"<circle cx='15.5' cy='16.5' r='4.2' fill='url(#coreGlow)' opacity='0.88'/>"
+            f"<path d='M15.5,8.2 A8.3,8.3 0 0 1 23.8,16.5' fill='none' stroke='{hi}' stroke-width='2.0' stroke-linecap='round'/>"
+            f"<path d='M24.2,5.6 L26.8,8.2 L16.4,18.6 L13.4,19.2 L14.0,16.2 Z' fill='url(#mGold)' stroke='{hi}' stroke-width='1.1' stroke-linejoin='round'/>"
+            f"<circle cx='10.6' cy='21.8' r='2.3' fill='{hi}'/>"
+            f"<ellipse cx='16' cy='28' rx='10' ry='2.6' fill='url(#bounce)'/></svg>"
         )
 
     if asset_key == "generate_core":
@@ -3300,7 +3339,7 @@ def build_svg_document(asset_key: str, palette: Optional[Dict[str, str]] = None)
             return (
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>{defs}"
                 f"<circle cx='12' cy='12' r='10.5' fill='#0b0d12' stroke='#4aa8ff' stroke-width='1.8'/>"
-                f"{_seestation_four_symbols(0.34, 1.5)}"
+                f"{_seestation_four_symbols(12.0, 12.0, 13.0, 1.65)}"
                 "</svg>"
             )
         return (
@@ -3349,7 +3388,7 @@ def build_svg_document(asset_key: str, palette: Optional[Dict[str, str]] = None)
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'>{defs}"
                 f"<circle cx='120' cy='120' r='98' fill='none' stroke='{p['svg_watermark']}' stroke-opacity='0.20' stroke-width='1.4'/>"
                 f"<circle cx='120' cy='120' r='84' fill='none' stroke='{p['svg_metal_3']}' stroke-opacity='0.35' stroke-width='1' stroke-dasharray='7 5'/>"
-                f"{_seestation_four_symbols(1.35, 2.6)}"
+                f"{_seestation_four_symbols(120.0, 96.0, 72.0, 3.2)}"
                 f"{wave}"
                 "</svg>"
             )
@@ -3785,40 +3824,39 @@ MINI_ICON_KEYS: Tuple[str, ...] = tuple(_MINI_ICON_MOTIFS.keys())
 
 
 def build_mini_icon_svg(kind: str, palette: Optional[Dict[str, str]] = None) -> str:
-    """24x24 mini vector emblem with high-contrast dark backing seat and
-    theme-distinct silhouette (SeeStation glass squircle / Sarif octagonal
-    chamfer / Crimson razor lacquer seal) so every small icon reads crisply
-    at 12px-16px on any laptop display."""
+    """24x24 mini vector emblem with high-contrast dark backing seat, clean
+    internal safe-zone padding, and theme-distinct silhouette (SeeStation OLED
+    squircle / Sarif 45-deg octagonal HUD / Crimson kuro-urushi lacquer seal)
+    so every 12px-16px small icon reads with razor clarity on any laptop screen."""
     p = palette or C
     defs = _svg_defs_common(p)
     motif_tpl = _MINI_ICON_MOTIFS.get(kind) or _MINI_ICON_MOTIFS["info"]
-    hi = p["svg_glass"] if p.get("key") == "crimson" else p["svg_metal_1"]
-    motif = motif_tpl.format(hi, hi, hi, hi, hi, hi, hi, hi)
     k = p.get("key", "seestation")
+    hi = "#ffeef0" if k == "crimson" else ("#e6f6ff" if k == "seestation" else "#fff3c4")
+    motif = motif_tpl.format(hi, hi, hi, hi, hi, hi, hi, hi)
     if k == "seestation":
         seat = (
-            f"<rect x='0.8' y='0.8' width='22.4' height='22.4' rx='6.2' fill='{p['deep']}' fill-opacity='0.82' "
-            f"stroke='{p['line_hi']}' stroke-opacity='0.78' stroke-width='0.95'/>"
-            f"<rect x='1.8' y='1.8' width='20.4' height='8.0' rx='4.4' fill='url(#glassArc)' opacity='0.42'/>"
+            f"<rect x='0.8' y='0.8' width='22.4' height='22.4' rx='6.4' fill='#061022' fill-opacity='0.90' "
+            f"stroke='{p['svg_rim']}' stroke-opacity='0.82' stroke-width='1.0'/>"
+            f"<rect x='1.8' y='1.8' width='20.4' height='7.6' rx='4.4' fill='url(#glassArc)' opacity='0.44'/>"
         )
     elif k == "crimson":
         seat = (
-            f"<rect x='0.8' y='0.8' width='22.4' height='22.4' rx='0' fill='{p['deep']}' fill-opacity='0.88' "
-            f"stroke='{p['hdr_line']}' stroke-opacity='0.86' stroke-width='0.95'/>"
-            f"<polygon points='0.8,0.8 6.4,0.8 0.8,6.4' fill='{p['svg_metal_2']}' opacity='0.90'/>"
+            f"<rect x='0.8' y='0.8' width='22.4' height='22.4' rx='0' fill='#090204' fill-opacity='0.94' "
+            f"stroke='{p['acc_mid']}' stroke-opacity='0.90' stroke-width='1.05'/>"
+            f"<polygon points='0.8,0.8 6.8,0.8 0.8,6.8' fill='{p['acc_hi']}' opacity='0.95'/>"
         )
     else:
         seat = (
-            f"<polygon points='5.0,0.8 19.0,0.8 23.2,5.0 23.2,19.0 19.0,23.2 5.0,23.2 0.8,19.0 0.8,5.0' "
-            f"fill='{p['deep']}' fill-opacity='0.86' stroke='{p['acc_lo']}' stroke-opacity='0.84' stroke-width='0.95'/>"
-            f"<line x1='5.4' y1='1.6' x2='18.6' y2='1.6' stroke='{p['svg_rim']}' stroke-opacity='0.55' stroke-width='0.8'/>"
+            f"<polygon points='5.2,0.8 18.8,0.8 23.2,5.2 23.2,18.8 18.8,23.2 5.2,23.2 0.8,18.8 0.8,5.2' "
+            f"fill='#0b0904' fill-opacity='0.92' stroke='{p['acc_mid']}' stroke-opacity='0.88' stroke-width='1.05'/>"
+            f"<line x1='5.6' y1='1.8' x2='18.4' y2='1.8' stroke='{p['svg_rim']}' stroke-opacity='0.65' stroke-width='0.9'/>"
         )
     return (
         f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>{defs}"
-        f"{seat}<ellipse cx='12' cy='22.0' rx='7.8' ry='1.5' fill='url(#bounce)'/>"
-        f"{motif}</svg>"
+        f"{seat}<ellipse cx='12' cy='21.8' rx='7.5' ry='1.4' fill='url(#bounce)'/>"
+        f"<g transform='translate(2.0,2.0) scale(0.8333)'>{motif}</g></svg>"
     )
-
 
 class VectorAssetEngine:
     """High-DPI cached vector renderer for embedded multi-layer SVG assets."""
@@ -10095,9 +10133,11 @@ class _ResettableSlider(QSlider):
 
 
 class BevelDeck(QFrame):
-    """Sculpted glossy command deck framing the bottom controls & Generate button,
-    with distinct architecture for SeeStation (Sony XMB glass), Sarif Gold
-    (Deus Ex chamfered carbon), and Crimson Eclipse (Kuon/Blood-C urushi)."""
+    """Sculpted command deck with unmistakable bespoke architecture per theme:
+    - SeeStation: Sony PS4 frosted sapphire OLED glass + XMB dual silk wave + cyan lightbar
+    - Sarif Gold: Deus Ex: HR true 45-deg chamfered carbon plate + triangle facets + gold brackets
+    - Crimson Eclipse: Babymetal/Blood-C/Kuon kuro-urushi altar + vermilion torii double-lintel + katana seals
+    """
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -10110,89 +10150,101 @@ class BevelDeck(QFrame):
         key = C.get("key", "seestation")
         grad = QLinearGradient(r.left(), r.top(), r.left(), r.bottom())
         grad.setColorAt(0.0, QColor(C["deck_hi"]))
-        grad.setColorAt(0.45, QColor(C["deck_mid"]))
+        grad.setColorAt(0.46, QColor(C["deck_mid"]))
         grad.setColorAt(1.0, QColor(C["deck_lo"]))
+        frame_path = _theme_frame_path(r, key, rad_see=9.0, ch_gold=8.0)
         p.setBrush(QBrush(grad))
-        p.setPen(QPen(QColor(C["line"] if key == "seestation" else C["plate_edge"]), 1.0))
+        p.setPen(QPen(QColor(C["line_hi"] if key == "seestation" else C["plate_edge"]), 1.05))
+        p.drawPath(frame_path)
+
+        p.save()
+        p.setClipPath(frame_path)
         if key == "seestation":
-            p.drawRoundedRect(r, 8.0, 8.0)
-            p.save()
-            clip = QPainterPath()
-            clip.addRoundedRect(r, 8.0, 8.0)
-            p.setClipPath(clip)
-            wave = QPainterPath()
-            wave.moveTo(r.left(), r.top() + 26)
-            wave.cubicTo(
-                r.left() + r.width() * 0.32, r.top() + 8,
-                r.left() + r.width() * 0.66, r.top() + 34,
-                r.right(), r.top() + 14,
-            )
-            wc = QColor(C["acc_hi"]); wc.setAlpha(46)
-            p.setPen(QPen(wc, 1.8))
-            p.setBrush(Qt.BrushStyle.NoBrush)
-            p.drawPath(wave)
+            for dy, amp, al, lw in ((24.0, 14.0, 56, 1.8), (34.0, 10.0, 30, 1.1)):
+                wave = QPainterPath()
+                wave.moveTo(r.left() - 6, r.top() + dy)
+                wave.cubicTo(
+                    r.left() + r.width() * 0.30, r.top() + dy - amp,
+                    r.left() + r.width() * 0.68, r.top() + dy + amp,
+                    r.right() + 6, r.top() + dy - amp * 0.4,
+                )
+                wc = QColor(C["acc_hi"]); wc.setAlpha(al)
+                p.setPen(QPen(wc, lw))
+                p.setBrush(Qt.BrushStyle.NoBrush)
+                p.drawPath(wave)
             rail = QLinearGradient(r.left(), r.top(), r.right(), r.top())
             a0 = QColor(C["acc_hi"]); a0.setAlpha(0)
             rail.setColorAt(0.0, a0)
-            rail.setColorAt(0.25, QColor(C["acc_mid"]))
+            rail.setColorAt(0.22, QColor(C["acc_mid"]))
             rail.setColorAt(0.50, QColor(C["acc_spec"]))
-            rail.setColorAt(0.75, QColor(C["acc_mid"]))
+            rail.setColorAt(0.78, QColor(C["acc_mid"]))
             rail.setColorAt(1.0, a0)
-            p.setPen(QPen(QBrush(rail), 2.0))
-            p.drawLine(QPointF(r.left() + 8, r.top() + 1.4), QPointF(r.right() - 8, r.top() + 1.4))
-            p.restore()
+            p.setPen(QPen(QBrush(rail), 2.2))
+            p.drawLine(QPointF(r.left() + 8, r.top() + 1.5), QPointF(r.right() - 8, r.top() + 1.5))
         elif key == "crimson":
-            p.drawRect(r)
-            p.setPen(QPen(QColor(C["acc_hi"]), 2.0))
-            p.drawLine(QPointF(r.left() + 1, r.top() + 1), QPointF(r.right() - 1, r.top() + 1))
+            p.setPen(QPen(QColor(C["acc_hi"]), 2.2))
+            p.drawLine(QPointF(r.left() + 1, r.top() + 1.2), QPointF(r.right() - 1, r.top() + 1.2))
+            p.setPen(QPen(QColor(C["acc_lo"]), 1.0))
+            p.drawLine(QPointF(r.left() + 12, r.top() + 5.0), QPointF(r.right() - 12, r.top() + 5.0))
+            slash = QLinearGradient(r.right() - 70, r.top(), r.right() - 18, r.bottom())
+            slash.setColorAt(0.0, QColor(255, 42, 62, 0))
+            slash.setColorAt(0.5, QColor(255, 42, 62, 34))
+            slash.setColorAt(1.0, QColor(255, 42, 62, 0))
+            p.setPen(QPen(QBrush(slash), 1.6))
+            p.drawLine(QPointF(r.right() - 62, r.top()), QPointF(r.right() - 22, r.bottom()))
             p.setPen(Qt.PenStyle.NoPen)
-            p.setBrush(QBrush(QColor(C["acc_mid"])))
+            p.setBrush(QBrush(QColor(C["acc_hi"])))
             p.drawPolygon(QPolygonF([QPointF(r.left() + 1, r.top() + 1), QPointF(r.left() + 14, r.top() + 1), QPointF(r.left() + 1, r.top() + 14)]))
+            p.setBrush(QBrush(QColor(C["acc_mid"])))
             p.drawPolygon(QPolygonF([QPointF(r.right() - 1, r.bottom() - 1), QPointF(r.right() - 12, r.bottom() - 1), QPointF(r.right() - 1, r.bottom() - 12)]))
         else:
-            ch = 7.0
-            p.drawPolygon(QPolygonF([
-                QPointF(r.left() + ch, r.top()), QPointF(r.right() - ch, r.top()),
-                QPointF(r.right(), r.top() + ch), QPointF(r.right(), r.bottom() - ch),
-                QPointF(r.right() - ch, r.bottom()), QPointF(r.left() + ch, r.bottom()),
-                QPointF(r.left(), r.bottom() - ch), QPointF(r.left(), r.top() + ch),
-            ]))
-            p.setPen(QPen(QColor(C["acc_mid"]), 1.6))
-            p.drawLine(QPointF(r.left() + ch, r.top() + 1.2), QPointF(r.right() - ch, r.top() + 1.2))
-            p.setPen(QPen(QColor(C["acc_hi"]), 1.4))
-            p.drawLine(QPointF(r.left() + 1.5, r.top() + ch + 8), QPointF(r.left() + 1.5, r.top() + ch))
+            p.setPen(Qt.PenStyle.NoPen)
+            step = 24.0
+            for ci in range(0, int(r.width() // step) + 2):
+                if (ci * 5 + 1) % 3 == 0:
+                    tx = r.left() + ci * step
+                    p.setBrush(QColor(247, 194, 62, 13))
+                    p.drawPolygon(QPolygonF([QPointF(tx, r.top()), QPointF(tx + step, r.top()), QPointF(tx + step * 0.5, r.top() + 20)]))
+            p.setPen(QPen(QColor(C["acc_mid"]), 1.8))
+            p.drawLine(QPointF(r.left() + 8, r.top() + 1.3), QPointF(r.right() - 8, r.top() + 1.3))
+            p.setPen(QPen(QColor(C["acc_spec"]), 1.5))
+            ch = 8.0
+            p.drawLine(QPointF(r.left() + 1.5, r.top() + ch + 9), QPointF(r.left() + 1.5, r.top() + ch))
             p.drawLine(QPointF(r.left() + 1.5, r.top() + ch), QPointF(r.left() + ch, r.top() + 1.5))
-            p.drawLine(QPointF(r.right() - 1.5, r.bottom() - ch - 8), QPointF(r.right() - 1.5, r.bottom() - ch))
+            p.drawLine(QPointF(r.right() - 1.5, r.top() + ch + 9), QPointF(r.right() - 1.5, r.top() + ch))
+            p.drawLine(QPointF(r.right() - 1.5, r.top() + ch), QPointF(r.right() - ch, r.top() + 1.5))
+            p.drawLine(QPointF(r.right() - 1.5, r.bottom() - ch - 9), QPointF(r.right() - 1.5, r.bottom() - ch))
             p.drawLine(QPointF(r.right() - 1.5, r.bottom() - ch), QPointF(r.right() - ch, r.bottom() - 1.5))
+        p.restore()
         p.setPen(QPen(QColor(C["sunken_bot"]), 1.0))
         p.drawLine(QPointF(r.left() + 6, r.bottom() - 1.5), QPointF(r.right() - 6, r.bottom() - 1.5))
         p.end()
 
 
 class SectionHeader(QWidget):
-    """Crisp East-Asian technical section header with luminous indicator diamond."""
+    """Crisp East-Asian technical section header with distinctive per-theme emblem & rule."""
 
     def __init__(self, title: str, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
-        self.setMinimumHeight(24)
+        self.setMinimumHeight(23)
         self._lay = QHBoxLayout(self)
         self._lay.setContentsMargins(0, 1, 0, 1)
-        self._lay.setSpacing(5)
+        self._lay.setSpacing(4)
         self.title_label = ElideLabel("")
         self.title_label.setObjectName("Kicker")
-        self.title_label.setFont(_font(9.2, True, 0.4))
+        self.title_label.setFont(_font(9.1, True, 0.4))
         self.title_label.setText(title)
-        # Headers must compress (not push the whole scroll content wide) when a
-        # tab is viewed on a narrow panel — the title elides gracefully.
-        # v4 FIX: the title itself carries stretch 1 (the old trailing
-        # addStretch(1) starved the Ignored-policy label to 0px, collapsing
-        # every section title in the app to an ellipsis); add_right() widgets
-        # are still pushed to the right edge by the expanding title.
-        self._lay.addSpacing(12)
+        self._lay.addSpacing(13)
         self._lay.addWidget(self.title_label, 1)
 
+    def apply_scale(self, scale: float) -> None:
+        s = max(0.75, min(1.40, float(scale)))
+        self.title_label.setFont(_font(9.1 * s, True, 0.4))
+        self.setMinimumHeight(max(20, int(round(23 * s))))
+        self.update()
+
     def minimumSizeHint(self) -> QSize:  # noqa: N802
-        return QSize(26, 24)
+        return QSize(26, self.minimumHeight())
 
     def set_title(self, title: str) -> None:
         self.title_label.setText(title)
@@ -10204,50 +10256,49 @@ class SectionHeader(QWidget):
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         cy = self.height() / 2.0
-        key = C.get("key", "gold")
+        key = C.get("key", "seestation")
         if key == "seestation":
-            # PS4 system software: luminous ice dot inside a soft halo, XMB
-            # ribbon rule fading out to the right
-            halo = QColor(C["hdr_dot"]); halo.setAlpha(64)
+            halo = QColor(C["hdr_dot"]); halo.setAlpha(72)
             p.setPen(Qt.PenStyle.NoPen)
             p.setBrush(QBrush(halo))
-            p.drawEllipse(QRectF(0.4, cy - 4.9, 9.8, 9.8))
+            p.drawEllipse(QRectF(0.4, cy - 5.0, 10.0, 10.0))
             p.setBrush(QBrush(QColor(C["hdr_dot"])))
-            p.drawEllipse(QRectF(2.2, cy - 3.1, 6.2, 6.2))
+            p.drawEllipse(QRectF(2.2, cy - 3.2, 6.4, 6.4))
+            p.setBrush(QColor(255, 255, 255, 190))
+            p.drawEllipse(QRectF(3.6, cy - 2.2, 2.2, 2.2))
             rule = QLinearGradient(12.0, cy, self.width(), cy)
-            rule.setColorAt(0.0, QColor(C["hdr_line"]))
-            rule.setColorAt(0.6, QColor(C["hdr_line"]))
+            rule.setColorAt(0.0, QColor(C["acc_hi"]))
+            rule.setColorAt(0.55, QColor(C["hdr_line"]))
             fade = QColor(C["hdr_line"]); fade.setAlpha(0)
             rule.setColorAt(1.0, fade)
-            p.setPen(QPen(QBrush(rule), 1.0))
-            p.drawLine(QPointF(12.0, self.height() - 1.0), QPointF(self.width(), self.height() - 1.0))
+            p.setPen(QPen(QBrush(rule), 1.3))
+            p.drawLine(QPointF(12.0, self.height() - 1.2), QPointF(self.width(), self.height() - 1.2))
         elif key == "crimson":
-            # Blood-C / Kuon: slanted crimson blade mark over a razor rule
             p.setPen(Qt.PenStyle.NoPen)
             p.setBrush(QBrush(QColor(C["hdr_dot"])))
             p.drawPolygon(QPolygonF([
-                QPointF(3.4, cy - 4.4),
-                QPointF(8.8, cy - 4.4),
-                QPointF(5.4, cy + 4.4),
-                QPointF(0.0, cy + 4.4),
+                QPointF(3.8, cy - 4.8), QPointF(9.4, cy - 4.8),
+                QPointF(5.6, cy + 4.8), QPointF(0.0, cy + 4.8),
             ]))
-            p.setPen(QPen(QColor(C["hdr_line"]), 1.0))
-            p.drawLine(QPointF(0.0, self.height() - 1.0), QPointF(self.width(), self.height() - 1.0))
+            p.setPen(QPen(QColor(C["acc_hi"]), 1.3))
+            p.drawLine(QPointF(0.0, self.height() - 2.2), QPointF(self.width(), self.height() - 2.2))
+            p.setPen(QPen(QColor(C["hdr_line"]), 0.9))
+            p.drawLine(QPointF(10.0, self.height() - 0.6), QPointF(self.width() - 6.0, self.height() - 0.6))
+            p.setPen(QPen(QColor(C["acc_hi"]), 1.6))
+            p.drawLine(QPointF(self.width() - 1.5, self.height() - 6.5), QPointF(self.width() - 1.5, self.height() - 1.5))
         else:
-            # Sarif Gold: glowing beveled diamond indicator (augment marker)
             poly = QPolygonF([
-                QPointF(5.0, cy - 4.0),
-                QPointF(9.0, cy),
-                QPointF(5.0, cy + 4.0),
-                QPointF(1.0, cy),
+                QPointF(5.2, cy - 4.5), QPointF(9.6, cy),
+                QPointF(5.2, cy + 4.5), QPointF(0.8, cy),
             ])
             p.setBrush(QBrush(QColor(C["hdr_dot"])))
-            p.setPen(QPen(QColor(C["acc_edge"]), 0.8))
+            p.setPen(QPen(QColor(C["acc_spec"]), 0.9))
             p.drawPolygon(poly)
-            p.setPen(QPen(QColor(C["hdr_line"]), 1.0))
-            p.drawLine(QPointF(0.0, self.height() - 1.0), QPointF(self.width(), self.height() - 1.0))
+            p.setPen(QPen(QColor(C["acc_mid"]), 1.15))
+            p.drawLine(QPointF(0.0, self.height() - 1.2), QPointF(self.width() - 6.0, self.height() - 1.2))
+            p.setPen(QPen(QColor(C["acc_spec"]), 1.2))
+            p.drawLine(QPointF(self.width() - 6.0, self.height() - 1.2), QPointF(self.width() - 1.0, self.height() - 6.2))
         p.end()
-
 
 class CollapsibleSection(QWidget):
     toggled = pyqtSignal(bool)
@@ -10457,44 +10508,42 @@ class Toast(QWidget):
         p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         p.setOpacity(self._alpha)
         r = QRectF(self.rect()).adjusted(1.0, 1.0, -1.0, -1.0)
+        tkey = C.get("key", "seestation")
+        frame = _theme_frame_path(r, tkey, rad_see=8.0, ch_gold=6.0)
         grad = QLinearGradient(r.left(), r.top(), r.left(), r.bottom())
         grad.setColorAt(0.0, QColor(C["btn_hov_hi"]))
         grad.setColorAt(1.0, QColor(C["btn_lo"]))
         p.setBrush(QBrush(grad))
-        p.setPen(QPen(QColor(C["acc_mid"]), 1.2))
-        p.drawRoundedRect(r, 4.0, 4.0)
-        # Status keyline stripe
-        kind_col = {
-            "ok": C["ok"],
-            "err": C["err"],
-            "warn": C["warn"],
-            "info": C["info"],
-        }.get(self._kind, C["info"])
+        p.setPen(QPen(QColor(C["acc_hi"] if tkey == "seestation" else C["acc_mid"]), 1.25))
+        p.drawPath(frame)
+        kind_col = {"ok": C["ok"], "err": C["err"], "warn": C["warn"], "info": C["info"]}.get(self._kind, C["info"])
+        p.save()
+        p.setClipPath(frame)
         p.setPen(Qt.PenStyle.NoPen)
         p.setBrush(QBrush(QColor(kind_col)))
-        p.drawRoundedRect(QRectF(r.left() + 2, r.top() + 3, 3.0, r.height() - 6), 1.5, 1.5)
-        # Icon
-        icon_key = {"ok": "check", "err": "cross", "warn": "warning", "info": "info"}.get(self._kind, "info")
-        p.drawPixmap(8, int((self._h - 16) / 2), VECTOR_ASSETS.pixmap(icon_key, 16, 16))
-        # Text
-        p.setFont(_font(9.0, True))
-        p.setPen(QColor(C["text_hi"]))
-        text_r = QRectF(r.left() + 30, r.top(), r.width() - 34, r.height())
-        p.drawText(text_r, Qt.AlignmentFlag.AlignVCenter, QFontMetrics(p.font()).elidedText(
-            self._text, Qt.TextElideMode.ElideRight, int(text_r.width())))
-        # Glass spec
+        if tkey == "seestation":
+            p.drawRoundedRect(QRectF(r.left() + 3, r.top() + 5, 3.2, r.height() - 10), 1.6, 1.6)
+        elif tkey == "crimson":
+            p.drawRect(QRectF(r.left(), r.top(), 4.0, r.height()))
+            p.drawPolygon(QPolygonF([QPointF(r.right(), r.top()), QPointF(r.right() - 10, r.top()), QPointF(r.right(), r.top() + 10)]))
+        else:
+            p.drawRect(QRectF(r.left() + 2, r.top() + 6, 3.5, r.height() - 12))
         spec = QLinearGradient(r.left(), r.top(), r.left(), r.bottom())
-        glass = QColor(C["svg_glass"])
-        glass.setAlpha(26)
+        glass = QColor(C["svg_glass"]); glass.setAlpha(30 if tkey == "seestation" else 20)
         spec.setColorAt(0.0, glass)
-        glass2 = QColor(C["svg_glass"])
-        glass2.setAlpha(0)
+        glass2 = QColor(C["svg_glass"]); glass2.setAlpha(0)
         spec.setColorAt(1.0, glass2)
         p.setBrush(QBrush(spec))
-        p.setPen(Qt.PenStyle.NoPen)
-        p.drawRect(QRectF(r.left() + 1, r.top() + 1, r.width() - 2, r.height() * 0.5))
+        p.drawRect(QRectF(r.left() + 1, r.top() + 1, r.width() - 2, r.height() * 0.48))
+        p.restore()
+        icon_key = {"ok": "check", "err": "cross", "warn": "warning", "info": "info"}.get(self._kind, "info")
+        p.drawPixmap(10, int((self._h - 16) / 2), VECTOR_ASSETS.pixmap(icon_key, 16, 16))
+        p.setFont(_font(9.0, True))
+        p.setPen(QColor(C["text_hi"]))
+        text_r = QRectF(r.left() + 32, r.top(), r.width() - 36, r.height())
+        p.drawText(text_r, Qt.AlignmentFlag.AlignVCenter, QFontMetrics(p.font()).elidedText(
+            self._text, Qt.TextElideMode.ElideRight, int(text_r.width())))
         p.end()
-
 
 class ToastOverlay(QWidget):
     """Corner toast stack manager (max 3 visible, auto-fade, click-to-act)."""
@@ -10579,8 +10628,19 @@ class IgnitionGenerateButton(QPushButton):
 
     def __init__(self, text: str = "GENERATE", parent: Optional[QWidget] = None) -> None:
         super().__init__(text, parent)
-        self.setMinimumHeight(54)
+        self._ui_scale = 1.0
+        self._compact_mode = False
+        self.setMinimumHeight(46)
+        self.setMaximumHeight(54)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def apply_metrics(self, scale: float, compact: bool = False) -> None:
+        self._ui_scale = max(0.75, min(1.40, float(scale)))
+        self._compact_mode = bool(compact)
+        h = max(36, min(62, int(round((40 if compact else 49) * self._ui_scale))))
+        self.setMinimumHeight(h)
+        self.setMaximumHeight(h)
+        self.update()
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self._sub_text = "KREA 2  \u2022  \u00d71  \u2022  CTRL+ENTER"
         self._active_badge = ""
@@ -10818,38 +10878,41 @@ class IgnitionGenerateButton(QPushButton):
             p.drawLine(QPointF(r.right() - 2, r.bottom() - ch - 5), QPointF(r.right() - 2, r.bottom() - ch))
             p.drawLine(QPointF(r.right() - 2, r.bottom() - ch), QPointF(r.right() - ch, r.bottom() - 2))
 
-        # 8. Embedded vector ignition crystal + high-contrast typography
-        pm = VECTOR_ASSETS.pixmap("generate_core", 30, 30)
-        icon_x = int(r.left() + 12)
-        icon_y = int(r.center().y() - 15)
+        # 8. Embedded vector ignition crystal + high-contrast responsive typography
+        bh = max(34.0, r.height())
+        icon_sz = max(22, min(32, int(round(bh * 0.58))))
+        pm = VECTOR_ASSETS.pixmap("generate_core", icon_sz, icon_sz)
+        icon_x = int(r.left() + 10)
+        icon_y = int(r.center().y() - icon_sz / 2)
         p.drawPixmap(icon_x, icon_y, pm)
 
-        txt_left = icon_x + 36
+        txt_left = icon_x + icon_sz + 7
         badge_w = 0
         if self._in_flight > 0:
-            badge_txt = f"{self._in_flight} IN FLIGHT"
-            p.setFont(_font(7.4, True, 0.6))
+            badge_txt = f"{self._in_flight} LIVE" if r.width() < 280 else f"{self._in_flight} IN FLIGHT"
+            p.setFont(_font(7.2, True, 0.5))
             fm_b = QFontMetrics(p.font())
-            badge_w = fm_b.horizontalAdvance(badge_txt) + 14
-            bx = int(r.right() - badge_w - 8)
-            by = int(r.top() + 5)
-            badge_r = QRectF(bx, by, badge_w, 15)
+            badge_w = fm_b.horizontalAdvance(badge_txt) + 12
+            bx = int(r.right() - badge_w - 7)
+            by = int(r.top() + 4)
+            badge_r = QRectF(bx, by, badge_w, 14)
             bgrad = QLinearGradient(badge_r.left(), badge_r.top(), badge_r.left(), badge_r.bottom())
-            bcol_a = QColor(0, 0, 0, 190)
-            bgrad.setColorAt(0.0, bcol_a)
-            bgrad.setColorAt(1.0, QColor(0, 0, 0, 140))
+            bgrad.setColorAt(0.0, QColor(0, 0, 0, 196))
+            bgrad.setColorAt(1.0, QColor(0, 0, 0, 145))
             p.setBrush(QBrush(bgrad))
             p.setPen(QPen(QColor(C["acc_spec"]), 1.0))
-            p.drawRoundedRect(badge_r, 2.5, 2.5)
+            p.drawPath(_theme_frame_path(badge_r, _tkey, rad_see=4.0, ch_gold=3.0))
             p.setPen(QColor(C["acc_spec"]))
             p.drawText(badge_r, Qt.AlignmentFlag.AlignCenter, badge_txt)
 
-        txt_w = int(r.right() - txt_left - 12 - badge_w)
-        title_rect = QRect(txt_left, int(r.top() + 5), txt_w, 25)
-        sub_rect = QRect(txt_left, int(r.top() + 29), txt_w, 18)
+        txt_w = max(20, int(r.right() - txt_left - 8 - badge_w))
+        title_h = int(round(bh * 0.52))
+        sub_h = max(12, int(bh) - title_h - 4)
+        title_rect = QRect(txt_left, int(r.top() + 2), txt_w, title_h)
+        sub_rect = QRect(txt_left, int(r.top() + title_h), txt_w, sub_h)
 
-        # Drop-shadow / crisp emboss on title
-        title_font = _font(12.6, True, 2.4)
+        title_pt = max(9.8, min(14.5, (10.8 if self._compact_mode else 12.2) * getattr(self, "_ui_scale", 1.0)))
+        title_font = _font(title_pt, True, 2.0)
         p.setFont(title_font)
         if C["key"] == "crimson":
             shadow_col = QColor(0, 0, 0, 150)
@@ -11815,10 +11878,11 @@ class _IconTabBarStyle(QProxyStyle):
 
 
 class _AutoFitIconTabBar(QTabBar):
-    """Zero-scroll equal-distribution icon tab bar (v7.0):
-    Every tab receives an exact share of the parent QTabWidget width, never
-    spawning horizontal scroll arrows even when the left deck is dragged
-    narrow or scaled up on a small laptop screen."""
+    """Zero-scroll equal-distribution icon tab bar (v8.0):
+    Every tab receives an exact share of the parent QTabWidget width down to
+    220px on 800x600 displays (zero scroll arrows ever!), plus bespoke per-theme
+    active tab illumination (PS4 cyan lightbar / Sarif chamfered amber cap /
+    Crimson urushi torii top beam & diagonal seal)."""
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -11834,7 +11898,7 @@ class _AutoFitIconTabBar(QTabBar):
         self.updateGeometry()
 
     def minimumSizeHint(self) -> QSize:  # noqa: N802
-        return QSize(max(1, self.count()) * 20, self._rail_h)
+        return QSize(max(1, self.count()) * 18, self._rail_h)
 
     def sizeHint(self) -> QSize:  # noqa: N802
         pw = self.parentWidget().width() if self.parentWidget() is not None else 0
@@ -11843,11 +11907,61 @@ class _AutoFitIconTabBar(QTabBar):
     def tabSizeHint(self, index: int) -> QSize:  # noqa: N802
         n = max(1, self.count())
         pw = self.parentWidget().width() if self.parentWidget() is not None else self.width()
-        avail = max(n * 20, pw - 2)
+        avail = max(n * 18, pw - 2)
         base = avail // n
         rem = avail - base * n
         tw = base + (1 if index < rem else 0)
-        return QSize(max(20, tw), self._rail_h)
+        return QSize(max(18, tw), self._rail_h)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        super().paintEvent(event)
+        cur = self.currentIndex()
+        if cur < 0 or cur >= self.count():
+            return
+        tr = QRectF(self.tabRect(cur)).adjusted(1.0, 1.0, -1.0, -0.5)
+        if tr.width() < 6 or tr.height() < 6:
+            return
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        tkey = C.get("key", "seestation")
+        if tkey == "seestation":
+            aura = QRadialGradient(tr.center().x(), tr.bottom(), tr.width() * 0.72)
+            c0 = QColor(C["acc_hi"]); c0.setAlpha(68)
+            c1 = QColor(C["acc_hi"]); c1.setAlpha(0)
+            aura.setColorAt(0.0, c0)
+            aura.setColorAt(1.0, c1)
+            p.setPen(Qt.PenStyle.NoPen)
+            p.setBrush(aura)
+            p.drawRect(tr)
+            bar = QLinearGradient(tr.left() + 3, 0, tr.right() - 3, 0)
+            bar.setColorAt(0.0, QColor(C["acc_mid"]))
+            bar.setColorAt(0.5, QColor(C["acc_spec"]))
+            bar.setColorAt(1.0, QColor(C["acc_mid"]))
+            p.setBrush(bar)
+            p.drawRoundedRect(QRectF(tr.left() + 4.0, tr.bottom() - 2.6, max(4.0, tr.width() - 8.0), 2.4), 1.2, 1.2)
+        elif tkey == "crimson":
+            p.setPen(Qt.PenStyle.NoPen)
+            p.setBrush(QColor(C["acc_hi"]))
+            p.drawRect(QRectF(tr.left(), tr.top(), tr.width(), 2.2))
+            p.drawPolygon(QPolygonF([
+                QPointF(tr.left(), tr.top()),
+                QPointF(tr.left() + 6.5, tr.top()),
+                QPointF(tr.left(), tr.top() + 6.5),
+            ]))
+            p.setBrush(QColor(C["acc_spec"]))
+            p.drawRect(QRectF(tr.left() + 2.0, tr.bottom() - 1.8, max(2.0, tr.width() - 4.0), 1.6))
+        else:
+            p.setPen(Qt.PenStyle.NoPen)
+            p.setBrush(QColor(C["acc_spec"]))
+            p.drawRect(QRectF(tr.left() + 2.5, tr.top(), max(4.0, tr.width() - 5.0), 2.2))
+            cx = tr.center().x()
+            p.setBrush(QColor(C["acc_hi"]))
+            p.drawPolygon(QPolygonF([
+                QPointF(cx - 3.5, tr.bottom()),
+                QPointF(cx + 3.5, tr.bottom()),
+                QPointF(cx, tr.bottom() - 3.2),
+            ]))
+        p.end()
 
 
 class _AutoFitTextTabBar(QTabBar):
@@ -11862,17 +11976,51 @@ class _AutoFitTextTabBar(QTabBar):
         self.setElideMode(Qt.TextElideMode.ElideRight)
 
     def minimumSizeHint(self) -> QSize:  # noqa: N802
-        return QSize(max(1, self.count()) * 44, 26)
+        return QSize(max(1, self.count()) * 36, 25)
 
     def tabSizeHint(self, index: int) -> QSize:  # noqa: N802
         n = max(1, self.count())
         pw = self.parentWidget().width() if self.parentWidget() is not None else self.width()
-        avail = max(n * 44, pw - 2)
+        avail = max(n * 36, pw - 2)
         base = avail // n
         rem = avail - base * n
-        h = max(25, super().tabSizeHint(index).height())
-        return QSize(max(44, base + (1 if index < rem else 0)), h)
+        h = max(24, super().tabSizeHint(index).height())
+        return QSize(max(36, base + (1 if index < rem else 0)), h)
 
+
+class _CompactStackedWidget(QStackedWidget):
+    """Zero-bloat QStackedWidget whose size hint tracks ONLY the active page
+    (never letting a hidden wide page blow up the window's minimum width on
+    800x600 displays), with height-for-width support for wrapping FlowLayout bars."""
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.currentChanged.connect(lambda _i: self.updateGeometry())
+
+    def minimumSizeHint(self) -> QSize:  # noqa: N802
+        cur = self.currentWidget()
+        if cur is not None:
+            lay = cur.layout()
+            if lay is not None and lay.hasHeightForWidth():
+                w = max(200, self.width() if self.width() > 60 else 420)
+                return QSize(180, max(24, lay.heightForWidth(w)))
+            sh = cur.minimumSizeHint()
+            return QSize(min(180, sh.width()), max(24, sh.height()))
+        return QSize(180, 26)
+
+    def sizeHint(self) -> QSize:  # noqa: N802
+        return self.minimumSizeHint()
+
+    def hasHeightForWidth(self) -> bool:  # noqa: N802
+        cur = self.currentWidget()
+        return bool(cur is not None and cur.layout() is not None and cur.layout().hasHeightForWidth())
+
+    def heightForWidth(self, w: int) -> int:  # noqa: N802
+        cur = self.currentWidget()
+        if cur is not None and cur.layout() is not None and cur.layout().hasHeightForWidth():
+            return max(24, cur.layout().heightForWidth(max(180, w)))
+        return self.minimumSizeHint().height()
 
 class FlowLayout(QLayout):
     """Minimal wrapping row layout (Qt's classic FlowLayout example, PyQt6 port).
@@ -12340,12 +12488,17 @@ class QueueDelegate(QStyledItemDelegate):
             grad.setColorAt(0.0, QColor(C["plate_hi"]))
             grad.setColorAt(1.0, QColor(C["plate_lo"]))
         tkey = C.get("key", "seestation")
-        qrad = {"seestation": 6.0, "crimson": 0.0}.get(tkey, 1.0)
+        qframe = _theme_frame_path(r, tkey, rad_see=6.5, ch_gold=5.0)
         painter.setBrush(QBrush(grad))
-        painter.setPen(QPen(QColor(C["sel_border"] if selected else C["line"]), 1.1 if selected else 0.8))
-        painter.drawRoundedRect(r, qrad, qrad)
-        if selected and tkey == "crimson":
-            painter.fillRect(QRectF(r.left() + 1.0, r.top() + 1.0, 3.0, r.height() - 2.0), QColor(C["acc_hi"]))
+        painter.setPen(QPen(QColor(C["sel_border"] if selected else C["line"]), 1.15 if selected else 0.8))
+        painter.drawPath(qframe)
+        if selected:
+            if tkey == "crimson":
+                painter.fillRect(QRectF(r.left() + 1.0, r.top() + 1.0, 3.2, r.height() - 2.0), QColor(C["acc_hi"]))
+            elif tkey == "seestation":
+                painter.fillRect(QRectF(r.left() + 8.0, r.bottom() - 2.2, max(6.0, r.width() - 16.0), 1.8), QColor(C["acc_hi"]))
+            else:
+                painter.fillRect(QRectF(r.left() + 5.0, r.top() + 1.0, max(6.0, r.width() - 10.0), 1.8), QColor(C["acc_spec"]))
 
         # State lamp
         lamp_col = QColor(C.get(STATE_TINT.get(job.state, "muted"), C["muted"]))
@@ -12922,6 +13075,8 @@ class RecentStripGallery(QListWidget):
             pm = QPixmap(path)
             if pm.isNull():
                 continue
+            if pm.width() > 116 or pm.height() > 116:
+                pm = pm.scaled(116, 116, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
             meta = read_image_metadata(path)
             meta["_has_depth"] = has_depth_map(path)
             it = QListWidgetItem()
@@ -12989,9 +13144,15 @@ class GalleryTileDelegate(QStyledItemDelegate):
         grad = QLinearGradient(r.left(), r.top(), r.left(), r.bottom())
         grad.setColorAt(0.0, QColor(C["plate_hi"] if selected else C["plate_lo"]))
         grad.setColorAt(1.0, QColor(C["plate_lo"]))
+        tkey = C.get("key", "seestation")
+        gframe = _theme_frame_path(r, tkey, rad_see=6.0, ch_gold=5.5)
         painter.setBrush(QBrush(grad))
-        painter.setPen(QPen(QColor(C["sel_border"] if selected else C["line"]), 1.2 if selected else 0.8))
-        painter.drawRoundedRect(r, 3.0, 3.0)
+        painter.setPen(QPen(QColor(C["sel_border"] if selected else C["line"]), 1.25 if selected else 0.85))
+        painter.drawPath(gframe)
+        if selected and tkey == "crimson":
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(QColor(C["acc_hi"]))
+            painter.drawPolygon(QPolygonF([QPointF(r.left(), r.top()), QPointF(r.left() + 9, r.top()), QPointF(r.left(), r.top() + 9)]))
         img_r = r.adjusted(2.0, 2.0, -2.0, -12.0)
         if isinstance(pm, QPixmap) and not pm.isNull():
             scaled = pm.scaled(
@@ -13131,12 +13292,18 @@ class GalleryBrowser(QWidget):
             self._sz_grp.addButton(b)
             self.size_btns[k] = b
             r2.addWidget(b)
-        r2.addSpacing(3)
-        r2.addWidget(make_button("Info", self._show_info, small=True))
-        r2.addWidget(make_button("Prompt", self._copy_prompt, small=True, tip="Copy full prompt (Ctrl+P)"))
-        r2.addWidget(make_button("Copy", self._copy_image, small=True, tip="Copy image to clipboard (Ctrl+C)"))
-        r2.addWidget(make_button("Rename", self._rename_selected, small=True))
-        r2.addWidget(make_button("Del", self._delete_selected, small=True, tip="Delete selected image (Delete)"))
+        r2.addSpacing(2)
+        for lbl_g, fn_g, tip_g in (
+            ("Info", self._show_info, "Inspect metadata"),
+            ("Prompt", self._copy_prompt, "Copy full prompt (Ctrl+P)"),
+            ("Copy", self._copy_image, "Copy image to clipboard (Ctrl+C)"),
+            ("Rename", self._rename_selected, "Rename file"),
+            ("Del", self._delete_selected, "Delete selected image (Delete)"),
+        ):
+            gb = make_button(lbl_g, fn_g, small=True, tip=tip_g)
+            gb.setMinimumWidth(0)
+            gb.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+            r2.addWidget(gb, 1)
         r2.addStretch(1)
         self.prev_btn = make_button("\u25C0", lambda: self._step_page(-1), small=True)
         self.prev_btn.setFixedWidth(24)
@@ -16968,7 +17135,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle(f"{APP_NAME}  {APP_VERSION}  \u2014  AI Horde Workstation")
         self.setWindowIcon(VECTOR_ASSETS.icon("app_emblem", 32))
-        self.setMinimumSize(720, 520)
+        self.setMinimumSize(640, 460)
 
         self._build_ui()
         self.toast = ToastOverlay(self.centralWidget())
@@ -17027,6 +17194,7 @@ class MainWindow(QMainWindow):
     def _on_workspace_resized(self) -> None:
         self._sync_tab_rail_width()
         self._sync_edit_stage_density()
+        self._sync_deck_and_viewer_density()
 
     def _sync_tab_rail_width(self) -> None:
         """Distribute all 9 icon tabs cleanly across the exact left-panel width
@@ -17056,18 +17224,56 @@ class MainWindow(QMainWindow):
             self.edit_subtabs.tabBar().updateGeometry()
 
     def _sync_edit_stage_density(self) -> None:
-        """Adapt Edit Stage tool buttons between compact icon-only (800x600 /
-        narrow split) and icon+label (wide display) so nothing ever overflows."""
+        """Adapt Edit Stage tool & overlay buttons between compact icon-only
+        (800x600 / narrow split) and icon+label (wide display) so nothing ever overflows."""
         if not hasattr(self, "edit_tool_btns") or not hasattr(self, "edit_stage"):
             return
         stage_w = self.edit_stage.width()
         compact = (stage_w > 0 and stage_w < 680)
-        if getattr(self, "_edit_stage_compact", None) == compact:
-            return
-        self._edit_stage_compact = compact
-        labels = getattr(self, "_edit_tool_labels", {})
-        for k, btn in self.edit_tool_btns.items():
-            btn.setText("" if compact else labels.get(k, ""))
+        if getattr(self, "_edit_stage_compact", None) != compact:
+            self._edit_stage_compact = compact
+            labels = getattr(self, "_edit_tool_labels", {})
+            for k, btn in self.edit_tool_btns.items():
+                btn.setText("" if compact else labels.get(k, ""))
+        ov_compact = (stage_w > 0 and stage_w < 580)
+        if getattr(self, "_edit_overlay_compact", None) != ov_compact:
+            self._edit_overlay_compact = ov_compact
+            for attr, full_txt in (
+                ("edit_mask_vis_btn", "Mask"),
+                ("edit_stage_depth_btn", "Depth"),
+                ("edit_stage_split_btn", "Split"),
+                ("edit_split_cmp_btn", "Wipe"),
+            ):
+                b = getattr(self, attr, None)
+                if b is not None:
+                    b.setText("" if ov_compact else full_txt)
+                    b.setToolButtonStyle(
+                        Qt.ToolButtonStyle.ToolButtonIconOnly if ov_compact
+                        else Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+                    )
+        if hasattr(self, "edit_ctx_stack"):
+            self.edit_ctx_stack.updateGeometry()
+
+    def _sync_deck_and_viewer_density(self) -> None:
+        """Keep left deck and right viewer caption bar crisp and overflow-free
+        even on 800x600 laptop screens or narrow dragged splits."""
+        scale = float((self.settings.get("ui") or {}).get("font_scale") or 1.0)
+        if hasattr(self, "gen_btn"):
+            compact_h = self.height() > 0 and self.height() <= 640
+            self.gen_btn.apply_metrics(scale, compact=compact_h)
+        if hasattr(self, "left") and hasattr(self, "chip_lora"):
+            lw = self.left.width()
+            narrow_l = (lw > 0 and lw < 310)
+            if getattr(self, "_deck_narrow", None) != narrow_l:
+                self._deck_narrow = narrow_l
+                self._update_deck_badges()
+        if hasattr(self, "right_tabs") and hasattr(self, "gallery_btn"):
+            rw = self.right_tabs.width()
+            narrow_r = (rw > 0 and rw < 460)
+            if getattr(self, "_viewer_narrow", None) != narrow_r:
+                self._viewer_narrow = narrow_r
+                self.gallery_btn.setText("Film" if not narrow_r else "▦")
+                self.theme_combo.setMinimumWidth(62 if narrow_r else 86)
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
@@ -17137,7 +17343,7 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self._on_left_tab_changed)
         lay.addWidget(self.tabs, 1)
         lay.addWidget(self._build_deck(), 0)
-        w.setMinimumWidth(256)
+        w.setMinimumWidth(224)
         return w
 
     def _scroll_tab(self) -> Tuple[QScrollArea, QVBoxLayout]:
@@ -17665,14 +17871,14 @@ class MainWindow(QMainWindow):
         d1.addWidget(self.lora_d_del)
         dl.addLayout(d1)
 
-        d2 = QHBoxLayout()
-        d2.setSpacing(5)
+        d2a = QHBoxLayout()
+        d2a.setSpacing(4)
         self.lora_d_slider = QSlider(Qt.Orientation.Horizontal)
         self.lora_d_slider.setCursor(Qt.CursorShape.PointingHandCursor)
         self.lora_d_slider.setToolTip("Live weight — synced with the Prompt-tab slider drawer")
         self.lora_d_slider.valueChanged.connect(self._on_lora_d_slider)
         self.lora_d_val = make_label("+1.00", "Value")
-        self.lora_d_val.setFixedWidth(42)
+        self.lora_d_val.setFixedWidth(38)
         self.lora_d_val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.lora_d_link = QToolButton()
         self.lora_d_link.setObjectName("Small")
@@ -17685,36 +17891,44 @@ class MainWindow(QMainWindow):
         self.lora_d_pref.setCursor(Qt.CursorShape.PointingHandCursor)
         self.lora_d_pref.setToolTip("Reset weights back to this LoRA's preferred strength")
         self.lora_d_pref.clicked.connect(self._on_lora_d_pref)
+        d2a.addWidget(self.lora_d_slider, 1)
+        d2a.addWidget(self.lora_d_val)
+        d2a.addWidget(self.lora_d_link)
+        d2a.addWidget(self.lora_d_pref)
+        dl.addLayout(d2a)
+
+        d2b = QHBoxLayout()
+        d2b.setSpacing(4)
         self.lora_d_mspin = QDoubleSpinBox()
         self.lora_d_mspin.setRange(-5.0, 5.0)
         self.lora_d_mspin.setSingleStep(0.05)
         self.lora_d_mspin.setDecimals(2)
         self.lora_d_mspin.setPrefix("M ")
-        self.lora_d_mspin.setFixedWidth(74)
+        self.lora_d_mspin.setMinimumWidth(62)
         self.lora_d_mspin.valueChanged.connect(lambda _v: self._on_lora_d_spins())
         self.lora_d_cspin = QDoubleSpinBox()
         self.lora_d_cspin.setRange(-5.0, 5.0)
         self.lora_d_cspin.setSingleStep(0.05)
         self.lora_d_cspin.setDecimals(2)
         self.lora_d_cspin.setPrefix("C ")
-        self.lora_d_cspin.setFixedWidth(74)
+        self.lora_d_cspin.setMinimumWidth(62)
         self.lora_d_cspin.valueChanged.connect(lambda _v: self._on_lora_d_spins())
-        d2.addWidget(self.lora_d_slider, 1)
-        d2.addWidget(self.lora_d_val)
-        d2.addWidget(self.lora_d_mspin)
-        d2.addWidget(self.lora_d_cspin)
-        d2.addWidget(self.lora_d_link)
-        d2.addWidget(self.lora_d_pref)
-        dl.addLayout(d2)
-
-        d3 = QHBoxLayout()
-        d3.setSpacing(4)
         self.lora_d_folder = QComboBox()
-        self.lora_d_folder.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
-        self.lora_d_folder.setMinimumWidth(104)
+        self.lora_d_folder.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        self.lora_d_folder.setMinimumContentsLength(5)
+        self.lora_d_folder.setMinimumWidth(56)
         self.lora_d_folder.setToolTip("Move this LoRA to another folder of this stack")
         self.lora_d_folder.currentIndexChanged.connect(lambda _i: self._on_lora_d_folder())
+        d2b.addWidget(self.lora_d_mspin, 1)
+        d2b.addWidget(self.lora_d_cspin, 1)
+        d2b.addWidget(self.lora_d_folder, 2)
+        dl.addLayout(d2b)
+
+        d3 = QHBoxLayout()
+        d3.setSpacing(3)
         self.lora_d_trigger = QComboBox()
+        self.lora_d_trigger.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        self.lora_d_trigger.setMinimumContentsLength(6)
         self.lora_d_trigger.setToolTip("Trigger variant appended to the prompt (locked grey ghost text at the end of the prompt)")
         self.lora_d_trigger.currentIndexChanged.connect(lambda _i: self._on_lora_d_trigger())
         self.lora_d_copy = QToolButton()
@@ -17722,37 +17936,36 @@ class MainWindow(QMainWindow):
         self.lora_d_copy.setText("COPY")
         self.lora_d_copy.setCursor(Qt.CursorShape.PointingHandCursor)
         self.lora_d_copy.setToolTip("Copy the selected trigger word to the clipboard")
-        self.lora_d_copy.clicked.connect(self._copy_lora_trigger)
+        self.lora_d_copy.clicked.connect(lambda _c=False: self._copy_lora_trigger())
         self.lora_d_dup = QToolButton()
         self.lora_d_dup.setObjectName("Small")
         self.lora_d_dup.setText("DUP")
         self.lora_d_dup.setCursor(Qt.CursorShape.PointingHandCursor)
         self.lora_d_dup.setToolTip("Duplicate this LoRA entry")
         self.lora_d_dup.clicked.connect(lambda: self._duplicate_lora_by_uid(self._lora_detail_uid() or ""))
-        d3.addWidget(self.lora_d_folder, 1)
         d3.addWidget(self.lora_d_trigger, 1)
         d3.addWidget(self.lora_d_copy)
         d3.addWidget(self.lora_d_dup)
         dl.addLayout(d3)
         lay.addWidget(self.lora_detail)
 
-        # -- One-line status caption + stack ops ---------------------------------
+        # -- One-line status caption + compact 1-row stack ops -------------------
         self.lora_status = ElideLabel("")
         self.lora_status.setObjectName("InfoBar")
         self.lora_status.setMinimumHeight(18)
         lay.addWidget(self.lora_status)
 
         brow = QHBoxLayout()
-        brow.setSpacing(4)
-        brow.addWidget(make_button("RESET WEIGHTS", self.reset_all_lora_weights, small=True,
-                                   tip="Reset all LoRAs in this stack back to preferred strength"))
-        brow.addWidget(make_button("DISABLE ALL", self.disable_all_loras, small=True))
+        brow.setSpacing(3)
+        for blbl, bfn, btip in (
+            ("Reset", self.reset_all_lora_weights, "Reset all LoRAs in this stack back to preferred strength"),
+            ("Disable All", self.disable_all_loras, "Disable all LoRAs in this stack"),
+            ("Clear Stack", self.clear_lora_stack, "Remove all LoRAs from this stack"),
+        ):
+            bb = make_button(blbl, bfn, small=True, tip=btip)
+            bb.setMinimumWidth(0)
+            brow.addWidget(bb, 1)
         lay.addLayout(brow)
-        brow2 = QHBoxLayout()
-        brow2.setSpacing(4)
-        brow2.addWidget(make_button("CLEAR STACK", self.clear_lora_stack, small=True))
-        brow2.addStretch(1)
-        lay.addLayout(brow2)
         return w
 
     # ---- Tab 5: LLM Prompt Forge + Vision Extractor (VLM) --------------------
@@ -18720,13 +18933,15 @@ class MainWindow(QMainWindow):
             gg = QGridLayout()
             gg.setSpacing(4)
             self.sampler_combo = QComboBox()
-            self.sampler_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+            self.sampler_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+            self.sampler_combo.setMinimumContentsLength(6)
             # Elide-capable field width: exotic sampler names fold with '…'
             # instead of forcing the whole tab wider than the panel.
             self.sampler_combo.setMaximumWidth(214)
             self.sampler_combo.addItems(self.samplers)
             self.scheduler_combo = QComboBox()
-            self.scheduler_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+            self.scheduler_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+            self.scheduler_combo.setMinimumContentsLength(6)
             self.scheduler_combo.setMaximumWidth(160)
             self.scheduler_combo.addItems(SCHEDULERS)
             self.steps_spin = QSpinBox()
@@ -18813,7 +19028,9 @@ class MainWindow(QMainWindow):
         scroll, lay = self._scroll_tab()
         hdr = SectionHeader("Tile Upscale")
         self.ups_run_combo = QComboBox()
-        self.ups_run_combo.setMinimumWidth(120)
+        self.ups_run_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        self.ups_run_combo.setMinimumContentsLength(6)
+        self.ups_run_combo.setMinimumWidth(78)
         self.ups_run_combo.addItem("no run", None)
         self.ups_run_combo.currentIndexChanged.connect(lambda _i: self._ups_combo_changed())
         hdr.add_right(self.ups_run_combo)
@@ -18858,7 +19075,8 @@ class MainWindow(QMainWindow):
         self.ups_cfg_spin.setSingleStep(0.5)
         self.ups_cfg_spin.setDecimals(1)
         self.ups_upscaler_combo = QComboBox()
-        self.ups_upscaler_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+        self.ups_upscaler_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        self.ups_upscaler_combo.setMinimumContentsLength(6)
         for label, name, factor in UPSCALERS:
             self.ups_upscaler_combo.addItem(label, name)
             self.ups_upscaler_combo.setItemData(
@@ -18868,7 +19086,8 @@ class MainWindow(QMainWindow):
             )
         self.ups_upscaler_combo.addItem("Lanczos (local, free)", LANCZOS_UPSCALER)
         self.ups_model_combo = QComboBox()
-        self.ups_model_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+        self.ups_model_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        self.ups_model_combo.setMinimumContentsLength(6)
         for name, spec in TILE_MODELS.items():
             self.ups_model_combo.addItem(spec["label"], name)
         for idx, (lbl, wdg) in enumerate((
@@ -18877,16 +19096,26 @@ class MainWindow(QMainWindow):
             ("Denoise", self.ups_denoise_spin),
             ("Steps", self.ups_steps_spin),
             ("CFG", self.ups_cfg_spin),
+        )):
+            r_u, c_u = divmod(idx, 2)
+            cell_u = QHBoxLayout()
+            cell_u.setSpacing(3)
+            cell_u.addWidget(make_label(lbl, "Caption"))
+            cell_u.addWidget(wdg, 1)
+            grid.addLayout(cell_u, r_u, c_u)
+            wdg.valueChanged.connect(lambda _v: self._on_ups_settings_changed())
+        grid.setColumnStretch(0, 1)
+        grid.setColumnStretch(1, 1)
+        for r_c, (lbl, wdg) in enumerate((
             ("Upscaler", self.ups_upscaler_combo),
             ("Model", self.ups_model_combo),
-        )):
-            grid.addWidget(make_label(lbl, "Caption"), idx, 0)
-            grid.addWidget(wdg, idx, 1)
-            if hasattr(wdg, "currentIndexChanged"):
-                wdg.currentIndexChanged.connect(lambda _i: self._on_ups_settings_changed())
-            else:
-                wdg.valueChanged.connect(lambda _v: self._on_ups_settings_changed())
-        grid.setColumnStretch(1, 1)
+        ), start=3):
+            row_c = QHBoxLayout()
+            row_c.setSpacing(4)
+            row_c.addWidget(make_label(lbl, "Caption"))
+            row_c.addWidget(wdg, 1)
+            grid.addLayout(row_c, r_c, 0, 1, 2)
+            wdg.currentIndexChanged.connect(lambda _i: self._on_ups_settings_changed())
         lay.addLayout(grid)
 
         trow = QHBoxLayout()
@@ -18902,7 +19131,8 @@ class MainWindow(QMainWindow):
             self.ups_tpl_btns[k] = b
             trow.addWidget(b)
         self.ups_tpl_combo = QComboBox()
-        self.ups_tpl_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+        self.ups_tpl_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        self.ups_tpl_combo.setMinimumContentsLength(6)
         self.ups_tpl_combo.currentIndexChanged.connect(lambda _i: self._schedule_save())
         trow.addWidget(self.ups_tpl_combo, 1)
         self.ups_tpl_group.buttonClicked.connect(lambda _b: self._fill_ups_templates())
@@ -19708,6 +19938,8 @@ class MainWindow(QMainWindow):
             b.setCheckable(True)
             b.setCursor(Qt.CursorShape.PointingHandCursor)
             b.setToolTip(MODELS[name]["hint"])
+            b.setMinimumWidth(0)
+            b.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
             self.model_group.addButton(b)
             self.model_btns[name] = b
             r1.addWidget(b, 1)
@@ -19898,6 +20130,8 @@ class MainWindow(QMainWindow):
         self.save_btn = make_button("Save", self.save_current, accent=True,
                                     tip="Save current render into outputs/  (Ctrl+S)")
         self.save_btn.setObjectName("ActAccent")
+        self.save_btn.setMinimumWidth(0)
+        self.save_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         act1.addWidget(self.save_btn, 3)
         for text, slot, tip in (
             ("Editor", self.edit_from_viewer, "Open current render in the full-size Image Editor & Depth Studio"),
@@ -19909,6 +20143,8 @@ class MainWindow(QMainWindow):
         ):
             b = make_button(text, slot, tip=tip)
             b.setObjectName("Act")
+            b.setMinimumWidth(0)
+            b.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
             act1.addWidget(b, 2)
         lay.addLayout(act1)
 
@@ -19923,6 +20159,8 @@ class MainWindow(QMainWindow):
         ):
             b = make_button(text, slot, tip=tip)
             b.setObjectName("Act")
+            b.setMinimumWidth(0)
+            b.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
             act2.addWidget(b, 1)
         lay.addLayout(act2)
 
@@ -19958,7 +20196,7 @@ class MainWindow(QMainWindow):
 
         self.right_tabs.addTab(self.right_stack, "Viewer")
         self.right_tabs.addTab(self.gallery_tab, "Gallery")
-        self.right_tabs.setMinimumWidth(360)
+        self.right_tabs.setMinimumWidth(280)
         self.right_tabs.currentChanged.connect(self._on_right_tab_changed)
         return self.right_tabs
 
@@ -20126,61 +20364,67 @@ class MainWindow(QMainWindow):
         t_view.addWidget(self.edit_stage_doc_lbl, 1)
         sl.addLayout(t_view)
 
-        # ---- Context bar: one compact zero-overflow page per tool --------------
-        self.edit_ctx_stack = QStackedWidget()
-        self.edit_ctx_stack.setMaximumHeight(36)
+        # ---- Context bar: zero-overflow wrapping FlowLayout per tool (800x600!) ---
+        self.edit_ctx_stack = _CompactStackedWidget()
+        self.edit_ctx_stack.setMaximumHeight(68)
 
-        def _sliders_row(items: Sequence[Tuple[str, str, int, int, int, str]]) -> Tuple[QHBoxLayout, Dict[str, QSlider], Dict[str, QLabel]]:
-            row = QHBoxLayout()
-            row.setSpacing(3)
+        def _flow_page() -> Tuple[QWidget, FlowLayout]:
+            pg = QWidget()
+            pg.setObjectName("Transparent")
+            fl_lay = FlowLayout(pg, margin=0, spacing=4)
+            return pg, fl_lay
+
+        def _add_flow_sliders(
+            fl_lay: FlowLayout,
+            items: Sequence[Tuple[str, str, int, int, int, str]],
+        ) -> Tuple[Dict[str, QSlider], Dict[str, QLabel]]:
             sliders: Dict[str, QSlider] = {}
             labels: Dict[str, QLabel] = {}
             for key, title, lo, hi, val, tip in items:
-                row.addWidget(make_label(title, "Kicker"))
+                grp = QWidget()
+                grp.setObjectName("Transparent")
+                gl_s = QHBoxLayout(grp)
+                gl_s.setContentsMargins(0, 0, 2, 0)
+                gl_s.setSpacing(3)
+                gl_s.addWidget(make_label(title, "Kicker"))
                 s = QSlider(Qt.Orientation.Horizontal)
                 s.setRange(lo, hi)
                 s.setValue(val)
-                s.setMinimumWidth(44)
-                s.setMaximumWidth(150)
+                s.setFixedWidth(74)
                 s.setCursor(Qt.CursorShape.PointingHandCursor)
                 s.setToolTip(tip)
                 vlab = make_label(str(val), "Value")
-                vlab.setMinimumWidth(26)
-                row.addWidget(s, 1)
-                row.addWidget(vlab)
+                vlab.setMinimumWidth(28)
+                gl_s.addWidget(s)
+                gl_s.addWidget(vlab)
+                fl_lay.addWidget(grp)
                 sliders[key] = s
                 labels[key] = vlab
-            return row, sliders, labels
+            return sliders, labels
 
         # -- page 0: NAV ------------------------------------------------------
         page_nav = QWidget()
         page_nav.setObjectName("Transparent")
         nl = QHBoxLayout(page_nav)
-        nl.setContentsMargins(0, 0, 0, 0)
+        nl.setContentsMargins(0, 1, 0, 1)
         nl.setSpacing(6)
-        nav_hint = ElideLabel("Drag = pan \u00b7 Wheel = zoom \u00b7 Ctrl+Drag = frame zoom \u00b7 Ctrl+Right-Click = restore Fit")
+        nav_hint = ElideLabel("Drag = pan · Wheel = zoom · Ctrl+Drag = frame zoom · Ctrl+Right-Click = restore Fit")
         nav_hint.setObjectName("Caption")
         nl.addWidget(nav_hint, 1)
         self.edit_ctx_stack.addWidget(page_nav)
 
-        # -- page: MASK BRUSH / ERASER ----------------------------------------
-        page_mask = QWidget()
-        page_mask.setObjectName("Transparent")
-        ml = QHBoxLayout(page_mask)
-        ml.setContentsMargins(0, 0, 0, 0)
-        ml.setSpacing(4)
-        mrow, m_sl, m_lab = _sliders_row([
+        # -- page 1: MASK BRUSH / ERASER --------------------------------------
+        page_mask, ml = _flow_page()
+        m_sl, m_lab = _add_flow_sliders(ml, [
             ("size", "Size", 4, 400, 48, "Mask brush diameter in image pixels ([ and ] adjust)"),
             ("soft", "Soft", 0, 100, 45, "Mask brush edge softness (0 = hard round, 100 = very soft)"),
         ])
-        ml.addLayout(mrow)
         self.edit_brush_size = m_sl["size"]
         self.edit_brush_soft = m_sl["soft"]
         self._edit_brush_size_lab = m_lab["size"]
         self._edit_brush_soft_lab = m_lab["soft"]
         self.edit_brush_size.valueChanged.connect(self._on_edit_brush_changed)
         self.edit_brush_soft.valueChanged.connect(self._on_edit_brush_changed)
-        ml.addSpacing(6)
         self.edit_mask_opaque_btn = QToolButton()
         self.edit_mask_opaque_btn.setObjectName("Small")
         self.edit_mask_opaque_btn.setCheckable(True)
@@ -20196,24 +20440,18 @@ class MainWindow(QMainWindow):
         self.edit_mask_invert_btn = make_button("Invert", self.edit_canvas_invert_mask, small=True,
                                                 tip="Invert the painted mask")
         ml.addWidget(self.edit_mask_invert_btn)
-        self.edit_coverage_lbl = make_label("mask 0%", "Value")
-        self.edit_coverage_lbl.setMinimumWidth(64)
+        self.edit_coverage_lbl = make_label("mask: 0%", "Value")
+        self.edit_coverage_lbl.setMinimumWidth(56)
         ml.addWidget(self.edit_coverage_lbl)
-        ml.addStretch(1)
         self.edit_ctx_stack.addWidget(page_mask)
 
-        # -- page: RETOUCH PAINT ----------------------------------------------
-        page_paint = QWidget()
-        page_paint.setObjectName("Transparent")
-        pl = QHBoxLayout(page_paint)
-        pl.setContentsMargins(0, 0, 0, 0)
-        pl.setSpacing(4)
-        prow, p_sl, p_lab = _sliders_row([
+        # -- page 2: RETOUCH PAINT --------------------------------------------
+        page_paint, pl = _flow_page()
+        p_sl, p_lab = _add_flow_sliders(pl, [
             ("psize", "Size", 2, 400, 36, "Retouch brush diameter in image pixels"),
             ("psoft", "Soft", 0, 100, 55, "Retouch brush edge softness (Photoshop-style falloff)"),
             ("popac", "Flow", 5, 100, 100, "Stroke flow / opacity in %"),
         ])
-        pl.addLayout(prow)
         self.edit_paint_size = p_sl["psize"]
         self.edit_paint_soft = p_sl["psoft"]
         self.edit_paint_opacity = p_sl["popac"]
@@ -20222,115 +20460,121 @@ class MainWindow(QMainWindow):
         self._edit_paint_opac_lab = p_lab["popac"]
         for s in (self.edit_paint_size, self.edit_paint_soft, self.edit_paint_opacity):
             s.valueChanged.connect(self._on_edit_brush_changed)
-        pl.addSpacing(6)
-        pl.addWidget(make_label("Color", "Kicker"))
+        c_grp = QWidget()
+        c_grp.setObjectName("Transparent")
+        cl_p = QHBoxLayout(c_grp)
+        cl_p.setContentsMargins(0, 0, 0, 0)
+        cl_p.setSpacing(3)
+        cl_p.addWidget(make_label("Color", "Kicker"))
         self.edit_paint_swatch = QToolButton()
         self.edit_paint_swatch.setObjectName("Small")
-        self.edit_paint_swatch.setFixedSize(46, 22)
+        self.edit_paint_swatch.setFixedSize(40, 22)
         self.edit_paint_swatch.setCursor(Qt.CursorShape.PointingHandCursor)
         self.edit_paint_swatch.setToolTip(
             "Active retouch color — click to pick a new one;\n"
             "Alt+Left-click on the image samples the color under the cursor"
         )
         self.edit_paint_swatch.clicked.connect(self._on_edit_paint_swatch_clicked)
-        pl.addWidget(self.edit_paint_swatch)
+        cl_p.addWidget(self.edit_paint_swatch)
+        pl.addWidget(c_grp)
         self.edit_paint_erase_btn = QToolButton()
         self.edit_paint_erase_btn.setObjectName("Small")
         self.edit_paint_erase_btn.setCheckable(True)
         self.edit_paint_erase_btn.setText("Eraser")
         self.edit_paint_erase_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.edit_paint_erase_btn.setToolTip(
-            "Paint ERASER: removes only the painted strokes — the photo underneath "
-            "is never touched (X)"
+            "Paint ERASER: removes only the painted strokes — the photo underneath is never touched (X)"
         )
         self.edit_paint_erase_btn.toggled.connect(self._on_edit_paint_erase_toggled)
         pl.addWidget(self.edit_paint_erase_btn)
         self.edit_paint_clear_btn = make_button("Clear Paint", self.edit_paint_clear, small=True,
                                                 tip="Remove every retouch stroke")
         pl.addWidget(self.edit_paint_clear_btn)
-        pl.addStretch(1)
         self.edit_ctx_stack.addWidget(page_paint)
 
-        # -- page: POLYGON LASSO ----------------------------------------------
-        page_poly = QWidget()
-        page_poly.setObjectName("Transparent")
-        gl = QHBoxLayout(page_poly)
-        gl.setContentsMargins(0, 0, 0, 0)
-        gl.setSpacing(4)
+        # -- page 3: POLYGON LASSO --------------------------------------------
+        page_poly, gl = _flow_page()
         self.edit_poly_smooth_btn = QToolButton()
         self.edit_poly_smooth_btn.setObjectName("Small")
         self.edit_poly_smooth_btn.setCheckable(True)
         self.edit_poly_smooth_btn.setChecked(True)
         self.edit_poly_smooth_btn.setText("Smooth")
         self.edit_poly_smooth_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.edit_poly_smooth_btn.setToolTip(
-            "Turn the point series into a vector-like rounded/curved selection"
-        )
+        self.edit_poly_smooth_btn.setToolTip("Turn the point series into a vector-like rounded/curved selection")
         self.edit_poly_smooth_btn.toggled.connect(self._on_edit_poly_smooth)
         gl.addWidget(self.edit_poly_smooth_btn)
-        gl.addSpacing(6)
-        gl.addWidget(make_label("Grow", "Kicker"))
+        grow_grp = QWidget()
+        grow_grp.setObjectName("Transparent")
+        grl = QHBoxLayout(grow_grp)
+        grl.setContentsMargins(0, 0, 0, 0)
+        grl.setSpacing(3)
+        grl.addWidget(make_label("Grow", "Kicker"))
         self.edit_poly_shrink_btn = QToolButton()
         self.edit_poly_shrink_btn.setObjectName("Small")
-        self.edit_poly_shrink_btn.setText("\u2212 6px")
+        self.edit_poly_shrink_btn.setText("−6px")
         self.edit_poly_shrink_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.edit_poly_shrink_btn.setToolTip("Shrink the selection inward by 6 px")
         self.edit_poly_shrink_btn.clicked.connect(lambda: self._edit_poly_expand(-6.0))
-        gl.addWidget(self.edit_poly_shrink_btn)
+        grl.addWidget(self.edit_poly_shrink_btn)
         self.edit_poly_expand_val = make_label("0 px", "Value")
-        self.edit_poly_expand_val.setMinimumWidth(40)
-        gl.addWidget(self.edit_poly_expand_val)
+        self.edit_poly_expand_val.setMinimumWidth(34)
+        grl.addWidget(self.edit_poly_expand_val)
         self.edit_poly_grow_btn = QToolButton()
         self.edit_poly_grow_btn.setObjectName("Small")
-        self.edit_poly_grow_btn.setText("+ 6px")
+        self.edit_poly_grow_btn.setText("+6px")
         self.edit_poly_grow_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.edit_poly_grow_btn.setToolTip("Expand the selection outward by 6 px")
         self.edit_poly_grow_btn.clicked.connect(lambda: self._edit_poly_expand(+6.0))
-        gl.addWidget(self.edit_poly_grow_btn)
-        gl.addSpacing(6)
-        gl.addWidget(make_label("Feather", "Kicker"))
+        grl.addWidget(self.edit_poly_grow_btn)
+        gl.addWidget(grow_grp)
+        fe_grp = QWidget()
+        fe_grp.setObjectName("Transparent")
+        fel = QHBoxLayout(fe_grp)
+        fel.setContentsMargins(0, 0, 0, 0)
+        fel.setSpacing(3)
+        fel.addWidget(make_label("Feather", "Kicker"))
         self.edit_poly_feather_sl = QSlider(Qt.Orientation.Horizontal)
         self.edit_poly_feather_sl.setRange(0, 120)
         self.edit_poly_feather_sl.setValue(0)
-        self.edit_poly_feather_sl.setMinimumWidth(48)
-        self.edit_poly_feather_sl.setMaximumWidth(130)
+        self.edit_poly_feather_sl.setFixedWidth(74)
         self.edit_poly_feather_sl.setCursor(Qt.CursorShape.PointingHandCursor)
         self.edit_poly_feather_sl.setToolTip("Feather (blur) the selection edges, 0 = razor sharp")
         self.edit_poly_feather_sl.valueChanged.connect(self._on_edit_poly_feather)
-        gl.addWidget(self.edit_poly_feather_sl)
+        fel.addWidget(self.edit_poly_feather_sl)
         self.edit_poly_feather_val = make_label("0 px", "Value")
-        self.edit_poly_feather_val.setMinimumWidth(40)
-        gl.addWidget(self.edit_poly_feather_val)
+        self.edit_poly_feather_val.setMinimumWidth(34)
+        fel.addWidget(self.edit_poly_feather_val)
+        gl.addWidget(fe_grp)
         self.edit_poly_commit_btn = make_button("Add to Mask", self.edit_poly_commit, small=True, accent=True,
-                                                tip="Union the selection into the red mask (the mask "
-                                                    "brush keeps working alongside it)")
+                                                tip="Union the selection into the red mask")
         gl.addWidget(self.edit_poly_commit_btn)
         self.edit_poly_discard_btn = make_button("Discard", self.edit_poly_discard, small=True,
                                                  tip="Throw the selection away (Esc)")
         gl.addWidget(self.edit_poly_discard_btn)
-        gl.addStretch(1)
         self.edit_ctx_stack.addWidget(page_poly)
 
-        # -- page: CROP --------------------------------------------------------
-        page_crop = QWidget()
-        page_crop.setObjectName("Transparent")
-        cl = QHBoxLayout(page_crop)
-        cl.setContentsMargins(0, 0, 0, 0)
-        cl.setSpacing(4)
-        cl.addWidget(make_label("Aspect", "Kicker"))
+        # -- page 4: CROP -----------------------------------------------------
+        page_crop, cl = _flow_page()
+        ca_grp = QWidget()
+        ca_grp.setObjectName("Transparent")
+        cal = QHBoxLayout(ca_grp)
+        cal.setContentsMargins(0, 0, 0, 0)
+        cal.setSpacing(3)
+        cal.addWidget(make_label("Aspect", "Kicker"))
         self.edit_crop_aspect = QComboBox()
+        self.edit_crop_aspect.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        self.edit_crop_aspect.setMinimumContentsLength(6)
         self.edit_crop_aspect.addItem("Free", "free")
         for a in ASPECTS:
-            self.edit_crop_aspect.addItem(f"{a['key']}  \u00b7  {a['w']}\u00d7{a['h']}", a["key"])
-        self.edit_crop_aspect.setToolTip(
-            "Lock the crop frame to the same aspect set used for generation"
-        )
-        self.edit_crop_aspect.setMinimumWidth(92)
-        self.edit_crop_aspect.setMaximumWidth(160)
+            self.edit_crop_aspect.addItem(f"{a['key']}  ·  {a['w']}×{a['h']}", a["key"])
+        self.edit_crop_aspect.setToolTip("Lock the crop frame to the same aspect set used for generation")
+        self.edit_crop_aspect.setMinimumWidth(86)
+        self.edit_crop_aspect.setMaximumWidth(156)
         self.edit_crop_aspect.currentIndexChanged.connect(self._on_edit_crop_aspect_changed)
-        cl.addWidget(self.edit_crop_aspect)
-        self.edit_crop_dims = make_label("\u2014", "Value")
-        self.edit_crop_dims.setMinimumWidth(72)
+        cal.addWidget(self.edit_crop_aspect)
+        cl.addWidget(ca_grp)
+        self.edit_crop_dims = make_label("—", "Value")
+        self.edit_crop_dims.setMinimumWidth(64)
         cl.addWidget(self.edit_crop_dims)
         self.edit_crop_apply_btn = make_button("Apply Crop", self._edit_apply_crop, small=True, accent=True,
                                                tip="Crop the working image in memory (nothing is saved yet)")
@@ -20338,59 +20582,49 @@ class MainWindow(QMainWindow):
         self.edit_crop_cancel_btn = make_button("Cancel", self._edit_cancel_crop, small=True,
                                                 tip="Drop the crop frame (Esc)")
         cl.addWidget(self.edit_crop_cancel_btn)
-        cl.addStretch(1)
         self.edit_ctx_stack.addWidget(page_crop)
 
-        # -- page: TILT / ROTATE ----------------------------------------------
-        page_rot = QWidget()
-        page_rot.setObjectName("Transparent")
-        rl = QHBoxLayout(page_rot)
-        rl.setContentsMargins(0, 0, 0, 0)
-        rl.setSpacing(4)
-        rl.addWidget(make_label("Tilt", "Kicker"))
+        # -- page 5: TILT / ROTATE --------------------------------------------
+        page_rot, rl = _flow_page()
+        rt_grp = QWidget()
+        rt_grp.setObjectName("Transparent")
+        rtl = QHBoxLayout(rt_grp)
+        rtl.setContentsMargins(0, 0, 0, 0)
+        rtl.setSpacing(4)
+        rtl.addWidget(make_label("Tilt", "Kicker"))
         self.edit_rot_slider = QSlider(Qt.Orientation.Horizontal)
-        self.edit_rot_slider.setRange(-1800, 1800)   # 0.1-degree resolution
+        self.edit_rot_slider.setRange(-1800, 1800)
         self.edit_rot_slider.setValue(0)
-        self.edit_rot_slider.setMinimumWidth(170)
-        self.edit_rot_slider.setMaximumWidth(320)
+        self.edit_rot_slider.setMinimumWidth(110)
+        self.edit_rot_slider.setMaximumWidth(260)
         self.edit_rot_slider.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.edit_rot_slider.setToolTip(
-            "Tilt angle \u00b1180\u00b0 — borders stay static, the image rotates "
-            "under them; corners leaving the canvas turn transparent"
-        )
+        self.edit_rot_slider.setToolTip("Tilt angle ±180° — borders stay static, image rotates under them")
         self.edit_rot_slider.valueChanged.connect(self._on_edit_rot_slider)
-        rl.addWidget(self.edit_rot_slider)
-        self.edit_rot_val = make_label("0.0\u00b0", "Value")
-        self.edit_rot_val.setMinimumWidth(52)
-        rl.addWidget(self.edit_rot_val)
+        rtl.addWidget(self.edit_rot_slider)
+        self.edit_rot_val = make_label("0.0°", "Value")
+        self.edit_rot_val.setMinimumWidth(46)
+        rtl.addWidget(self.edit_rot_val)
+        rl.addWidget(rt_grp)
         self.edit_rot_apply_btn = make_button("Apply Tilt", self._edit_apply_rotate, small=True, accent=True,
-                                              tip="Bake the rotation into the working image "
-                                                  "(transparent corners can be filled with PAINT)")
+                                              tip="Bake the rotation into the working image")
         rl.addWidget(self.edit_rot_apply_btn)
-        self.edit_rot_reset_btn = make_button("Reset", self._edit_reset_rotate, small=True,
-                                              tip="Back to 0.0\u00b0")
+        self.edit_rot_reset_btn = make_button("Reset", self._edit_reset_rotate, small=True, tip="Back to 0.0°")
         rl.addWidget(self.edit_rot_reset_btn)
-        rl.addStretch(1)
         self.edit_ctx_stack.addWidget(page_rot)
 
-        # -- page: FLARE (v6.0 inline horizontal multi-flare quick controls) -----
-        page_flare = QWidget()
-        page_flare.setObjectName("Transparent")
-        fl = QHBoxLayout(page_flare)
-        fl.setContentsMargins(0, 0, 0, 0)
-        fl.setSpacing(5)
+        # -- page 6: FLARE (wrapping horizontal multi-flare quick controls) ----
+        page_flare, fl = _flow_page()
         self.edit_stage_flare_add = make_button(
             "Add", self.edit_flare_add_center, small=True, accent=True,
             tip="Add a new horizontal anamorphic flare", icon_key="flare_add", icon_size=12,
         )
         fl.addWidget(self.edit_stage_flare_add)
-        frow, f_sl, f_lab = _sliders_row([
+        f_sl, f_lab = _add_flow_sliders(fl, [
             ("fsize", "Size", 30, 250, 100, "Resize selected flare (30…250% · Shift+Wheel or drag ring)"),
             ("fbright", "Bright", 10, 220, 100, "Brightness of selected flare (10…220%)"),
             ("fhue", "Hue", -180, 180, 0, "Primary streak hue shift (-180°…+180°)"),
             ("fhue2", "Accent", -180, 180, 0, "Secondary multi-color wing/ghost hue shift (-180°…+180°)"),
         ])
-        fl.addLayout(frow)
         self.edit_stage_flare_size = f_sl["fsize"]
         self.edit_stage_flare_bright = f_sl["fbright"]
         self.edit_stage_flare_hue = f_sl["fhue"]
@@ -20413,15 +20647,28 @@ class MainWindow(QMainWindow):
                                                 tip="Remove selected flare (Del)")
         fl.addWidget(self.edit_stage_flare_dup)
         fl.addWidget(self.edit_stage_flare_del)
-        fl.addStretch(1)
         self.edit_ctx_stack.addWidget(page_flare)
+
+        # -- page 7: DEPTH EYEDROPPER (v8.0 — live depth probe & focus sync) ---
+        page_depth, dpl = _flow_page()
+        self.edit_stage_depth_sample_lbl = make_label("Click image to sample Depth (0% Far … 100% Near)", "Value")
+        dpl.addWidget(self.edit_stage_depth_sample_lbl)
+        self.edit_stage_depth_gen_btn = make_button(
+            "Generate Depth", self._edit_generate_depth, small=True, accent=True,
+            icon_key="depth", icon_size=12, tip="Generate Depth Anything V2 map via AI Horde Alchemy",
+        )
+        dpl.addWidget(self.edit_stage_depth_gen_btn)
+        self.edit_stage_depth_open_tab = make_button(
+            "Depth Studio", lambda: self.edit_subtabs.setCurrentIndex(2), small=True,
+            tip="Jump to Depth Studio controls on the left deck",
+        )
+        dpl.addWidget(self.edit_stage_depth_open_tab)
+        self.edit_ctx_stack.addWidget(page_depth)
 
         sl.addWidget(self.edit_ctx_stack)
 
         sl.addWidget(self.edit_canvas, 1)
 
-        # Editor keyboard map (scoped to the stage so keys work while the
-        # canvas / toolbar have focus — the control deck carries a copy too)
         for seq, fn in (
             ("B", lambda: self._set_edit_tool("brush")),
             ("E", lambda: self._set_edit_tool("erase")),
@@ -20431,11 +20678,13 @@ class MainWindow(QMainWindow):
             ("C", lambda: self._set_edit_tool("crop")),
             ("R", lambda: self._set_edit_tool("rotate")),
             ("F", lambda: self._set_edit_tool("flare")),
+            ("D", lambda: self._set_edit_tool("depth")),
             ("X", self._edit_toggle_paint_erase),
             ("M", self._edit_toggle_mask_visible),
             ("A", self._edit_poly_close_key),
             ("Delete", self.edit_flare_remove_selected),
             ("Ctrl+Z", self._edit_undo_smart),
+            ("Ctrl+Y", self.edit_redo),
             ("[", lambda: self._nudge_brush(-8)),
             ("]", lambda: self._nudge_brush(8)),
         ):
@@ -20475,8 +20724,9 @@ class MainWindow(QMainWindow):
         self.act_full = m.addAction("Fullscreen  (F11)")
         self.act_full.triggered.connect(self._toggle_fullscreen)
         m.addSeparator()
-        m.addAction("Font Scale +  (Ctrl++)", lambda: self._adjust_scale(0.05))
-        m.addAction("Font Scale \u2212  (Ctrl+-)", lambda: self._adjust_scale(-0.05))
+        m.addAction("UI Scale +  (Ctrl++)", lambda: self._adjust_scale(0.05))
+        m.addAction("UI Scale \u2212  (Ctrl+-)", lambda: self._adjust_scale(-0.05))
+        m.addAction("UI Scale Reset 100%  (Ctrl+0)", lambda: self._reset_scale())
         m.addAction("Switch Theme  (Ctrl+Shift+T)", self._toggle_theme)
         m.addSeparator()
         m.addAction("About\u2026", self._show_about)
@@ -20508,9 +20758,16 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence("F10"), self, activated=lambda: self.menu.exec(
             self.menu_btn.mapToGlobal(QPoint(0, self.menu_btn.height()))))
         QShortcut(QKeySequence("F1"), self, activated=self.show_shortcuts)
-        QShortcut(QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_Plus), self, activated=lambda: self._adjust_scale(0.05))
-        QShortcut(QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_Equal), self, activated=lambda: self._adjust_scale(0.05))
-        QShortcut(QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_Minus), self, activated=lambda: self._adjust_scale(-0.05))
+        for seq_sc, fn_sc in (
+            (QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_Plus), lambda: self._adjust_scale(0.05)),
+            (QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_Equal), lambda: self._adjust_scale(0.05)),
+            (QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_Minus), lambda: self._adjust_scale(-0.05)),
+            (QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_Underscore), lambda: self._adjust_scale(-0.05)),
+            (QKeySequence(Qt.Modifier.CTRL | Qt.Key.Key_0), self._reset_scale),
+        ):
+            sc_z = QShortcut(seq_sc, self)
+            sc_z.setContext(Qt.ShortcutContext.ApplicationShortcut)
+            sc_z.activated.connect(fn_sc)
 
     def eventFilter(self, obj, event) -> bool:  # noqa: N802
         # Ctrl+Enter straight from the prompt editors fires GENERATE.
@@ -20650,10 +20907,15 @@ class MainWindow(QMainWindow):
                 sl.blockSignals(False)
                 lab.setText(self._format_flare_val(k, v))
             self._sync_stage_flare_quick_sliders()
+            gap_v = max(0, min(200, int(ui.get("edit_split_gap", 1))))
             self.edit_split_gap.blockSignals(True)
-            self.edit_split_gap.setValue(max(1, min(100, int(ui.get("edit_split_gap", 1)))))
+            self.edit_split_gap.setValue(gap_v)
             self.edit_split_gap.blockSignals(False)
-            self.edit_split_gap_val.setText(f"{self.edit_split_gap.value()} px")
+            if hasattr(self, "edit_split_gap_spin"):
+                self.edit_split_gap_spin.blockSignals(True)
+                self.edit_split_gap_spin.setValue(gap_v)
+                self.edit_split_gap_spin.blockSignals(False)
+            self.edit_split_gap_val.setText(f"{gap_v} px")
             self.edit_split_horz.setChecked(bool(ui.get("edit_split_horizontal", False)))
             # v6 LoRA row density
             if hasattr(self, "lora_rows_btn"):
@@ -20714,7 +20976,7 @@ class MainWindow(QMainWindow):
         self.llm_temp_spin.setValue(float(ls.get("temperature") or 0.75))
         self.llm_topp_spin.setValue(float(ls.get("top_p") or 0.92))
         self.llm_sync_cb.setChecked(bool(ls.get("sync_with_model", True)))
-        if self.llm_sync_cb.isChecked() and self._active_model_key in ("anime", "krea"):
+        if self.llm_sync_cb.isChecked() and self._active_model_key in ("anime", "krea", "moss"):
             self._llm_tpl_key = self._active_model_key
         self._load_llm_system_template_ui()
         self.llm_user_edit.setPlainText(str(ls.get("user_input") or ""))
@@ -20750,7 +21012,9 @@ class MainWindow(QMainWindow):
         self.gallery_tab.set_page(int(ui.get("gallery_page") or 0))
         sp = ui.get("splitter")
         if isinstance(sp, list) and len(sp) == 2:
-            self.split.setSizes([max(360, int(sp[0])), max(380, int(sp[1]))])
+            self.split.setSizes([max(224, int(sp[0])), max(280, int(sp[1]))])
+        if hasattr(self, "edit_dfx_haze_swatch"):
+            self._sync_depth_fx_ui()
         self._refresh_key_label()
         self._refresh_fixed_label()
         self._refresh_st_cache()
@@ -20767,7 +21031,7 @@ class MainWindow(QMainWindow):
         self._negatives[self._active_model_key] = self.neg_edit.toPlainText()
         ui = self.settings.get("ui") or {}
         return {
-            "version": 7,
+            "version": 8,
             "prompt": self.prompt_edit.toPlainText(),
             "negatives": dict(self._negatives),
             "negative_visible": self.neg_section.is_expanded(),
@@ -20999,20 +21263,22 @@ class MainWindow(QMainWindow):
         feats = model_features(self.current_model())
         stack = self._current_lora_stack()
         enabled = sum(1 for e in stack if e.get("enabled") and e.get("id"))
+        narrow = bool(getattr(self, "_deck_narrow", False))
+        lbl_lora = f"L:{enabled}/{MAX_ACTIVE_LORAS}" if narrow else f"LoRA {enabled}/{MAX_ACTIVE_LORAS}"
+        self.chip_lora.setText(lbl_lora)
         if enabled > MAX_ACTIVE_LORAS:
-            self.chip_lora.setText(f"LORA {enabled}/{MAX_ACTIVE_LORAS}")
             self.chip_lora.setStyleSheet(f"color: {C['err']}; font-weight: bold;")
             self.chip_lora.setToolTip(
                 f"{enabled} LoRAs enabled — AI Horde accepts at most {MAX_ACTIVE_LORAS} per request; "
                 "only the first 5 will be sent."
             )
         else:
-            self.chip_lora.setText(f"LORA {enabled}/{MAX_ACTIVE_LORAS}")
             self.chip_lora.setStyleSheet("")
             self.chip_lora.setToolTip(
                 "Enabled LoRAs on the active model stack "
                 f"(max {MAX_ACTIVE_LORAS} per request) — click to open the LoRA manager"
             )
+        self.chip_i2i.setText("I2I" if narrow else "Img2Img")
         self.chip_i2i.setVisible(bool(self.img2img_source))
 
     def _insert_highlighted_snippet(self, text: str, color: str, to_negative: bool = False, kind: str = "tag") -> None:
@@ -21264,7 +21530,11 @@ class MainWindow(QMainWindow):
         self.lora_list.set_row_height(h)
         self._schedule_save()
 
-    def _copy_lora_trigger(self) -> None:
+    def _copy_lora_trigger(self, text: Any = None) -> None:
+        if isinstance(text, str) and text.strip():
+            QApplication.clipboard().setText(text)
+            self._flash_summary(f"Trigger copied: {text}")
+            return
         entry = self._lora_detail_entry()
         if entry is None:
             return
@@ -21706,10 +21976,6 @@ class MainWindow(QMainWindow):
             self.lora_status.setText(f"Lookup error: {msg}")
 
         self._run_task(lambda: self.api.civitai_lookup(ident, bool(entry.get("is_version"))), _done, _err)
-
-    def _copy_lora_trigger(self, text: str) -> None:
-        QApplication.clipboard().setText(text)
-        self._flash_summary("Trigger copied to clipboard")
 
     def _insert_lora_trigger(self, text: str, folder_color: str, to_negative: bool) -> None:
         self._insert_highlighted_snippet(text, folder_color, to_negative, "lora")
@@ -22686,7 +22952,18 @@ class MainWindow(QMainWindow):
     def on_image_ready(self, path: str, meta: Dict[str, Any]) -> None:
         # Depth-map attachments: show + refresh badges; no aesthetic scoring
         if meta.get("depth_job"):
-            self.show_image(path)
+            dsrc = str(meta.get("depth_source") or "")
+            if (
+                self.edit_source_path
+                and dsrc
+                and os.path.abspath(dsrc) == os.path.abspath(self.edit_source_path)
+            ):
+                dimg = QImage(path)
+                if not dimg.isNull():
+                    self._edit_set_depth_image(dimg, path)
+                    self._flash_summary(f"Depth map auto-loaded into Depth Studio: {os.path.basename(path)}")
+            else:
+                self.show_image(path)
             self.gallery_tab.mark_dirty()
             self.gallery.refresh(self.store.list_recent())
             self._update_summary()
@@ -23096,6 +23373,7 @@ class MainWindow(QMainWindow):
         EditCanvas.TOOL_CROP: 4,
         EditCanvas.TOOL_ROTATE: 5,
         EditCanvas.TOOL_FLARE: 6,
+        EditCanvas.TOOL_DEPTH: 7,
     }
 
     def _set_edit_tool(self, tool: str) -> None:
@@ -23257,6 +23535,18 @@ class MainWindow(QMainWindow):
         self._edit_push_undo()
         if self.edit_canvas.apply_crop(r):
             self.edit_base = self.edit_canvas.document()
+            self._rebuild_edit_preview_caches()
+            if self.edit_depth_base is not None and not self.edit_depth_base.isNull():
+                dw, dh = self.edit_depth_base.width(), self.edit_depth_base.height()
+                sx, sy = dw / max(1.0, old_w), dh / max(1.0, old_h)
+                dr = QRect(
+                    max(0, int(round(r.left() * sx))),
+                    max(0, int(round(r.top() * sy))),
+                    max(1, int(round(r.width() * sx))),
+                    max(1, int(round(r.height() * sy))),
+                ).intersected(self.edit_depth_base.rect())
+                if not dr.isEmpty():
+                    self._edit_set_depth_image(self.edit_depth_base.copy(dr), self.edit_depth_path, recompute=False)
             new_w = max(1.0, float(self.edit_base.width()))
             new_h = max(1.0, float(self.edit_base.height()))
             if self.edit_flares:
@@ -23306,9 +23596,14 @@ class MainWindow(QMainWindow):
         if abs(self.edit_canvas.rot_angle()) < 0.05:
             self._flash_summary("Set a tilt angle first.")
             return
+        deg_rot = float(self.edit_canvas.rot_angle())
         self._edit_push_undo()
         if self.edit_canvas.apply_rotation():
             self.edit_base = self.edit_canvas.document()
+            self._rebuild_edit_preview_caches()
+            if self.edit_depth_base is not None and not self.edit_depth_base.isNull():
+                rot_d = rotate_qimage_about_center(self.edit_depth_base, deg_rot)
+                self._edit_set_depth_image(rot_d, self.edit_depth_path, recompute=False)
             self._edit_recompute_now()
             self._update_split_info()
             self._flash_summary(
@@ -23390,20 +23685,46 @@ class MainWindow(QMainWindow):
     def _edit_schedule_recompute(self) -> None:
         self._edit_preview_timer.start()
 
+    def _rebuild_edit_preview_caches(self) -> None:
+        """Cache <=960px base & depth images for silky-smooth real-time slider grading on laptops."""
+        if self.edit_base is None or self.edit_base.isNull():
+            self._edit_preview_base = None
+        elif self.edit_base.width() > 960 or self.edit_base.height() > 960:
+            self._edit_preview_base = self.edit_base.scaled(
+                960, 960, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+            )
+        else:
+            self._edit_preview_base = self.edit_base
+        if self.edit_depth_base is None or self.edit_depth_base.isNull():
+            self._edit_preview_depth = None
+        elif self._edit_preview_base is not None:
+            self._edit_preview_depth = self.edit_depth_base.scaled(
+                self._edit_preview_base.size(),
+                Qt.AspectRatioMode.IgnoreAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        else:
+            self._edit_preview_depth = self.edit_depth_base
+
     def _edit_recompute_now(self) -> None:
         if self.edit_base is None or self.edit_base.isNull():
             return
+        if self._edit_preview_base is None:
+            self._rebuild_edit_preview_caches()
+        base_for_preview = self._edit_preview_base or self.edit_base
         mask = None
         if self.edit_scope_mask.isChecked() or self.edit_scope_unmask.isChecked():
             mask = self.edit_canvas.effective_mask()
         preview, skipped = apply_edit_pipeline(
-            self.edit_base, self.edit_adjust,
+            base_for_preview, self.edit_adjust,
             mask=mask,
             invert_mask=self.edit_scope_unmask.isChecked(),
-            max_side=960,
+            max_side=0,
             lut_key=self.edit_lut_key,
             lut_intensity=self.edit_lut_intensity,
             flares=self.edit_flares,
+            depth_img=self._edit_preview_depth,
+            depth_fx=self.edit_depth_fx,
         )
         if skipped and not self._edit_skipped_effects:
             self._edit_skipped_effects = list(skipped)
@@ -23414,21 +23735,35 @@ class MainWindow(QMainWindow):
     def _update_edit_buttons(self) -> None:
         has_doc = self.edit_base is not None and not self.edit_base.isNull()
         has_mask = self.edit_canvas.has_mask()
+        has_depth = self.edit_depth_base is not None and not self.edit_depth_base.isNull()
         self.edit_save_btn.setEnabled(has_doc)
         self.edit_inpaint_btn.setEnabled(has_doc and has_mask)
         self.edit_split_save_btn.setEnabled(has_doc)
+        depth_active = has_depth and depth_fx_active(self.edit_depth_fx)
         grade_active = (
             edit_adjustments_active(self.edit_adjust)
             or (bool(self.edit_lut_key) and self.edit_lut_intensity > 0)
             or bool(self.edit_flares)
+            or depth_active
             or self.edit_canvas.has_paint()
         )
         self.edit_apply_btn.setEnabled(
-            has_doc and (self.edit_canvas.has_paint() or (grade_active and (self.edit_scope_full.isChecked() or has_mask)))
+            has_doc and (
+                self.edit_canvas.has_paint()
+                or depth_active
+                or bool(self.edit_flares)
+                or (grade_active and (self.edit_scope_full.isChecked() or has_mask))
+            )
         )
         self.edit_compare_btn.setEnabled(has_doc)
         if hasattr(self, "edit_split_cmp_btn"):
             self.edit_split_cmp_btn.setEnabled(has_doc)
+        if hasattr(self, "edit_depth_controls_wrap"):
+            self.edit_depth_controls_wrap.setEnabled(has_doc and has_depth)
+        if hasattr(self, "edit_depth_clear_btn"):
+            self.edit_depth_clear_btn.setEnabled(has_depth)
+        if hasattr(self, "edit_depth_gen_btn"):
+            self.edit_depth_gen_btn.setEnabled(has_doc and bool(self.edit_source_path))
 
     def _on_edit_mask_changed(self) -> None:
         cov = self.edit_canvas.mask_coverage_value()
@@ -23462,10 +23797,17 @@ class MainWindow(QMainWindow):
         if not path:
             self.edit_source_path = None
             self.edit_base = None
+            self._edit_preview_base = None
+            self._edit_set_depth_image(None, None, recompute=False)
             self.edit_undo_stack.clear()
+            self.edit_redo_stack.clear()
+            self._edit_depth_undo_stack.clear()
+            self._edit_depth_redo_stack.clear()
             self.edit_undo_btn.setEnabled(False)
+            if hasattr(self, "edit_redo_btn"):
+                self.edit_redo_btn.setEnabled(False)
             self.edit_canvas.set_document(None)
-            self.edit_source_caption.setText("Open an image (viewer, gallery context menu, OPEN\u2026, or drop it).")
+            self.edit_source_caption.setText("Open an image via From Viewer, Open\u2026, gallery menu, or drop onto stage.")
             self._update_edit_stage()
             self._update_edit_buttons()
             return
@@ -23503,13 +23845,22 @@ class MainWindow(QMainWindow):
         self.edit_rot_slider.blockSignals(True)
         self.edit_rot_slider.setValue(0)
         self.edit_rot_slider.blockSignals(False)
+        self._edit_depth_undo_stack.clear()
+        self._edit_depth_redo_stack.clear()
         self.edit_canvas.set_document(img)
+        self._rebuild_edit_preview_caches()
+        if has_depth_map(path):
+            dpath = depth_path_for(path)
+            dimg = QImage(dpath)
+            self._edit_set_depth_image(dimg if not dimg.isNull() else None, dpath if not dimg.isNull() else None, recompute=False)
+        else:
+            self._edit_set_depth_image(None, None, recompute=False)
         self._sync_paint_swatch()
         self._sync_poly_labels()
         self._on_edit_crop_changed()
         self.edit_source_caption.setText(
             f"Editing: {os.path.basename(path)}  ({img.width()}\u00d7{img.height()})\u2003"
-            f"grade \u2192 optionally mask \u2192 APPLY \u2192 SAVE AS NEW"
+            f"grade / depth FX \u2192 optionally mask \u2192 APPLY \u2192 SAVE AS NEW"
         )
         if hasattr(self, "edit_stage_doc_lbl"):
             self.edit_stage_doc_lbl.setText(
@@ -23519,6 +23870,7 @@ class MainWindow(QMainWindow):
         self._edit_recompute_now()
         self.tabs.setCurrentIndex(TAB_EDIT)
         self._update_edit_stage()
+        self._on_edit_subtab_changed(self.edit_subtabs.currentIndex())
 
     # ---- Edit stage visibility (full-size editor in the viewer area) --------
     def _on_left_tab_changed(self, idx: int) -> None:
@@ -23564,9 +23916,15 @@ class MainWindow(QMainWindow):
         px = max(1, self.edit_base.width() * self.edit_base.height())
         max_states = max(2, min(10, int(160 * 1024 * 1024 // (px * 4))))
         self.edit_undo_stack.append(self.edit_base.copy())
+        self._edit_depth_undo_stack.append(
+            self.edit_depth_base.copy() if (self.edit_depth_base is not None and not self.edit_depth_base.isNull()) else None
+        )
         self.edit_redo_stack.clear()
+        self._edit_depth_redo_stack.clear()
         while len(self.edit_undo_stack) > max_states:
             self.edit_undo_stack.pop(0)
+            if self._edit_depth_undo_stack:
+                self._edit_depth_undo_stack.pop(0)
         self.edit_undo_btn.setEnabled(True)
         if hasattr(self, "edit_redo_btn"):
             self.edit_redo_btn.setEnabled(False)
@@ -23576,12 +23934,18 @@ class MainWindow(QMainWindow):
             return
         if self.edit_base is not None:
             self.edit_redo_stack.append(self.edit_base.copy())
+            self._edit_depth_redo_stack.append(
+                self.edit_depth_base.copy() if (self.edit_depth_base is not None and not self.edit_depth_base.isNull()) else None
+            )
         self.edit_base = self.edit_undo_stack.pop()
+        prev_depth = self._edit_depth_undo_stack.pop() if self._edit_depth_undo_stack else self.edit_depth_base
         self.edit_canvas.set_document(self.edit_base)
+        self._edit_set_depth_image(prev_depth, self.edit_depth_path if prev_depth is not None else None, recompute=False)
         self.edit_undo_btn.setEnabled(bool(self.edit_undo_stack))
         if hasattr(self, "edit_redo_btn"):
             self.edit_redo_btn.setEnabled(bool(self.edit_redo_stack))
         self._edit_recompute_now()
+        self._update_split_info()
         self._flash_summary("Editor: undo applied")
 
     def edit_redo(self) -> None:
@@ -23589,12 +23953,18 @@ class MainWindow(QMainWindow):
             return
         if self.edit_base is not None:
             self.edit_undo_stack.append(self.edit_base.copy())
+            self._edit_depth_undo_stack.append(
+                self.edit_depth_base.copy() if (self.edit_depth_base is not None and not self.edit_depth_base.isNull()) else None
+            )
         self.edit_base = self.edit_redo_stack.pop()
+        next_depth = self._edit_depth_redo_stack.pop() if self._edit_depth_redo_stack else self.edit_depth_base
         self.edit_canvas.set_document(self.edit_base)
+        self._edit_set_depth_image(next_depth, self.edit_depth_path if next_depth is not None else None, recompute=False)
         self.edit_undo_btn.setEnabled(bool(self.edit_undo_stack))
         if hasattr(self, "edit_redo_btn"):
             self.edit_redo_btn.setEnabled(bool(self.edit_redo_stack))
         self._edit_recompute_now()
+        self._update_split_info()
         self._flash_summary("Editor: redo applied")
 
     def edit_auto_enhance(self) -> None:
@@ -23635,6 +24005,8 @@ class MainWindow(QMainWindow):
             lut_key=self.edit_lut_key,
             lut_intensity=self.edit_lut_intensity,
             flares=self.edit_flares,
+            depth_img=self.edit_depth_base,
+            depth_fx=self.edit_depth_fx,
         )
         # retouch strokes are baked in the same pass (what you see is what is
         # applied); the stroke layer is cleared with the fresh document below
@@ -23663,9 +24035,11 @@ class MainWindow(QMainWindow):
         self.edit_flares = []
         self._edit_flare_sel = -1
         self._sync_flare_ui()
+        self._edit_reset_depth_fx(recompute=False)
+        self._rebuild_edit_preview_caches()
         self._edit_recompute_now()
         self._update_split_info()
-        self._flash_summary("Grade baked into the image — mask, LUT and flares cleared.")
+        self._flash_summary("Grade, Depth FX, LUT & flares baked into the image.")
         STUDIO_LOG.ok("SYS", "Editor: adjustments + LUT + flares applied")
 
     # ---- Cinematic LUT grade handlers ----------------------------------------
@@ -23976,6 +24350,339 @@ class MainWindow(QMainWindow):
         self._update_edit_buttons()
 
     # ---- Split Studio handlers -------------------------------------------------
+    # ---- Edit Subtabs, Depth Studio (v8.0) & Live Split Guide Handlers -------
+    def _on_edit_subtab_changed(self, idx: int) -> None:
+        if not hasattr(self, "edit_canvas"):
+            return
+        if idx == 3:
+            show_split = bool(hasattr(self, "edit_split_live_btn") and self.edit_split_live_btn.isChecked())
+            self.edit_canvas.set_split_guide(show_split, self._split_vertical(), int(self.edit_split_gap.value()))
+            if hasattr(self, "edit_stage_split_btn"):
+                self.edit_stage_split_btn.blockSignals(True)
+                self.edit_stage_split_btn.setChecked(show_split)
+                self.edit_stage_split_btn.blockSignals(False)
+        elif not self._edit_split_guide_pinned:
+            self.edit_canvas.set_split_guide(False, self._split_vertical(), int(self.edit_split_gap.value()))
+            if hasattr(self, "edit_stage_split_btn"):
+                self.edit_stage_split_btn.blockSignals(True)
+                self.edit_stage_split_btn.setChecked(False)
+                self.edit_stage_split_btn.blockSignals(False)
+        if idx == 2:
+            if (
+                self.edit_depth_base is not None
+                and hasattr(self, "edit_dmask_live_cb")
+                and self.edit_dmask_live_cb.isChecked()
+            ):
+                self._refresh_depth_mask_preview()
+        else:
+            self.edit_canvas.set_depth_mask_preview(None)
+
+    def _edit_set_depth_image(
+        self,
+        img: Optional[QImage],
+        path: Optional[str] = None,
+        recompute: bool = True,
+    ) -> None:
+        valid = img is not None and not img.isNull()
+        self.edit_depth_base = img.copy() if valid else None
+        self.edit_depth_path = path if valid else None
+        self._rebuild_edit_preview_caches()
+        inv = bool(self.edit_depth_fx.get("invert_polarity", False))
+        if hasattr(self, "edit_canvas"):
+            self.edit_canvas.set_depth_probe_source(self.edit_depth_base, invert_polarity=inv)
+        if hasattr(self, "edit_depth_status_chip"):
+            if valid:
+                self.edit_depth_status_chip.setText(
+                    f"DEPTH {self.edit_depth_base.width()}\u00d7{self.edit_depth_base.height()}"
+                )
+            else:
+                self.edit_depth_status_chip.setText("NO DEPTH")
+        if not valid and hasattr(self, "edit_canvas"):
+            self.edit_canvas.set_depth_overlay(None)
+            self.edit_canvas.set_depth_mask_preview(None)
+            if hasattr(self, "edit_stage_depth_btn"):
+                self.edit_stage_depth_btn.blockSignals(True)
+                self.edit_stage_depth_btn.setChecked(False)
+                self.edit_stage_depth_btn.blockSignals(False)
+            if hasattr(self, "edit_depth_vis_combo"):
+                self.edit_depth_vis_combo.blockSignals(True)
+                self.edit_depth_vis_combo.setCurrentIndex(0)
+                self.edit_depth_vis_combo.blockSignals(False)
+            self.edit_depth_vis_mode = "off"
+        else:
+            self._refresh_depth_vis_overlay()
+            if (
+                hasattr(self, "edit_subtabs")
+                and self.edit_subtabs.currentIndex() == 2
+                and hasattr(self, "edit_dmask_live_cb")
+                and self.edit_dmask_live_cb.isChecked()
+            ):
+                self._refresh_depth_mask_preview()
+        self._update_edit_buttons()
+        if recompute:
+            self._edit_recompute_now()
+
+    def _edit_generate_depth(self) -> None:
+        if not self.edit_source_path or not os.path.isfile(self.edit_source_path):
+            self._flash_summary("Open an image from Viewer or disk first to generate its depth map.")
+            return
+        self.request_depth_map(self.edit_source_path)
+        if hasattr(self, "edit_depth_status_chip"):
+            self.edit_depth_status_chip.setText("GENERATING\u2026")
+
+    def _edit_load_depth_file(self) -> None:
+        if self.edit_base is None or self.edit_base.isNull():
+            self._flash_summary("Open an image to edit before loading a depth map.")
+            return
+        start_dir = os.path.dirname(self.edit_source_path) if self.edit_source_path else OUTPUT_DIR
+        path, _f = QFileDialog.getOpenFileName(
+            self, "Load Depth Map Image", start_dir, "Images (*.png *.webp *.jpg *.jpeg)"
+        )
+        if not path:
+            return
+        dimg = QImage(path)
+        if dimg.isNull():
+            self._flash_summary(f"Cannot decode depth map: {os.path.basename(path)}")
+            return
+        self._edit_set_depth_image(dimg, path, recompute=True)
+        self._flash_summary(f"Depth map loaded: {os.path.basename(path)}")
+        STUDIO_LOG.ok("SYS", f"Depth Studio: loaded {os.path.basename(path)}")
+
+    def _edit_clear_depth(self) -> None:
+        self._edit_set_depth_image(None, None, recompute=True)
+        self._flash_summary("Depth map detached from editor session.")
+
+    def _refresh_depth_vis_overlay(self) -> None:
+        if not hasattr(self, "edit_canvas"):
+            return
+        if self.edit_depth_base is None or self.edit_depth_base.isNull() or self.edit_depth_vis_mode == "off":
+            self.edit_canvas.set_depth_overlay(None)
+            return
+        ov = build_depth_visualization(
+            self._edit_preview_depth or self.edit_depth_base,
+            vis_mode=self.edit_depth_vis_mode,
+            focus_pct=float(self.edit_depth_fx.get("dof_focus", 68)),
+            band_pct=float(self.edit_depth_fx.get("dof_aperture", 24)),
+            invert_polarity=bool(self.edit_depth_fx.get("invert_polarity", False)),
+            auto_norm=bool(self.edit_depth_fx.get("auto_norm", True)),
+            max_side=960,
+        )
+        self.edit_canvas.set_depth_overlay(ov, opacity=self.edit_depth_vis_opacity / 100.0)
+
+    def _on_depth_vis_changed(self, *_args) -> None:
+        mode = str(self.edit_depth_vis_combo.currentData() or "off")
+        op = int(self.edit_depth_vis_op_sl.value())
+        self.edit_depth_vis_mode = mode
+        self.edit_depth_vis_opacity = op
+        self.edit_depth_vis_op_val.setText(f"{op}%")
+        if hasattr(self, "edit_stage_depth_btn"):
+            self.edit_stage_depth_btn.blockSignals(True)
+            self.edit_stage_depth_btn.setChecked(mode != "off" and self.edit_depth_base is not None)
+            self.edit_stage_depth_btn.blockSignals(False)
+        self._refresh_depth_vis_overlay()
+
+    def _toggle_stage_depth_vis(self, on: bool) -> None:
+        if on and (self.edit_depth_base is None or self.edit_depth_base.isNull()):
+            self.edit_stage_depth_btn.blockSignals(True)
+            self.edit_stage_depth_btn.setChecked(False)
+            self.edit_stage_depth_btn.blockSignals(False)
+            self._flash_summary("No depth map loaded — click Depth Studio \u2192 Generate or Load\u2026")
+            return
+        target = "turbo" if on else "off"
+        ix = self.edit_depth_vis_combo.findData(target)
+        if ix >= 0:
+            self.edit_depth_vis_combo.setCurrentIndex(ix)
+        else:
+            self.edit_depth_vis_mode = target
+            self._refresh_depth_vis_overlay()
+
+    def _on_depth_polarity_toggled(self, *_args) -> None:
+        inv = bool(self.edit_depth_invert_cb.isChecked())
+        anorm = bool(self.edit_depth_autonorm_cb.isChecked())
+        self.edit_depth_mask_params["invert_polarity"] = inv
+        self.edit_depth_mask_params["auto_norm"] = anorm
+        self.edit_depth_fx["invert_polarity"] = inv
+        self.edit_depth_fx["auto_norm"] = anorm
+        if hasattr(self, "edit_canvas"):
+            self.edit_canvas.set_depth_probe_source(self.edit_depth_base, invert_polarity=inv)
+        self._refresh_depth_vis_overlay()
+        if (
+            self.edit_depth_base is not None
+            and self.edit_subtabs.currentIndex() == 2
+            and self.edit_dmask_live_cb.isChecked()
+        ):
+            self._refresh_depth_mask_preview()
+        self._edit_schedule_recompute()
+
+    def _refresh_depth_mask_preview(self) -> None:
+        if not hasattr(self, "edit_canvas"):
+            return
+        if self.edit_depth_base is None or self.edit_depth_base.isNull():
+            self.edit_canvas.set_depth_mask_preview(None)
+            return
+        src_d = self._edit_preview_depth or self.edit_depth_base
+        dm = build_depth_mask(src_d, self.edit_depth_mask_params)
+        self.edit_canvas.set_depth_mask_preview(dm)
+
+    def _on_depth_mask_param_changed(self, key: Optional[str] = None, suf: str = "") -> None:
+        for mk, btn in self.edit_dmask_mode_btns.items():
+            if btn.isChecked():
+                self.edit_depth_mask_params["mode"] = mk
+                break
+        if key and key in self.edit_dmask_sliders:
+            v = int(self.edit_dmask_sliders[key].value())
+            self.edit_depth_mask_params[key] = v
+            if key in self.edit_dmask_vals:
+                self.edit_dmask_vals[key].setText(f"{v}{suf}")
+        else:
+            for dk, sl in self.edit_dmask_sliders.items():
+                self.edit_depth_mask_params[dk] = int(sl.value())
+        if self.edit_dmask_live_cb.isChecked() and self.edit_depth_base is not None:
+            self._refresh_depth_mask_preview()
+
+    def _on_depth_mask_live_toggled(self, on: bool) -> None:
+        self.edit_depth_mask_live = bool(on)
+        if on and self.edit_depth_base is not None:
+            self._refresh_depth_mask_preview()
+        elif hasattr(self, "edit_canvas"):
+            self.edit_canvas.set_depth_mask_preview(None)
+
+    def _edit_commit_depth_mask(self, mode: str = "replace") -> None:
+        if self.edit_base is None or self.edit_depth_base is None or self.edit_depth_base.isNull():
+            self._flash_summary("Generate or load a depth map first.")
+            return
+        target_sz = (self.edit_base.width(), self.edit_base.height())
+        dm = build_depth_mask(self.edit_depth_base, self.edit_depth_mask_params, target_size=target_sz)
+        if dm is None:
+            return
+        if self.edit_canvas.apply_depth_mask_into_mask(dm, blend_mode=mode):
+            if self.edit_scope_full.isChecked():
+                self.edit_scope_mask.setChecked(True)
+            self._flash_summary(f"Depth mask applied ({mode}) \u2014 undoable with Ctrl+Z")
+            STUDIO_LOG.ok("SYS", f"Depth Studio: mask committed ({mode})")
+
+    def _sync_depth_fx_ui(self) -> None:
+        fx = self.edit_depth_fx
+        suffixes = {"rim_width": "px", "fg_pop": "", "bg_dim": "", "bg_cool": ""}
+        for fk, sl in getattr(self, "edit_dfx_sliders", {}).items():
+            v = int(fx.get(fk, 0))
+            sl.blockSignals(True)
+            sl.setValue(v)
+            sl.blockSignals(False)
+            if fk in self.edit_dfx_vals:
+                self.edit_dfx_vals[fk].setText(f"{v}{suffixes.get(fk, '%')}")
+        if hasattr(self, "edit_dfx_rim_dir"):
+            ix = self.edit_dfx_rim_dir.findData(str(fx.get("rim_dir", "top_left")))
+            if ix >= 0:
+                self.edit_dfx_rim_dir.blockSignals(True)
+                self.edit_dfx_rim_dir.setCurrentIndex(ix)
+                self.edit_dfx_rim_dir.blockSignals(False)
+        for col_key, btn_attr in (
+            ("haze_color", "edit_dfx_haze_swatch"),
+            ("rim_color", "edit_dfx_rim_swatch"),
+        ):
+            btn = getattr(self, btn_attr, None)
+            if btn is not None:
+                hx = str(fx.get(col_key, "#3b6ea5"))
+                btn.setStyleSheet(f"QToolButton {{ background: {hx}; border: 1px solid #b8c4d4; border-radius: 2px; }}")
+                btn.setToolTip(f"{col_key.replace('_', ' ').title()}: {hx} (click to pick)")
+
+    def _on_depth_preset_apply(self) -> None:
+        pkey = str(self.edit_dfx_preset_combo.currentData() or "")
+        preset = DEPTH_FX_PRESET_BY_KEY.get(pkey)
+        if not preset:
+            return
+        inv = bool(self.edit_depth_invert_cb.isChecked())
+        anorm = bool(self.edit_depth_autonorm_cb.isChecked())
+        fx = default_depth_fx()
+        fx.update(preset.get("fx") or {})
+        fx["invert_polarity"] = inv
+        fx["auto_norm"] = anorm
+        self.edit_depth_fx = fx
+        self._sync_depth_fx_ui()
+        if self.edit_depth_vis_mode == "focus_band":
+            self._refresh_depth_vis_overlay()
+        self._edit_recompute_now()
+        self._flash_summary(f"Depth Preset applied: {preset['name']}")
+
+    def _edit_reset_depth_fx(self, recompute: bool = True) -> None:
+        inv = bool(self.edit_depth_invert_cb.isChecked()) if hasattr(self, "edit_depth_invert_cb") else False
+        anorm = bool(self.edit_depth_autonorm_cb.isChecked()) if hasattr(self, "edit_depth_autonorm_cb") else True
+        fx = default_depth_fx()
+        fx["invert_polarity"] = inv
+        fx["auto_norm"] = anorm
+        self.edit_depth_fx = fx
+        self._sync_depth_fx_ui()
+        if recompute:
+            self._edit_recompute_now()
+            self._flash_summary("Depth Post-FX reset to neutral.")
+
+    def _on_depth_fx_slider(self, key: str, value: int, suf: str = "") -> None:
+        self.edit_depth_fx[key] = int(value)
+        if key in self.edit_dfx_vals:
+            self.edit_dfx_vals[key].setText(f"{int(value)}{suf}")
+        if key in ("dof_focus", "dof_aperture") and self.edit_depth_vis_mode == "focus_band":
+            self._refresh_depth_vis_overlay()
+        self._edit_schedule_recompute()
+
+    def _on_depth_rim_dir_changed(self, *_args) -> None:
+        self.edit_depth_fx["rim_dir"] = str(self.edit_dfx_rim_dir.currentData() or "top_left")
+        self._edit_schedule_recompute()
+
+    def _pick_depth_color(self, key: str) -> None:
+        cur = QColor(str(self.edit_depth_fx.get(key, "#3b6ea5")))
+        col = QColorDialog.getColor(cur, self, f"Pick {key.replace('_', ' ').title()}")
+        if col.isValid():
+            self._set_depth_color(key, col.name())
+
+    def _set_depth_color(self, key: str, hex_col: str) -> None:
+        self.edit_depth_fx[key] = str(hex_col)
+        self._sync_depth_fx_ui()
+        self._edit_schedule_recompute()
+
+    def _on_edit_depth_sampled(self, depth_pct: float) -> None:
+        val = max(0, min(100, int(round(float(depth_pct)))))
+        if "threshold" in self.edit_dmask_sliders:
+            self.edit_dmask_sliders["threshold"].setValue(val)
+        if "dof_focus" in self.edit_dfx_sliders:
+            self.edit_dfx_sliders["dof_focus"].setValue(val)
+        if hasattr(self, "edit_stage_depth_sample_lbl"):
+            self.edit_stage_depth_sample_lbl.setText(f"Sampled Depth: {depth_pct:.1f}%  (Focus & Mask Threshold synced)")
+        self._flash_summary(f"Depth sampled: {depth_pct:.1f}% \u2014 Bokeh Focus Plane & Mask Threshold synced")
+
+    def _on_split_live_toggled(self, on: bool) -> None:
+        vis = bool(on)
+        if hasattr(self, "edit_stage_split_btn"):
+            self.edit_stage_split_btn.blockSignals(True)
+            self.edit_stage_split_btn.setChecked(vis)
+            self.edit_stage_split_btn.blockSignals(False)
+        self.edit_canvas.set_split_guide(vis, self._split_vertical(), int(self.edit_split_gap.value()))
+
+    def _toggle_stage_split_guide(self, on: bool) -> None:
+        vis = bool(on)
+        self._edit_split_guide_pinned = vis
+        if hasattr(self, "edit_split_live_btn"):
+            self.edit_split_live_btn.blockSignals(True)
+            self.edit_split_live_btn.setChecked(vis)
+            self.edit_split_live_btn.blockSignals(False)
+        self.edit_canvas.set_split_guide(vis, self._split_vertical(), int(self.edit_split_gap.value()))
+
+    def _on_split_gap_slider_changed(self, v: int) -> None:
+        iv = max(0, min(200, int(v)))
+        if hasattr(self, "edit_split_gap_spin") and self.edit_split_gap_spin.value() != iv:
+            self.edit_split_gap_spin.blockSignals(True)
+            self.edit_split_gap_spin.setValue(iv)
+            self.edit_split_gap_spin.blockSignals(False)
+        self._on_split_params_changed()
+
+    def _on_split_gap_spin_changed(self, v: int) -> None:
+        iv = max(0, min(200, int(v)))
+        if hasattr(self, "edit_split_gap") and self.edit_split_gap.value() != iv:
+            self.edit_split_gap.blockSignals(True)
+            self.edit_split_gap.setValue(iv)
+            self.edit_split_gap.blockSignals(False)
+        self._on_split_params_changed()
+
     def _split_vertical(self) -> bool:
         return self.edit_split_vert.isChecked()
 
@@ -23993,11 +24700,16 @@ class MainWindow(QMainWindow):
             lut_key=self.edit_lut_key,
             lut_intensity=self.edit_lut_intensity,
             flares=self.edit_flares,
+            depth_img=self.edit_depth_base,
+            depth_fx=self.edit_depth_fx,
         )
         return split_image_halves(full, self._split_vertical(), int(self.edit_split_gap.value()))
 
     def _on_split_params_changed(self) -> None:
-        self.edit_split_gap_val.setText(f"{self.edit_split_gap.value()} px")
+        gap = int(self.edit_split_gap.value())
+        self.edit_split_gap_val.setText(f"{gap} px")
+        if hasattr(self, "edit_canvas") and self.edit_canvas.is_split_guide_visible():
+            self.edit_canvas.set_split_guide(True, self._split_vertical(), gap)
         self._update_split_info()
         self._schedule_save()
 
@@ -24114,7 +24826,8 @@ class MainWindow(QMainWindow):
             return
         was_masked = self.edit_canvas.has_mask() and not self.edit_scope_full.isChecked()
         working = self._edit_working_image() or self.edit_base
-        if was_masked or edit_adjustments_active(self.edit_adjust) or self.edit_lut_key or self.edit_flares:
+        depth_on = self.edit_depth_base is not None and depth_fx_active(self.edit_depth_fx)
+        if was_masked or edit_adjustments_active(self.edit_adjust) or self.edit_lut_key or self.edit_flares or depth_on:
             self._edit_push_undo()
             img, _sk = apply_edit_pipeline(
                 working, self.edit_adjust,
@@ -24123,6 +24836,8 @@ class MainWindow(QMainWindow):
                 lut_key=self.edit_lut_key,
                 lut_intensity=self.edit_lut_intensity,
                 flares=self.edit_flares,
+                depth_img=self.edit_depth_base,
+                depth_fx=self.edit_depth_fx,
             )
         else:
             img = working
@@ -24704,44 +25419,72 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------ Theme & Small UI Reactions
     def _apply_theme_chrome(self, scale: float = 1.0) -> None:
+        s = max(0.75, min(1.40, float(scale)))
         app = QApplication.instance()
         if isinstance(app, QApplication):
             apply_palette(app)
-            app.setStyleSheet(build_stylesheet(scale))
+            app.setStyleSheet(build_stylesheet(s))
         self.setWindowIcon(VECTOR_ASSETS.icon("app_emblem", 32))
-        # v3.2: tab icons scale up with the UI font scale and FILL the whole
-        # interactive tab element (aspect preserved, razor-thin margins) —
-        # from a crisp 20px at 85% up to a lush 32px at 135%.
-        px = tab_icon_px(scale)
+        px = tab_icon_px(s)
         self._tab_icon_px = px
         if hasattr(self, "tabs"):
             self.tabs.setIconSize(QSize(px, px))
-            # Fixed-height rail: the tab rects fill the whole bar, so the icon
-            # occupies ~75-80% of the interactive tab element (aspect kept).
-            self.tabs.tabBar().setFixedHeight(tab_rail_height(scale))
+            bar = self.tabs.tabBar()
+            if isinstance(bar, _AutoFitIconTabBar):
+                bar.set_rail_height(tab_rail_height(s, px))
+            else:
+                bar.setFixedHeight(tab_rail_height(s, px))
             self._sync_tab_rail_width()
+        for hdr in self.findChildren(SectionHeader):
+            hdr.apply_scale(s)
+        for ab in self.findChildren(AspectButton):
+            ab.setMinimumHeight(max(26, int(round(32 * s))))
+        if hasattr(self, "gallery"):
+            self.gallery.setFixedHeight(max(52, min(84, int(round(64 * s)))))
+        self._sync_deck_and_viewer_density()
         self._refresh_theme_icons()
 
     def _refresh_theme_icons(self) -> None:
-        """Re-apply every themed vector icon after a live theme switch (v2 left
-        tab icons stuck in the old theme — fixed here)."""
+        """Re-apply EVERY themed vector icon and repaint custom chrome after a live theme switch."""
         px = int(getattr(self, "_tab_icon_px", 20))
         if hasattr(self, "tabs"):
             for idx, (icon_key, _name, _tip) in enumerate(self._tab_specs):
                 self.tabs.setTabIcon(idx, VECTOR_ASSETS.icon(icon_key, px))
+            self.tabs.tabBar().update()
         self._sync_theme_btn()
-        if hasattr(self, "hist_btn"):
-            self.hist_btn.setIcon(VECTOR_ASSETS.icon("history", 14))
-        if hasattr(self, "batch_btn"):
-            self.batch_btn.setIcon(VECTOR_ASSETS.icon("batch", 13))
+        for attr, ik, sz in (
+            ("hist_btn", "history", 14),
+            ("batch_btn", "batch", 13),
+            ("edit_inpaint_btn", "brush", 13),
+            ("edit_split_save_btn", "split", 13),
+            ("edit_split_cmp_btn", "compare", 13),
+            ("edit_flare_dup_btn", "duplicate", 12),
+            ("edit_flare_reset_btn", "reset", 12),
+            ("edit_stage_flare_dup", "duplicate", 12),
+            ("edit_save_btn", "image", 13),
+            ("edit_undo_btn", "history", 13),
+            ("edit_redo_btn", "redo", 13),
+            ("edit_auto_btn", "auto_fix", 13),
+            ("edit_reset_adj_btn", "reset", 12),
+            ("edit_flare_add_btn", "flare_add", 13),
+            ("edit_stage_flare_add", "flare_add", 12),
+            ("edit_flare_solo_btn", "solo", 12),
+            ("edit_depth_gen_btn", "depth", 13),
+            ("edit_depth_pick_btn", "depth_pick", 13),
+            ("edit_stage_depth_btn", "depth", 13),
+            ("edit_stage_depth_gen_btn", "depth", 12),
+            ("edit_stage_split_btn", "split_line", 13),
+            ("edit_split_live_btn", "split_line", 12),
+            ("edit_dfx_preset_apply", "preset", 12),
+            ("edit_dfx_reset_btn", "reset", 12),
+        ):
+            w = getattr(self, attr, None)
+            if w is not None:
+                w.setIcon(VECTOR_ASSETS.icon(ik, sz))
         if hasattr(self, "llm_vision_run_btn"):
             self.llm_vision_run_btn.setIcon(
                 VECTOR_ASSETS.icon("film" if self._llm_vision_task == "motion" else "eye", 13)
             )
-        if hasattr(self, "edit_inpaint_btn"):
-            self.edit_inpaint_btn.setIcon(VECTOR_ASSETS.icon("brush", 13))
-        if hasattr(self, "edit_split_save_btn"):
-            self.edit_split_save_btn.setIcon(VECTOR_ASSETS.icon("split", 13))
         if hasattr(self, "theme_combo"):
             for i, tkey in enumerate(THEME_ORDER):
                 if i < self.theme_combo.count():
@@ -24754,32 +25497,24 @@ class MainWindow(QMainWindow):
         if hasattr(self, "edit_mask_vis_btn"):
             vis = self.edit_mask_vis_btn.isChecked()
             self.edit_mask_vis_btn.setIcon(VECTOR_ASSETS.icon("eye" if vis else "eye_off", 13))
-        if hasattr(self, "edit_split_cmp_btn"):
-            self.edit_split_cmp_btn.setIcon(VECTOR_ASSETS.icon("compare", 13))
         if hasattr(self, "edit_flare_dup_btn"):
-            self.edit_flare_dup_btn.setIcon(VECTOR_ASSETS.icon("duplicate", 12))
-            self.edit_flare_reset_btn.setIcon(VECTOR_ASSETS.icon("reset", 12))
-            self.edit_stage_flare_dup.setIcon(VECTOR_ASSETS.icon("duplicate", 12))
             self._sync_flare_sliders()
-        if hasattr(self, "edit_save_btn"):
-            self.edit_save_btn.setIcon(VECTOR_ASSETS.icon("image", 13))
-        if hasattr(self, "edit_undo_btn"):
-            self.edit_undo_btn.setIcon(VECTOR_ASSETS.icon("history", 13))
-        if hasattr(self, "edit_redo_btn"):
-            self.edit_redo_btn.setIcon(VECTOR_ASSETS.icon("redo", 13))
-        if hasattr(self, "edit_auto_btn"):
-            self.edit_auto_btn.setIcon(VECTOR_ASSETS.icon("auto_fix", 13))
-        if hasattr(self, "edit_flare_add_btn"):
-            self.edit_flare_add_btn.setIcon(VECTOR_ASSETS.icon("flare_add", 13))
-        if hasattr(self, "edit_stage_flare_add"):
-            self.edit_stage_flare_add.setIcon(VECTOR_ASSETS.icon("flare_add", 12))
-        if hasattr(self, "edit_flare_solo_btn"):
-            self.edit_flare_solo_btn.setIcon(VECTOR_ASSETS.icon("solo", 12))
-        if hasattr(self, "edit_canvas"):
-            self.edit_canvas.update()
-        self.gallery_tab.view.viewport().update()
-        self.gallery.viewport().update()
-        self.viewer._canvas.update()
+        for w_rep in (
+            getattr(self, "edit_canvas", None),
+            getattr(self, "gen_btn", None),
+            getattr(self, "aspect", None),
+            self.gallery_tab.view.viewport(),
+            self.gallery.viewport(),
+            self.viewer._canvas,
+        ):
+            if w_rep is not None:
+                w_rep.update()
+        for deck_w in self.findChildren(BevelDeck):
+            deck_w.update()
+        for sh_w in self.findChildren(SectionHeader):
+            sh_w.update()
+        for fc_w in self.findChildren(FolderChipButton):
+            fc_w.update()
 
     def _toggle_theme(self) -> None:
         idx = THEME_ORDER.index(theme_name())
@@ -24793,13 +25528,20 @@ class MainWindow(QMainWindow):
     def _adjust_scale(self, delta: float) -> None:
         ui = self.settings.setdefault("ui", {})
         cur = float(ui.get("font_scale") or 1.0)
-        new = max(0.85, min(1.35, round(cur + delta, 2)))
+        new = max(0.75, min(1.40, round(cur + delta, 2)))
         if abs(new - cur) < 1e-3:
             return
         ui["font_scale"] = new
         self._apply_theme_chrome(new)
         self._schedule_save()
-        self._flash_summary(f"Font scale: {new:.2f}")
+        self._flash_summary(f"UI Scale: {int(round(new * 100))}%  (Ctrl+0 resets)")
+
+    def _reset_scale(self) -> None:
+        ui = self.settings.setdefault("ui", {})
+        ui["font_scale"] = 1.0
+        self._apply_theme_chrome(1.0)
+        self._schedule_save()
+        self._flash_summary("UI Scale reset to 100%")
 
     def _toggle_fullscreen(self) -> None:
         self._fullscreen = not self._fullscreen
@@ -25145,13 +25887,23 @@ def main() -> int:
     app.setApplicationVersion(APP_VERSION)
     app.setStyle("Fusion")
     win = MainWindow()
-    win.resize(1024, 680)
+    scr = QGuiApplication.primaryScreen()
+    if scr is not None:
+        av = scr.availableGeometry()
+        init_w = max(640, min(1100, av.width() - 24))
+        init_h = max(460, min(700, av.height() - 36))
+        win.resize(init_w, init_h)
+        win.move(
+            av.left() + max(0, (av.width() - init_w) // 2),
+            av.top() + max(0, (av.height() - init_h) // 2),
+        )
+    else:
+        win.resize(1024, 680)
     win.show()
+    QTimer.singleShot(0, win._on_workspace_resized)
     return app.exec()
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
-
 
