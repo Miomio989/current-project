@@ -1,79 +1,122 @@
-Update the app:
-- the default vaue for a new lora being added must be 1, not 0.8
-- implement copying of image's content into clipboard from inside the viewer
-- remove the token from the userscript bridge: connection itself is enough, NO token feature shall exist.
-- check why it can't see the browser script and update both to ensure compatibility and flawless work (for browser VPN extension, to send request through it).
+Check why "sending to horde" for img2img (image input) is stalling and request never sent. Update the app to fix any errors. Send updated py file and the script, to make sure it will work properly, sending and receiving everything via browser (NOT directly but using browser page). Check wtf is http://127.0.0.1:7862 and purge it completely (I never asked for anything like that, ONLY the browser requests and no local addresses for this specific task!). Ensure it works, and requests are being send ONLY through the page opened in firefox when bridge is active. NO adresses like http://127.0.0.1:7862, ONLY the browser. Fix everything.
 
-The tampermonkey script:
+Script:
 // ==UserScript==
 // @name         Horde Studio Lite — Browser Bridge
 // @namespace    horde-studio-lite
-// @version      1.0.1
-// @description  Routes Horde Studio Lite's API traffic through this browser tab, so the VPN extension active in this browser applies to every request. Open the AI Horde API page, paste the bridge token from the app once, and keep the tab open while generating.
+// @version      1.3.1
+// @description  Routes Horde Studio Lite's AI Horde traffic through this browser tab, so the VPN extension active in Firefox applies to every request. Open the app's local bridge console (http://127.0.0.1:7862/) and keep the tab open — stablehorde.net pages are NOT required. Tokenless, auto-connecting.
 // @author       Horde Studio Lite
-// @match        https://stablehorde.net/api/*
-// @match        https://aihorde.net/api/*
+// @match        http://127.0.0.1/*
+// @match        http://localhost/*
+// @match        http://127.0.0.1:7862/*
+// @match        http://localhost:7862/*
+// @match        https://stablehorde.net/*
+// @match        https://aihorde.net/*
 // @grant        GM_xmlhttpRequest
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_registerMenuCommand
 // @connect      127.0.0.1
 // @connect      localhost
+// @connect      stablehorde.net
+// @connect      aihorde.net
 // @connect      *
 // @run-at       document-idle
 // @noframes
 // ==/UserScript==
 
 /* =============================================================================
- * Horde Studio Lite — Browser Bridge (companion to horde_studio_lite.py)
+ * Horde Studio Lite — Browser Bridge v1.3.1 (companion to horde_studio_lite.py)
  *
  * How it works
  * ------------
- *  • The Python app runs a small token-protected server on 127.0.0.1:7862.
- *  • This script long-polls /poll, receives one queued Horde API request at a
- *    time, executes it THROUGH THIS BROWSER (so your VPN extension applies),
- *    and posts the result back to /reply.
- *  • Remote requests (aihorde.net, R2 image hosts) prefer the page's own
- *    fetch() first - that always follows the browser's proxy/VPN settings -
- *    and fall back to GM_xmlhttpRequest when fetch is blocked (CORS etc.).
- *  • Localhost bridge traffic always uses GM_xmlhttpRequest (bypasses mixed
- *    content / private-network restrictions of an https page).
+ *  • The Python app addresses https://stablehorde.net/api/v2 and hands every
+ *    request to a small TOKENLESS local relay (127.0.0.1, default port 7862;
+ *    enabled with the "Route through browser VPN tunnel" checkbox — ON by
+ *    default in v10.3+).
+ *  • This script runs ON THE APP'S OWN LOCAL BRIDGE CONSOLE PAGE
+ *    (http://127.0.0.1:7862/ — the relay serves that page itself). You open
+ *    that one page in Firefox and keep the tab open. NO stablehorde.net page
+ *    is needed or probed — the main site never has to open.
+ *  • The script long-polls /poll on the relay, receives one queued AI Horde
+ *    request at a time, executes it THROUGH THIS BROWSER (so your Firefox VPN
+ *    extension applies), and posts the result back to /reply.
+ *  • Remote requests (stablehorde.net / aihorde.net API, R2 image hosts) are
+ *    sent with GM_xmlhttpRequest FIRST — it bypasses CORS completely and still
+ *    rides the browser's network stack (proxy / VPN extension applies). If the
+ *    extension-level request fails outright, the page's own fetch() is tried
+ *    once as a fallback. Relay traffic always uses GM_xmlhttpRequest (bypasses
+ *    private-network restrictions).
+ *  • Server address is derived automatically from the console page origin
+ *    (works with any relay port); the APPLY button can override it.
  *
- * v1.0.1
+ * v1.3.1
  * ------
- *  Fixed "res.arrayBuffer is not a function" on binary downloads (Alchemy
- *  upscale results, R2 images). Those hosts block the page fetch with CORS,
- *  so execJob() fell back to GM_xmlhttpRequest - whose result is a plain
- *  object WITHOUT .arrayBuffer(); its .response already IS the ArrayBuffer
- *  (responseType 'arraybuffer' is requested). respToArrayBuffer() now
- *  normalises both response shapes. gmFetch() additionally wraps
- *  typed-array request bodies in a Blob (the documented binary body format
- *  for GM_xmlhttpRequest).
+ *  • Claim/ACK hardening: the script acknowledges every claimed job
+ *    (POST /ack) BEFORE executing it. The relay re-queues a job whose claim
+ *    is never acked, so a killed tab holding a long-poll can no longer eat
+ *    requests (that was the remaining "stalling" edge case).
+ *
+ * v1.3.0
+ * ------
+ *  • PRIMARY ISSUE FIXED — the script now runs on the app's LOCAL bridge
+ *    console page. The old match (stablehorde.net/aihorde.net pages only)
+ *    could never fire when the main site would not open in the browser,
+ *    leaving every relayed request queued forever (the "stalling" reports).
+ *  • Tokenless and auto-configuring: opening the console page IS the
+ *    connection — no address entry, no token, no CONNECT click. GM_xmlhttpRequest
+ *    is now preferred for the remote API calls (CORS-free from a local page).
+ *  • Shipped as a SEPARATE file next to horde_studio_lite.py — it is never
+ *    embedded in or exported from the app.
+ *  • Kept every earlier fix: respToArrayBuffer() normalising native fetch()
+ *    and GM_xmlhttpRequest payloads, Blob-wrapped binary request bodies,
+ *    4 parallel worker slots, automatic reconnect, pause/resume.
  *
  * Setup
  * -----
- *  1. HORDE tab → "Browser bridge (VPN)" → tick the checkbox.
- *  2. Press COPY next to the token shown there.
- *  3. Open this panel (bottom-right), paste the token, press CONNECT.
+ *  1. Install THIS file in Tampermonkey (Firefox) — new script → paste → save.
+ *  2. Start Horde Studio Lite (bridge checkbox is ON by default).
+ *  3. Open http://127.0.0.1:7862/ in Firefox and KEEP THAT TAB OPEN.
+ *     Done — the panel turns gold "connected" and every AI Horde request
+ *     rides this browser, so the VPN extension applies.
  * ==========================================================================*/
 
 (function () {
     'use strict';
 
     // ------------------------------ configuration ---------------------------
-    const DEFAULT_SERVER = 'http://127.0.0.1:7862';
     const POLL_TIMEOUT_S = 25;      // must match BRIDGE_POLL_SECS on the Python side
     const WORKER_COUNT = 4;         // parallel request slots
     const RECONNECT_MS = 3000;      // retry gap when the app is unreachable
+    const DEFAULT_SERVER = 'http://127.0.0.1:7862';
 
-    let serverUrl = GM_getValue('hsl_server', DEFAULT_SERVER);
-    let token = GM_getValue('hsl_token', '');
+    function isLocalHost(host) {
+        return host === '127.0.0.1' || host === 'localhost' || host === '[::1]';
+    }
+
+    // On a local console page the origin IS the relay address (any port).
+    // On a remote page (optional stablehorde.net / aihorde.net match) fall
+    // back to the stored or default relay address.
+    function resolveServer() {
+        try {
+            if (location.protocol === 'http:' && isLocalHost(location.hostname)) {
+                return location.origin;
+            }
+        } catch (e) { /* fall through */ }
+        return GM_getValue('hsl_server', '') || DEFAULT_SERVER;
+    }
+
+    let serverUrl = resolveServer();
+
+    // Blank any token stored by older script versions — never read again.
+    try { GM_setValue('hsl_token', ''); } catch (e) { /* storage unavailable */ }
 
     const stats = { done: 0, failed: 0, lastUrl: '', lastMs: 0, lastError: '' };
     let connected = false;
     let bridgeUp = false;           // can we reach the local server at all?
-    let wantToken = false;          // server answered 401 -> token needed
     let started = false;
+    let paused = false;
     let minimized = false;
 
     // ------------------------------ small helpers ---------------------------
@@ -121,6 +164,16 @@ The tampermonkey script:
         return Promise.resolve(new ArrayBuffer(0));
     }
 
+    function ab2txt(buf) {
+        const bytes = new Uint8Array(buf);
+        let s = '';
+        const CH = 0x8000;
+        for (let i = 0; i < bytes.length; i += CH) {
+            s += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+        }
+        return s;
+    }
+
     function gmFetch(opts) {
         // GM_xmlhttpRequest documents Blob bodies; raw typed arrays have been
         // flaky across managers, so wrap them (plain string bodies pass through).
@@ -130,7 +183,7 @@ The tampermonkey script:
         }
         return new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
-                method: opts.method,
+                method: opts.method || 'GET',
                 url: opts.url,
                 headers: opts.headers || {},
                 data: data,
@@ -153,50 +206,53 @@ The tampermonkey script:
     }
 
     // ------------------------------ bridge transport ------------------------
+    // Tokenless — the connection itself is the credential.
     function pollOnce() {
-        const url = `${serverUrl}/poll?timeout=${POLL_TIMEOUT_S}`;
         return gmFetch({
             method: 'GET',
-            url: url,
-            headers: { 'X-Bridge-Token': token },
+            url: `${serverUrl}/poll?timeout=${POLL_TIMEOUT_S}`,
             timeout: (POLL_TIMEOUT_S + 10) * 1000,
         });
     }
 
     function sendReply(doc) {
-        const body = JSON.stringify(doc);
         return gmFetch({
             method: 'POST',
             url: `${serverUrl}/reply`,
-            headers: { 'X-Bridge-Token': token, 'Content-Type': 'application/json' },
-            body: body,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(doc),
             timeout: 30000,
         });
     }
 
     // ------------------------------ remote execution ------------------------
     async function execJob(job) {
-        const started = performance.now();
+        const t0 = performance.now();
         const body = job.body_b64 ? b642ab(job.body_b64) : null;
         const headers = Object.assign({}, job.headers || {});
         const tmo = Math.max(5000, job.timeout_ms || 120000);
         try {
-            // 1) page-context fetch: honours the browser's proxy / VPN settings
+            // 1) extension-level request: no CORS, rides the browser's
+            //    network stack so the Firefox VPN/proxy extension applies.
             let res;
             try {
-                res = await pageFetch({ method: job.method, url: job.url, headers, body, timeout: tmo });
-            } catch (e1) {
-                if (e1 && e1.name === 'AbortError') throw new Error('request timed out');
-                // 2) fall back to the extension-level request (no CORS, still
-                //    uses the browser's network stack)
                 res = await gmFetch({ method: job.method, url: job.url, headers, body, timeout: tmo });
+            } catch (e1) {
+                if (String(e1 && e1.message) === 'timeout') throw e1;   // do not double the wait
+                // 2) last resort: the page's own fetch (same network stack)
+                try {
+                    res = await pageFetch({ method: job.method, url: job.url, headers, body, timeout: tmo });
+                } catch (e2) {
+                    if (e2 && e2.name === 'AbortError') throw new Error('request timed out');
+                    throw e1;
+                }
             }
-            // res is EITHER a native fetch() Response OR a GM_xmlhttpRequest
-            // result object - respToArrayBuffer() reads the bytes from both.
+            // res is a GM_xmlhttpRequest result here (or a native fetch()
+            // Response from the fallback) — respToArrayBuffer() reads both.
             const buf = await respToArrayBuffer(res);
             stats.done++;
             stats.lastUrl = job.url;
-            stats.lastMs = Math.round(performance.now() - started);
+            stats.lastMs = Math.round(performance.now() - t0);
             return { id: job.id, status: res.status, data_b64: ab2b64(buf) };
         } catch (err) {
             stats.failed++;
@@ -206,8 +262,14 @@ The tampermonkey script:
     }
 
     // ------------------------------ worker loop -----------------------------
-    async function workerLoop(wid) {
+    async function workerLoop() {
         while (started) {
+            if (paused) {
+                connected = false;
+                updatePanel();
+                await sleep(700);
+                continue;
+            }
             let res;
             try {
                 res = await pollOnce();
@@ -219,14 +281,6 @@ The tampermonkey script:
                 continue;
             }
             bridgeUp = true;
-            if (res.status === 401) {
-                wantToken = true;
-                connected = false;
-                updatePanel();
-                await sleep(1500);
-                continue;
-            }
-            wantToken = false;
             if (res.status !== 200) {
                 connected = false;
                 updatePanel();
@@ -248,6 +302,17 @@ The tampermonkey script:
             }
             connected = true;
             updatePanel();
+            // v1.3.1: ACK the claim BEFORE executing — the relay re-queues the
+            // job if this ack never arrives (dead tab held the long-poll).
+            try {
+                await gmFetch({
+                    method: 'POST',
+                    url: `${serverUrl}/ack`,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: job.id }),
+                    timeout: 5000,
+                });
+            } catch (e) { /* ack is best-effort */ }
             const reply = await execJob(job);
             try {
                 await sendReply(reply);
@@ -257,16 +322,6 @@ The tampermonkey script:
             }
             updatePanel();
         }
-    }
-
-    function ab2txt(buf) {
-        const bytes = new Uint8Array(buf);
-        let s = '';
-        const CH = 0x8000;
-        for (let i = 0; i < bytes.length; i += CH) {
-            s += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
-        }
-        return s;
     }
 
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -348,15 +403,12 @@ The tampermonkey script:
                 </div>
                 <div class="stat l-last" title="last request">\u2014</div>
                 <div class="row cfg">
-                    <input class="in-server" type="text" spellcheck="false" value="${serverUrl}" title="Bridge server address">
-                </div>
-                <div class="row cfg">
-                    <input class="in-token" type="text" spellcheck="false" placeholder="paste the bridge token from the HORDE tab"
-                        value="${token.replace(/"/g, '&quot;')}" title="Bridge token (HORDE tab of the app)">
-                    <button class="btn-connect">CONNECT</button>
+                    <input class="in-server" type="text" spellcheck="false" value="${serverUrl.replace(/"/g, '&quot;')}" title="Bridge server address (app: HORDE tab → Browser Bridge → Port)">
+                    <button class="btn-apply ghost">APPLY</button>
+                    <button class="btn-pause">PAUSE</button>
                 </div>
                 <div class="row">
-                    <span class="stat l-hint" style="flex:1">Token is shown in the app: HORDE tab \u2192 Browser bridge \u2192 COPY.</span>
+                    <span class="stat l-hint" style="flex:1">Keep this tab open — traffic rides this browser (VPN extension applies).</span>
                 </div>
             </div>`;
         document.body.appendChild(p);
@@ -367,22 +419,25 @@ The tampermonkey script:
             body.style.display = minimized ? 'none' : '';
             p.querySelector('.min').textContent = minimized ? '+' : '\u2013';
         });
-        p.querySelector('.btn-connect').addEventListener('click', () => {
+        p.querySelector('.btn-apply').addEventListener('click', () => {
             serverUrl = p.querySelector('.in-server').value.trim() || DEFAULT_SERVER;
-            token = p.querySelector('.in-token').value.trim();
             GM_setValue('hsl_server', serverUrl);
-            GM_setValue('hsl_token', token);
-            wantToken = false;
             restart();
+        });
+        p.querySelector('.in-server').addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter') p.querySelector('.btn-apply').click();
+        });
+        const pauseBtn = p.querySelector('.btn-pause');
+        pauseBtn.addEventListener('click', () => {
+            paused = !paused;
+            pauseBtn.textContent = paused ? 'RESUME' : 'PAUSE';
+            if (paused) {
+                connected = false;
+                updatePanel();
+            }
         });
         GM_registerMenuCommand('Show / hide bridge panel', () => {
             p.style.display = p.style.display === 'none' ? '' : 'none';
-        });
-        GM_registerMenuCommand('Change bridge token', () => {
-            p.style.display = '';
-            minimized = false;
-            body.style.display = '';
-            p.querySelector('.in-token').focus();
         });
         updatePanel();
     }
@@ -393,12 +448,12 @@ The tampermonkey script:
         const dot = p.querySelector('.hsl-dot');
         const st = p.querySelector('.st');
         dot.className = 'hsl-dot ' + (connected ? 'ok' : (bridgeUp ? 'wait' : 'err'));
-        if (!bridgeUp) {
+        if (paused) {
+            st.className = 'stat st wait';
+            st.textContent = 'paused \u2014 press RESUME';
+        } else if (!bridgeUp) {
             st.className = 'stat st err';
             st.textContent = 'app not reachable \u2022 retrying';
-        } else if (wantToken) {
-            st.className = 'stat st wait';
-            st.textContent = 'token needed \u2014 paste it below';
         } else if (connected) {
             st.className = 'stat st ok';
             st.textContent = 'connected \u2014 traffic rides this browser';
@@ -424,7 +479,7 @@ The tampermonkey script:
         if (started) return;
         started = true;
         for (let i = 0; i < WORKER_COUNT; i++) {
-            workerLoop(i).catch(() => {});
+            workerLoop().catch(() => {});
         }
     }
 
@@ -432,7 +487,8 @@ The tampermonkey script:
     start();
 })();
 
-The app to update (keep it a single py file):
+the app code (keep it single file):
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -627,9 +683,9 @@ except Exception:  # pragma: no cover - non-Windows platforms
 #  1. Constants, Workspace Paths & Legacy Migration
 # =============================================================================
 APP_NAME = "Horde Studio Lite"
-APP_VERSION = "10.0.0"
+APP_VERSION = "10.3.0"
 CLIENT_AGENT = f"HordeStudioLite:{APP_VERSION}:local-desktop"
-HORDE_URL = "https://aihorde.net/api/v2"
+HORDE_URL = "https://stablehorde.net/api/v2"
 ANON_KEY = "0000000000"
 CIVITAI_MODEL_URL = "https://civitai.com/api/v1/models/{id}"
 CIVITAI_VERSION_URL = "https://civitai.com/api/v1/model-versions/{id}"
@@ -690,6 +746,11 @@ IMG2IMG_MAX_SRC_MP = 3072 * 3072  # hard sanity cap for source images
 BRIDGE_DEFAULT_PORT = 7862
 BRIDGE_POLL_SECS = 25.0
 BRIDGE_CLIENT_TIMEOUT = 12.0
+# v10.1: a tab that recently SERVED a request stays "connected" this long even
+# while all 4 userscript workers are busy executing jobs (no poll slot free) —
+# prevents false "no connected tab" errors under load.
+BRIDGE_SERVE_GRACE = 3.0            # v10.3: was 180s of phantom "connected"; 3s covers the poll-gap right after a reply
+BRIDGE_ACK_TIMEOUT = 2.5            # v10.3: unacked claim -> requeue (dead poller socket)
 BRIDGE_BODY_CAP = 64 * 1024 * 1024
 ST_DEFAULT_PORT = 7860
 ST_BODY_CAP = 8 * 1024 * 1024
@@ -1427,7 +1488,7 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
         "template_set": "anime",
         "template_name": "",
     },
-    "bridge": {"enabled": False, "port": BRIDGE_DEFAULT_PORT, "token": ""},
+    "bridge": {"enabled": True, "port": BRIDGE_DEFAULT_PORT},   # v10.3: browser VPN routing is the DEFAULT transport
     "local_server": {"enabled": False, "port": ST_DEFAULT_PORT},
     "ui": {
         "gallery_visible": True,
@@ -1585,145 +1646,15 @@ DEFAULT_WILDCARDS: Dict[str, str] = {
     ),
 }
 
-# Built-in Tampermonkey userscript for Browser VPN Bridge (copy/export from HORDE tab)
-EMBEDDED_BRIDGE_USERSCRIPT = r"""// ==UserScript==
-// @name         Horde Studio Lite - Browser VPN Bridge
-// @namespace    https://aihorde.net/
-// @version      3.0.0
-// @description  Routes Horde Studio Lite requests through this browser's network stack (VPN extensions apply).
-// @match        https://stablehorde.net/api/*
-// @match        https://aihorde.net/api/*
-// @grant        GM_xmlhttpRequest
-// @grant        GM_getValue
-// @grant        GM_setValue
-// @connect      127.0.0.1
-// @connect      localhost
-// @connect      aihorde.net
-// @connect      stablehorde.net
-// @connect      *
-// ==/UserScript==
-
-(function () {
-  'use strict';
-  let running = false;
-  let served = 0;
-
-  const box = document.createElement('div');
-  box.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:999999;width:270px;background:#100e0a;color:#f3ebd8;border:1px solid #d49b2a;border-radius:3px;padding:10px;font:12px/1.4 monospace;box-shadow:0 8px 24px rgba(0,0,0,0.75);';
-  box.innerHTML = `
-    <div style="font-weight:bold;color:#f4b938;margin-bottom:6px;letter-spacing:1px;">HORDE STUDIO BRIDGE</div>
-    <div style="display:flex;gap:4px;margin-bottom:5px;">
-      <input id="hsl-port" value="${GM_getValue('hsl_port', '7862')}" style="width:68px;background:#070604;color:#fff;border:1px solid #444;padding:3px;" placeholder="Port"/>
-      <input id="hsl-tok" value="${GM_getValue('hsl_tok', '')}" style="flex:1;background:#070604;color:#fff;border:1px solid #444;padding:3px;" placeholder="Bridge Token"/>
-    </div>
-    <button id="hsl-go" style="width:100%;padding:5px;background:linear-gradient(#f4b938,#b87614);color:#111;font-weight:bold;border:none;cursor:pointer;">CONNECT</button>
-    <div id="hsl-st" style="margin-top:6px;color:#b8ab8e;font-size:11px;">Idle. Paste token from HORDE tab.</div>
-  `;
-  document.body.appendChild(box);
-
-  const elPort = box.querySelector('#hsl-port');
-  const elTok = box.querySelector('#hsl-tok');
-  const elBtn = box.querySelector('#hsl-go');
-  const elSt = box.querySelector('#hsl-st');
-
-  function gmReq(opts) {
-    return new Promise((resolve, reject) => {
-      GM_xmlhttpRequest({
-        ...opts,
-        onload: (r) => resolve(r),
-        onerror: (e) => reject(new Error(e.error || 'network error')),
-        ontimeout: () => reject(new Error('timeout')),
-      });
-    });
-  }
-
-  function arrayBufToB64(buf) {
-    const bytes = new Uint8Array(buf);
-    let bin = '';
-    const chunk = 0x8000;
-    for (let i = 0; i < bytes.length; i += chunk) {
-      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
-    }
-    return btoa(bin);
-  }
-
-  function b64ToUint8(b64) {
-    const bin = atob(b64);
-    const arr = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-    return arr;
-  }
-
-  async function executeJob(base, tok, job) {
-    let payload;
-    try {
-      const reqOpts = {
-        method: job.method || 'GET',
-        url: job.url,
-        headers: job.headers || {},
-        responseType: 'arraybuffer',
-        timeout: job.timeout_ms || 60000,
-      };
-      if (job.body_b64) {
-        reqOpts.data = new Blob([b64ToUint8(job.body_b64)]);
-      }
-      const res = await gmReq(reqOpts);
-      const data_b64 = res.response ? arrayBufToB64(res.response) : '';
-      payload = { id: job.id, status: res.status || 200, headers: {}, data_b64 };
-      served++;
-    } catch (err) {
-      payload = { id: job.id, error: String(err && err.message ? err.message : err) };
-    }
-    await gmReq({
-      method: 'POST',
-      url: `${base}/reply`,
-      headers: { 'Content-Type': 'application/json', 'X-Bridge-Token': tok },
-      data: JSON.stringify(payload),
-      timeout: 30000,
-    });
-  }
-
-  async function loop() {
-    const port = (elPort.value || '7862').trim();
-    const tok = (elTok.value || '').trim();
-    GM_setValue('hsl_port', port);
-    GM_setValue('hsl_tok', tok);
-    const base = `http://127.0.0.1:${port}`;
-    while (running) {
-      try {
-        elSt.textContent = `Connected • served ${served}`;
-        const r = await gmReq({
-          method: 'GET',
-          url: `${base}/poll?timeout=25`,
-          headers: { 'X-Bridge-Token': tok },
-          timeout: 32000,
-        });
-        if (r.status === 401) {
-          elSt.textContent = 'Auth error: token mismatch';
-          running = false;
-          elBtn.textContent = 'CONNECT';
-          break;
-        }
-        const doc = JSON.parse(r.responseText || '{}');
-        if (doc && doc.job) {
-          elSt.textContent = `Forwarding ${doc.job.method} ...`;
-          executeJob(base, tok, doc.job).catch(() => {});
-        }
-      } catch (err) {
-        elSt.textContent = `Retrying (${err.message || err})...`;
-        await new Promise((r) => setTimeout(r, 2000));
-      }
-    }
-  }
-
-  elBtn.addEventListener('click', () => {
-    running = !running;
-    elBtn.textContent = running ? 'DISCONNECT' : 'CONNECT';
-    if (running) loop();
-    else elSt.textContent = 'Disconnected.';
-  });
-})();
-"""
+# The companion Tampermonkey userscript for the Browser VPN Bridge is shipped
+# as a SEPARATE file next to this app: horde_studio_bridge.user.js (v1.3.1).
+# v10.3: it runs on THIS APP'S OWN LOCAL BRIDGE CONSOLE PAGE
+# (http://127.0.0.1:7862/ by default, served by the relay itself): open that
+# one page in Firefox and keep the tab open. The https://stablehorde.net/
+# MAIN SITE IS NEVER REQUIRED (it may not even open in the browser) — only
+# the API endpoints https://stablehorde.net/api/v2/... are addressed, and
+# those requests are executed by the browser tab, so Firefox VPN extensions
+# apply. The relay is tokenless: the connection itself is the credential.
 
 # Job lifecycle states
 STATE_QUEUED = "queued"
@@ -4478,7 +4409,7 @@ def ensure_dirs() -> None:
     if not os.path.exists(KEY_FILE):
         write_text(
             KEY_FILE,
-            "# Paste your AI Horde API key on one line (register free at https://aihorde.net)\n"
+            "# Paste your AI Horde API key on one line (register free at https://stablehorde.net/register)\n"
             f"{ANON_KEY}\n",
         )
     try:
@@ -8358,6 +8289,7 @@ class _BridgeRequest:
     __slots__ = (
         "id", "method", "url", "headers", "body", "deadline",
         "done", "status", "resp_headers", "data", "error", "created",
+        "picked", "acked", "_requeue_timer",
     )
 
     def __init__(
@@ -8380,6 +8312,9 @@ class _BridgeRequest:
         self.data = b""
         self.error = ""
         self.created = time.time()
+        self.picked = False            # v10.3: set once a browser worker took the job
+        self.acked = False             # v10.3: worker confirmed receipt via /ack
+        self._requeue_timer: Optional[threading.Timer] = None
 
     def payload(self) -> Dict[str, Any]:
         return {
@@ -8391,9 +8326,102 @@ class _BridgeRequest:
             "timeout_ms": int(max(1000.0, self.deadline - time.time()) * 1000),
         }
 
+    def arm_requeue(self, bridge: "BrowserBridge", delay: float = BRIDGE_ACK_TIMEOUT) -> None:
+        """v10.3: if no /ack arrives within the window, the claim was lost on a
+        dead socket (a FIN-closed peer can swallow the write WITHOUT raising).
+        Put the job back and wake the live pollers so it is re-handed."""
+        t = threading.Timer(delay, bridge._requeue_if_unacked, args=(self.id,))
+        t.daemon = True
+        self._requeue_timer = t
+        t.start()
+
+
+# v10.3: the local bridge console page served by the relay at "/" — the single
+# page the user keeps open in Firefox. The userscript (horde_studio_bridge.user.js,
+# a SEPARATE file) runs on this page and executes every Horde API request through
+# this browser, so the Firefox VPN extension applies. The https://stablehorde.net/
+# main site is NEVER required — it may be unreachable in the browser; only the
+# https://stablehorde.net/api/v2 endpoints are addressed, from the browser tab.
+_BRIDGE_CONSOLE_PAGE = r"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HSL Bridge Console</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; min-height:100vh; background:#141210; color:#e8e1cf;
+         font:14px/1.6 "Segoe UI", Meiryo, sans-serif; display:flex; align-items:center; justify-content:center; }
+  .card { width:min(680px, 92vw); background:linear-gradient(180deg,#1e1b14,#16130d);
+          border:1px solid #4d3a07; border-radius:12px; padding:26px 30px;
+          box-shadow:0 10px 40px rgba(0,0,0,.5); }
+  h1 { margin:0 0 4px; font-size:17px; letter-spacing:1.5px; color:#ffd75c; }
+  .sub { color:#9a927d; font-size:12px; margin-bottom:18px; }
+  .dot { display:inline-block; width:11px; height:11px; border-radius:50%; background:#6b6455; margin-right:8px; vertical-align:-1px; }
+  .dot.ok { background:#ffcf3f; box-shadow:0 0 8px 2px rgba(255,207,63,.6); animation:p 1.6s infinite; }
+  .dot.wait { background:#c9973d; } .dot.err { background:#e06a4b; }
+  @keyframes p { 0%,100%{opacity:1} 50%{opacity:.5} }
+  #state { font-weight:700; font-size:15px; }
+  .grid { display:grid; grid-template-columns:auto 1fr; gap:4px 16px; margin:16px 0;
+          background:#100e0a; border:1px solid #2c2817; border-radius:8px; padding:14px 16px; }
+  .k { color:#9a927d; } .v { color:#e8e1cf; overflow-wrap:anywhere; }
+  ol { margin:8px 0 4px 20px; padding:0; }
+  li { margin:6px 0; }
+  code { background:#100e0a; border:1px solid #2c2817; border-radius:4px; padding:1px 6px; color:#ffd75c; }
+  .warn { margin-top:14px; padding:10px 12px; border:1px solid #6b2b18; background:#2a1710;
+          border-radius:8px; color:#f0b49a; display:none; }
+  .ok-note { margin-top:14px; padding:10px 12px; border:1px solid #3d5420; background:#1c2413;
+          border-radius:8px; color:#b7e07c; display:none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>HORDE STUDIO LITE &mdash; BROWSER BRIDGE CONSOLE</h1>
+  <div class="sub">__APP__ &nbsp;&bull;&nbsp; keep this tab open &mdash; this tab IS the VPN tunnel</div>
+  <div><span class="dot" id="dot"></span><span id="state">checking app&hellip;</span></div>
+  <div class="grid">
+    <span class="k">API endpoint</span><span class="v">__ENDPOINT__</span>
+    <span class="k">Relay address</span><span class="v">http://127.0.0.1:__PORT__/</span>
+    <span class="k">Connected browser</span><span class="v" id="client">&mdash;</span>
+    <span class="k">Requests served</span><span class="v" id="served">0</span>
+  </div>
+  <b>Setup (once)</b>
+  <ol>
+    <li>Install <code>horde_studio_bridge.user.js</code> in Tampermonkey (Firefox): new userscript &rarr; paste &rarr; save.</li>
+    <li>Start Horde Studio Lite (the bridge checkbox is ON by default).</li>
+    <li>Keep <b>this tab</b> open. Every Horde API request is then executed by this browser &mdash; your Firefox VPN extension applies to all of them.</li>
+  </ol>
+  <div class="warn" id="warn">Userscript not detected: no browser worker is polling this relay yet. Install <code>horde_studio_bridge.user.js</code> in Tampermonkey, then reload this page and leave the tab open.</div>
+  <div class="ok-note" id="oknote">Bridge active &mdash; all AI Horde traffic now rides this browser (VPN extension applies). The main stablehorde.net site is never opened or required.</div>
+</div>
+<script>
+  var dot = document.getElementById('dot'), state = document.getElementById('state');
+  var warn = document.getElementById('warn'), oknote = document.getElementById('oknote');
+  function tick() {
+    fetch('/status', {cache:'no-store'}).then(function (r) { return r.json(); }).then(function (j) {
+      if (j.connected) {
+        dot.className = 'dot ok'; state.textContent = 'CONNECTED \u2014 traffic rides this browser';
+        warn.style.display = 'none'; oknote.style.display = 'block';
+      } else {
+        dot.className = 'dot wait'; state.textContent = 'app reachable \u2014 waiting for the userscript worker';
+        warn.style.display = 'block'; oknote.style.display = 'none';
+      }
+      document.getElementById('client').textContent = j.client || '\u2014';
+      document.getElementById('served').textContent = String(j.served != null ? j.served : 0);
+    }).catch(function () {
+      dot.className = 'dot err'; state.textContent = 'app not reachable \u2014 is Horde Studio Lite running?';
+      warn.style.display = 'none'; oknote.style.display = 'none';
+    });
+  }
+  tick(); setInterval(tick, 1500);
+</script>
+</body>
+</html>
+"""
+
 
 class _BridgeHandler(BaseHTTPRequestHandler):
-    server_version = "HSLBridge/3.0"
+    server_version = "HSLBridge/4.0"  # tokenless long-poll protocol (v10.2)
     protocol_version = "HTTP/1.1"
 
     @property
@@ -8406,7 +8434,7 @@ class _BridgeHandler(BaseHTTPRequestHandler):
     def _cors(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Bridge-Token")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Allow-Private-Network", "true")
 
     def _send_json(self, code: int, obj: Dict[str, Any], close: bool = False) -> None:
@@ -8423,13 +8451,6 @@ class _BridgeHandler(BaseHTTPRequestHandler):
             self.wfile.write(data)
         except (BrokenPipeError, ConnectionResetError):
             self.close_connection = True
-
-    def _token_ok(self) -> bool:
-        tok = self.headers.get("X-Bridge-Token") or ""
-        if not tok:
-            q = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get("token", [""])
-            tok = q[0] if q else ""
-        return secrets.compare_digest(tok, self.bridge.token)
 
     def _read_body(self, cap: int) -> Optional[bytes]:
         try:
@@ -8449,14 +8470,39 @@ class _BridgeHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self) -> None:  # noqa: N802
+        # v10.1: the bridge is TOKENLESS — the connection itself is the only
+        # credential. The listener is bound to 127.0.0.1 exclusively, so any
+        # local browser tab that reaches it is trusted outright.
         path = urllib.parse.urlsplit(self.path).path
-        if not self._token_ok():
-            self._send_json(401, {"error": "bad or missing bridge token"})
+        if path == "/":
+            # v10.3: the relay serves its OWN LOCAL BRIDGE CONSOLE page — the
+            # one and only page the user keeps open in Firefox. The main
+            # https://stablehorde.net/ site is never required or probed; only
+            # the API endpoints (https://stablehorde.net/api/v2/...) are
+            # addressed, and those requests are executed by the browser tab.
+            b = self.bridge
+            html = (_BRIDGE_CONSOLE_PAGE
+                    .replace("__APP__", f"{APP_NAME} {APP_VERSION}")
+                    .replace("__ENDPOINT__", HORDE_URL)
+                    .replace("__PORT__", str(b.port)))
+            data = html.encode("utf-8")
+            try:
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Content-Length", str(len(data)))
+                self._cors()
+                self.end_headers()
+                self.wfile.write(data)
+            except (BrokenPipeError, ConnectionResetError):
+                self.close_connection = True
             return
         if path == "/status":
             b = self.bridge
             self._send_json(200, {
                 "app": f"{APP_NAME} {APP_VERSION}",
+                "endpoint": HORDE_URL,
+                "tokenless": True,
                 "connected": b.is_connected(),
                 "served": b.served,
                 "client": b.client_label(),
@@ -8481,17 +8527,31 @@ class _BridgeHandler(BaseHTTPRequestHandler):
             with b._cond:
                 while True:
                     if b._queue:
-                        job = b._queue.popleft()
+                        cand = b._queue.popleft()
+                        if cand.done.is_set():
+                            continue            # answered while queued — drop silently
+                        job = cand
+                        job.picked = True
                         break
                     rem = deadline - time.time()
                     if rem <= 0:
                         break
                     b._cond.wait(rem)
             self._send_json(200, {"job": job.payload() if job is not None else None})
+            if job is not None:
+                # v10.3: the write above can succeed into a FIN-closed socket —
+                # if the worker's /ack never lands, reclaim and re-hand the job.
+                job.arm_requeue(b)
         except (BrokenPipeError, ConnectionResetError):
+            # The poller's socket died between the long-poll answer and the
+            # write (tab closed / tab killed mid-poll). v10.3: hand the job
+            # back as UN-picked and WAKE the live pollers immediately so it
+            # never sits unserved until every long-poll deadline expires.
             if job is not None:
                 with b._cond:
+                    job.picked = False
                     b._queue.appendleft(job)
+                    b._cond.notify_all()
         finally:
             b._poll_ended()
 
@@ -8501,10 +8561,7 @@ class _BridgeHandler(BaseHTTPRequestHandler):
         if body is None:
             self._send_json(413, {"error": "reply too large"}, close=True)
             return
-        if not self._token_ok():
-            self._send_json(401, {"error": "bad or missing bridge token"})
-            return
-        if path != "/reply":
+        if path not in ("/reply", "/ack"):
             self._send_json(404, {"error": "unknown endpoint"})
             return
         try:
@@ -8512,18 +8569,52 @@ class _BridgeHandler(BaseHTTPRequestHandler):
         except ValueError:
             self._send_json(400, {"error": "bad json"})
             return
+        if path == "/ack":
+            # v10.3: the worker confirms receipt BEFORE executing the remote
+            # request; the relay re-queues any claim that is never acked.
+            self._send_json(200 if self.bridge._ack(doc) else 404, {"ok": True})
+            return
         self._send_json(200 if self.bridge._deliver(doc) else 404, {"ok": True})
 
 
+class _QuietBridgeHTTPServer(ThreadingHTTPServer):
+    daemon_threads = True
+
+    def handle_error(self, request, client_address) -> None:
+        exc = sys.exc_info()[1]
+        if isinstance(exc, (ConnectionError, TimeoutError)):
+            return          # dead tab socket — expected, never spam the console
+        super().handle_error(request, client_address)
+
+
 class BrowserBridge:
-    def __init__(self, port: int, token: str) -> None:
+    """Local 127.0.0.1 relay that lets a browser tab (Tampermonkey userscript)
+    execute every Horde API request inside the browser's network stack, so a
+    VPN / proxy browser extension applies to all traffic.
+
+    v10.2: fully TOKENLESS — connection itself is the credential. The server
+    binds 127.0.0.1 only; any local tab reaching it is trusted, which removes
+    the old token-mismatch deadlock where the app refused to even register a
+    polling tab ("waiting for browser tab" forever). The app always ADDRESSES
+    https://stablehorde.net/api/v2 — this relay only transports those requests
+    through the browser while the VPN tunnel is enabled. The companion
+    userscript ships as a separate file (horde_studio_bridge.user.js) and runs
+    on THIS relay's own local console page (http://127.0.0.1:<port>/) — the
+    main https://stablehorde.net/ site is NEVER required or probed.
+
+    v10.3 anti-stall: request() aborts as soon as the relay can prove no
+    browser tab is alive while a job is still queued (poll freshness 12s /
+    serve grace 3s / active long-polls), instead of silently blocking for the
+    full API timeout."""
+
+    def __init__(self, port: int) -> None:
         self.port = int(port)
-        self.token = token or secrets.token_hex(8)
         self._cond = threading.Condition()
         self._queue: "collections.deque[_BridgeRequest]" = collections.deque()
         self._waiters: Dict[str, _BridgeRequest] = {}
         self._active_polls = 0
         self._last_poll = 0.0
+        self._last_serve = 0.0
         self._client = ""
         self._served = 0
         self._httpd: Optional[ThreadingHTTPServer] = None
@@ -8535,13 +8626,12 @@ class BrowserBridge:
         if self.running:
             return True
         try:
-            httpd = ThreadingHTTPServer(("127.0.0.1", self.port), _BridgeHandler)
+            httpd = _QuietBridgeHTTPServer(("127.0.0.1", self.port), _BridgeHandler)
         except OSError as exc:
             self.last_error = str(exc)
             STUDIO_LOG.error("BRIDGE", f"Failed to bind 127.0.0.1:{self.port}: {exc}")
             self.running = False
             return False
-        httpd.daemon_threads = True
         httpd.bridge = self  # type: ignore[attr-defined]
         self._httpd = httpd
         self.running = True
@@ -8563,6 +8653,9 @@ class BrowserBridge:
         self._thread = None
         with self._cond:
             for job in list(self._waiters.values()):
+                if job._requeue_timer is not None:
+                    job._requeue_timer.cancel()
+                    job._requeue_timer = None
                 job.error = "bridge stopped"
                 job.done.set()
             self._waiters.clear()
@@ -8581,12 +8674,47 @@ class BrowserBridge:
         with self._cond:
             self._active_polls = max(0, self._active_polls - 1)
 
+    def _ack(self, doc: Dict[str, Any]) -> bool:
+        """v10.3: worker confirms it took the handed-over job."""
+        rid = str(doc.get("id") or "")
+        with self._cond:
+            job = self._waiters.get(rid)
+            if job is None or job.done.is_set():
+                return False
+            job.acked = True
+            if job._requeue_timer is not None:
+                job._requeue_timer.cancel()
+                job._requeue_timer = None
+            return True
+
+    def _requeue_if_unacked(self, job_id: str) -> None:
+        """v10.3: claim lost on a dead poller socket — re-hand the job."""
+        with self._cond:
+            job = self._waiters.get(job_id)
+            if job is None or job.acked or job.done.is_set():
+                return
+            job.picked = False
+            job._requeue_timer = None
+            try:
+                self._queue.remove(job)
+            except ValueError:
+                pass
+            self._queue.appendleft(job)
+            self._cond.notify_all()
+
     def _deliver(self, doc: Dict[str, Any]) -> bool:
         rid = str(doc.get("id") or "")
         with self._cond:
             job = self._waiters.pop(rid, None)
             if job is None:
                 return False
+            if job._requeue_timer is not None:
+                job._requeue_timer.cancel()
+                job._requeue_timer = None
+            try:
+                self._queue.remove(job)
+            except ValueError:
+                pass
             err = doc.get("error")
             if err:
                 job.error = str(err)
@@ -8602,12 +8730,23 @@ class BrowserBridge:
                 except ValueError as exc:
                     job.error = f"corrupt base64 reply: {exc}"
                 self._served += 1
+                self._last_serve = time.time()
             job.done.set()
             return True
 
     def is_connected(self) -> bool:
         with self._cond:
-            return self._active_polls > 0 or (time.time() - self._last_poll) <= BRIDGE_CLIENT_TIMEOUT
+            now = time.time()
+            if self._active_polls > 0:
+                return True
+            if (now - self._last_poll) <= BRIDGE_CLIENT_TIMEOUT:
+                return True
+            if (now - self._last_serve) <= BRIDGE_SERVE_GRACE:
+                return True
+            # v10.3: a job currently EXECUTING in the tab (picked, reply not
+            # yet delivered) proves the tab is alive even though its workers
+            # are busy between long-polls.
+            return any(job.picked for job in self._waiters.values())
 
     @property
     def served(self) -> int:
@@ -8634,8 +8773,10 @@ class BrowserBridge:
             raise BridgeError("bridge is not running", network=False)
         if not self.is_connected():
             raise BridgeError(
-                "browser bridge has no connected tab — open https://stablehorde.net/api/ "
-                "with the Tampermonkey userscript active and click CONNECT",
+                "browser bridge has no connected tab — install the companion "
+                "horde_studio_bridge.user.js in Tampermonkey, then open "
+                f"http://127.0.0.1:{self.port}/ (this app's local bridge console) "
+                "in Firefox and keep that tab open (no token needed)",
                 network=False,
             )
         job = _BridgeRequest(method, url, headers, body, timeout)
@@ -8643,17 +8784,41 @@ class BrowserBridge:
             self._waiters[job.id] = job
             self._queue.append(job)
             self._cond.notify()
-        if not job.done.wait(max(5.0, timeout + 15.0)):
-            with self._cond:
-                self._waiters.pop(job.id, None)
-                try:
-                    self._queue.remove(job)
-                except ValueError:
-                    pass
+        # v10.3 anti-stall: instead of one blocking wait for timeout+15s, wake
+        # every 2s and abort as soon as the job can no longer make progress —
+        # the tab disappeared (nothing is polling) or the relay stopped.
+        deadline = time.time() + max(5.0, timeout + 15.0)
+        while not job.done.wait(2.0):
+            if time.time() >= deadline:
+                break
+            if not self.running:
+                self._discard(job)
+                raise BridgeError("browser bridge stopped", network=False)
+            if not job.picked and not self.is_connected():
+                self._discard(job)
+                raise BridgeError(
+                    "browser bridge tab is gone — reopen http://127.0.0.1:"
+                    f"{self.port}/ in Firefox and keep the tab open",
+                    network=False,
+                )
+        if not job.done.is_set():
+            self._discard(job)
             raise BridgeError(f"browser bridge timed out after {int(timeout)}s", network=True)
         if job.error:
             raise BridgeError(f"browser bridge: {job.error}", network=True)
         return job.status, job.resp_headers, job.data
+
+    def _discard(self, job: _BridgeRequest) -> None:
+        """Drop an unanswered job from queue/waiters (anti-stall cleanup)."""
+        with self._cond:
+            if job._requeue_timer is not None:
+                job._requeue_timer.cancel()
+                job._requeue_timer = None
+            self._waiters.pop(job.id, None)
+            try:
+                self._queue.remove(job)
+            except ValueError:
+                pass
 
 
 # =============================================================================
@@ -13445,6 +13610,7 @@ class ImageViewer(QScrollArea):
     toggled_fit = pyqtSignal(bool)
     zoom_changed = pyqtSignal(float, bool)
     image_dropped = pyqtSignal(str)
+    menu_requested = pyqtSignal(QPoint)  # v10.1: right-click menu (global pos)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -13628,6 +13794,15 @@ class ImageViewer(QScrollArea):
         self.toggled_fit.emit(False)
         self.zoom_changed.emit(new, False)
         self._canvas.update()
+
+    def contextMenuEvent(self, event) -> None:  # noqa: N802
+        """v10.1: right-click on a loaded image opens the viewer context menu
+        (copy to clipboard, prompt reuse, editor routing, delete)."""
+        if self._pixmap is not None and not self._pixmap.isNull():
+            self.menu_requested.emit(event.globalPos())
+            event.accept()
+            return
+        super().contextMenuEvent(event)
 
     def dragEnterEvent(self, event) -> None:  # noqa: N802
         if event.mimeData().hasUrls():
@@ -14442,8 +14617,9 @@ class ShortcutsDialog(QDialog):
         ("M  (Edit stage)", "Toggle mask red overlay visibility (mask stays active)"),
         ("[ / ]  (Edit stage)", "Decrease / increase the active brush size"),
         ("Ctrl + Z / Ctrl + Y  (Edit stage)", "Undo / Redo latest stroke, depth mask commit, crop, tilt, or grade"),
-        ("Right-click", "Context menus everywhere (prompt tags, queue, gallery, LoRA cards, folder chips)"),
-        ("Ctrl + C / Ctrl + P (gallery)", "Copy image / copy prompt from selected output"),
+        ("Right-click", "Context menus everywhere (viewer, prompt tags, queue, gallery, LoRA cards, folder chips)"),
+        ("Ctrl + C (viewer / gallery)", "Copy the open / selected image's full pixel content to the clipboard"),
+        ("Ctrl + P (gallery)", "Copy the prompt of the selected output"),
         ("Delete (queue / gallery)", "Remove selected job / delete selected image"),
         ("Space / Enter / Del (LoRA)", "Toggle / edit / remove — Ctrl+click multi-select toggles rows together"),
     ]
@@ -19526,7 +19702,7 @@ class MainWindow(QMainWindow):
             lay.addWidget(lb)
         lay.addWidget(make_button("REFRESH STATUS", self.refresh_horde, small=True))
 
-        # Browser Bridge (VPN Tunnel) + embedded Tampermonkey Userscript export
+        # Browser Bridge (VPN Tunnel) — the companion userscript ships separately
         def build_bridge(g: QVBoxLayout) -> None:
             self.bridge_check = QCheckBox("Route through browser VPN tunnel")
             self.bridge_check.toggled.connect(self._on_bridge_toggled)
@@ -19537,22 +19713,20 @@ class MainWindow(QMainWindow):
             self.bridge_port_spin.setRange(1024, 65535)
             self.bridge_port_spin.setValue(BRIDGE_DEFAULT_PORT)
             self.bridge_port_spin.valueChanged.connect(self._on_bridge_port_changed)
-            self.bridge_token_edit = QLineEdit()
-            self.bridge_token_edit.setReadOnly(True)
             bg.addWidget(make_label("Port", "Caption"), 0, 0)
             bg.addWidget(self.bridge_port_spin, 0, 1)
-            bg.addWidget(make_label("Token", "Caption"), 1, 0)
-            bg.addWidget(self.bridge_token_edit, 1, 1)
             bg.setColumnStretch(1, 1)
             g.addLayout(bg)
-            br = QGridLayout()
-            br.setSpacing(3)
-            br.addWidget(make_button("COPY TOKEN", self._copy_bridge_token, small=True, compress=True), 0, 0)
-            br.addWidget(make_button("NEW TOKEN", self._regen_bridge_token, small=True, compress=True), 0, 1)
-            br.addWidget(make_button("COPY SCRIPT", self._copy_userscript, small=True, accent=True, compress=True,
-                                     tip="Copy Tampermonkey userscript to clipboard"), 1, 0)
-            br.addWidget(make_button("EXPORT .JS", self._export_userscript, small=True, compress=True), 1, 1)
-            g.addLayout(br)
+            self.bridge_note = make_label(
+                "Tokenless — connection itself is the credential. Install the companion "
+                "horde_studio_bridge.user.js (shipped beside this .py) in Tampermonkey, "
+                f"then open http://127.0.0.1:{self.bridge_port_spin.value()}/ (this app's "
+                "local bridge console) in Firefox and keep that tab open: every AI Horde "
+                "request then rides your browser, so VPN extensions apply. The "
+                "https://stablehorde.net/ main site is never required.", "Caption"
+            )
+            self.bridge_note.setWordWrap(True)
+            g.addWidget(self.bridge_note)
             self.bridge_status = make_label("Off.", "Value")
             self.bridge_status.setWordWrap(True)
             g.addWidget(self.bridge_status)
@@ -20850,6 +21024,12 @@ class MainWindow(QMainWindow):
         self.viewer.toggled_fit.connect(self._on_viewer_fit)
         self.viewer.zoom_changed.connect(self._on_viewer_zoom)
         self.viewer.image_dropped.connect(self._on_external_image_dropped)
+        self.viewer.menu_requested.connect(self._viewer_context_menu)
+        # v10.1: Ctrl+C inside the viewer copies the open image's pixel content
+        # (WidgetWithChildren scope keeps normal text-copy shortcuts untouched).
+        sc_viewer_copy = QShortcut(QKeySequence("Ctrl+C"), self.viewer)
+        sc_viewer_copy.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        sc_viewer_copy.activated.connect(lambda: self.copy_image_to_clipboard())
         lay.addWidget(self.viewer, 1)
 
         # ---- Compact Viewport Zoom & Filmstrip Bar (fits effortlessly down to 240px!) ----
@@ -20896,10 +21076,20 @@ class MainWindow(QMainWindow):
         self.gallery_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.gallery_btn.setToolTip("Show / hide recent filmstrip  (Ctrl+G)")
         self.gallery_btn.toggled.connect(self._toggle_gallery)
+        # v10.1: clipboard copy of the open image — themed vector icon button
+        self.copy_img_btn = QToolButton()
+        self.copy_img_btn.setObjectName("Small")
+        self.copy_img_btn.setIcon(VECTOR_ASSETS.icon("copy", 14))
+        self.copy_img_btn.setIconSize(QSize(14, 14))
+        self.copy_img_btn.setFixedWidth(28)
+        self.copy_img_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.copy_img_btn.setToolTip("Copy image to clipboard  (Ctrl+C)")
+        self.copy_img_btn.clicked.connect(lambda: self.copy_image_to_clipboard())
         view_row.addWidget(self.zoom_out_btn)
         view_row.addWidget(self.zoom_label)
         view_row.addWidget(self.zoom_in_btn)
         view_row.addWidget(self.fit_btn)
+        view_row.addWidget(self.copy_img_btn)
         view_row.addStretch(1)
         view_row.addWidget(self.slide_btn)
         view_row.addWidget(self.gallery_btn)
@@ -21754,10 +21944,10 @@ class MainWindow(QMainWindow):
         self._ups_pending_tpl_name = str(ups.get("template_name") or "")
 
         br = s.get("bridge") or {}
-        tok = str(br.get("token") or "") or secrets.token_hex(8)
+        # The bridge is tokenless — any legacy "token" key in an old
+        # settings.json is simply ignored (no migration value exists).
         self.bridge_port_spin.setValue(int(br.get("port") or BRIDGE_DEFAULT_PORT))
-        self.bridge_token_edit.setText(tok)
-        self.bridge_check.setChecked(bool(br.get("enabled", False)))
+        self.bridge_check.setChecked(bool(br.get("enabled", True)))
 
         st = s.get("local_server") or {}
         self.st_port_spin.setValue(int(st.get("port") or ST_DEFAULT_PORT))
@@ -21874,7 +22064,6 @@ class MainWindow(QMainWindow):
             "bridge": {
                 "enabled": self.bridge_check.isChecked(),
                 "port": self.bridge_port_spin.value(),
-                "token": self.bridge_token_edit.text().strip(),
             },
             "local_server": {"enabled": self.st_check.isChecked(), "port": self.st_port_spin.value()},
             "ui": {
@@ -22702,12 +22891,14 @@ class MainWindow(QMainWindow):
             self._rebuild_lora_ui()
 
     def open_new_lora_dialog(self, preset_id: str = "", is_ver: bool = False) -> None:
+        # v10.1: a freshly added LoRA defaults to FULL strength 1.0 (model & CLIP,
+        # preferred & current) — neutral, predictable, one-click ready.
         raw: Dict[str, Any] = {
             "folder": self._lora_folder_filter if self._lora_folder_filter in self._lora_stack_folders() else "Improve-Overall",
-            "model": 0.8,
-            "clip": 0.8,
-            "preferred_strength": 0.8,
-            "preferred_clip": 0.8,
+            "model": 1.0,
+            "clip": 1.0,
+            "preferred_strength": 1.0,
+            "preferred_clip": 1.0,
             "id": preset_id,
             "is_version": is_ver,
             "enabled": True,
@@ -23901,6 +24092,50 @@ class MainWindow(QMainWindow):
         m.addAction("Send to Tile Upscale", lambda: self.ups_set_source(path))
         m.exec(QCursor.pos())
 
+    def copy_image_to_clipboard(self, path: Optional[str] = None) -> None:
+        """v10.1: copy an image's full pixel content into the system clipboard.
+
+        Entry points: viewer toolbar icon, Ctrl+C (viewer scope), the viewer
+        right-click menu and the filmstrip context menu. Defaults to the image
+        currently open in the viewer. The clipboard receives the decoded full
+        resolution bitmap (PNG stream), not a scaled screenshot."""
+        if path is None:
+            path = self._current_image()
+        if not path:
+            self._flash_summary("Nothing to copy — no image open.")
+            return
+        img = QImage(path)
+        if img.isNull():
+            self.toast.notify("Copy failed — image could not be decoded", "err")
+            self._flash_summary("Copy failed: image could not be decoded.")
+            return
+        QApplication.clipboard().setImage(img)
+        w, h = img.width(), img.height()
+        self.toast.notify(f"Copied \u2192 clipboard  ({w}\u00d7{h})", "ok")
+        self._flash_summary(f"Image copied to clipboard ({w}\u00d7{h}).")
+        STUDIO_LOG.ok("SYS", f"Image copied to clipboard: {os.path.basename(path)} ({w}x{h})")
+
+    def _viewer_context_menu(self, global_pos: QPoint) -> None:
+        """v10.1: right-click menu inside the image viewer."""
+        path = self._current_image()
+        if not path:
+            return
+        meta = self.viewer.meta or {}
+        m = QMenu(self)
+        m.addAction("Copy Image to Clipboard", lambda: self.copy_image_to_clipboard(path))
+        m.addAction("Copy Prompt", lambda: self.use_from_image("prompt", path, meta))
+        m.addSeparator()
+        m.addAction("Save \u25B8 outputs/", self.save_current)
+        m.addAction("Inspect Metadata\u2026", self.show_current_info)
+        m.addSeparator()
+        m.addAction("Open in Image Editor", lambda: self.edit_set_source(path))
+        m.addAction("Send to Tile Upscale", lambda: self.ups_set_source(path))
+        m.addAction("Use as img2img Source", lambda: self._set_img2img_source(path))
+        m.addAction("Extract t2i Prompt via VLM", lambda: self._send_image_to_vlm(path))
+        m.addSeparator()
+        m.addAction("Delete from Disk", self.delete_current)
+        m.exec(global_pos)
+
     def save_current(self) -> None:
         path = self._current_image()
         if not path:
@@ -23950,7 +24185,8 @@ class MainWindow(QMainWindow):
             "Alchemy depth maps, side-by-side img2img EDIT requests, foldered per-model LoRA "
             "manager with trigger ghost text, batch prompt queue, LLM prompt forge with VLM "
             "vision + Hailuo-class motion prompts, tag-group libraries, tiled upscaling, sound "
-            "notifications, browser VPN bridge and a SillyTavern A1111-compatible local server."
+            "notifications, tokenless browser VPN bridge (clipboard image copy, Ctrl+C) "
+            "and a SillyTavern A1111-compatible local server."
             "<br><br>"
             f"Workspace: <code>{os.path.relpath(DATA_DIR, BASE_DIR)}</code> / "
             f"<code>{os.path.relpath(OUTPUT_DIR, BASE_DIR)}</code><br>"
@@ -24056,6 +24292,7 @@ class MainWindow(QMainWindow):
         path = str(it.data(RecentStripGallery.ROLE_PATH) or "")
         meta = dict(it.data(RecentStripGallery.ROLE_META) or {})
         m = QMenu(self)
+        m.addAction("Copy Image to Clipboard", lambda: self.copy_image_to_clipboard(path))
         m.addAction("Save \u25B8 outputs/", lambda: (self.show_image(path), self.save_current()))
         m.addAction(
             ("\u2605 Unfavorite" if meta.get("favorite") else "\u2606 Favorite"),
@@ -26487,7 +26724,8 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------ Bridge & SillyTavern
     def _on_bridge_toggled(self, on: bool) -> None:
         if on:
-            bridge = BrowserBridge(self.bridge_port_spin.value(), self.bridge_token_edit.text().strip())
+            # v10.1: tokenless bridge — the browser connection is the credential
+            bridge = BrowserBridge(self.bridge_port_spin.value())
             if bridge.start():
                 self.bridge = bridge
                 self.api.bridge = bridge
@@ -26511,33 +26749,6 @@ class MainWindow(QMainWindow):
             self._on_bridge_toggled(False)
             self._on_bridge_toggled(True)
         self._schedule_save()
-
-    def _copy_bridge_token(self) -> None:
-        QApplication.clipboard().setText(self.bridge_token_edit.text().strip())
-        self._flash_summary("Bridge token copied")
-
-    def _regen_bridge_token(self) -> None:
-        self.bridge_token_edit.setText(secrets.token_hex(8))
-        self._schedule_save()
-        if self.bridge_check.isChecked():
-            self._on_bridge_toggled(False)
-            self._on_bridge_toggled(True)
-
-    def _copy_userscript(self) -> None:
-        QApplication.clipboard().setText(EMBEDDED_BRIDGE_USERSCRIPT)
-        self._flash_summary("Tampermonkey userscript copied to clipboard")
-
-    def _export_userscript(self) -> None:
-        path, _f = QFileDialog.getSaveFileName(
-            self, "Export userscript", os.path.join(DATA_DIR, "horde_studio_bridge.user.js"),
-            "Userscript (*.js)"
-        )
-        if path:
-            if write_text(path, EMBEDDED_BRIDGE_USERSCRIPT):
-                self._flash_summary(f"Exported {os.path.basename(path)}")
-                STUDIO_LOG.ok("BRIDGE", f"Userscript exported: {path}")
-            else:
-                self._flash_summary("Export failed (cannot write file)")
 
     def _refresh_st_cache(self) -> None:
         self._st_state_cache = {
@@ -26585,7 +26796,13 @@ class MainWindow(QMainWindow):
 
     def _update_server_status(self) -> None:
         if self.bridge and self.bridge.running:
-            st = f"CONNECTED ({self.bridge.client_label()}, {self.bridge.served} reqs)" if self.bridge.is_connected() else f"Listening on 127.0.0.1:{self.bridge.port} — waiting for browser tab"
+            if self.bridge.is_connected():
+                st = f"CONNECTED ({self.bridge.client_label()}, {self.bridge.served} reqs)"
+            else:
+                st = (
+                    f"Waiting for browser tab — open http://127.0.0.1:{self.bridge.port}/ "
+                    "(the local bridge console) in Firefox with the userscript installed"
+                )
             self.bridge_status.setText(st)
         else:
             self.bridge_status.setText("Off.")
@@ -26744,4 +26961,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
