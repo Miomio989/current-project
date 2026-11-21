@@ -1,84 +1,87 @@
-Check why "sending to horde" for img2img (image input) is stalling and request never sent. Update the app to fix any errors. Send updated py file and the script, to make sure it will work properly, sending and receiving everything via browser (NOT directly but using browser page). Check wtf is http://127.0.0.1:7862 and purge it completely (I never asked for anything like that, ONLY the browser requests and no local addresses for this specific task!). Ensure it works, and requests are being send ONLY through the page opened in firefox when bridge is active. NO adresses like http://127.0.0.1:7862, ONLY the browser. Fix everything.
+Update the app:
+1. Check why the work of image generation API is unstable, and not downloading the generated images sometimes. Make sure it will always download the output by the end - as long as the task is existing.
+2. Check why the task cancelled won't disappear immediately. Make sure the cancelled tasks won't just send some "cancel request" but will be purged in the next moment without waiting for anything.
+3. Check why the Generate button, aspect ratios etc., are being visible in various tabs aside of Generation, and fix it to make sure there will be no unnecessary parts occupying screen space. (There is no point to send generation requests if you can't even see the prompts form, which is only in the first tab) 
+4. Check why a new generated image won't be focused on, and fix it
+5. Check why new images won't appear in the visible generations preview query if they are being automatically saved directly to storage; make sure everything will appear (both for temporary and for saved directly)
+6. Make sure I can see many of LoRAs in the lists, and active tasks in the tasks list; also make the logs part minimized by default
+7. Make the UI scale be larger by default, so the current 140% becomes the new 100%
+8. Revert the current design of the userscript in-browser UI to the gold theme (NOT the red theme), also make sure its buttons can visually change when hover or clicking (same as with Horder Studio's own UI style)
+9. Check if the LoRAs for Krea 2, etc. are attached correctly, make sure it is using the correct requests format of Stable Horde of adding loras.
+10. Remove the img2img from the Generation tab (it is not supported by any of the three models); also remove everything about img2img outside of Tiles Upscale, the masks for Generation tab, and the "Reference" (side by side) feature
+11. Make any other improvements for the UI layout, visual design of the UI etc.
+Send the full updated code as single py file, and the browser bridge script separately
 
-Script:
+Browser script:
 // ==UserScript==
 // @name         Horde Studio Lite — Browser Bridge
 // @namespace    horde-studio-lite
-// @version      1.3.1
-// @description  Routes Horde Studio Lite's AI Horde traffic through this browser tab, so the VPN extension active in Firefox applies to every request. Open the app's local bridge console (http://127.0.0.1:7862/) and keep the tab open — stablehorde.net pages are NOT required. Tokenless, auto-connecting.
+// @version      2.0.0
+// @description  Routes every AI Horde request of Horde Studio Lite through this browser tab, so the VPN / proxy extension active in Firefox applies to all traffic. Runs on aihorde.net / stablehorde.net — NO local page, nothing to open. Tokenless, auto-connecting.
 // @author       Horde Studio Lite
-// @match        http://127.0.0.1/*
-// @match        http://localhost/*
-// @match        http://127.0.0.1:7862/*
-// @match        http://localhost:7862/*
-// @match        https://stablehorde.net/*
 // @match        https://aihorde.net/*
+// @match        https://www.aihorde.net/*
+// @match        https://stablehorde.net/*
+// @match        https://www.stablehorde.net/*
 // @grant        GM_xmlhttpRequest
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_registerMenuCommand
+// @connect      aihorde.net
+// @connect      stablehorde.net
 // @connect      127.0.0.1
 // @connect      localhost
-// @connect      stablehorde.net
-// @connect      aihorde.net
 // @connect      *
 // @run-at       document-idle
 // @noframes
 // ==/UserScript==
 
 /* =============================================================================
- * Horde Studio Lite — Browser Bridge v1.3.1 (companion to horde_studio_lite.py)
+ * Horde Studio Lite — Browser Bridge v2.0.0 (companion to horde_studio_lite.py v10.4+)
  *
  * How it works
  * ------------
- *  • The Python app addresses https://stablehorde.net/api/v2 and hands every
- *    request to a small TOKENLESS local relay (127.0.0.1, default port 7862;
- *    enabled with the "Route through browser VPN tunnel" checkbox — ON by
- *    default in v10.3+).
- *  • This script runs ON THE APP'S OWN LOCAL BRIDGE CONSOLE PAGE
- *    (http://127.0.0.1:7862/ — the relay serves that page itself). You open
- *    that one page in Firefox and keep the tab open. NO stablehorde.net page
- *    is needed or probed — the main site never has to open.
- *  • The script long-polls /poll on the relay, receives one queued AI Horde
- *    request at a time, executes it THROUGH THIS BROWSER (so your Firefox VPN
- *    extension applies), and posts the result back to /reply.
- *  • Remote requests (stablehorde.net / aihorde.net API, R2 image hosts) are
- *    sent with GM_xmlhttpRequest FIRST — it bypasses CORS completely and still
- *    rides the browser's network stack (proxy / VPN extension applies). If the
- *    extension-level request fails outright, the page's own fetch() is tried
- *    once as a fallback. Relay traffic always uses GM_xmlhttpRequest (bypasses
- *    private-network restrictions).
- *  • Server address is derived automatically from the console page origin
- *    (works with any relay port); the APPLY button can override it.
+ *  • The Python app binds a PRIVATE app-internal JSON channel on 127.0.0.1
+ *    (default 8491; configurable in the app's HORDE tab). It is NOT a web
+ *    site: no page is served, there is nothing to open, no local address
+ *    ever appears in a URL bar.
+ *  • THIS script runs on https://aihorde.net/ (or https://stablehorde.net/)
+ *    — the page you actually keep open in Firefox — and discovers the app's
+ *    channel automatically (it probes the known channel ports once and
+ *    remembers the winner). No token, no address entry, no CONNECT click.
+ *  • The app hands every AI Horde request (submissions, checks, status
+ *    polls, cancellations, image downloads, Civitai lookups) to this page;
+ *    the page executes them with GM_xmlhttpRequest — INSIDE the browser's
+ *    network stack, so your Firefox VPN / proxy extension applies to all of
+ *    them. While the bridge is connected the app itself sends nothing
+ *    directly.
  *
- * v1.3.1
- * ------
- *  • Claim/ACK hardening: the script acknowledges every claimed job
- *    (POST /ack) BEFORE executing it. The relay re-queues a job whose claim
- *    is never acked, so a killed tab holding a long-poll can no longer eat
- *    requests (that was the remaining "stalling" edge case).
- *
- * v1.3.0
- * ------
- *  • PRIMARY ISSUE FIXED — the script now runs on the app's LOCAL bridge
- *    console page. The old match (stablehorde.net/aihorde.net pages only)
- *    could never fire when the main site would not open in the browser,
- *    leaving every relayed request queued forever (the "stalling" reports).
- *  • Tokenless and auto-configuring: opening the console page IS the
- *    connection — no address entry, no token, no CONNECT click. GM_xmlhttpRequest
- *    is now preferred for the remote API calls (CORS-free from a local page).
- *  • Shipped as a SEPARATE file next to horde_studio_lite.py — it is never
- *    embedded in or exported from the app.
- *  • Kept every earlier fix: respToArrayBuffer() normalising native fetch()
- *    and GM_xmlhttpRequest payloads, Blob-wrapped binary request bodies,
- *    4 parallel worker slots, automatic reconnect, pause/resume.
+ * v2.0.0 — protocol changes (with the v10.4 app)
+ * ----------------------------------------------
+ *  • Runs on the REAL AI Horde pages. The old "local bridge console page"
+ *    is gone — the v10.4 app serves JSON only and never asks you to open a
+ *    local address. The channel is discovered automatically (8491-8493).
+ *  • Instant claim acknowledgement: the app's poll response carries the
+ *    job id in the X-HSL-Job-Id header; this script /acks IMMEDIATELY on
+ *    receipt — before parsing a (possibly multi-MB) body. Together with the
+ *    app's size-aware claim leases this makes duplicate submissions
+ *    structurally impossible (the v1.3.x ack race that stalled img2img
+ *    jobs is dead).
+ *  • Gzip channel payloads: large hand-offs (img2img source images) arrive
+ *    gzip-compressed (X-HSL-Content-Encoding header) and are decompressed
+ *    natively via DecompressionStream. Browsers without it fall back to
+ *    enc=plain automatically.
+ *  • Duplicate-execution guard: a job id is never executed twice in one
+ *    page session, even if the app re-hands it after a lost reply.
+ *  • Kept every earlier fix: respToArrayBuffer() normalisation, Blob-wrapped
+ *    binary bodies, 4 parallel worker slots, automatic reconnect, pause.
  *
  * Setup
  * -----
  *  1. Install THIS file in Tampermonkey (Firefox) — new script → paste → save.
- *  2. Start Horde Studio Lite (bridge checkbox is ON by default).
- *  3. Open http://127.0.0.1:7862/ in Firefox and KEEP THAT TAB OPEN.
- *     Done — the panel turns gold "connected" and every AI Horde request
+ *  2. Start Horde Studio Lite (the bridge checkbox is ON by default).
+ *  3. Open https://aihorde.net/ in Firefox and KEEP THAT TAB OPEN.
+ *     Done — the panel turns green "connected" and every AI Horde request
  *     rides this browser, so the VPN extension applies.
  * ==========================================================================*/
 
@@ -89,35 +92,24 @@ Script:
     const POLL_TIMEOUT_S = 25;      // must match BRIDGE_POLL_SECS on the Python side
     const WORKER_COUNT = 4;         // parallel request slots
     const RECONNECT_MS = 3000;      // retry gap when the app is unreachable
-    const DEFAULT_SERVER = 'http://127.0.0.1:7862';
+    const CHANNEL_CANDIDATES = [
+        'http://127.0.0.1:8491',
+        'http://127.0.0.1:8492',
+        'http://127.0.0.1:8493',
+    ];
+    const DISCOVER_TIMEOUT_MS = 1500;
 
-    function isLocalHost(host) {
-        return host === '127.0.0.1' || host === 'localhost' || host === '[::1]';
-    }
+    const HAS_DECOMPRESS = typeof DecompressionStream === 'function';
 
-    // On a local console page the origin IS the relay address (any port).
-    // On a remote page (optional stablehorde.net / aihorde.net match) fall
-    // back to the stored or default relay address.
-    function resolveServer() {
-        try {
-            if (location.protocol === 'http:' && isLocalHost(location.hostname)) {
-                return location.origin;
-            }
-        } catch (e) { /* fall through */ }
-        return GM_getValue('hsl_server', '') || DEFAULT_SERVER;
-    }
-
-    let serverUrl = resolveServer();
-
-    // Blank any token stored by older script versions — never read again.
-    try { GM_setValue('hsl_token', ''); } catch (e) { /* storage unavailable */ }
+    let serverUrl = GM_getValue('hsl_channel', '') || '';
 
     const stats = { done: 0, failed: 0, lastUrl: '', lastMs: 0, lastError: '' };
     let connected = false;
-    let bridgeUp = false;           // can we reach the local server at all?
+    let channelUp = false;          // can we reach the app's channel at all?
     let started = false;
     let paused = false;
     let minimized = false;
+    const executedIds = new Set();  // duplicate-execution guard (one page session)
 
     // ------------------------------ small helpers ---------------------------
     const $ = (sel) => document.querySelector(sel);
@@ -143,8 +135,7 @@ Script:
     //   • a native fetch() Response         -> .arrayBuffer() gives a promise
     //   • a GM_xmlhttpRequest onload result -> .response already IS the
     //     payload as an ArrayBuffer (responseType 'arraybuffer' was set in
-    //     gmFetch). Calling .arrayBuffer() on it was the cause of the
-    //     "res.arrayBuffer is not a function" download failures.
+    //     gmFetch).
     function respToArrayBuffer(res) {
         if (res && typeof res.arrayBuffer === 'function') {
             return Promise.resolve(res.arrayBuffer());
@@ -205,13 +196,85 @@ Script:
         return fetch(opts.url, init).finally(() => clearTimeout(timer));
     }
 
+    // Parse a GM responseHeaders string ("Name: value\r\n...") case-insensitively.
+    function parseHeaders(raw) {
+        const map = {};
+        if (typeof raw !== 'string') return map;
+        raw.split(/\r?\n/).forEach((line) => {
+            const i = line.indexOf(':');
+            if (i > 0) {
+                map[line.slice(0, i).trim().toLowerCase()] = line.slice(i + 1).trim();
+            }
+        });
+        return map;
+    }
+
+    // Decompress a gzip payload via the native DecompressionStream (Firefox 113+).
+    async function maybeDecompress(hdrs, buf) {
+        const enc = (hdrs['x-hsl-content-encoding'] || '').toLowerCase();
+        if (enc !== 'gzip' || !HAS_DECOMPRESS) return buf;
+        try {
+            const stream = new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'));
+            const out = await new Response(stream).arrayBuffer();
+            return out;
+        } catch (e) {
+            return buf; // fall back to raw — the JSON parse below will surface it
+        }
+    }
+
+    const POLL_ENC = HAS_DECOMPRESS ? 'gzip' : 'plain';
+
+    // ------------------------------ channel discovery -----------------------
+    // Probe the known channel ports ONCE (parallel, 1.5 s budget) and keep the
+    // winner. Nothing else is ever typed or opened by the user.
+    async function discoverChannel() {
+        const stored = GM_getValue('hsl_channel', '');
+        const candidates = [];
+        if (stored) candidates.push(stored);
+        for (const c of CHANNEL_CANDIDATES) {
+            if (!candidates.includes(c)) candidates.push(c);
+        }
+        const probes = candidates.map(async (base) => {
+            try {
+                const res = await gmFetch({
+                    method: 'GET',
+                    url: `${base}/ping`,
+                    timeout: DISCOVER_TIMEOUT_MS,
+                });
+                if (res.status === 200) {
+                    const hdrs = parseHeaders(res.responseHeaders);
+                    const body = JSON.parse(ab2txt(await respToArrayBuffer(res)));
+                    if (body && body.ok && body.proto === 2) return base;
+                }
+            } catch (e) { /* unreachable port */ }
+            return null;
+        });
+        const results = await Promise.all(probes);
+        const winner = results.find((r) => r !== null);
+        if (winner) {
+            serverUrl = winner;
+            GM_setValue('hsl_channel', winner);
+        }
+        return winner !== null && winner !== undefined;
+    }
+
     // ------------------------------ bridge transport ------------------------
     // Tokenless — the connection itself is the credential.
     function pollOnce() {
         return gmFetch({
             method: 'GET',
-            url: `${serverUrl}/poll?timeout=${POLL_TIMEOUT_S}`,
+            url: `${serverUrl}/poll?timeout=${POLL_TIMEOUT_S}&enc=${POLL_ENC}`,
             timeout: (POLL_TIMEOUT_S + 10) * 1000,
+        });
+    }
+
+    function sendAck(id) {
+        return gmFetch({
+            method: 'POST',
+            url: `${serverUrl}/ack`,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id }),
+            timeout: 5000,
         });
     }
 
@@ -274,22 +337,33 @@ Script:
             try {
                 res = await pollOnce();
             } catch (e) {
-                bridgeUp = false;
+                channelUp = false;
                 connected = false;
                 updatePanel();
-                await sleep(RECONNECT_MS);
+                // the app may have been restarted on another port — rediscover
+                if (started) await discoverChannel();
+                if (!serverUrl || !channelUp) await sleep(RECONNECT_MS);
                 continue;
             }
-            bridgeUp = true;
+            channelUp = true;
             if (res.status !== 200) {
                 connected = false;
                 updatePanel();
                 await sleep(1500);
                 continue;
             }
+            const hdrs = parseHeaders(res.responseHeaders);
+            let rawBuf = await respToArrayBuffer(res);
+            rawBuf = await maybeDecompress(hdrs, rawBuf);
+            // v2.0.0: INSTANT claim ack from the response header — before any
+            // multi-MB parse. The app's claim lease protects this hand-off.
+            const claimId = hdrs['x-hsl-job-id'] || '';
+            if (claimId) {
+                try { sendAck(claimId); } catch (e) { /* ack is best-effort */ }
+            }
             let doc;
             try {
-                doc = JSON.parse(ab2txt(res.response));
+                doc = JSON.parse(ab2txt(rawBuf));
             } catch (e) {
                 await sleep(1000);
                 continue;
@@ -302,18 +376,15 @@ Script:
             }
             connected = true;
             updatePanel();
-            // v1.3.1: ACK the claim BEFORE executing — the relay re-queues the
-            // job if this ack never arrives (dead tab held the long-poll).
-            try {
-                await gmFetch({
-                    method: 'POST',
-                    url: `${serverUrl}/ack`,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: job.id }),
-                    timeout: 5000,
-                });
-            } catch (e) { /* ack is best-effort */ }
-            const reply = await execJob(job);
+            let reply;
+            if (executedIds.has(job.id)) {
+                // duplicate hand-off refused — the app re-queued a job this
+                // page already executed; never submit the same request twice.
+                reply = { id: job.id, error: 'duplicate hand-off refused (already executed in this tab)' };
+            } else {
+                executedIds.add(job.id);
+                reply = await execJob(job);
+            }
             try {
                 await sendReply(reply);
             } catch (e) {
@@ -327,58 +398,61 @@ Script:
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
     // ------------------------------ UI panel --------------------------------
+    // Kuro-Urushi lacquer: neutral pure black + exact pure red accents — the
+    // same design language as the app's Oriental Spirit theme.
     const CSS = `
     #hsl-bridge-panel {
         position: fixed; right: 14px; bottom: 14px; z-index: 2147483646;
         width: 252px; font: 11px/1.45 "Segoe UI", Meiryo, sans-serif;
-        color: #efe8d5; border: 1px solid #4d3a07; border-radius: 8px;
-        background: linear-gradient(180deg, #221e15 0%, #17140e 100%);
-        box-shadow: 0 4px 18px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,244,188,.18);
+        color: #f3f3f3; border: 1px solid #2a2a2a; border-radius: 0px;
+        background: linear-gradient(180deg, #161616 0%, #0a0a0a 100%);
+        box-shadow: 0 4px 18px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.07);
         user-select: none;
     }
     #hsl-bridge-panel .hsl-head {
         display: flex; align-items: center; gap: 7px; padding: 7px 9px;
-        border-bottom: 1px solid #0f0d09; cursor: default;
-        background: linear-gradient(180deg, #3a3423 0%, #262217 60%, #1d1a12 100%);
-        border-radius: 8px 8px 0 0;
+        border-bottom: 1px solid #000; cursor: default;
+        background: linear-gradient(180deg, #242424 0%, #141414 60%, #0c0c0c 100%);
+        border-top: 2px solid #e00000; border-radius: 0;
     }
     #hsl-bridge-panel .hsl-title {
-        font-weight: 700; letter-spacing: .8px; font-size: 10.5px; color: #ffd75c;
-        text-shadow: 0 1px 0 rgba(0,0,0,.6); flex: 1;
+        font-weight: 700; letter-spacing: .8px; font-size: 10.5px; color: #ff1e14;
+        text-shadow: 0 1px 0 rgba(0,0,0,.8); flex: 1;
     }
     .hsl-dot {
         width: 9px; height: 9px; border-radius: 50%; flex: none;
-        background: #6b6455; box-shadow: 0 0 0 2px rgba(0,0,0,.35);
+        background: #3a3a3a; box-shadow: 0 0 0 2px rgba(0,0,0,.35);
     }
-    .hsl-dot.ok  { background: #ffcf3f; box-shadow: 0 0 7px 1px rgba(255,207,63,.75); animation: hslPulse 1.6s infinite; }
-    .hsl-dot.wait{ background: #c9973d; }
-    .hsl-dot.err { background: #e06a4b; }
+    .hsl-dot.ok  { background: #ff1e14; box-shadow: 0 0 7px 1px rgba(255,30,20,.75); animation: hslPulse 1.6s infinite; }
+    .hsl-dot.wait{ background: #8a8a8a; }
+    .hsl-dot.err { background: #55221e; }
     @keyframes hslPulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
     #hsl-bridge-panel button, #hsl-bridge-panel input {
-        font: inherit; border-radius: 4px; border: 1px solid #0d0b07;
+        font: inherit; border-radius: 0; border: 1px solid #000;
     }
     #hsl-bridge-panel button {
-        cursor: pointer; color: #241a03; font-weight: 700; padding: 3px 10px;
-        background: linear-gradient(180deg, #fff4bc 0%, #ffd75c 45%, #e8b233 55%, #bd8a1e 100%);
+        cursor: pointer; color: #fff; font-weight: 700; padding: 3px 10px;
+        background: linear-gradient(180deg, #ff382c 0%, #e00000 45%, #b00000 55%, #7a0000 100%);
+        border: 1px solid #380000;
     }
-    #hsl-bridge-panel button:hover { background: linear-gradient(180deg, #fffdc8 0%, #ffe173 45%, #f3bc3d 55%, #cd971f 100%); }
+    #hsl-bridge-panel button:hover { background: linear-gradient(180deg, #ff4d42 0%, #f20800 45%, #c40c00 55%, #8c0000 100%); }
     #hsl-bridge-panel button.ghost {
-        color: #efe8d5; background: linear-gradient(180deg, #454035 0%, #2f2b24 100%);
-        border-color: #100e0a; font-weight: 600; padding: 2px 7px;
+        color: #f3f3f3; background: linear-gradient(180deg, #2e2e2e 0%, #1a1a1a 100%);
+        border-color: #000; font-weight: 600; padding: 2px 7px;
     }
     #hsl-bridge-panel .hsl-body { padding: 8px 9px 9px; }
     #hsl-bridge-panel .row { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
     #hsl-bridge-panel input {
-        flex: 1; min-width: 0; background: #0d0b09; color: #f6efdc; padding: 3px 7px;
-        border: 1px solid #0a0908; box-shadow: inset 0 1px 2px rgba(0,0,0,.6);
+        flex: 1; min-width: 0; background: #050505; color: #f6f6f6; padding: 3px 7px;
+        border: 1px solid #000; box-shadow: inset 0 1px 2px rgba(0,0,0,.6);
     }
-    #hsl-bridge-panel .stat { color: #cdc5b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    #hsl-bridge-panel .stat b { color: #ffd75c; font-weight: 700; }
+    #hsl-bridge-panel .stat { color: #b8b8b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #hsl-bridge-panel .stat b { color: #ff3b30; font-weight: 700; }
     #hsl-bridge-panel .st { font-weight: 700; }
-    #hsl-bridge-panel .st.ok   { color: #b7e07c; }
-    #hsl-bridge-panel .st.wait { color: #f2c453; }
+    #hsl-bridge-panel .st.ok   { color: #ff5a50; }
+    #hsl-bridge-panel .st.wait { color: #cfcfcf; }
     #hsl-bridge-panel .st.err  { color: #e08a6b; }
-    #hsl-bridge-panel .min { cursor: pointer; border: none; background: none; color: #cdc5b3; font-size: 12px; padding: 0 2px; }
+    #hsl-bridge-panel .min { cursor: pointer; border: none; background: none; color: #cfcfcf; font-size: 12px; padding: 0 2px; }
     `;
 
     function buildPanel() {
@@ -403,12 +477,12 @@ Script:
                 </div>
                 <div class="stat l-last" title="last request">\u2014</div>
                 <div class="row cfg">
-                    <input class="in-server" type="text" spellcheck="false" value="${serverUrl.replace(/"/g, '&quot;')}" title="Bridge server address (app: HORDE tab → Browser Bridge → Port)">
+                    <input class="in-server" type="text" spellcheck="false" value="${(serverUrl || '').replace(/"/g, '&quot;')}" title="App channel port — auto-discovered (app: HORDE tab → Browser Bridge). Leave as-is.">
                     <button class="btn-apply ghost">APPLY</button>
                     <button class="btn-pause">PAUSE</button>
                 </div>
                 <div class="row">
-                    <span class="stat l-hint" style="flex:1">Keep this tab open — traffic rides this browser (VPN extension applies).</span>
+                    <span class="stat l-hint" style="flex:1">Keep this aihorde.net tab open — traffic rides this browser (VPN extension applies).</span>
                 </div>
             </div>`;
         document.body.appendChild(p);
@@ -420,8 +494,11 @@ Script:
             p.querySelector('.min').textContent = minimized ? '+' : '\u2013';
         });
         p.querySelector('.btn-apply').addEventListener('click', () => {
-            serverUrl = p.querySelector('.in-server').value.trim() || DEFAULT_SERVER;
-            GM_setValue('hsl_server', serverUrl);
+            const v = p.querySelector('.in-server').value.trim();
+            if (v) {
+                serverUrl = v;
+                GM_setValue('hsl_channel', serverUrl);
+            }
             restart();
         });
         p.querySelector('.in-server').addEventListener('keydown', (ev) => {
@@ -447,11 +524,11 @@ Script:
         if (!p) return;
         const dot = p.querySelector('.hsl-dot');
         const st = p.querySelector('.st');
-        dot.className = 'hsl-dot ' + (connected ? 'ok' : (bridgeUp ? 'wait' : 'err'));
+        dot.className = 'hsl-dot ' + (connected ? 'ok' : (channelUp ? 'wait' : 'err'));
         if (paused) {
             st.className = 'stat st wait';
             st.textContent = 'paused \u2014 press RESUME';
-        } else if (!bridgeUp) {
+        } else if (!channelUp) {
             st.className = 'stat st err';
             st.textContent = 'app not reachable \u2022 retrying';
         } else if (connected) {
@@ -459,7 +536,7 @@ Script:
             st.textContent = 'connected \u2014 traffic rides this browser';
         } else {
             st.className = 'stat st wait';
-            st.textContent = 'bridge reachable \u2022 waiting for requests';
+            st.textContent = 'channel reachable \u2022 waiting for requests';
         }
         p.querySelector('.l-done b').textContent = stats.done;
         p.querySelector('.l-fail b').textContent = stats.failed;
@@ -483,12 +560,26 @@ Script:
         }
     }
 
-    buildPanel();
-    start();
+    async function boot() {
+        buildPanel();
+        const found = await discoverChannel();
+        if (!found) {
+            // keep retrying quietly — the app may not be running yet
+            updatePanel();
+            const retry = setInterval(async () => {
+                if (await discoverChannel()) {
+                    clearInterval(retry);
+                    start();
+                }
+            }, RECONNECT_MS);
+            return;
+        }
+        start();
+    }
+
+    boot();
 })();
-
-the app code (keep it single file):
-
+The main app:
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -683,7 +774,7 @@ except Exception:  # pragma: no cover - non-Windows platforms
 #  1. Constants, Workspace Paths & Legacy Migration
 # =============================================================================
 APP_NAME = "Horde Studio Lite"
-APP_VERSION = "10.3.0"
+APP_VERSION = "10.2.0"
 CLIENT_AGENT = f"HordeStudioLite:{APP_VERSION}:local-desktop"
 HORDE_URL = "https://stablehorde.net/api/v2"
 ANON_KEY = "0000000000"
@@ -749,8 +840,7 @@ BRIDGE_CLIENT_TIMEOUT = 12.0
 # v10.1: a tab that recently SERVED a request stays "connected" this long even
 # while all 4 userscript workers are busy executing jobs (no poll slot free) —
 # prevents false "no connected tab" errors under load.
-BRIDGE_SERVE_GRACE = 3.0            # v10.3: was 180s of phantom "connected"; 3s covers the poll-gap right after a reply
-BRIDGE_ACK_TIMEOUT = 2.5            # v10.3: unacked claim -> requeue (dead poller socket)
+BRIDGE_SERVE_GRACE = 180.0
 BRIDGE_BODY_CAP = 64 * 1024 * 1024
 ST_DEFAULT_PORT = 7860
 ST_BODY_CAP = 8 * 1024 * 1024
@@ -1488,7 +1578,7 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
         "template_set": "anime",
         "template_name": "",
     },
-    "bridge": {"enabled": True, "port": BRIDGE_DEFAULT_PORT},   # v10.3: browser VPN routing is the DEFAULT transport
+    "bridge": {"enabled": False, "port": BRIDGE_DEFAULT_PORT},
     "local_server": {"enabled": False, "port": ST_DEFAULT_PORT},
     "ui": {
         "gallery_visible": True,
@@ -1647,14 +1737,10 @@ DEFAULT_WILDCARDS: Dict[str, str] = {
 }
 
 # The companion Tampermonkey userscript for the Browser VPN Bridge is shipped
-# as a SEPARATE file next to this app: horde_studio_bridge.user.js (v1.3.1).
-# v10.3: it runs on THIS APP'S OWN LOCAL BRIDGE CONSOLE PAGE
-# (http://127.0.0.1:7862/ by default, served by the relay itself): open that
-# one page in Firefox and keep the tab open. The https://stablehorde.net/
-# MAIN SITE IS NEVER REQUIRED (it may not even open in the browser) — only
-# the API endpoints https://stablehorde.net/api/v2/... are addressed, and
-# those requests are executed by the browser tab, so Firefox VPN extensions
-# apply. The relay is tokenless: the connection itself is the credential.
+# as a SEPARATE file next to this app: horde_studio_bridge.user.js (v1.2.0).
+# It runs on https://stablehorde.net/* (and https://aihorde.net/*) pages —
+# open any page of the site and keep that tab open. The relay is tokenless:
+# the connection itself is the credential.
 
 # Job lifecycle states
 STATE_QUEUED = "queued"
@@ -8289,7 +8375,6 @@ class _BridgeRequest:
     __slots__ = (
         "id", "method", "url", "headers", "body", "deadline",
         "done", "status", "resp_headers", "data", "error", "created",
-        "picked", "acked", "_requeue_timer",
     )
 
     def __init__(
@@ -8312,9 +8397,6 @@ class _BridgeRequest:
         self.data = b""
         self.error = ""
         self.created = time.time()
-        self.picked = False            # v10.3: set once a browser worker took the job
-        self.acked = False             # v10.3: worker confirmed receipt via /ack
-        self._requeue_timer: Optional[threading.Timer] = None
 
     def payload(self) -> Dict[str, Any]:
         return {
@@ -8325,99 +8407,6 @@ class _BridgeRequest:
             "body_b64": base64.b64encode(self.body).decode("ascii") if self.body else "",
             "timeout_ms": int(max(1000.0, self.deadline - time.time()) * 1000),
         }
-
-    def arm_requeue(self, bridge: "BrowserBridge", delay: float = BRIDGE_ACK_TIMEOUT) -> None:
-        """v10.3: if no /ack arrives within the window, the claim was lost on a
-        dead socket (a FIN-closed peer can swallow the write WITHOUT raising).
-        Put the job back and wake the live pollers so it is re-handed."""
-        t = threading.Timer(delay, bridge._requeue_if_unacked, args=(self.id,))
-        t.daemon = True
-        self._requeue_timer = t
-        t.start()
-
-
-# v10.3: the local bridge console page served by the relay at "/" — the single
-# page the user keeps open in Firefox. The userscript (horde_studio_bridge.user.js,
-# a SEPARATE file) runs on this page and executes every Horde API request through
-# this browser, so the Firefox VPN extension applies. The https://stablehorde.net/
-# main site is NEVER required — it may be unreachable in the browser; only the
-# https://stablehorde.net/api/v2 endpoints are addressed, from the browser tab.
-_BRIDGE_CONSOLE_PAGE = r"""<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HSL Bridge Console</title>
-<style>
-  :root { color-scheme: dark; }
-  body { margin:0; min-height:100vh; background:#141210; color:#e8e1cf;
-         font:14px/1.6 "Segoe UI", Meiryo, sans-serif; display:flex; align-items:center; justify-content:center; }
-  .card { width:min(680px, 92vw); background:linear-gradient(180deg,#1e1b14,#16130d);
-          border:1px solid #4d3a07; border-radius:12px; padding:26px 30px;
-          box-shadow:0 10px 40px rgba(0,0,0,.5); }
-  h1 { margin:0 0 4px; font-size:17px; letter-spacing:1.5px; color:#ffd75c; }
-  .sub { color:#9a927d; font-size:12px; margin-bottom:18px; }
-  .dot { display:inline-block; width:11px; height:11px; border-radius:50%; background:#6b6455; margin-right:8px; vertical-align:-1px; }
-  .dot.ok { background:#ffcf3f; box-shadow:0 0 8px 2px rgba(255,207,63,.6); animation:p 1.6s infinite; }
-  .dot.wait { background:#c9973d; } .dot.err { background:#e06a4b; }
-  @keyframes p { 0%,100%{opacity:1} 50%{opacity:.5} }
-  #state { font-weight:700; font-size:15px; }
-  .grid { display:grid; grid-template-columns:auto 1fr; gap:4px 16px; margin:16px 0;
-          background:#100e0a; border:1px solid #2c2817; border-radius:8px; padding:14px 16px; }
-  .k { color:#9a927d; } .v { color:#e8e1cf; overflow-wrap:anywhere; }
-  ol { margin:8px 0 4px 20px; padding:0; }
-  li { margin:6px 0; }
-  code { background:#100e0a; border:1px solid #2c2817; border-radius:4px; padding:1px 6px; color:#ffd75c; }
-  .warn { margin-top:14px; padding:10px 12px; border:1px solid #6b2b18; background:#2a1710;
-          border-radius:8px; color:#f0b49a; display:none; }
-  .ok-note { margin-top:14px; padding:10px 12px; border:1px solid #3d5420; background:#1c2413;
-          border-radius:8px; color:#b7e07c; display:none; }
-</style>
-</head>
-<body>
-<div class="card">
-  <h1>HORDE STUDIO LITE &mdash; BROWSER BRIDGE CONSOLE</h1>
-  <div class="sub">__APP__ &nbsp;&bull;&nbsp; keep this tab open &mdash; this tab IS the VPN tunnel</div>
-  <div><span class="dot" id="dot"></span><span id="state">checking app&hellip;</span></div>
-  <div class="grid">
-    <span class="k">API endpoint</span><span class="v">__ENDPOINT__</span>
-    <span class="k">Relay address</span><span class="v">http://127.0.0.1:__PORT__/</span>
-    <span class="k">Connected browser</span><span class="v" id="client">&mdash;</span>
-    <span class="k">Requests served</span><span class="v" id="served">0</span>
-  </div>
-  <b>Setup (once)</b>
-  <ol>
-    <li>Install <code>horde_studio_bridge.user.js</code> in Tampermonkey (Firefox): new userscript &rarr; paste &rarr; save.</li>
-    <li>Start Horde Studio Lite (the bridge checkbox is ON by default).</li>
-    <li>Keep <b>this tab</b> open. Every Horde API request is then executed by this browser &mdash; your Firefox VPN extension applies to all of them.</li>
-  </ol>
-  <div class="warn" id="warn">Userscript not detected: no browser worker is polling this relay yet. Install <code>horde_studio_bridge.user.js</code> in Tampermonkey, then reload this page and leave the tab open.</div>
-  <div class="ok-note" id="oknote">Bridge active &mdash; all AI Horde traffic now rides this browser (VPN extension applies). The main stablehorde.net site is never opened or required.</div>
-</div>
-<script>
-  var dot = document.getElementById('dot'), state = document.getElementById('state');
-  var warn = document.getElementById('warn'), oknote = document.getElementById('oknote');
-  function tick() {
-    fetch('/status', {cache:'no-store'}).then(function (r) { return r.json(); }).then(function (j) {
-      if (j.connected) {
-        dot.className = 'dot ok'; state.textContent = 'CONNECTED \u2014 traffic rides this browser';
-        warn.style.display = 'none'; oknote.style.display = 'block';
-      } else {
-        dot.className = 'dot wait'; state.textContent = 'app reachable \u2014 waiting for the userscript worker';
-        warn.style.display = 'block'; oknote.style.display = 'none';
-      }
-      document.getElementById('client').textContent = j.client || '\u2014';
-      document.getElementById('served').textContent = String(j.served != null ? j.served : 0);
-    }).catch(function () {
-      dot.className = 'dot err'; state.textContent = 'app not reachable \u2014 is Horde Studio Lite running?';
-      warn.style.display = 'none'; oknote.style.display = 'none';
-    });
-  }
-  tick(); setInterval(tick, 1500);
-</script>
-</body>
-</html>
-"""
 
 
 class _BridgeHandler(BaseHTTPRequestHandler):
@@ -8474,30 +8463,10 @@ class _BridgeHandler(BaseHTTPRequestHandler):
         # credential. The listener is bound to 127.0.0.1 exclusively, so any
         # local browser tab that reaches it is trusted outright.
         path = urllib.parse.urlsplit(self.path).path
-        if path == "/":
-            # v10.3: the relay serves its OWN LOCAL BRIDGE CONSOLE page — the
-            # one and only page the user keeps open in Firefox. The main
-            # https://stablehorde.net/ site is never required or probed; only
-            # the API endpoints (https://stablehorde.net/api/v2/...) are
-            # addressed, and those requests are executed by the browser tab.
-            b = self.bridge
-            html = (_BRIDGE_CONSOLE_PAGE
-                    .replace("__APP__", f"{APP_NAME} {APP_VERSION}")
-                    .replace("__ENDPOINT__", HORDE_URL)
-                    .replace("__PORT__", str(b.port)))
-            data = html.encode("utf-8")
-            try:
-                self.send_response(200)
-                self.send_header("Content-Type", "text/html; charset=utf-8")
-                self.send_header("Cache-Control", "no-store")
-                self.send_header("Content-Length", str(len(data)))
-                self._cors()
-                self.end_headers()
-                self.wfile.write(data)
-            except (BrokenPipeError, ConnectionResetError):
-                self.close_connection = True
-            return
-        if path == "/status":
+        if path == "/" or path == "/status":
+            # v10.2: the relay answers with plain JSON status only — there is
+            # no local bridge page anymore; the userscript lives on
+            # stablehorde.net / aihorde.net pages, not on any local page.
             b = self.bridge
             self._send_json(200, {
                 "app": f"{APP_NAME} {APP_VERSION}",
@@ -8527,31 +8496,17 @@ class _BridgeHandler(BaseHTTPRequestHandler):
             with b._cond:
                 while True:
                     if b._queue:
-                        cand = b._queue.popleft()
-                        if cand.done.is_set():
-                            continue            # answered while queued — drop silently
-                        job = cand
-                        job.picked = True
+                        job = b._queue.popleft()
                         break
                     rem = deadline - time.time()
                     if rem <= 0:
                         break
                     b._cond.wait(rem)
             self._send_json(200, {"job": job.payload() if job is not None else None})
-            if job is not None:
-                # v10.3: the write above can succeed into a FIN-closed socket —
-                # if the worker's /ack never lands, reclaim and re-hand the job.
-                job.arm_requeue(b)
         except (BrokenPipeError, ConnectionResetError):
-            # The poller's socket died between the long-poll answer and the
-            # write (tab closed / tab killed mid-poll). v10.3: hand the job
-            # back as UN-picked and WAKE the live pollers immediately so it
-            # never sits unserved until every long-poll deadline expires.
             if job is not None:
                 with b._cond:
-                    job.picked = False
                     b._queue.appendleft(job)
-                    b._cond.notify_all()
         finally:
             b._poll_ended()
 
@@ -8561,7 +8516,7 @@ class _BridgeHandler(BaseHTTPRequestHandler):
         if body is None:
             self._send_json(413, {"error": "reply too large"}, close=True)
             return
-        if path not in ("/reply", "/ack"):
+        if path != "/reply":
             self._send_json(404, {"error": "unknown endpoint"})
             return
         try:
@@ -8569,22 +8524,7 @@ class _BridgeHandler(BaseHTTPRequestHandler):
         except ValueError:
             self._send_json(400, {"error": "bad json"})
             return
-        if path == "/ack":
-            # v10.3: the worker confirms receipt BEFORE executing the remote
-            # request; the relay re-queues any claim that is never acked.
-            self._send_json(200 if self.bridge._ack(doc) else 404, {"ok": True})
-            return
         self._send_json(200 if self.bridge._deliver(doc) else 404, {"ok": True})
-
-
-class _QuietBridgeHTTPServer(ThreadingHTTPServer):
-    daemon_threads = True
-
-    def handle_error(self, request, client_address) -> None:
-        exc = sys.exc_info()[1]
-        if isinstance(exc, (ConnectionError, TimeoutError)):
-            return          # dead tab socket — expected, never spam the console
-        super().handle_error(request, client_address)
 
 
 class BrowserBridge:
@@ -8599,13 +8539,7 @@ class BrowserBridge:
     https://stablehorde.net/api/v2 — this relay only transports those requests
     through the browser while the VPN tunnel is enabled. The companion
     userscript ships as a separate file (horde_studio_bridge.user.js) and runs
-    on THIS relay's own local console page (http://127.0.0.1:<port>/) — the
-    main https://stablehorde.net/ site is NEVER required or probed.
-
-    v10.3 anti-stall: request() aborts as soon as the relay can prove no
-    browser tab is alive while a job is still queued (poll freshness 12s /
-    serve grace 3s / active long-polls), instead of silently blocking for the
-    full API timeout."""
+    on stablehorde.net / aihorde.net pages, never on a local page."""
 
     def __init__(self, port: int) -> None:
         self.port = int(port)
@@ -8626,12 +8560,13 @@ class BrowserBridge:
         if self.running:
             return True
         try:
-            httpd = _QuietBridgeHTTPServer(("127.0.0.1", self.port), _BridgeHandler)
+            httpd = ThreadingHTTPServer(("127.0.0.1", self.port), _BridgeHandler)
         except OSError as exc:
             self.last_error = str(exc)
             STUDIO_LOG.error("BRIDGE", f"Failed to bind 127.0.0.1:{self.port}: {exc}")
             self.running = False
             return False
+        httpd.daemon_threads = True
         httpd.bridge = self  # type: ignore[attr-defined]
         self._httpd = httpd
         self.running = True
@@ -8653,9 +8588,6 @@ class BrowserBridge:
         self._thread = None
         with self._cond:
             for job in list(self._waiters.values()):
-                if job._requeue_timer is not None:
-                    job._requeue_timer.cancel()
-                    job._requeue_timer = None
                 job.error = "bridge stopped"
                 job.done.set()
             self._waiters.clear()
@@ -8674,47 +8606,12 @@ class BrowserBridge:
         with self._cond:
             self._active_polls = max(0, self._active_polls - 1)
 
-    def _ack(self, doc: Dict[str, Any]) -> bool:
-        """v10.3: worker confirms it took the handed-over job."""
-        rid = str(doc.get("id") or "")
-        with self._cond:
-            job = self._waiters.get(rid)
-            if job is None or job.done.is_set():
-                return False
-            job.acked = True
-            if job._requeue_timer is not None:
-                job._requeue_timer.cancel()
-                job._requeue_timer = None
-            return True
-
-    def _requeue_if_unacked(self, job_id: str) -> None:
-        """v10.3: claim lost on a dead poller socket — re-hand the job."""
-        with self._cond:
-            job = self._waiters.get(job_id)
-            if job is None or job.acked or job.done.is_set():
-                return
-            job.picked = False
-            job._requeue_timer = None
-            try:
-                self._queue.remove(job)
-            except ValueError:
-                pass
-            self._queue.appendleft(job)
-            self._cond.notify_all()
-
     def _deliver(self, doc: Dict[str, Any]) -> bool:
         rid = str(doc.get("id") or "")
         with self._cond:
             job = self._waiters.pop(rid, None)
             if job is None:
                 return False
-            if job._requeue_timer is not None:
-                job._requeue_timer.cancel()
-                job._requeue_timer = None
-            try:
-                self._queue.remove(job)
-            except ValueError:
-                pass
             err = doc.get("error")
             if err:
                 job.error = str(err)
@@ -8737,16 +8634,11 @@ class BrowserBridge:
     def is_connected(self) -> bool:
         with self._cond:
             now = time.time()
-            if self._active_polls > 0:
-                return True
-            if (now - self._last_poll) <= BRIDGE_CLIENT_TIMEOUT:
-                return True
-            if (now - self._last_serve) <= BRIDGE_SERVE_GRACE:
-                return True
-            # v10.3: a job currently EXECUTING in the tab (picked, reply not
-            # yet delivered) proves the tab is alive even though its workers
-            # are busy between long-polls.
-            return any(job.picked for job in self._waiters.values())
+            return (
+                self._active_polls > 0
+                or (now - self._last_poll) <= BRIDGE_CLIENT_TIMEOUT
+                or (now - self._last_serve) <= BRIDGE_SERVE_GRACE
+            )
 
     @property
     def served(self) -> int:
@@ -8775,8 +8667,7 @@ class BrowserBridge:
             raise BridgeError(
                 "browser bridge has no connected tab — install the companion "
                 "horde_studio_bridge.user.js in Tampermonkey, then open "
-                f"http://127.0.0.1:{self.port}/ (this app's local bridge console) "
-                "in Firefox and keep that tab open (no token needed)",
+                "https://stablehorde.net/ and keep that tab open (no token needed)",
                 network=False,
             )
         job = _BridgeRequest(method, url, headers, body, timeout)
@@ -8784,41 +8675,17 @@ class BrowserBridge:
             self._waiters[job.id] = job
             self._queue.append(job)
             self._cond.notify()
-        # v10.3 anti-stall: instead of one blocking wait for timeout+15s, wake
-        # every 2s and abort as soon as the job can no longer make progress —
-        # the tab disappeared (nothing is polling) or the relay stopped.
-        deadline = time.time() + max(5.0, timeout + 15.0)
-        while not job.done.wait(2.0):
-            if time.time() >= deadline:
-                break
-            if not self.running:
-                self._discard(job)
-                raise BridgeError("browser bridge stopped", network=False)
-            if not job.picked and not self.is_connected():
-                self._discard(job)
-                raise BridgeError(
-                    "browser bridge tab is gone — reopen http://127.0.0.1:"
-                    f"{self.port}/ in Firefox and keep the tab open",
-                    network=False,
-                )
-        if not job.done.is_set():
-            self._discard(job)
+        if not job.done.wait(max(5.0, timeout + 15.0)):
+            with self._cond:
+                self._waiters.pop(job.id, None)
+                try:
+                    self._queue.remove(job)
+                except ValueError:
+                    pass
             raise BridgeError(f"browser bridge timed out after {int(timeout)}s", network=True)
         if job.error:
             raise BridgeError(f"browser bridge: {job.error}", network=True)
         return job.status, job.resp_headers, job.data
-
-    def _discard(self, job: _BridgeRequest) -> None:
-        """Drop an unanswered job from queue/waiters (anti-stall cleanup)."""
-        with self._cond:
-            if job._requeue_timer is not None:
-                job._requeue_timer.cancel()
-                job._requeue_timer = None
-            self._waiters.pop(job.id, None)
-            try:
-                self._queue.remove(job)
-            except ValueError:
-                pass
 
 
 # =============================================================================
@@ -19720,10 +19587,8 @@ class MainWindow(QMainWindow):
             self.bridge_note = make_label(
                 "Tokenless — connection itself is the credential. Install the companion "
                 "horde_studio_bridge.user.js (shipped beside this .py) in Tampermonkey, "
-                f"then open http://127.0.0.1:{self.bridge_port_spin.value()}/ (this app's "
-                "local bridge console) in Firefox and keep that tab open: every AI Horde "
-                "request then rides your browser, so VPN extensions apply. The "
-                "https://stablehorde.net/ main site is never required.", "Caption"
+                "then open https://stablehorde.net/ and keep that tab open: every AI "
+                "Horde request then rides your browser, so VPN extensions apply.", "Caption"
             )
             self.bridge_note.setWordWrap(True)
             g.addWidget(self.bridge_note)
@@ -21947,7 +21812,7 @@ class MainWindow(QMainWindow):
         # The bridge is tokenless — any legacy "token" key in an old
         # settings.json is simply ignored (no migration value exists).
         self.bridge_port_spin.setValue(int(br.get("port") or BRIDGE_DEFAULT_PORT))
-        self.bridge_check.setChecked(bool(br.get("enabled", True)))
+        self.bridge_check.setChecked(bool(br.get("enabled", False)))
 
         st = s.get("local_server") or {}
         self.st_port_spin.setValue(int(st.get("port") or ST_DEFAULT_PORT))
@@ -26800,8 +26665,8 @@ class MainWindow(QMainWindow):
                 st = f"CONNECTED ({self.bridge.client_label()}, {self.bridge.served} reqs)"
             else:
                 st = (
-                    f"Waiting for browser tab — open http://127.0.0.1:{self.bridge.port}/ "
-                    "(the local bridge console) in Firefox with the userscript installed"
+                    f"Waiting for browser tab (relay port {self.bridge.port}) — open "
+                    "https://stablehorde.net/ with the userscript installed"
                 )
             self.bridge_status.setText(st)
         else:
@@ -26961,5 +26826,6 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
 
