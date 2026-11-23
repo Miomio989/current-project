@@ -5,9 +5,24 @@ The CGi work has a vibrant color palette, soft lighting from multiple directions
 [Before starting, clean up any remnants from the previous (unrelated) session]
 You are an expert software engineer. Your task is to remake this app drastically, doing a major update to improve it generally, fixing any possile issues with UI, implementing the most efficient and optimal UI layout, improving the existing themes while keeping everything well-optimized, fixing/preventing glitches, giving it professionally-done and refined look.
 
-Also: implement the change of UI scale % as a dropdown menu instead of adjusting it in small portions by clicks on +/-
-Also: implement various types of sounds for each of existing themes
-Also: implement more soft sounds for various other interactions: hover over a button, pressing a button, opening context menu, etc.; think of it as the UI-related SFX in a videogame main menu. In the settings, offer three options: all sounds, only improtant notifications sounds, no sound.
+Also fix:
+  File "D:\Documents\python\testing\hl.py", line 37386, in <module>
+    raise SystemExit(main())
+  File "D:\Documents\python\testing\hl.py", line 37357, in main
+    win = MainWindow()
+  File "D:\Documents\python\testing\hl.py", line 26561, in __init__
+    self._build_ui()
+  File "D:\Documents\python\testing\hl.py", line 26610, in _build_ui
+    self.left = self._build_left()
+  File "D:\Documents\python\testing\hl.py", line 26876, in _build_left
+    self._build_horde_tab(),
+  File "D:\Documents\python\testing\hl.py", line 28837, in _build_horde_tab
+    lay.addWidget(self._horde_group("UI Scale, Theme & Sound Mode", build_sounds, expanded=True))
+  File "D:\Documents\python\testing\hl.py", line 28575, in _horde_group
+    build(gl)
+  File "D:\Documents\python\testing\hl.py", line 28804, in build_sounds
+    sfx_flow = FlowContainer(hgap=3, vgap=3)
+TypeError: FlowContainer.__init__() got an unexpected keyword argument 'hgap'
 
 Generally, study the app properly to find out what you can improve or adjust. Feel free to make any changes for the better and more professionally-done implementation of the app.
 
@@ -212,7 +227,7 @@ except Exception:  # pragma: no cover - non-Windows platforms
 #  1. Constants, Workspace Paths & Legacy Migration
 # =============================================================================
 APP_NAME = "Horde Studio Lite"
-APP_VERSION = "18.0.0"
+APP_VERSION = "19.0.0"
 CLIENT_AGENT = f"HordeStudioLite:{APP_VERSION}:local-desktop"
 HORDE_URL = "https://stablehorde.net/api/v2"
 ANON_KEY = "0000000000"
@@ -1413,10 +1428,10 @@ THEMES: Dict[str, Dict[str, str]] = {
         "sunken_bot": "#47391d",
         "field_top": "#060502",
         "field_bot": "#120e07",
-        "text": "#f5edd9",
-        "text_hi": "#fffcf2",
-        "muted": "#c9b587",
-        "dim": "#877654",
+        "text": "#f7f0dc",
+        "text_hi": "#fffdf5",
+        "muted": "#d4bf8e",
+        "dim": "#917f59",
         "ghost": "#b3a077",
         "line": "#3e321c",
         "line_hi": "#786131",
@@ -1503,10 +1518,10 @@ THEMES: Dict[str, Dict[str, str]] = {
         "sunken_bot": "#282828",
         "field_top": "#020202",
         "field_bot": "#0b0b0b",
-        "text": "#f3f3f3",
+        "text": "#f5f5f5",
         "text_hi": "#ffffff",
-        "muted": "#b8b8b8",
-        "dim": "#757575",
+        "muted": "#c2c2c2",
+        "dim": "#7d7d7d",
         "ghost": "#989898",
         "line": "#242424",
         "line_hi": "#444444",
@@ -1593,10 +1608,10 @@ THEMES: Dict[str, Dict[str, str]] = {
         "sunken_bot": "#203959",
         "field_top": "#030710",
         "field_bot": "#0a1529",
-        "text": "#eff6fe",
+        "text": "#f0f7ff",
         "text_hi": "#ffffff",
-        "muted": "#a8c3e2",
-        "dim": "#6581a6",
+        "muted": "#b2cde8",
+        "dim": "#6e8bb0",
         "ghost": "#94b0d6",
         "line": "#1b2f4d",
         "line_hi": "#3d6291",
@@ -1683,10 +1698,10 @@ THEMES: Dict[str, Dict[str, str]] = {
         "sunken_bot": "#ffffff",
         "field_top": "#ffffff",
         "field_bot": "#f2f8ff",
-        "text": "#162b42",
-        "text_hi": "#091829",
-        "muted": "#466482",
-        "dim": "#6e89a6",
+        "text": "#11263d",
+        "text_hi": "#071626",
+        "muted": "#3e5d7c",
+        "dim": "#607d9c",
         "ghost": "#6682a1",
         "line": "#bdd6eb",
         "line_hi": "#7cb8e0",
@@ -1773,10 +1788,10 @@ THEMES: Dict[str, Dict[str, str]] = {
         "sunken_bot": "#384c3f",
         "field_top": "#0f1512",
         "field_bot": "#17201b",
-        "text": "#ecf5ee",
-        "text_hi": "#f8fff9",
-        "muted": "#b2cab8",
-        "dim": "#799482",
+        "text": "#eef7f0",
+        "text_hi": "#f9fffa",
+        "muted": "#b6cfbc",
+        "dim": "#7e9a87",
         "ghost": "#96b29f",
         "line": "#2d3f34",
         "line_hi": "#4a6956",
@@ -1851,12 +1866,13 @@ THEMES: Dict[str, Dict[str, str]] = {
 THEME_ORDER: Tuple[str, ...] = ("seestation", "gold", "oriental", "kreatendo", "mint")
 C: Dict[str, str] = dict(THEMES["seestation"])
 
-# v12 unified scale system: 1.00 == clean 100% baseline (9.6pt base font — crisp
-# on 800x600 laptops and scales smoothly up to 150% on HiDPI screens with ZERO
-# clamping mismatch between stylesheet, delegates, headers, and tabs).
+# v19 unified dropdown scale system: 1.00 == clean 100% baseline (9.6pt base font —
+# crisp on 800x600 laptops and scales smoothly up to 150% on HiDPI screens via the
+# UI Scale % dropdown menu with ZERO clamping mismatch across QSS, delegates & chrome).
 SCALE_REFERENCE: float = 1.00
 SCALE_MIN: float = 0.75   # 75% compact display
 SCALE_MAX: float = 1.50   # 150% large display
+UI_SCALE_PRESETS: Tuple[int, ...] = (75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 135, 150)
 _UI_SCALE: float = SCALE_REFERENCE
 _LOW_POWER_MODE: bool = False
 
@@ -1899,18 +1915,41 @@ def scale_percent(eff: float) -> int:
     return int(round((float(eff) / SCALE_REFERENCE) * 100.0))
 
 
+def scale_for_percent(pct: int) -> float:
+    """Convert an integer UI percentage (75..150) into the unified scale multiplier."""
+    clamped = max(int(round(SCALE_MIN * 100)), min(int(round(SCALE_MAX * 100)), int(pct)))
+    return round((clamped / 100.0) * SCALE_REFERENCE, 4)
+
+
+def nearest_scale_preset(eff: float) -> int:
+    """Return the closest preset percentage in UI_SCALE_PRESETS for clean dropdown sync."""
+    target = scale_percent(eff)
+    return min(UI_SCALE_PRESETS, key=lambda p: (abs(p - target), p))
+
+
+def step_scale_preset(eff: float, direction: int) -> float:
+    """Step cleanly up (+1) or down (-1) through UI_SCALE_PRESETS for Ctrl++/Ctrl+-."""
+    cur_pct = nearest_scale_preset(eff)
+    try:
+        idx = UI_SCALE_PRESETS.index(cur_pct)
+    except ValueError:
+        idx = UI_SCALE_PRESETS.index(100)
+    nxt_idx = max(0, min(len(UI_SCALE_PRESETS) - 1, idx + (1 if direction > 0 else -1)))
+    return scale_for_percent(UI_SCALE_PRESETS[nxt_idx])
+
+
 def default_scale_for_screen() -> float:
-    """Pick an ideal crisp default UI scale for the host display resolution
-    (0.95–1.00 on 800x600 / 1024x600 compact laptops, 1.08 on 1080p+ displays)."""
+    """Pick an ideal crisp dropdown preset for the host display resolution
+    (90% on 800x600 / 1024x600 compact laptops, 100% standard, 110% on 1080p+ displays)."""
     try:
         scr = QGuiApplication.primaryScreen()
         if scr is not None:
             av = scr.availableGeometry()
             if av.width() <= 860 or av.height() <= 620:
-                return 0.92
+                return scale_for_percent(90)
             if av.width() <= 1152 or av.height() <= 740:
-                return 1.00
-            return 1.08
+                return scale_for_percent(100)
+            return scale_for_percent(110)
     except Exception:  # noqa: BLE001
         pass
     return SCALE_REFERENCE
@@ -3010,6 +3049,22 @@ QMenu::separator {{
 QMenu::icon {{
     padding-left: 8px;
 }}
+QMenu::indicator {{
+    width: 13px;
+    height: 13px;
+    margin-left: 6px;
+    border: 1.5px solid {C['line_hi']};
+    border-radius: {U['rad_md']};
+    background: {C['field_top']};
+}}
+QMenu::indicator:exclusive {{
+    border-radius: 7px;
+}}
+QMenu::indicator:checked {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['acc_hi']}, stop:1 {C['acc_lo']});
+    border: 1.5px solid {C['acc_edge']};
+    image: {G['check']};
+}}
 QMenu::right-arrow {{
     border-left: 5px solid {C['muted']};
     border-right: 4px solid transparent;
@@ -3216,18 +3271,59 @@ QToolButton#PerfPill:checked {{
 QWidget#CornerDock {{
     background: transparent;
 }}
-QToolButton#ScalePill {{
+QComboBox#ScaleCombo {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['btn_hi']}, stop:1 {C['deep']});
+    color: {C['text_hi']};
+    border: 1px solid {C['line_hi']};
+    border-radius: {U['rad_md']};
+    padding: 1px 16px 1px 6px;
+    font-size: {f_xs}pt;
+    font-weight: 700;
+}}
+QComboBox#ScaleCombo:hover {{
+    border: 1px solid {C['acc_hi']};
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['btn_hov_hi']}, stop:1 {C['btn_lo']});
+}}
+QComboBox#ScaleCombo::drop-down {{
+    width: 15px;
+    border-left: 1px solid {C['line']};
+    background: transparent;
+}}
+QComboBox#ThemeCombo {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['btn_hi']}, stop:1 {C['deep']});
+    color: {C['text_hi']};
+    border: 1px solid {C['line_hi']};
+    border-radius: {U['rad_md']};
+    padding: 1px 16px 1px 5px;
+    font-size: {f_xs}pt;
+    font-weight: 700;
+}}
+QComboBox#ThemeCombo:hover {{
+    border: 1px solid {C['acc_hi']};
+}}
+QComboBox#ThemeCombo::drop-down {{
+    width: 15px;
+    border-left: 1px solid {C['line']};
+    background: transparent;
+}}
+QToolButton#SoundPill {{
     background: {C['deep']};
     color: {C['muted']};
     border: 1px solid {C['line']};
     border-radius: {U['rad_md']};
-    padding: 1px 5px;
+    padding: 1px 3px;
     font-size: {f_xs}pt;
-    font-weight: bold;
+    font-weight: 700;
 }}
-QToolButton#ScalePill:hover {{
-    color: {C['text_hi']};
+QToolButton#SoundPill:hover {{
     border: 1px solid {C['acc_hi']};
+    color: {C['text_hi']};
+}}
+QFrame#SoundModeCard {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['plate_hi']}, stop:1 {C['deep']});
+    border: 1px solid {C['line_hi']};
+    border-left: 3px solid {C['acc_mid']};
+    border-radius: {U['rad_md']};
 }}
 
 /* ---- Message boxes & dialogs ---- */
@@ -3336,13 +3432,16 @@ QFrame#DeckOfflineBanner QLabel {{
     color: {'#7a4100' if is_light_theme() else '#ffd382'};
 }}
 QFrame#OfflineBanner {{
-    background: {'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #e4d4b5, stop:0.55 #dcc8a4, stop:1 #d3bc94)' if is_light_theme() else 'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #3a1208, stop:0.55 #2a0d06, stop:1 #1a0704)'};
+    background: {'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #fff4db, stop:0.55 #ffebc2, stop:1 #ffe0a3)' if is_light_theme() else 'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #3a1208, stop:0.55 #2a0d06, stop:1 #1a0704)'};
     border: 1px solid {C['warn']};
     border-left: 3px solid {C['err']};
     border-radius: {U['rad_md']};
 }}
+QFrame#OfflineBanner QLabel {{
+    color: {'#7a3800' if is_light_theme() else '#ffd4a3'};
+}}
 QLabel#DirtyBadge {{
-    background: {'#e5d6b0' if is_light_theme() else C['acc_deep']};
+    background: {'#fff1cc' if is_light_theme() else C['acc_deep']};
     color: {C['warn']};
     border: 1px solid {C['warn']};
     border-radius: {U['rad_pill']};
@@ -3485,8 +3584,32 @@ QPushButton#Chip:checked {
     border: 1px solid #6ec7ff;
     color: #ffffff;
 }
-QToolButton#ScalePill, QComboBox#ScaleCombo { border-radius: 9px; border-left: 2px solid #38a8ff; }
-QComboBox#ThemeCombo { border-radius: 9px; border-left: 2px solid #4db8ff; }
+QComboBox#ScaleCombo {
+    border-radius: 9px;
+    border: 1px solid #305585;
+    border-left: 3px solid #38b4ff;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #172e52, stop:1 #091529);
+    color: #eef7ff;
+}
+QComboBox#ScaleCombo:hover { border: 1px solid #5cc6ff; border-left: 3px solid #9ae0ff; }
+QComboBox#ThemeCombo {
+    border-radius: 9px;
+    border: 1px solid #305585;
+    border-left: 3px solid #4db8ff;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #172e52, stop:1 #091529);
+}
+QToolButton#SoundPill { border-radius: 8px; border: 1px solid #2b4c78; background: #091529; }
+QToolButton#SoundPill:hover { border: 1px solid #5cc6ff; background: #142a4d; }
+QRadioButton::indicator:checked {
+    background: qradialgradient(cx:0.45,cy:0.40,radius:0.60, stop:0 #e8f7ff, stop:0.50 #4cb5ff, stop:1 #005cb8);
+    border: 1.5px solid #bfe5ff;
+}
+QFrame#SoundModeCard {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #122442, stop:1 #071020);
+    border: 1px solid #294973;
+    border-left: 3px solid #4cb5ff;
+    border-radius: 9px;
+}
 QFrame#StudioTabPane {
     border-radius: 8px;
     border: 1px solid #233d61;
@@ -3619,8 +3742,33 @@ QPushButton#SegL:checked, QPushButton#Seg:checked, QPushButton#SegR:checked {
 }
 QPushButton#Chip { border-radius: 0px; border-left: 2px solid #484848; }
 QPushButton#Chip:checked { background: #260604; border: 1px solid #ff1a12; border-left: 3px solid #ff1410; color: #ffffff; }
-QToolButton#ScalePill, QComboBox#ScaleCombo { border-radius: 0px; border-left: 2px solid #e60000; }
-QComboBox#ThemeCombo { border-radius: 0px; border-left: 2px solid #e60000; border-right: 1px solid #d4a64a; }
+QComboBox#ScaleCombo {
+    border-radius: 0px;
+    border: 1px solid #343434;
+    border-left: 3px solid #ff1a12;
+    border-right: 1px solid #d4a64a;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1a1a1a, stop:1 #070707);
+    color: #ffffff;
+}
+QComboBox#ScaleCombo:hover { border: 1px solid #ff281e; border-left: 3px solid #ff483e; }
+QComboBox#ThemeCombo {
+    border-radius: 0px;
+    border: 1px solid #343434;
+    border-left: 3px solid #ff1a12;
+    border-right: 2px solid #d4a64a;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1a1a1a, stop:1 #070707);
+}
+QToolButton#SoundPill { border-radius: 0px; border: 1px solid #303030; border-bottom: 2px solid #cc0000; background: #080808; }
+QToolButton#SoundPill:hover { border: 1px solid #ff1a12; background: #1f0604; }
+QRadioButton::indicator { border-radius: 0px; border: 1.5px solid #4e4e4e; background: #060606; }
+QRadioButton::indicator:checked { background: #e60000; border: 1.5px solid #ffd8d2; }
+QFrame#SoundModeCard {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #161616, stop:1 #070707);
+    border: 1px solid #2b2b2b;
+    border-left: 3px solid #ff1a12;
+    border-top: 1px solid #d4a64a;
+    border-radius: 0px;
+}
 QFrame#Plate, QFrame#StudioTabPane {
     border-radius: 0px; border: 1px solid #2b2b2b; border-top: 2px solid #cc0000;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #151515, stop:1 #080808);
@@ -3769,11 +3917,50 @@ QPushButton#Chip:checked {
     color: #ffffff;
     font-weight: 700;
 }
-QToolButton#ScalePill { border-radius: 11px; }
+QComboBox#ScaleCombo {
+    border-radius: 11px;
+    border: 2px solid #96bddf;
+    border-left: 3px solid #009ce0;
+    border-right: 2px solid #f5a800;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:0.55 #eff8ff, stop:1 #dcf0fc);
+    color: #0b223b;
+}
+QComboBox#ScaleCombo:hover {
+    border: 2px solid #009ce0;
+    border-left: 3px solid #2cc8ff;
+    border-right: 2px solid #19b87a;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:1 #d4efff);
+}
 QComboBox#ThemeCombo {
     border-radius: 11px;
+    border: 2px solid #96bddf;
     border-left: 3px solid #009ce0;
     border-right: 3px solid #19b87a;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:0.55 #eff8ff, stop:1 #dcf0fc);
+    color: #0b223b;
+}
+QToolButton#SoundPill {
+    border-radius: 10px;
+    border: 2px solid #96bddf;
+    border-top: 2px solid #ffffff;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:1 #e1f1fc);
+    color: #0c2640;
+}
+QToolButton#SoundPill:hover { border: 2px solid #009ce0; background: #e0f5ff; }
+QRadioButton::indicator {
+    border-radius: 7px;
+    border: 2px solid #7faed6;
+    background: #ffffff;
+}
+QRadioButton::indicator:checked {
+    background: qradialgradient(cx:0.40,cy:0.35,radius:0.65, stop:0 #ffffff, stop:0.42 #38ccff, stop:0.82 #009ce0, stop:1 #006da8);
+    border: 2px solid #006da8;
+}
+QFrame#SoundModeCard {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:1 #e9f5fe);
+    border: 2px solid #9ec2df;
+    border-left: 4px solid #009ce0;
+    border-radius: 11px;
 }
 QFrame#Plate, QFrame#StudioTabPane {
     border-radius: 12px;
@@ -3940,8 +4127,34 @@ QPushButton#Chip:checked {
     border: 1px solid #87cf3e;
     color: #f4fff6;
 }
-QToolButton#ScalePill { border-radius: 8px; }
-QComboBox#ThemeCombo { border-radius: 7px; border-left: 3px solid #87cf3e; border-right: 2px solid #4ec7b8; }
+QComboBox#ScaleCombo {
+    border-radius: 7px;
+    border: 1px solid #35503f;
+    border-left: 3px solid #87cf3e;
+    border-right: 2px solid #4ec7b8;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #233329, stop:1 #131c17);
+    color: #eef8f0;
+}
+QComboBox#ScaleCombo:hover { border: 1px solid #87cf3e; background: #293e31; }
+QComboBox#ThemeCombo {
+    border-radius: 7px;
+    border: 1px solid #35503f;
+    border-left: 3px solid #87cf3e;
+    border-right: 2px solid #4ec7b8;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #233329, stop:1 #131c17);
+}
+QToolButton#SoundPill { border-radius: 7px; border: 1px solid #344e3e; background: #141e18; }
+QToolButton#SoundPill:hover { border: 1px solid #87cf3e; background: #22382b; }
+QRadioButton::indicator:checked {
+    background: qradialgradient(cx:0.42,cy:0.38,radius:0.62, stop:0 #f0ffea, stop:0.48 #87cf3e, stop:1 #2f7d3a);
+    border: 1.5px solid #d2f7be;
+}
+QFrame#SoundModeCard {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1f2e25, stop:1 #131d17);
+    border: 1px solid #344e3e;
+    border-left: 3px solid #87cf3e;
+    border-radius: 8px;
+}
 QFrame#Plate, QFrame#StudioTabPane {
     border-radius: 8px;
     border: 1px solid #2b3f33;
@@ -4083,8 +4296,33 @@ QPushButton#Chip:checked {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #593e0e, stop:1 #362407);
     border: 1px solid #ffc93c; border-left: 3px solid #ffe680; color: #fffcf2;
 }
-QToolButton#ScalePill { border-radius: 1px; }
-QComboBox#ThemeCombo { border-radius: 1px; border-left: 2px solid #ffc93c; }
+QComboBox#ScaleCombo {
+    border-radius: 1px;
+    border: 1px solid #6b5424;
+    border-left: 3px solid #ffc93c;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2a2110, stop:1 #100c05);
+    color: #fff6dc;
+}
+QComboBox#ScaleCombo:hover { border: 1px solid #ffc93c; background: #3b2e15; }
+QComboBox#ThemeCombo {
+    border-radius: 1px;
+    border: 1px solid #6b5424;
+    border-left: 3px solid #ffc93c;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2a2110, stop:1 #100c05);
+}
+QToolButton#SoundPill { border-radius: 1px; border: 1px solid #5c4820; border-top: 1px solid #b58d35; background: #100c05; }
+QToolButton#SoundPill:hover { border: 1px solid #ffc93c; background: #30240f; }
+QRadioButton::indicator { border-radius: 2px; border: 1.5px solid #755d2b; background: #0a0803; }
+QRadioButton::indicator:checked {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffe588, stop:1 #c97f0c);
+    border: 1.5px solid #fff2b3;
+}
+QFrame#SoundModeCard {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #20190c, stop:1 #0d0a04);
+    border: 1px solid #594620;
+    border-top: 2px solid #de9614;
+    border-radius: 1px;
+}
 QFrame#Plate, QFrame#StudioTabPane {
     border-radius: 1px;
     border: 1px solid #4a3b1d;
@@ -4174,6 +4412,14 @@ def apply_palette(app: QApplication) -> None:
     pal.setColor(QPalette.ColorRole.ToolTipBase, QColor(C["deep"]))
     pal.setColor(QPalette.ColorRole.ToolTipText, hi)
     pal.setColor(QPalette.ColorRole.PlaceholderText, QColor(C["dim"]))
+    pal.setColor(QPalette.ColorRole.BrightText, QColor(C["acc_spec"]))
+    pal.setColor(QPalette.ColorRole.Light, QColor(C["plate_edge_top"]))
+    pal.setColor(QPalette.ColorRole.Midlight, QColor(C["plate_hi"]))
+    pal.setColor(QPalette.ColorRole.Dark, QColor(C["plate_edge"]))
+    pal.setColor(QPalette.ColorRole.Mid, QColor(C["line"]))
+    pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, window)
+    pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, QColor(C["plate_lo"]))
+    pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Button, QColor(C["btn_lo"]))
     pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, QColor(C["dim"]))
     pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, QColor(C["dim"]))
     pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, QColor(C["dim"]))
@@ -5102,6 +5348,29 @@ _MINI_ICON_MOTIFS: Dict[str, str] = {
         "<rect x='2.8' y='4.0' width='18.4' height='16.0' rx='2.2' fill='{core}' stroke='{pri}' stroke-width='1.8'/>"
         "<rect x='3.6' y='4.8' width='6.2' height='14.4' rx='1.2' fill='{acc}'/>"
     ),
+    "sound_all": (
+        "<polygon points='3.2,9.2 7.6,9.2 12.6,4.8 12.6,19.2 7.6,14.8 3.2,14.8' "
+        "fill='{core}' stroke='{pri}' stroke-width='1.8' stroke-linejoin='round'/>"
+        "<path d='M15.4,8.6 C17.0,10.2 17.0,13.8 15.4,15.4' fill='none' stroke='{acc}' stroke-width='2.1' stroke-linecap='round'/>"
+        "<path d='M18.0,5.8 C20.8,8.8 20.8,15.2 18.0,18.2' fill='none' stroke='{acc}' stroke-width='2.1' stroke-linecap='round'/>"
+    ),
+    "sound_notify": (
+        "<polygon points='3.0,9.2 7.2,9.2 12.0,5.0 12.0,19.0 7.2,14.8 3.0,14.8' "
+        "fill='{core}' stroke='{pri}' stroke-width='1.8' stroke-linejoin='round'/>"
+        "<path d='M15.2,9.4 C16.6,10.8 16.6,13.2 15.2,14.6' fill='none' stroke='{pri}' stroke-width='1.9' stroke-linecap='round'/>"
+        "<circle cx='18.6' cy='7.4' r='2.8' fill='{acc}' stroke='{pri}' stroke-width='1.1'/>"
+    ),
+    "sound_mute": (
+        "<polygon points='3.2,9.2 7.6,9.2 12.6,4.8 12.6,19.2 7.6,14.8 3.2,14.8' "
+        "fill='{core}' stroke='{pri}' stroke-opacity='0.65' stroke-width='1.8' stroke-linejoin='round'/>"
+        "<line x1='15.4' y1='8.4' x2='21.0' y2='15.6' stroke='{acc}' stroke-width='2.2' stroke-linecap='round'/>"
+        "<line x1='21.0' y1='8.4' x2='15.4' y2='15.6' stroke='{acc}' stroke-width='2.2' stroke-linecap='round'/>"
+    ),
+    "ui_scale": (
+        "<rect x='3.0' y='4.2' width='18.0' height='15.6' rx='2.2' fill='{core}' stroke='{pri}' stroke-width='1.8'/>"
+        "<path d='M7.2,16.4 L16.8,7.6 M12.2,7.6 L16.8,7.6 L16.8,12.2 M11.8,16.4 L7.2,16.4 L7.2,11.8' "
+        "fill='none' stroke='{acc}' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'/>"
+    ),
 }
 MINI_ICON_KEYS: Set[str] = set(_MINI_ICON_MOTIFS.keys())
 
@@ -5826,6 +6095,7 @@ class VectorCursorEngine:
             targets = list(app.allWidgets())
         elif isinstance(root, QWidget):
             targets = [root] + list(root.findChildren(QWidget))
+        cur_theme = self._theme
         for w in targets:
             try:
                 cur_shape = w.cursor().shape()
@@ -5833,20 +6103,20 @@ class VectorCursorEngine:
                     continue
                 tagged = w.property(self._CUSTOM_PROP)
                 if isinstance(tagged, str) and tagged in CURSOR_HOTSPOTS:
-                    w.setCursor(self.cursor(tagged))
+                    role = tagged
                 elif cur_shape in _QT_SHAPE_TO_CURSOR_ROLE:
                     role = _QT_SHAPE_TO_CURSOR_ROLE[cur_shape]
-                    w.setProperty(self._CUSTOM_PROP, role)
-                    w.setCursor(self.cursor(role))
                 elif isinstance(w, (QLineEdit, QPlainTextEdit)):
-                    w.setProperty(self._CUSTOM_PROP, "ibeam")
-                    w.setCursor(self.cursor("ibeam"))
+                    role = "ibeam"
                 elif isinstance(w, (QAbstractButton, QSlider, QTabBar, QComboBox)):
-                    w.setProperty(self._CUSTOM_PROP, "pointer")
-                    w.setCursor(self.cursor("pointer"))
+                    role = "pointer"
                 elif w.testAttribute(Qt.WidgetAttribute.WA_SetCursor) or w.isWindow():
-                    w.setProperty(self._CUSTOM_PROP, "arrow")
-                    w.setCursor(self.cursor("arrow"))
+                    role = "arrow"
+                else:
+                    continue
+                w.setProperty(self._CUSTOM_PROP, role)
+                w.setProperty("_hsl_cursor_theme", cur_theme)
+                w.setCursor(self.cursor(role))
             except RuntimeError:
                 continue
 
@@ -7734,68 +8004,187 @@ def is_black_placeholder_frame(data: bytes, dark_luma: int = 12, ratio: float = 
 # =============================================================================
 #  6b. Sound Notification Engine (synthesized WAV cues, plays while unfocused)
 # =============================================================================
+SOUND_MODE_ALL = "all"
+SOUND_MODE_IMPORTANT = "important"
+SOUND_MODE_NONE = "none"
+
+SOUND_MODES: Tuple[Tuple[str, str, str], ...] = (
+    (
+        SOUND_MODE_ALL,
+        "All sounds",
+        "Important studio notifications + soft videogame-menu UI SFX (hover, click, toggle, tabs, menus)",
+    ),
+    (
+        SOUND_MODE_IMPORTANT,
+        "Only important notification sounds",
+        "Play key alerts (generated, failed, upscale, saved, network, LLM done); disable soft UI menu SFX",
+    ),
+    (
+        SOUND_MODE_NONE,
+        "No sound",
+        "Mute all notifications and UI interaction sounds",
+    ),
+)
+
 SOUND_EVENT_LABELS: Dict[str, str] = {
     "sent": "Request sent (GENERATE clicked)",
     "done": "Image generated",
     "fail": "Image failed",
     "upscale": "Tile upscale composed",
-    "saved": "Edited image saved separately",
+    "saved": "Image / edited copy saved",
     "reconnect": "Internet connection restored",
     "offline": "Internet connection lost (tasks held)",
-    "llm_done": "LLM prompt stream completed",
+    "llm_done": "LLM / Vision stream completed",
+}
+
+UI_SFX_LABELS: Dict[str, str] = {
+    "ui_hover": "Hover",
+    "ui_click": "Click",
+    "ui_toggle_on": "Toggle On",
+    "ui_toggle_off": "Toggle Off",
+    "ui_tab": "Tab",
+    "ui_menu_open": "Menu",
+    "ui_menu_hover": "Item",
+    "ui_dropdown": "Drop",
+    "ui_slider": "Slider",
+    "theme": "Theme",
 }
 
 
-def _synth_wav_bytes(notes: Sequence[Sequence[float]], timbre: str = "glass") -> bytes:
-    """Fast 22.05 kHz 16-bit mono embedded DSP synthesizer tuned for low-end laptops.
-    Produces zero-external-file WAV bytes directly in RAM with five unmistakable
-    theme-voiced acoustic timbres:
-      - glass : Sony PlayStation crystalline shimmer glass + airy octave halo
-      - amber : Deus Ex HR warm dual-detuned cyber-amber analog synth
-      - koto  : Oriental Spirit plucked East-Asian koto + bronze temple bell partials
-      - chime : Nintendo Wii / 3DS joyful glossy marimba + sparkling bell harmonic
-      - flute : Linux Mint Serenity calm bamboo woodwind + gentle forest dewdrop
+def resolve_sound_mode(raw: Any, legacy_enabled: Optional[bool] = None) -> str:
+    """Resolve persisted audio mode cleanly with seamless migration from legacy enabled bool."""
+    val = str(raw or "").strip().lower()
+    if val in (SOUND_MODE_ALL, SOUND_MODE_IMPORTANT, SOUND_MODE_NONE):
+        return val
+    if val in ("on", "true", "full", "all_sounds"):
+        return SOUND_MODE_ALL
+    if val in ("notify", "notifications", "important_only"):
+        return SOUND_MODE_IMPORTANT
+    if val in ("off", "false", "mute", "muted", "silent"):
+        return SOUND_MODE_NONE
+    if legacy_enabled is not None:
+        return SOUND_MODE_ALL if bool(legacy_enabled) else SOUND_MODE_NONE
+    return SOUND_MODE_ALL
+
+
+def _synth_wav_bytes(
+    notes: Sequence[Sequence[float]],
+    timbre: str = "glass",
+    echo_ms: float = 0.0,
+    echo_gain: float = 0.0,
+) -> bytes:
+    """Fast 22.05 kHz 16-bit mono embedded DSP synthesizer (v19.0, zero external files).
+    Supports 4-tuple notes (freq, start, dur, gain) AND extended 6-tuple notes
+    (freq_start, start, dur, gain, freq_end, noise_mix) for expressive videogame-menu
+    pitch sweeps, percussive transients & five unmistakable theme-voiced acoustic timbres:
+      - glass : Sony PlayStation XMB crystalline shimmer glass + airy electrostatic micro-tick
+      - amber : Deus Ex HR warm dual-detuned cyber-amber synth + precision HUD relay transient
+      - koto  : Oriental Spirit plucked East-Asian koto + hyoshigi wood tap + bronze temple partials
+      - chime : Nintendo Wii / Wii U / 3DS glossy porcelain pop + sparkling marimba/celesta
+      - flute : Linux Mint Serenity calm bamboo woodwind + serene forest dewdrop resonance
     """
     rate = 22050
-    total = int(rate * (max(n[1] + n[2] for n in notes) + 0.06)) + 1
+    max_end = max(float(n[1]) + float(n[2]) for n in notes)
+    tail = 0.045 + (echo_ms * 0.0012 if echo_ms > 0.0 and echo_gain > 0.0 else 0.0)
+    total = max(64, int(rate * (max_end + tail)) + 1)
     samples = [0.0] * total
     two_pi = 2.0 * math.pi
     inv_rate = 1.0 / float(rate)
-    # Recipe: (h2, h3, h4, decay_mult, detune_ratio, attack_sec)
-    h2, h3, h4, dmult, detune, atk = {
-        "glass": (0.24, 0.11, 0.05, 4.9, 1.0018, 0.004),
-        "amber": (0.36, 0.18, 0.08, 4.2, 1.0042, 0.008),
-        "koto":  (0.42, 0.22, 0.12, 6.8, 0.9982, 0.002),
-        "chime": (0.22, 0.14, 0.09, 5.8, 1.0000, 0.0025),
-        "flute": (0.14, 0.05, 0.02, 3.8, 1.0012, 0.011),
-    }.get(timbre, (0.24, 0.09, 0.04, 5.2, 1.0015, 0.004))
-    inv_atk = 1.0 / max(0.001, atk)
-    for freq, start, dur, gain in notes:
+
+    # Recipe: (h2, h3, h4, decay_mult, detune_ratio, attack_sec, p3_ratio, noise_decay)
+    h2, h3, h4, dmult, detune, atk, p3_ratio, n_decay = {
+        "glass": (0.24, 0.12, 0.06, 5.2, 1.0018, 0.0030, 3.000, 165.0),
+        "amber": (0.38, 0.20, 0.09, 4.4, 1.0046, 0.0055, 2.996, 130.0),
+        "koto":  (0.42, 0.24, 0.13, 7.0, 0.9980, 0.0018, 2.756, 210.0),
+        "chime": (0.26, 0.15, 0.10, 6.0, 1.0006, 0.0020, 3.000, 190.0),
+        "flute": (0.14, 0.05, 0.02, 4.0, 1.0012, 0.0075, 3.000, 115.0),
+    }.get(timbre, (0.24, 0.10, 0.05, 5.2, 1.0015, 0.0035, 3.000, 160.0))
+
+    # Deterministic ultra-fast LCG seed for zero-allocation acoustic transient texture
+    lcg = 0x51A7F31D
+
+    for spec in notes:
+        freq0 = float(spec[0])
+        start = float(spec[1])
+        dur = max(0.014, float(spec[2]))
+        gain = float(spec[3])
+        freq1 = float(spec[4]) if len(spec) >= 5 else freq0
+        noise_mix = float(spec[5]) if len(spec) >= 6 else 0.0
+
         i0 = int(start * rate)
         n_len = int(dur * rate)
-        decay = dmult / max(0.02, dur)
-        w1 = two_pi * freq
+        if n_len <= 1:
+            continue
+        eff_atk = min(atk, dur * 0.24)
+        inv_atk = 1.0 / max(0.0008, eff_atk)
+        decay = dmult / max(0.018, dur)
+        hi_decay = decay * 1.72
+        has_glide = abs(freq1 - freq0) > 0.25
+        inv_dur = 1.0 / dur
+        log_ratio = math.log(max(20.0, freq1) / max(20.0, freq0)) if has_glide else 0.0
+
+        ph1 = 0.0
+        ph1d = 0.0
+        ph2 = 0.0
+        ph3 = 0.0
+        ph4 = 0.0
+        w1 = two_pi * freq0
         w1d = w1 * detune
         w2 = w1 * 2.0
-        w3 = w1 * (2.756 if timbre == "koto" else 3.0)  # authentic metallic bell partial for koto
+        w3 = w1 * p3_ratio
         w4 = w1 * 4.0
+        prev_nz = 0.0
+
         for i in range(n_len):
             idx = i0 + i
             if idx >= total:
                 break
             t = i * inv_rate
-            env = (t * inv_atk if t < atk else 1.0) * math.exp(-t * decay)
-            hi_env = math.exp(-t * decay * 1.65)
+            if has_glide:
+                f_inst = freq0 * math.exp(log_ratio * (t * inv_dur))
+                dw = two_pi * f_inst * inv_rate
+                ph1 += dw
+                ph1d += dw * detune
+                ph2 += dw * 2.0
+                ph3 += dw * p3_ratio
+                ph4 += dw * 4.0
+                s1 = math.sin(ph1)
+                s1d = math.sin(ph1d)
+                s2 = math.sin(ph2)
+                s3 = math.sin(ph3)
+                s4 = math.sin(ph4)
+            else:
+                s1 = math.sin(w1 * t)
+                s1d = math.sin(w1d * t)
+                s2 = math.sin(w2 * t)
+                s3 = math.sin(w3 * t)
+                s4 = math.sin(w4 * t)
+
+            env = (t * inv_atk if t < eff_atk else 1.0) * math.exp(-t * decay)
+            hi_env = math.exp(-t * hi_decay)
             wave_s = (
-                0.78 * math.sin(w1 * t)
-                + 0.22 * math.sin(w1d * t)
-                + (h2 * math.sin(w2 * t) + h3 * math.sin(w3 * t) + h4 * math.sin(w4 * t)) * hi_env
+                0.78 * s1
+                + 0.22 * s1d
+                + (h2 * s2 + h3 * s3 + h4 * s4) * hi_env
             )
+            if noise_mix > 0.001:
+                lcg = (lcg * 1664525 + 1013904223) & 0xFFFFFFFF
+                raw_nz = ((lcg >> 16) / 32768.0) - 1.0
+                filt_nz = 0.55 * raw_nz + 0.45 * prev_nz
+                prev_nz = filt_nz
+                nz_env = math.exp(-t * n_decay)
+                wave_s = wave_s * (1.0 - noise_mix * 0.45) + filt_nz * noise_mix * nz_env * 1.45
             samples[idx] += wave_s * env * gain
-    # Soft-clip headroom guard so multi-note chords never harsh-clip
+
+    if echo_ms > 2.0 and echo_gain > 0.01:
+        delay_samp = int(rate * (echo_ms * 0.001))
+        if 0 < delay_samp < total:
+            for idx in range(total - 1, delay_samp - 1, -1):
+                samples[idx] += samples[idx - delay_samp] * echo_gain
+
     pcm = array.array(
         "h",
-        (int(max(-31800, min(31800, round(math.tanh(v * 1.12) * 28500.0)))) for v in samples),
+        (int(max(-31600, min(31600, round(math.tanh(v * 1.10) * 28200.0)))) for v in samples),
     )
     if sys.byteorder != "little":
         pcm.byteswap()
@@ -7818,14 +8207,24 @@ def _synth_wav(path: str, notes: Sequence[Sequence[float]], timbre: str = "glass
 
 
 class SoundEngine:
-    """Low-latency, zero-external-file studio notification audio engine (v17.0).
-    Plays directly from RAM via winsound.SND_MEMORY on Windows (zero disk I/O
-    stalls on low-end laptops) and lazily caches versioned WAVs only if falling
-    back to QtMultimedia on Linux/macOS. Each of the 5 themes owns a distinct
-    acoustic voice and musical scale."""
+    """Low-latency, zero-external-file multi-theme audio & videogame-menu UI SFX engine (v19.0).
+    - 5 unmistakable theme acoustic voices x 18 distinct cues = 90 embedded cues
+    - 3 settings modes: All sounds / Only important notification sounds / No sound
+    - Plays directly from RAM via winsound.SND_MEMORY on Windows (zero disk I/O stalls)
+      and lazily caches versioned WAVs only when falling back to QtMultimedia
+    - Single-voice priority guard protects active notification chimes from hover interruption
+    """
 
-    _AUDIO_VER = "v2"
-    EVENTS: Tuple[str, ...] = ("sent", "done", "fail", "upscale", "saved", "reconnect", "offline", "llm_done")
+    _AUDIO_VER = "v3"
+    EVENTS: Tuple[str, ...] = (
+        "sent", "done", "fail", "upscale", "saved", "reconnect", "offline", "llm_done",
+    )
+    UI_SFX_EVENTS: Tuple[str, ...] = (
+        "ui_hover", "ui_click", "ui_toggle_on", "ui_toggle_off", "ui_tab",
+        "ui_menu_open", "ui_menu_hover", "ui_dropdown", "ui_slider", "theme",
+    )
+    ALL_EVENTS: Tuple[str, ...] = EVENTS + UI_SFX_EVENTS
+
     _THEME_TIMBRE: Dict[str, str] = {
         "seestation": "glass",
         "gold": "amber",
@@ -7833,69 +8232,141 @@ class SoundEngine:
         "kreatendo": "chime",
         "mint": "flute",
     }
-    _THEME_NOTES: Dict[str, Dict[str, List[Tuple[float, float, float, float]]]] = {
+    _THEME_ECHO: Dict[str, Tuple[float, float]] = {
+        "seestation": (34.0, 0.20),
+        "gold": (28.0, 0.16),
+        "oriental": (40.0, 0.18),
+        "kreatendo": (26.0, 0.17),
+        "mint": (38.0, 0.19),
+    }
+    _COOLDOWNS: Dict[str, float] = {
+        "ui_hover": 0.058,
+        "ui_menu_hover": 0.046,
+        "ui_click": 0.032,
+        "ui_toggle_on": 0.040,
+        "ui_toggle_off": 0.040,
+        "ui_tab": 0.045,
+        "ui_menu_open": 0.068,
+        "ui_dropdown": 0.058,
+        "ui_slider": 0.068,
+        "theme": 0.100,
+    }
+    # Note spec: (freq, start, dur, gain) or (freq_start, start, dur, gain, freq_end, noise_mix)
+    _THEME_NOTES: Dict[str, Dict[str, List[Tuple[float, ...]]]] = {
         "seestation": {
-            "sent": [(783.99, 0.0, 0.08, 0.24), (1174.66, 0.068, 0.14, 0.22)],
-            "done": [(523.25, 0.0, 0.11, 0.23), (659.25, 0.078, 0.12, 0.23), (987.77, 0.160, 0.24, 0.24)],
-            "fail": [(220.0, 0.0, 0.14, 0.26), (164.81, 0.115, 0.26, 0.26)],
-            "upscale": [(523.25, 0.0, 0.08, 0.21), (659.25, 0.072, 0.09, 0.21), (783.99, 0.144, 0.10, 0.22), (1046.50, 0.22, 0.24, 0.24)],
-            "saved": [(587.33, 0.0, 0.075, 0.21), (880.0, 0.068, 0.17, 0.23)],
-            "reconnect": [(440.0, 0.0, 0.085, 0.19), (659.25, 0.078, 0.10, 0.21), (880.0, 0.156, 0.19, 0.20)],
-            "offline": [(329.63, 0.0, 0.10, 0.18), (246.94, 0.095, 0.19, 0.20)],
-            "llm_done": [(659.25, 0.0, 0.075, 0.18), (987.77, 0.066, 0.17, 0.20)],
-            "theme": [(659.25, 0.0, 0.07, 0.14), (1046.50, 0.055, 0.13, 0.15)],
+            # Sony PS3 XMB / PS4 / PS Vita OLED — crystalline silk glass & azure shimmer
+            "sent":          [(783.99, 0.0, 0.085, 0.24, 830.61, 0.05), (1174.66, 0.064, 0.155, 0.23)],
+            "done":          [(523.25, 0.0, 0.11, 0.22), (659.25, 0.072, 0.12, 0.23), (987.77, 0.148, 0.18, 0.23), (1318.51, 0.215, 0.26, 0.21)],
+            "fail":          [(246.94, 0.0, 0.13, 0.25, 220.0, 0.06), (164.81, 0.11, 0.26, 0.25)],
+            "upscale":       [(523.25, 0.0, 0.08, 0.20), (659.25, 0.068, 0.09, 0.21), (783.99, 0.136, 0.10, 0.22), (1046.50, 0.206, 0.25, 0.24)],
+            "saved":         [(587.33, 0.0, 0.075, 0.21), (880.0, 0.064, 0.18, 0.23)],
+            "reconnect":     [(440.0, 0.0, 0.082, 0.19), (659.25, 0.074, 0.10, 0.21), (987.77, 0.150, 0.20, 0.21)],
+            "offline":       [(329.63, 0.0, 0.10, 0.19), (246.94, 0.092, 0.20, 0.20)],
+            "llm_done":      [(659.25, 0.0, 0.075, 0.19), (987.77, 0.064, 0.175, 0.21)],
+            "theme":         [(659.25, 0.0, 0.07, 0.15), (987.77, 0.052, 0.09, 0.15), (1318.51, 0.105, 0.16, 0.16)],
+            # Soft PlayStation XMB videogame main-menu UI SFX
+            "ui_hover":      [(1480.0, 0.0, 0.026, 0.062, 1660.0, 0.14)],
+            "ui_click":      [(987.77, 0.0, 0.036, 0.105, 1174.66, 0.18), (1567.98, 0.014, 0.044, 0.075)],
+            "ui_toggle_on":  [(783.99, 0.0, 0.034, 0.095, 987.77, 0.10), (1318.51, 0.028, 0.060, 0.092)],
+            "ui_toggle_off": [(987.77, 0.0, 0.034, 0.088, 740.0, 0.08), (659.25, 0.028, 0.055, 0.080)],
+            "ui_tab":        [(659.25, 0.0, 0.036, 0.092, 880.0, 0.12), (1174.66, 0.024, 0.065, 0.088)],
+            "ui_menu_open":  [(587.33, 0.0, 0.055, 0.082, 880.0, 0.22), (1174.66, 0.032, 0.072, 0.078)],
+            "ui_menu_hover": [(1760.0, 0.0, 0.020, 0.050, 1864.0, 0.12)],
+            "ui_dropdown":   [(740.0, 0.0, 0.032, 0.088, 987.77, 0.15), (1318.51, 0.024, 0.052, 0.076)],
+            "ui_slider":     [(1174.66, 0.0, 0.024, 0.068, 1244.5, 0.14)],
         },
         "gold": {
-            "sent": [(440.0, 0.0, 0.09, 0.24), (659.25, 0.074, 0.14, 0.22)],
-            "done": [(293.66, 0.0, 0.12, 0.24), (440.0, 0.086, 0.12, 0.24), (587.33, 0.172, 0.26, 0.25)],
-            "fail": [(196.0, 0.0, 0.15, 0.26), (146.83, 0.125, 0.30, 0.26)],
-            "upscale": [(293.66, 0.0, 0.09, 0.21), (440.0, 0.078, 0.09, 0.21), (587.33, 0.156, 0.10, 0.23), (880.0, 0.235, 0.26, 0.24)],
-            "saved": [(440.0, 0.0, 0.08, 0.21), (659.25, 0.074, 0.18, 0.23)],
-            "reconnect": [(329.63, 0.0, 0.09, 0.19), (440.0, 0.084, 0.10, 0.21), (659.25, 0.168, 0.20, 0.21)],
-            "offline": [(293.66, 0.0, 0.11, 0.19), (220.0, 0.10, 0.21, 0.21)],
-            "llm_done": [(440.0, 0.0, 0.08, 0.19), (587.33, 0.074, 0.18, 0.21)],
-            "theme": [(329.63, 0.0, 0.08, 0.14), (493.88, 0.062, 0.14, 0.15)],
+            # Deus Ex: Human Revolution — burnished cyber-amber Dorian synth & HUD relay
+            "sent":          [(440.0, 0.0, 0.09, 0.24, 493.88, 0.10), (659.25, 0.070, 0.15, 0.22)],
+            "done":          [(293.66, 0.0, 0.12, 0.24), (440.0, 0.084, 0.13, 0.24), (587.33, 0.168, 0.27, 0.25)],
+            "fail":          [(196.0, 0.0, 0.15, 0.26, 174.61, 0.10), (146.83, 0.125, 0.30, 0.26)],
+            "upscale":       [(293.66, 0.0, 0.085, 0.21), (440.0, 0.074, 0.09, 0.21), (587.33, 0.148, 0.10, 0.23), (880.0, 0.226, 0.26, 0.24)],
+            "saved":         [(440.0, 0.0, 0.08, 0.21), (659.25, 0.070, 0.19, 0.23)],
+            "reconnect":     [(329.63, 0.0, 0.088, 0.19), (440.0, 0.080, 0.10, 0.21), (659.25, 0.162, 0.21, 0.21)],
+            "offline":       [(293.66, 0.0, 0.11, 0.19), (220.0, 0.098, 0.22, 0.21)],
+            "llm_done":      [(440.0, 0.0, 0.08, 0.19), (587.33, 0.072, 0.19, 0.21)],
+            "theme":         [(293.66, 0.0, 0.075, 0.15), (440.0, 0.056, 0.09, 0.15), (659.25, 0.114, 0.17, 0.16)],
+            # Soft Deus Ex HR cybernetic HUD main-menu UI SFX
+            "ui_hover":      [(740.0, 0.0, 0.025, 0.065, 880.0, 0.22)],
+            "ui_click":      [(587.33, 0.0, 0.036, 0.110, 659.25, 0.26), (880.0, 0.014, 0.044, 0.075)],
+            "ui_toggle_on":  [(440.0, 0.0, 0.036, 0.098, 587.33, 0.16), (659.25, 0.030, 0.062, 0.094)],
+            "ui_toggle_off": [(587.33, 0.0, 0.036, 0.090, 440.0, 0.14), (329.63, 0.030, 0.056, 0.082)],
+            "ui_tab":        [(392.0, 0.0, 0.040, 0.095, 587.33, 0.18), (659.25, 0.026, 0.064, 0.088)],
+            "ui_menu_open":  [(329.63, 0.0, 0.058, 0.085, 587.33, 0.24), (740.0, 0.034, 0.075, 0.076)],
+            "ui_menu_hover": [(932.33, 0.0, 0.020, 0.054, 987.77, 0.20)],
+            "ui_dropdown":   [(493.88, 0.0, 0.034, 0.092, 659.25, 0.20), (880.0, 0.025, 0.052, 0.074)],
+            "ui_slider":     [(659.25, 0.0, 0.024, 0.072, 740.0, 0.22)],
         },
         "oriental": {
-            # East-Asian Hirajoshi / Yo pentatonic koto + bronze bell voice
-            "sent": [(587.33, 0.0, 0.08, 0.24), (880.0, 0.068, 0.14, 0.22)],
-            "done": [(587.33, 0.0, 0.09, 0.24), (783.99, 0.078, 0.11, 0.24), (1174.66, 0.162, 0.24, 0.24)],
-            "fail": [(293.66, 0.0, 0.14, 0.26), (220.0, 0.12, 0.28, 0.26)],
-            "upscale": [(587.33, 0.0, 0.08, 0.21), (659.25, 0.072, 0.08, 0.21), (880.0, 0.144, 0.09, 0.23), (1174.66, 0.22, 0.25, 0.24)],
-            "saved": [(659.25, 0.0, 0.075, 0.21), (880.0, 0.068, 0.17, 0.23)],
-            "reconnect": [(587.33, 0.0, 0.08, 0.19), (783.99, 0.078, 0.09, 0.21), (987.77, 0.156, 0.19, 0.21)],
-            "offline": [(392.0, 0.0, 0.10, 0.19), (293.66, 0.095, 0.20, 0.21)],
-            "llm_done": [(783.99, 0.0, 0.075, 0.19), (1174.66, 0.068, 0.16, 0.21)],
-            "theme": [(587.33, 0.0, 0.075, 0.14), (880.0, 0.056, 0.14, 0.15)],
+            # Kuro-Urushi Japanese Shrine — Hirajoshi / Yo pentatonic koto, hyoshigi wood tap & suzu bell
+            "sent":          [(587.33, 0.0, 0.08, 0.24, 659.25, 0.14), (880.0, 0.064, 0.15, 0.23)],
+            "done":          [(587.33, 0.0, 0.09, 0.23), (783.99, 0.074, 0.11, 0.24), (1174.66, 0.155, 0.26, 0.24)],
+            "fail":          [(293.66, 0.0, 0.14, 0.26, 261.63, 0.14), (220.0, 0.118, 0.28, 0.26)],
+            "upscale":       [(587.33, 0.0, 0.08, 0.21), (659.25, 0.068, 0.085, 0.21), (880.0, 0.138, 0.095, 0.23), (1174.66, 0.212, 0.26, 0.24)],
+            "saved":         [(659.25, 0.0, 0.075, 0.21), (880.0, 0.065, 0.18, 0.23)],
+            "reconnect":     [(587.33, 0.0, 0.08, 0.19), (783.99, 0.074, 0.095, 0.21), (987.77, 0.150, 0.20, 0.21)],
+            "offline":       [(392.0, 0.0, 0.10, 0.19), (293.66, 0.094, 0.21, 0.21)],
+            "llm_done":      [(783.99, 0.0, 0.075, 0.19), (1174.66, 0.066, 0.17, 0.21)],
+            "theme":         [(587.33, 0.0, 0.072, 0.15), (783.99, 0.052, 0.085, 0.15), (1174.66, 0.106, 0.17, 0.16)],
+            # Soft East-Asian koto-pluck & hyoshigi woodblock main-menu UI SFX
+            "ui_hover":      [(1174.66, 0.0, 0.025, 0.062, 1108.73, 0.26)],
+            "ui_click":      [(783.99, 0.0, 0.034, 0.108, 880.0, 0.30), (1174.66, 0.012, 0.042, 0.078)],
+            "ui_toggle_on":  [(587.33, 0.0, 0.035, 0.098, 783.99, 0.22), (1174.66, 0.026, 0.060, 0.092)],
+            "ui_toggle_off": [(880.0, 0.0, 0.035, 0.090, 587.33, 0.20), (440.0, 0.026, 0.056, 0.080)],
+            "ui_tab":        [(587.33, 0.0, 0.036, 0.095, 880.0, 0.24), (1174.66, 0.024, 0.062, 0.086)],
+            "ui_menu_open":  [(587.33, 0.0, 0.055, 0.086, 880.0, 0.28), (1174.66, 0.030, 0.072, 0.080)],
+            "ui_menu_hover": [(1318.51, 0.0, 0.020, 0.052, 1174.66, 0.24)],
+            "ui_dropdown":   [(659.25, 0.0, 0.034, 0.092, 880.0, 0.26), (1174.66, 0.024, 0.052, 0.076)],
+            "ui_slider":     [(880.0, 0.0, 0.022, 0.070, 987.77, 0.26)],
         },
         "kreatendo": {
-            # Nintendo Wii / Wii U / 3DS joyful sparkling major-pentatonic marimba chime
-            "sent": [(880.0, 0.0, 0.068, 0.24), (1318.51, 0.058, 0.12, 0.23)],
-            "done": [(659.25, 0.0, 0.08, 0.24), (880.0, 0.068, 0.088, 0.24), (1046.50, 0.138, 0.105, 0.24), (1318.51, 0.212, 0.22, 0.24)],
-            "fail": [(329.63, 0.0, 0.115, 0.24), (246.94, 0.105, 0.23, 0.24)],
-            "upscale": [(523.25, 0.0, 0.07, 0.21), (659.25, 0.064, 0.072, 0.21), (783.99, 0.130, 0.08, 0.22), (1046.50, 0.198, 0.22, 0.24)],
-            "saved": [(783.99, 0.0, 0.068, 0.21), (1046.50, 0.060, 0.15, 0.23)],
-            "reconnect": [(523.25, 0.0, 0.07, 0.19), (783.99, 0.066, 0.08, 0.21), (1046.50, 0.138, 0.16, 0.21)],
-            "offline": [(392.0, 0.0, 0.095, 0.18), (329.63, 0.088, 0.18, 0.20)],
-            "llm_done": [(783.99, 0.0, 0.068, 0.19), (1174.66, 0.060, 0.15, 0.21)],
-            "theme": [(783.99, 0.0, 0.062, 0.14), (1046.50, 0.052, 0.07, 0.14), (1318.51, 0.106, 0.13, 0.15)],
+            # Nintendo Wii / Wii U / DS / 3DS — joyful ceramic pop, marimba & sparkling pentatonic chimes
+            "sent":          [(880.0, 0.0, 0.068, 0.24, 1046.50, 0.08), (1318.51, 0.056, 0.13, 0.23)],
+            "done":          [(659.25, 0.0, 0.08, 0.23), (880.0, 0.066, 0.088, 0.24), (1046.50, 0.134, 0.105, 0.24), (1318.51, 0.206, 0.23, 0.24)],
+            "fail":          [(349.23, 0.0, 0.115, 0.24, 311.13, 0.08), (246.94, 0.102, 0.23, 0.24)],
+            "upscale":       [(523.25, 0.0, 0.07, 0.21), (659.25, 0.062, 0.072, 0.21), (783.99, 0.126, 0.082, 0.22), (1046.50, 0.194, 0.23, 0.24)],
+            "saved":         [(783.99, 0.0, 0.068, 0.21), (1046.50, 0.058, 0.16, 0.23)],
+            "reconnect":     [(523.25, 0.0, 0.07, 0.19), (783.99, 0.064, 0.082, 0.21), (1046.50, 0.134, 0.17, 0.21)],
+            "offline":       [(392.0, 0.0, 0.095, 0.18), (329.63, 0.086, 0.19, 0.20)],
+            "llm_done":      [(783.99, 0.0, 0.068, 0.19), (1174.66, 0.058, 0.16, 0.21)],
+            "theme":         [(783.99, 0.0, 0.060, 0.15), (1046.50, 0.050, 0.072, 0.15), (1318.51, 0.102, 0.14, 0.16)],
+            # Playful Nintendo Wii / 3DS HOME Menu porcelain bubble-pop & marimba UI SFX
+            "ui_hover":      [(1046.50, 0.0, 0.026, 0.064, 1318.51, 0.10)],
+            "ui_click":      [(783.99, 0.0, 0.032, 0.108, 1046.50, 0.14), (1567.98, 0.015, 0.044, 0.082)],
+            "ui_toggle_on":  [(659.25, 0.0, 0.034, 0.098, 880.0, 0.08), (1318.51, 0.026, 0.058, 0.096)],
+            "ui_toggle_off": [(1046.50, 0.0, 0.034, 0.090, 783.99, 0.08), (659.25, 0.026, 0.054, 0.084)],
+            "ui_tab":        [(659.25, 0.0, 0.034, 0.094, 987.77, 0.10), (1318.51, 0.022, 0.060, 0.092)],
+            "ui_menu_open":  [(523.25, 0.0, 0.048, 0.086, 880.0, 0.14), (1046.50, 0.028, 0.068, 0.086)],
+            "ui_menu_hover": [(1318.51, 0.0, 0.021, 0.052, 1567.98, 0.10)],
+            "ui_dropdown":   [(698.46, 0.0, 0.032, 0.092, 1046.50, 0.12), (1396.91, 0.022, 0.052, 0.080)],
+            "ui_slider":     [(987.77, 0.0, 0.024, 0.068, 1174.66, 0.10)],
         },
         "mint": {
-            # Linux Mint Serenity calm evergreen bamboo-flute & forest dewdrop triad
-            "sent": [(523.25, 0.0, 0.09, 0.22), (783.99, 0.080, 0.14, 0.21)],
-            "done": [(440.0, 0.0, 0.11, 0.22), (554.37, 0.092, 0.12, 0.22), (659.25, 0.185, 0.25, 0.23)],
-            "fail": [(246.94, 0.0, 0.14, 0.24), (196.0, 0.125, 0.27, 0.24)],
-            "upscale": [(440.0, 0.0, 0.09, 0.20), (554.37, 0.082, 0.09, 0.20), (659.25, 0.165, 0.10, 0.21), (880.0, 0.248, 0.24, 0.22)],
-            "saved": [(523.25, 0.0, 0.085, 0.20), (659.25, 0.076, 0.18, 0.22)],
-            "reconnect": [(392.0, 0.0, 0.09, 0.19), (523.25, 0.082, 0.10, 0.21), (659.25, 0.166, 0.19, 0.20)],
-            "offline": [(329.63, 0.0, 0.11, 0.18), (261.63, 0.102, 0.20, 0.20)],
-            "llm_done": [(554.37, 0.0, 0.085, 0.19), (880.0, 0.078, 0.17, 0.21)],
-            "theme": [(440.0, 0.0, 0.085, 0.14), (659.25, 0.070, 0.15, 0.15)],
+            # Linux Mint Serenity — calm bamboo flute, forest dewdrop plink & organic breeze
+            "sent":          [(523.25, 0.0, 0.09, 0.22, 587.33, 0.08), (783.99, 0.076, 0.15, 0.21)],
+            "done":          [(440.0, 0.0, 0.11, 0.22), (554.37, 0.088, 0.12, 0.22), (659.25, 0.180, 0.26, 0.23)],
+            "fail":          [(246.94, 0.0, 0.14, 0.24, 220.0, 0.08), (196.0, 0.122, 0.27, 0.24)],
+            "upscale":       [(440.0, 0.0, 0.088, 0.20), (554.37, 0.080, 0.09, 0.20), (659.25, 0.160, 0.10, 0.21), (880.0, 0.242, 0.25, 0.22)],
+            "saved":         [(523.25, 0.0, 0.082, 0.20), (659.25, 0.074, 0.185, 0.22)],
+            "reconnect":     [(392.0, 0.0, 0.088, 0.19), (523.25, 0.080, 0.10, 0.21), (659.25, 0.162, 0.20, 0.20)],
+            "offline":       [(329.63, 0.0, 0.11, 0.18), (261.63, 0.100, 0.20, 0.20)],
+            "llm_done":      [(554.37, 0.0, 0.082, 0.19), (880.0, 0.074, 0.18, 0.21)],
+            "theme":         [(440.0, 0.0, 0.080, 0.14), (554.37, 0.060, 0.090, 0.14), (659.25, 0.118, 0.17, 0.15)],
+            # Serene nature-inspired dewdrop & soft bamboo wood-tap main-menu UI SFX
+            "ui_hover":      [(880.0, 0.0, 0.028, 0.058, 1046.50, 0.10)],
+            "ui_click":      [(659.25, 0.0, 0.038, 0.098, 783.99, 0.14), (987.77, 0.016, 0.048, 0.072)],
+            "ui_toggle_on":  [(523.25, 0.0, 0.038, 0.092, 659.25, 0.10), (880.0, 0.030, 0.062, 0.088)],
+            "ui_toggle_off": [(659.25, 0.0, 0.038, 0.086, 523.25, 0.10), (440.0, 0.030, 0.058, 0.078)],
+            "ui_tab":        [(440.0, 0.0, 0.040, 0.090, 659.25, 0.12), (880.0, 0.028, 0.066, 0.082)],
+            "ui_menu_open":  [(392.0, 0.0, 0.058, 0.080, 659.25, 0.20), (880.0, 0.034, 0.076, 0.074)],
+            "ui_menu_hover": [(1046.50, 0.0, 0.022, 0.048, 1174.66, 0.09)],
+            "ui_dropdown":   [(554.37, 0.0, 0.036, 0.086, 783.99, 0.13), (987.77, 0.026, 0.056, 0.074)],
+            "ui_slider":     [(783.99, 0.0, 0.026, 0.064, 880.0, 0.10)],
         },
     }
 
     def __init__(self) -> None:
-        self.master: bool = True
+        self.mode: str = SOUND_MODE_ALL
         self.enabled: Dict[str, bool] = {ev: True for ev in self.EVENTS}
         self._players: Dict[str, Any] = {}
         self._wav_bytes: "collections.OrderedDict[str, bytes]" = collections.OrderedDict()
@@ -7903,11 +8374,73 @@ class SoundEngine:
         self._theme: str = "seestation"
         self._backend_ready: bool = False
         self.backend: str = "pending"
+        self._last_played: Dict[str, float] = {}
+        self._important_until: float = 0.0
+
+    @property
+    def master(self) -> bool:
+        """Backward-compatible boolean view (True unless mode == SOUND_MODE_NONE)."""
+        return self.mode != SOUND_MODE_NONE
+
+    @master.setter
+    def master(self, on: bool) -> None:
+        if not on:
+            self.mode = SOUND_MODE_NONE
+        elif self.mode == SOUND_MODE_NONE:
+            self.mode = SOUND_MODE_ALL
+
+    def is_ui_sfx(self, event: str) -> bool:
+        return event in self.UI_SFX_EVENTS
 
     def set_theme(self, theme_key: str) -> None:
         nk = resolve_theme_key(theme_key)
         if nk != self._theme:
             self._theme = nk
+
+    def set_mode(self, mode: str) -> str:
+        self.mode = resolve_sound_mode(mode)
+        return self.mode
+
+    def set_prefs(
+        self,
+        master_or_mode: Any,
+        enabled_map: Optional[Dict[str, bool]] = None,
+    ) -> None:
+        if isinstance(master_or_mode, str):
+            self.mode = resolve_sound_mode(master_or_mode)
+        else:
+            self.mode = SOUND_MODE_ALL if bool(master_or_mode) else SOUND_MODE_NONE
+        for ev in self.EVENTS:
+            if enabled_map and ev in enabled_map:
+                self.enabled[ev] = bool(enabled_map[ev])
+
+    def prewarm_active_theme(self) -> None:
+        """Pre-synthesize the active theme's tiny UI micro-cues (~25 KB RAM) so the
+        very first hover or click responds with zero synthesis latency."""
+        if self.mode != SOUND_MODE_ALL:
+            return
+        self._ensure_backend()
+        if self.backend == "none":
+            return
+        for ev in ("ui_hover", "ui_click", "ui_toggle_on", "ui_toggle_off", "ui_tab", "ui_menu_open", "ui_dropdown"):
+            self._ensure_wav_bytes(ev)
+
+    def backend_label(self) -> str:
+        """Human-readable active audio backend description (never stuck on 'pending')."""
+        self._ensure_backend()
+        if self.backend == "winsound":
+            return "Windows RAM Audio (winsound \u00b7 zero disk I/O)"
+        if self.backend == "qtmultimedia":
+            return "QtMultimedia Audio Engine (cached in data/sounds/)"
+        return "Silent (no platform audio backend detected)"
+
+    def _cue_duration(self, event: str) -> float:
+        tk = resolve_theme_key(self._theme or C.get("key", "seestation"))
+        bank = self._THEME_NOTES.get(tk, self._THEME_NOTES["seestation"])
+        notes = bank.get(event)
+        if not notes:
+            return 0.08
+        return max(float(n[1]) + float(n[2]) for n in notes)
 
     def _ensure_wav_bytes(self, event: str) -> bytes:
         """Lazily synthesize compact theme-voiced WAV payload into RAM (LRU capped)."""
@@ -7922,10 +8455,12 @@ class SoundEngine:
         if not notes:
             return b""
         timbre = self._THEME_TIMBRE.get(tk, "glass")
+        use_echo = (event in self.EVENTS) or (event in ("theme", "ui_menu_open"))
+        echo_ms, echo_gain = self._THEME_ECHO.get(tk, (30.0, 0.16)) if use_echo else (0.0, 0.0)
         try:
-            data = _synth_wav_bytes(notes, timbre=timbre)
+            data = _synth_wav_bytes(notes, timbre=timbre, echo_ms=echo_ms, echo_gain=echo_gain)
             self._wav_bytes[cache_id] = data
-            while len(self._wav_bytes) > 36:
+            while len(self._wav_bytes) > 72:
                 self._wav_bytes.popitem(last=False)
             return data
         except Exception as exc:  # noqa: BLE001
@@ -7944,7 +8479,7 @@ class SoundEngine:
             return ""
         try:
             os.makedirs(SOUNDS_DIR, exist_ok=True)
-            if not os.path.isfile(path) or os.path.getsize(path) < 160:
+            if not os.path.isfile(path) or os.path.getsize(path) < 120:
                 tmp = path + ".tmp"
                 with open(tmp, "wb") as fp:
                     fp.write(data)
@@ -7966,6 +8501,7 @@ class SoundEngine:
             self.backend = "winsound"
             return
         if QApplication.instance() is None:
+            self._backend_ready = False
             return
         if _HAS_QTMULTIMEDIA is None:
             try:
@@ -7981,17 +8517,7 @@ class SoundEngine:
         else:
             self.backend = "none"
 
-    def set_prefs(self, master: bool, enabled_map: Optional[Dict[str, bool]] = None) -> None:
-        self.master = bool(master)
-        for ev in self.EVENTS:
-            if enabled_map and ev in enabled_map:
-                self.enabled[ev] = bool(enabled_map[ev])
-
-    def play(self, event: str) -> None:
-        if not self.master:
-            return
-        if event != "theme" and not self.enabled.get(event, True):
-            return
+    def _dispatch_playback(self, event: str) -> None:
         self._ensure_backend()
         if self.backend == "winsound" and _HAS_WINSOUND and winsound is not None:
             data = self._ensure_wav_bytes(event)
@@ -8014,8 +8540,9 @@ class SoundEngine:
                 if eff is None:
                     eff = QSoundEffect()
                     eff.setSource(QUrl.fromLocalFile(wav_path))
-                    eff.setVolume(0.42 if event == "theme" else 0.56)
-                    if len(self._players) > 24:
+                    vol = 0.34 if event.startswith("ui_") else (0.44 if event == "theme" else 0.56)
+                    eff.setVolume(vol)
+                    if len(self._players) > 36:
                         self._players.clear()
                     self._players[pk] = eff
                 eff.play()
@@ -8023,8 +8550,234 @@ class SoundEngine:
             except Exception:  # noqa: BLE001
                 pass
 
+    def preview(self, event: str) -> None:
+        """Audition any cue explicitly from Settings TEST buttons."""
+        self._dispatch_playback(event)
+
+    def play_ui(self, event: str) -> None:
+        """Play a soft videogame-menu UI interaction cue ONLY in SOUND_MODE_ALL."""
+        if self.mode != SOUND_MODE_ALL:
+            return
+        now = time.monotonic()
+        if now < self._important_until:
+            return
+        cd = self._COOLDOWNS.get(event, 0.045)
+        if now - self._last_played.get(event, 0.0) < cd:
+            return
+        self._last_played[event] = now
+        self._dispatch_playback(event)
+
+    def play(self, event: str) -> None:
+        """Play a studio notification or UI sound obeying the 3-mode audio policy."""
+        if self.mode == SOUND_MODE_NONE:
+            return
+        if event in self.UI_SFX_EVENTS:
+            self.play_ui(event)
+            return
+        if not self.enabled.get(event, True):
+            return
+        now = time.monotonic()
+        self._last_played[event] = now
+        self._important_until = max(self._important_until, now + min(0.55, self._cue_duration(event) + 0.08))
+        self._dispatch_playback(event)
+
 
 SOUNDS = SoundEngine()
+
+
+class UiSfxEventFilter(QObject):
+    """Zero-idle, videogame-main-menu global UI SFX event filter (v19.0).
+    - O(1) instant bypass whenever sound mode != SOUND_MODE_ALL
+    - Deduplicates repeated hover/menu-item events and respects window focus
+    - Adds soft theme-voiced SFX for button hover/press, checkboxes/toggles,
+      tabs, context menus, menu hover gliding, dropdowns, sliders & sections."""
+
+    _WATCHED_EVENTS = frozenset({
+        QEvent.Type.Enter,
+        QEvent.Type.Leave,
+        QEvent.Type.MouseButtonPress,
+        QEvent.Type.MouseButtonRelease,
+        QEvent.Type.Show,
+        QEvent.Type.HoverMove,
+        QEvent.Type.MouseMove,
+    })
+
+    def __init__(self, engine: SoundEngine, parent: Optional[QObject] = None) -> None:
+        super().__init__(parent)
+        self._engine = engine
+        self._last_hover_oid: int = 0
+        self._last_tab_key: Tuple[int, int] = (0, -1)
+        self._last_menu_act: Tuple[int, int] = (0, 0)
+
+    def reset_tracking(self) -> None:
+        self._last_hover_oid = 0
+        self._last_tab_key = (0, -1)
+        self._last_menu_act = (0, 0)
+
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:  # noqa: N802
+        if self._engine.mode != SOUND_MODE_ALL:
+            return False
+        et = event.type()
+        if et not in self._WATCHED_EVENTS:
+            return False
+        if not isinstance(obj, QWidget):
+            return False
+        try:
+            if not obj.isEnabled():
+                return False
+
+            # 1. Context menus & Application menus (open + glide across enabled items)
+            if isinstance(obj, QMenu):
+                if et == QEvent.Type.Show:
+                    self._last_menu_act = (id(obj), 0)
+                    self._engine.play_ui("ui_menu_open")
+                elif et == QEvent.Type.MouseMove and isinstance(event, QMouseEvent):
+                    act = obj.actionAt(event.position().toPoint())
+                    if act is not None and act.isEnabled() and not act.isSeparator():
+                        key = (id(obj), id(act))
+                        if key != self._last_menu_act:
+                            self._last_menu_act = key
+                            self._engine.play_ui("ui_menu_hover")
+                elif et == QEvent.Type.MouseButtonRelease and isinstance(event, QMouseEvent):
+                    if event.button() == Qt.MouseButton.LeftButton:
+                        act = obj.actionAt(event.position().toPoint())
+                        if act is not None and act.isEnabled() and not act.isSeparator():
+                            self._engine.play_ui("ui_click")
+                elif et == QEvent.Type.Leave:
+                    self._last_menu_act = (0, 0)
+                return False
+
+            win = obj.window()
+            if win is not None and not win.isActiveWindow():
+                return False
+
+            # 2. Tab bars (hover glide across tabs + crisp console tab-switch sound)
+            if isinstance(obj, QTabBar):
+                if et in (QEvent.Type.HoverMove, QEvent.Type.MouseMove):
+                    pos_pt = event.position().toPoint() if hasattr(event, "position") else QPoint(-1, -1)
+                    idx = obj.tabAt(pos_pt)
+                    if idx >= 0 and obj.isTabEnabled(idx):
+                        tkey = (id(obj), idx)
+                        if tkey != self._last_tab_key:
+                            self._last_tab_key = tkey
+                            if idx != obj.currentIndex():
+                                self._engine.play_ui("ui_hover")
+                elif et == QEvent.Type.Leave:
+                    self._last_tab_key = (0, -1)
+                elif et == QEvent.Type.MouseButtonPress and isinstance(event, QMouseEvent):
+                    if event.button() == Qt.MouseButton.LeftButton:
+                        idx = obj.tabAt(event.position().toPoint())
+                        if idx >= 0 and obj.isTabEnabled(idx) and idx != obj.currentIndex():
+                            self._engine.play_ui("ui_tab")
+                return False
+
+            # 3. Buttons, checkboxes, radio buttons, aspect tiles & folder chips
+            if isinstance(obj, QAbstractButton):
+                if et == QEvent.Type.Enter:
+                    oid = id(obj)
+                    if oid != self._last_hover_oid:
+                        self._last_hover_oid = oid
+                        self._engine.play_ui("ui_hover")
+                elif et == QEvent.Type.Leave:
+                    if id(obj) == self._last_hover_oid:
+                        self._last_hover_oid = 0
+                elif et == QEvent.Type.MouseButtonPress and isinstance(event, QMouseEvent):
+                    if event.button() == Qt.MouseButton.LeftButton:
+                        if obj.__class__.__name__ == "IgnitionGenerateButton":
+                            return False
+                        if obj.isCheckable():
+                            if isinstance(obj, QRadioButton):
+                                if not obj.isChecked():
+                                    self._engine.play_ui("ui_toggle_on")
+                            else:
+                                self._engine.play_ui("ui_toggle_off" if obj.isChecked() else "ui_toggle_on")
+                        else:
+                            self._engine.play_ui("ui_click")
+                return False
+
+            # 4. Dropdown menus (QComboBox — Theme, UI Scale %, Samplers, LUTs, etc.)
+            if isinstance(obj, QComboBox):
+                if et == QEvent.Type.Enter:
+                    oid = id(obj)
+                    if oid != self._last_hover_oid:
+                        self._last_hover_oid = oid
+                        self._engine.play_ui("ui_hover")
+                elif et == QEvent.Type.Leave:
+                    if id(obj) == self._last_hover_oid:
+                        self._last_hover_oid = 0
+                elif et == QEvent.Type.MouseButtonPress and isinstance(event, QMouseEvent):
+                    if event.button() == Qt.MouseButton.LeftButton:
+                        self._engine.play_ui("ui_dropdown")
+                return False
+
+            # 5. Sliders & SpinBoxes (tactile detent feedback)
+            if isinstance(obj, QSlider):
+                if et == QEvent.Type.MouseButtonRelease and isinstance(event, QMouseEvent):
+                    if event.button() == Qt.MouseButton.LeftButton:
+                        self._engine.play_ui("ui_slider")
+                return False
+
+            if isinstance(obj, (QSpinBox, QDoubleSpinBox)):
+                if et == QEvent.Type.MouseButtonPress and isinstance(event, QMouseEvent):
+                    if event.button() == Qt.MouseButton.LeftButton and event.position().x() >= max(0.0, obj.width() - 22.0):
+                        self._engine.play_ui("ui_slider")
+                return False
+
+            # 6. Clickable CollapsibleSection headers
+            if obj.__class__.__name__ == "SectionHeader":
+                par = obj.parentWidget()
+                if par is not None and par.__class__.__name__ == "CollapsibleSection":
+                    if et == QEvent.Type.Enter:
+                        oid = id(obj)
+                        if oid != self._last_hover_oid:
+                            self._last_hover_oid = oid
+                            self._engine.play_ui("ui_hover")
+                    elif et == QEvent.Type.Leave:
+                        if id(obj) == self._last_hover_oid:
+                            self._last_hover_oid = 0
+                    elif et == QEvent.Type.MouseButtonRelease and isinstance(event, QMouseEvent):
+                        if event.button() == Qt.MouseButton.LeftButton:
+                            child = obj.childAt(event.position().toPoint())
+                            if not isinstance(child, QAbstractButton):
+                                self._engine.play_ui("ui_toggle_off" if par.is_expanded() else "ui_toggle_on")
+                return False
+
+        except RuntimeError:
+            pass
+        return False
+
+
+class WheelSafeScrollFilter(QObject):
+    """Prevents accidental mouse-wheel parameter mutation on unfocused QComboBox,
+    QSpinBox, QDoubleSpinBox & QSlider widgets while scrolling sidebar panels.
+    When unfocused, the wheel event bubbles cleanly up to the enclosing QScrollArea."""
+
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:  # noqa: N802
+        if event.type() != QEvent.Type.Wheel:
+            return False
+        if isinstance(obj, (QComboBox, QSpinBox, QDoubleSpinBox, QSlider)):
+            try:
+                if not obj.hasFocus():
+                    event.ignore()
+                    return True
+            except RuntimeError:
+                return False
+        return False
+
+
+_UI_SFX_FILTER: Optional[UiSfxEventFilter] = None
+_WHEEL_GUARD_FILTER: Optional[WheelSafeScrollFilter] = None
+
+
+def install_ui_sfx(app: QApplication) -> None:
+    """Install the global zero-idle videogame-menu UI SFX filter & scroll wheel guard once."""
+    global _UI_SFX_FILTER, _WHEEL_GUARD_FILTER
+    if _UI_SFX_FILTER is None:
+        _UI_SFX_FILTER = UiSfxEventFilter(SOUNDS, app)
+        app.installEventFilter(_UI_SFX_FILTER)
+    if _WHEEL_GUARD_FILTER is None:
+        _WHEEL_GUARD_FILTER = WheelSafeScrollFilter(app)
+        app.installEventFilter(_WHEEL_GUARD_FILTER)
 
 
 # =============================================================================
@@ -16239,41 +16992,49 @@ class SectionHeader(QWidget):
                 QPointF(3.8, cy - 4.8), QPointF(9.2, cy - 4.8),
                 QPointF(5.4, cy + 4.8), QPointF(0.0, cy + 4.8),
             ]))
-            p.setPen(QPen(QColor(C["acc_hi"]), 1.3))
+            # Kintsugi gold micro-filigree highlight
+            p.setPen(QPen(QColor(216, 169, 76, 185), 0.95))
+            p.drawLine(QPointF(9.8, cy - 4.2), QPointF(6.8, cy + 4.2))
+            p.setPen(QPen(QColor(C["acc_hi"]), 1.35))
             p.drawLine(QPointF(0.0, self.height() - 2.0), QPointF(self.width(), self.height() - 2.0))
-            p.setPen(QPen(QColor(C["hdr_line"]), 0.9))
+            p.setPen(QPen(QColor(216, 169, 76, 115), 0.85))
             p.drawLine(QPointF(10.0, self.height() - 0.5), QPointF(self.width() - 6.0, self.height() - 0.5))
             p.setPen(QPen(QColor(C["acc_hi"]), 1.6))
             p.drawLine(QPointF(self.width() - 1.5, self.height() - 6.5), QPointF(self.width() - 1.5, self.height() - 1.5))
         elif key == "kreatendo":
-            # Wii / 3DS glossy Aqua pill indicator + playful Aqua-to-Mint-to-Gold underline
+            # Wii / 3DS glossy Aqua pill + Miiverse Mint pip + colorful Aqua->Mint->Gold->Coral rule
             p.setPen(QPen(QColor("#0073b8"), 0.9))
             p.setBrush(QColor("#009ce0"))
-            p.drawRoundedRect(QRectF(1.2, cy - 4.2, 8.4, 8.4), 4.2, 4.2)
+            p.drawRoundedRect(QRectF(1.0, cy - 4.2, 8.2, 8.2), 4.1, 4.1)
             p.setPen(Qt.PenStyle.NoPen)
-            p.setBrush(QColor(255, 255, 255, 215))
-            p.drawEllipse(QRectF(2.8, cy - 3.0, 2.5, 2.5))
+            p.setBrush(QColor(255, 255, 255, 225))
+            p.drawEllipse(QRectF(2.6, cy - 3.0, 2.4, 2.4))
+            p.setBrush(QColor("#14b87a"))
+            p.drawEllipse(QPointF(10.3, cy + 2.8), 1.5, 1.5)
             rule = QLinearGradient(12.0, cy, self.width(), cy)
             rule.setColorAt(0.0, QColor("#009ce0"))
-            rule.setColorAt(0.45, QColor("#19b87a"))
-            rule.setColorAt(0.75, QColor("#f5a800"))
-            rule.setColorAt(1.0, QColor(245, 168, 0, 0))
-            p.setPen(QPen(QBrush(rule), 1.75))
+            rule.setColorAt(0.38, QColor("#14b87a"))
+            rule.setColorAt(0.68, QColor("#f5a800"))
+            rule.setColorAt(0.88, QColor("#e63e4f"))
+            rule.setColorAt(1.0, QColor(230, 62, 79, 0))
+            p.setPen(QPen(QBrush(rule), 1.85))
             p.drawLine(QPointF(12.0, self.height() - 1.4), QPointF(self.width(), self.height() - 1.4))
         elif key == "mint":
-            # Linux Mint Cinnamon leaf bud + Mint-Leaf to Alpine-Teal hairline
+            # Linux Mint Cinnamon leaf bud with central vein + Mint-Leaf to Alpine-Teal hairline
             leaf = QPainterPath()
-            leaf.moveTo(1.2, cy + 4.0)
-            leaf.quadTo(1.2, cy - 4.0, 9.6, cy - 4.0)
-            leaf.quadTo(9.6, cy + 4.0, 1.2, cy + 4.0)
+            leaf.moveTo(1.2, cy + 4.1)
+            leaf.quadTo(1.2, cy - 4.1, 9.8, cy - 4.1)
+            leaf.quadTo(9.8, cy + 4.1, 1.2, cy + 4.1)
             p.setBrush(QColor(C["acc_hi"]))
-            p.setPen(QPen(QColor(C["acc_spec"]), 0.7))
+            p.setPen(QPen(QColor(C["acc_spec"]), 0.75))
             p.drawPath(leaf)
+            p.setPen(QPen(QColor("#0e2613"), 0.85))
+            p.drawLine(QPointF(2.4, cy + 2.9), QPointF(8.3, cy - 2.9))
             rule = QLinearGradient(12.0, cy, self.width(), cy)
             rule.setColorAt(0.0, QColor(C["acc_hi"]))
-            rule.setColorAt(0.50, QColor(C["info"]))
-            rule.setColorAt(1.0, QColor(79, 199, 212, 0))
-            p.setPen(QPen(QBrush(rule), 1.35))
+            rule.setColorAt(0.52, QColor(C["info"]))
+            rule.setColorAt(1.0, QColor(78, 199, 184, 0))
+            p.setPen(QPen(QBrush(rule), 1.45))
             p.drawLine(QPointF(12.0, self.height() - 1.2), QPointF(self.width(), self.height() - 1.2))
         else:
             poly = QPolygonF([
@@ -16523,6 +17284,7 @@ class Toast(QWidget):
 
     def mousePressEvent(self, event) -> None:  # noqa: N802
         if event.button() == Qt.MouseButton.LeftButton:
+            self.fade_out()
             self.clicked.emit(self._payload)
             event.accept()
             return
@@ -16536,10 +17298,14 @@ class Toast(QWidget):
         tkey = resolve_theme_key(C.get("key", "seestation"))
         frame = _theme_frame_path(r, tkey, rad_see=8.0, ch_gold=6.0)
         grad = QLinearGradient(r.left(), r.top(), r.left(), r.bottom())
-        grad.setColorAt(0.0, QColor(C["btn_hov_hi"]))
-        grad.setColorAt(1.0, QColor(C["btn_lo"]))
+        if tkey == "kreatendo":
+            grad.setColorAt(0.0, QColor("#ffffff"))
+            grad.setColorAt(1.0, QColor("#e3f3fe"))
+        else:
+            grad.setColorAt(0.0, QColor(C["btn_hov_hi"]))
+            grad.setColorAt(1.0, QColor(C["btn_lo"]))
         p.setBrush(QBrush(grad))
-        p.setPen(QPen(QColor(C["acc_hi"] if tkey == "seestation" else C["acc_mid"]), 1.25))
+        p.setPen(QPen(QColor("#009ce0" if tkey == "kreatendo" else (C["acc_hi"] if tkey == "seestation" else C["acc_mid"])), 1.5 if tkey == "kreatendo" else 1.25))
         p.drawPath(frame)
         kind_col = {"ok": C["ok"], "err": C["err"], "warn": C["warn"], "info": C["info"]}.get(self._kind, C["info"])
         p.save()
@@ -17049,28 +17815,49 @@ class IgnitionGenerateButton(QPushButton):
 
         # 8. Signature outer trim accents across all 5 themes
         if tkey == "seestation":
-            p.setPen(QPen(QColor(C["acc_spec"]), 1.4))
-            uw = min(46.0, r.width() * 0.20)
-            p.drawLine(QPointF(r.left() + 10, r.bottom() - 3.2), QPointF(r.left() + 10 + uw, r.bottom() - 3.2))
-        elif tkey == "kreatendo":
-            p.setPen(QPen(QColor("#a6f0ff"), 1.6))
-            uw = min(56.0, r.width() * 0.26)
-            p.drawLine(QPointF(r.left() + 12, r.bottom() - 3.0), QPointF(r.left() + 12 + uw, r.bottom() - 3.0))
-            p.setPen(QPen(QColor("#2ce0b5"), 1.6))
-            p.drawLine(QPointF(r.right() - 12 - uw * 0.55, r.bottom() - 3.0), QPointF(r.right() - 12, r.bottom() - 3.0))
-        elif tkey == "mint":
             p.setPen(QPen(QColor(C["acc_spec"]), 1.5))
-            uw = min(56.0, r.width() * 0.26)
+            uw = min(52.0, r.width() * 0.22)
+            p.drawLine(QPointF(r.left() + 10, r.bottom() - 3.2), QPointF(r.left() + 10 + uw, r.bottom() - 3.2))
+            p.setPen(Qt.PenStyle.NoPen)
+            p.setBrush(QColor("#b8ebff"))
+            p.drawEllipse(QPointF(r.left() + 15 + uw, r.bottom() - 3.2), 1.6, 1.6)
+        elif tkey == "kreatendo":
+            # Nintendo Wii/Wii U Aqua + Mint rail & colorful ABXY micro-dots
+            p.setPen(QPen(QColor("#b8f3ff"), 1.7))
+            uw = min(58.0, r.width() * 0.26)
+            p.drawLine(QPointF(r.left() + 12, r.bottom() - 3.0), QPointF(r.left() + 12 + uw, r.bottom() - 3.0))
+            p.setPen(QPen(QColor("#2ce0b5"), 1.7))
+            p.drawLine(QPointF(r.right() - 12 - uw * 0.55, r.bottom() - 3.0), QPointF(r.right() - 12, r.bottom() - 3.0))
+            p.setPen(Qt.PenStyle.NoPen)
+            for idx_c, col_hex in enumerate(("#ffffff", "#5ef2b6", "#ffe066", "#ff8a96")):
+                p.setBrush(QColor(col_hex))
+                p.drawEllipse(QPointF(r.left() + 18 + uw + idx_c * 5.2, r.bottom() - 3.0), 1.5, 1.5)
+        elif tkey == "mint":
+            # Linux Mint leaf-green to alpine-teal organic bottom glow + dewdrop pip
+            mg = QLinearGradient(r.left() + 10, 0, r.left() + 74, 0)
+            mg.setColorAt(0.0, QColor("#e8ffe0"))
+            mg.setColorAt(1.0, QColor("#4ec7b8"))
+            p.setPen(QPen(QBrush(mg), 1.7))
+            uw = min(64.0, r.width() * 0.28)
             p.drawLine(QPointF(r.left() + 10, r.bottom() - 3.0), QPointF(r.left() + 10 + uw, r.bottom() - 3.0))
+            p.setPen(Qt.PenStyle.NoPen)
+            p.setBrush(QColor("#92f2dd"))
+            p.drawEllipse(QPointF(r.left() + 16 + uw, r.bottom() - 3.0), 1.6, 1.6)
         elif tkey == "oriental":
             p.setPen(QPen(QColor(C["acc_spec"]), 1.3))
             p.drawLine(QPointF(r.left() + 4.5, r.top() + 1.2), QPointF(r.right() - 4.5, r.top() + 1.2))
+            # Whisper-fine Kintsugi gold inner torii edge accents
+            p.setPen(QPen(QColor(218, 172, 82, 170), 0.95))
+            p.drawLine(QPointF(r.left() + 4.5, r.top() + 3.0), QPointF(r.left() + 4.5, r.bottom() - 3.0))
+            p.drawLine(QPointF(r.right() - 4.5, r.top() + 3.0), QPointF(r.right() - 4.5, r.bottom() - 3.0))
         else:
             p.setPen(QPen(QColor(C["acc_spec"]), 1.5))
             p.drawLine(QPointF(r.left() + 2, r.top() + ch + 5), QPointF(r.left() + 2, r.top() + ch))
             p.drawLine(QPointF(r.left() + 2, r.top() + ch), QPointF(r.left() + ch, r.top() + 2))
             p.drawLine(QPointF(r.right() - 2, r.bottom() - ch - 5), QPointF(r.right() - 2, r.bottom() - ch))
             p.drawLine(QPointF(r.right() - 2, r.bottom() - ch), QPointF(r.right() - ch, r.bottom() - 2))
+            p.setPen(QPen(QColor(255, 232, 140, 155), 1.0))
+            p.drawLine(QPointF(r.right() - ch - 12, r.top() + 2.2), QPointF(r.right() - ch - 2, r.top() + 2.2))
 
         # 9. Ignition Vector Emblem (switches to live animated vector asset when jobs are in flight!)
         bh = max(34.0, r.height())
@@ -17107,10 +17894,16 @@ class IgnitionGenerateButton(QPushButton):
             bx = int(r.right() - badge_w - (9 if tkey == "oriental" else 7))
             by = int(r.center().y() - badge_h / 2.0)
             badge_r = QRectF(bx, by, badge_w, badge_h)
-            p.setBrush(QColor(0, 0, 0, 160 if tkey in ("gold", "mint") else 112))
-            p.setPen(QPen(QColor(C["acc_spec"] if tkey in ("gold", "mint") else "#ffffff"), 0.85))
-            p.drawPath(_theme_frame_path(badge_r, tkey, rad_see=4.0, ch_gold=2.5))
-            p.setPen(QColor(C["acc_spec"] if tkey in ("gold", "mint") else "#ffffff"))
+            if tkey == "kreatendo":
+                p.setBrush(QColor(255, 255, 255, 218))
+                p.setPen(QPen(QColor("#0073b8"), 1.0))
+                p.drawPath(_theme_frame_path(badge_r, tkey, rad_see=6.0, ch_gold=2.5))
+                p.setPen(QColor("#00558f"))
+            else:
+                p.setBrush(QColor(0, 0, 0, 160 if tkey in ("gold", "mint") else 112))
+                p.setPen(QPen(QColor(C["acc_spec"] if tkey in ("gold", "mint") else "#ffffff"), 0.85))
+                p.drawPath(_theme_frame_path(badge_r, tkey, rad_see=4.0, ch_gold=2.5))
+                p.setPen(QColor(C["acc_spec"] if tkey in ("gold", "mint") else "#ffffff"))
             p.drawText(badge_r, Qt.AlignmentFlag.AlignCenter, hint_txt)
 
         right_pad = 9 + (badge_w + 6 if badge_w > 0 else 0)
@@ -18860,8 +19653,7 @@ class ModuleContextRibbon(QWidget):
         super().__init__(parent)
         self.setObjectName("TabRibbon")
         self._text: str = text
-        self.setMinimumHeight(20)
-        self.setMaximumHeight(26)
+        self.setMinimumHeight(18)
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
 
     def setText(self, text: str) -> None:  # noqa: N802
@@ -19014,25 +19806,6 @@ class ModuleContextRibbon(QWidget):
             p.setPen(QColor(C["muted"]))
             p.drawText(QRectF(dx, r.top(), dw, r.height()), Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, el_det)
         p.end()
-
-
-class _WheelScalePillButton(QToolButton):
-    """UI Scale indicator pill that also accepts mouse-wheel scrolling (+/-5%) so scaling
-    stays effortless at 800x600 even when the separate -/+ buttons auto-collapse."""
-
-    wheel_step = pyqtSignal(float)
-
-    def wheelEvent(self, event) -> None:  # noqa: N802
-        dy = event.angleDelta().y()
-        if dy > 0:
-            self.wheel_step.emit(0.05)
-            event.accept()
-            return
-        if dy < 0:
-            self.wheel_step.emit(-0.05)
-            event.accept()
-            return
-        super().wheelEvent(event)
 
 
 class StudioTabDeck(QWidget):
@@ -20120,25 +20893,34 @@ class _ViewerCanvas(QWidget):
                 return
 
             # Cinematic themed vector centerpiece watermark (idle)
-            sz = min(200, max(88, min(self.width(), self.height()) // 2))
+            s_sc = ui_scale()
+            sz = min(192, max(76, min(self.width(), self.height()) // 2 - 12))
             wm = VECTOR_ASSETS.pixmap("viewer_watermark", sz, sz)
             wx = (self.width() - sz) // 2
-            wy = (self.height() - sz) // 2 - 18
+            wy = max(12, (self.height() - sz) // 2 - 22)
             p.drawPixmap(wx, wy, wm)
-            p.setFont(_font(10.8, True, 0.9))
+            p.setFont(_font(max(9.2, min(13.0, 10.6 * s_sc)), True, 0.8))
             p.setPen(QColor(C["text_hi"]))
             p.drawText(
                 QRect(12, wy + sz + 4, self.width() - 24, 22),
                 Qt.AlignmentFlag.AlignCenter,
                 f"{APP_NAME}  v{APP_VERSION}  \u00b7  {C['name']}",
             )
-            p.setFont(_font(8.6))
+            p.setFont(_font(max(7.6, min(10.4, 8.5 * s_sc))))
             p.setPen(QColor(C["muted"]))
             p.drawText(
                 QRect(12, wy + sz + 26, self.width() - 24, 20),
                 Qt.AlignmentFlag.AlignCenter,
                 "Enter a prompt and press Generate (Ctrl+Enter)  \u00b7  or drop an image here",
             )
+            if self.height() >= 260:
+                p.setFont(_font(max(7.0, min(9.4, 7.6 * s_sc))))
+                p.setPen(QColor(C["dim"]))
+                p.drawText(
+                    QRect(12, wy + sz + 45, self.width() - 24, 18),
+                    Qt.AlignmentFlag.AlignCenter,
+                    "Ctrl+K Command Palette  \u00b7  Ctrl+Shift+T Theme  \u00b7  F1 Shortcuts",
+                )
             p.end()
             return
 
@@ -21425,8 +22207,9 @@ class ShortcutsDialog(QDialog):
         ("Ctrl + G", "Show / hide the recent filmstrip"),
         ("Ctrl + S", "Save current render — or in Edit Studio, save edited image separately to outputs/"),
         ("Ctrl + Shift + S", "Export edited image separately As… (PNG / WebP / JPEG)"),
+        ("Ctrl + K", "Open Quick Command Palette (jump to any tab, theme, UI scale % or sound mode)"),
         ("Ctrl + Shift + T", "Cycle all 5 themes (SeeStation / Sarif Gold / Oriental Spirit / Kreatendo / Mint Serenity)"),
-        ("Ctrl + + / Ctrl + - / Ctrl + 0", "Scale interface up / down / reset to 100%"),
+        ("Ctrl + + / Ctrl + - / Ctrl + 0", "Step UI Scale % dropdown presets (75%\u2013150%) or reset to 100%"),
         ("F11", "Fullscreen"),
         ("F10", "Application menu"),
         ("F1", "This shortcut reference"),
@@ -25996,29 +26779,32 @@ class MainWindow(QMainWindow):
                             btn.setMaximumWidth(16777215)
         if hasattr(self, "right_tabs") and hasattr(self, "gallery_btn"):
             rw = self.right_tabs.width()
-            # v18.0: True pixel-budget 4-tier right workspace chrome — ZERO tab/corner overlap
-            # at 800x600, dragged splits, or HiDPI scaling!
+            # v19.0: Pixel-budget 4-tier right workspace chrome — Scale % dropdown stays
+            # one-click accessible even at 800x600 with ZERO tab/corner overlap!
             eff_rw = (rw / max(0.85, scale)) if rw > 0 else 640.0
-            if eff_rw >= 620.0:
-                tier = 0  # Wide: Viewer/Gallery/Arena + -/100%/+ + full Theme + Perf + Cmd + Menu
-            elif eff_rw >= 465.0:
-                tier = 1  # 800x600 Standard: View/Gal/Arena + 100% pill + crisp Theme + Cmd + Menu
-            elif eff_rw >= 355.0:
-                tier = 2  # Compact split: View/Gal/A/B + compact Theme + Menu
+            if eff_rw >= 625.0:
+                tier = 0  # Wide: Viewer/Gallery/Arena + Scale%▼ + Theme▼ + Audio + Perf + Cmd + Menu
+            elif eff_rw >= 455.0:
+                tier = 1  # 800x600 Standard: View/Gal/Arena + Scale%▼ + crisp Theme▼ + Menu
+            elif eff_rw >= 340.0:
+                tier = 2  # Compact split: View/Gal/A/B + Scale%▼ + Menu
             else:
                 tier = 3  # Ultra-narrow: V/G/A + Panel toggle + Menu (zero overflow!)
             if getattr(self, "_viewer_tier", None) != tier:
                 self._viewer_tier = tier
                 self.gallery_btn.setText("Strip" if tier == 0 else "\u25A6")
-                if hasattr(self, "scale_minus_btn") and hasattr(self, "scale_plus_btn"):
-                    self.scale_minus_btn.setVisible(tier == 0)
-                    self.scale_plus_btn.setVisible(tier == 0)
-                if hasattr(self, "scale_pill_btn"):
-                    self.scale_pill_btn.setVisible(tier <= 1)
+                if hasattr(self, "scale_combo"):
+                    self.scale_combo.setVisible(tier <= 2)
+                    sc_min = max(58, int(round((66 if tier == 0 else 58) * min(1.35, scale))))
+                    sc_max = max(68, int(round((84 if tier == 0 else 68) * min(1.35, scale))))
+                    self.scale_combo.setMinimumWidth(sc_min)
+                    self.scale_combo.setMaximumWidth(sc_max)
+                if hasattr(self, "sound_mode_btn"):
+                    self.sound_mode_btn.setVisible(tier == 0)
                 if hasattr(self, "low_power_corner_btn"):
                     self.low_power_corner_btn.setVisible(tier == 0)
                 if hasattr(self, "theme_combo"):
-                    self.theme_combo.setVisible(tier <= 2)
+                    self.theme_combo.setVisible(tier <= 1)
                     use_short = tier >= 1
                     for ti, tk in enumerate(THEME_ORDER):
                         if ti < self.theme_combo.count():
@@ -26029,16 +26815,13 @@ class MainWindow(QMainWindow):
                                 lbl = "Sarif"
                             self.theme_combo.setItemText(ti, lbl)
                     if tier == 0:
-                        self.theme_combo.setMinimumWidth(132)
-                        self.theme_combo.setMaximumWidth(168)
-                    elif tier == 1:
-                        self.theme_combo.setMinimumWidth(114)
-                        self.theme_combo.setMaximumWidth(124)
+                        self.theme_combo.setMinimumWidth(int(round(126 * min(1.25, scale))))
+                        self.theme_combo.setMaximumWidth(int(round(168 * min(1.25, scale))))
                     else:
-                        self.theme_combo.setMinimumWidth(84)
-                        self.theme_combo.setMaximumWidth(100)
+                        self.theme_combo.setMinimumWidth(int(round(98 * min(1.2, scale))))
+                        self.theme_combo.setMaximumWidth(int(round(118 * min(1.2, scale))))
                 if hasattr(self, "cmd_btn"):
-                    self.cmd_btn.setVisible(tier <= 1)
+                    self.cmd_btn.setVisible(tier == 0)
                 rt_labels = (
                     ("V", "G", "A") if tier == 3
                     else (("View", "Gal", "A/B") if tier == 2
@@ -26064,15 +26847,21 @@ class MainWindow(QMainWindow):
         self._schedule_workspace_resize()
 
     def _sync_theme_btn(self) -> None:
-        """Sync the theme dropdown (and any legacy theme affordances) with the
-        active theme. Kept name for compatibility."""
-        combo = getattr(self, "theme_combo", None)
-        if combo is not None:
-            ix = combo.findData(theme_name())
-            if ix >= 0 and combo.currentIndex() != ix:
-                combo.blockSignals(True)
-                combo.setCurrentIndex(ix)
-                combo.blockSignals(False)
+        """Sync the corner theme dropdown, settings theme dropdown & menu indicators."""
+        active = theme_name()
+        for attr in ("theme_combo", "settings_theme_combo"):
+            combo = getattr(self, attr, None)
+            if combo is not None:
+                ix = combo.findData(active)
+                if ix >= 0 and combo.currentIndex() != ix:
+                    combo.blockSignals(True)
+                    combo.setCurrentIndex(ix)
+                    combo.blockSignals(False)
+        for tk, act in getattr(self, "_theme_menu_acts", {}).items():
+            if act.isChecked() != (tk == active):
+                act.blockSignals(True)
+                act.setChecked(tk == active)
+                act.blockSignals(False)
 
     def _on_theme_combo_changed(self, _ix: int) -> None:
         key = str(self.theme_combo.currentData() or "")
@@ -27992,13 +28781,72 @@ class MainWindow(QMainWindow):
 
         lay.addWidget(self._horde_group("Alchemy Interrogation", build_alch, expanded=False))
 
-        # Sound Notifications (v4)
+        # Workspace Appearance, UI Scale % Dropdown & 3-Mode Theme Audio (v19.0)
         def build_sounds(g: QVBoxLayout) -> None:
-            self.sound_master_check = QCheckBox("Enable sound notifications")
-            self.sound_master_check.setToolTip("Play subtle theme-voiced chimes (audible even while window is inactive)")
-            self.sound_master_check.setCursor(Qt.CursorShape.PointingHandCursor)
-            self.sound_master_check.toggled.connect(self._on_sound_prefs_changed)
-            g.addWidget(self.sound_master_check)
+            # Quick synced Theme + UI Scale % dropdown row
+            top_g = QGridLayout()
+            top_g.setHorizontalSpacing(6)
+            top_g.setVerticalSpacing(4)
+            self.settings_theme_combo = QComboBox()
+            self.settings_theme_combo.setCursor(Qt.CursorShape.PointingHandCursor)
+            for tkey in THEME_ORDER:
+                self.settings_theme_combo.addItem(
+                    VECTOR_ASSETS.icon_for_theme("theme_badge", tkey, 14),
+                    str(THEMES[tkey]["name"]),
+                    tkey,
+                )
+            self.settings_theme_combo.currentIndexChanged.connect(self._on_settings_theme_combo_changed)
+            self.settings_scale_combo = QComboBox()
+            self.settings_scale_combo.setCursor(Qt.CursorShape.PointingHandCursor)
+            for pct in UI_SCALE_PRESETS:
+                self.settings_scale_combo.addItem(f"{pct}%", pct)
+            self.settings_scale_combo.setToolTip("Select interface scale percentage (75%\u2013150%)")
+            self.settings_scale_combo.currentIndexChanged.connect(self._on_settings_scale_combo_changed)
+            top_g.addWidget(make_label("UI Theme", "Caption"), 0, 0)
+            top_g.addWidget(self.settings_theme_combo, 0, 1)
+            top_g.addWidget(make_label("UI Scale", "Caption"), 1, 0)
+            top_g.addWidget(self.settings_scale_combo, 1, 1)
+            top_g.setColumnStretch(1, 1)
+            g.addLayout(top_g)
+
+            # Three-option audio policy selector card
+            mode_card = QFrame()
+            mode_card.setObjectName("SoundModeCard")
+            mc_lay = QVBoxLayout(mode_card)
+            mc_lay.setContentsMargins(7, 6, 7, 6)
+            mc_lay.setSpacing(3)
+            mc_lay.addWidget(make_label("Sound Mode (Theme-Voiced Audio)", "Kicker"))
+            self.sound_mode_group = QButtonGroup(self)
+            self.sound_mode_group.setExclusive(True)
+            self.sound_mode_radios: Dict[str, QRadioButton] = {}
+            for mkey, mlabel, mtip in SOUND_MODES:
+                rb = QRadioButton(mlabel)
+                rb.setCursor(Qt.CursorShape.PointingHandCursor)
+                rb.setToolTip(mtip)
+                rb.toggled.connect(lambda checked, mk=mkey: self._on_sound_mode_radio(mk, checked))
+                self.sound_mode_group.addButton(rb)
+                self.sound_mode_radios[mkey] = rb
+                mc_lay.addWidget(rb)
+            self.sound_mode_desc = make_label("", "Caption")
+            self.sound_mode_desc.setWordWrap(True)
+            mc_lay.addWidget(self.sound_mode_desc)
+            g.addWidget(mode_card)
+
+            # Soft videogame-menu UI SFX audition strip for active theme
+            g.addWidget(make_label("Preview Active Theme UI Menu SFX:", "Caption"))
+            sfx_flow = FlowContainer(hgap=3, vgap=3)
+            for sfx_key in ("ui_hover", "ui_click", "ui_toggle_on", "ui_toggle_off", "ui_tab", "ui_menu_open", "ui_dropdown", "theme"):
+                b_sfx = make_button(
+                    UI_SFX_LABELS[sfx_key],
+                    lambda e=sfx_key: SOUNDS.preview(e),
+                    small=True,
+                    tip=f"Audition active theme's '{UI_SFX_LABELS[sfx_key]}' UI SFX",
+                )
+                sfx_flow.add_widget(b_sfx)
+            g.addWidget(sfx_flow)
+
+            # Important notification individual toggles + TEST buttons
+            g.addWidget(make_label("Important Notification Events:", "Caption"))
             self.sound_event_checks: Dict[str, QCheckBox] = {}
             sgrid = QGridLayout()
             sgrid.setHorizontalSpacing(6)
@@ -28009,16 +28857,17 @@ class MainWindow(QMainWindow):
                 cb.toggled.connect(lambda _v: self._on_sound_prefs_changed())
                 self.sound_event_checks[ev] = cb
                 sgrid.addWidget(cb, i, 0)
-                sgrid.addWidget(make_button("TEST", lambda e=ev: SOUNDS.play(e), small=True), i, 1)
+                sgrid.addWidget(make_button("TEST", lambda e=ev: SOUNDS.preview(e), small=True), i, 1)
             sgrid.setColumnStretch(0, 1)
             g.addLayout(sgrid)
-            snote = make_label(
-                f"Backend: {SOUNDS.backend or 'silent'} \u2022 cues are synthesized in-app into data/sounds/", "Caption"
+            self.sound_backend_lbl = make_label(
+                f"Engine: {SOUNDS.backend_label()} \u2022 5 themes \u00d7 18 embedded DSP cues",
+                "Caption",
             )
-            snote.setWordWrap(True)
-            g.addWidget(snote)
+            self.sound_backend_lbl.setWordWrap(True)
+            g.addWidget(self.sound_backend_lbl)
 
-        lay.addWidget(self._horde_group("Sound Notifications", build_sounds, expanded=False))
+        lay.addWidget(self._horde_group("UI Scale, Theme & Sound Mode", build_sounds, expanded=True))
 
 
         # Queue & Network
@@ -29132,27 +29981,20 @@ class MainWindow(QMainWindow):
         self.panel_btn.setToolTip("Hide / show control deck  (Ctrl+L)")
         self.panel_btn.toggled.connect(self._toggle_left)
 
-        self.scale_minus_btn = QToolButton()
-        self.scale_minus_btn.setObjectName("ScalePill")
-        self.scale_minus_btn.setText("\u2212")
-        self.scale_minus_btn.setFixedWidth(18)
-        self.scale_minus_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.scale_minus_btn.setToolTip("Scale UI down  (Ctrl+-)")
-        self.scale_minus_btn.clicked.connect(lambda: self._adjust_scale(-0.05))
-        self.scale_pill_btn = _WheelScalePillButton()
-        self.scale_pill_btn.setObjectName("ScalePill")
-        self.scale_pill_btn.setText("100%")
-        self.scale_pill_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.scale_pill_btn.setToolTip("UI Scale — click to reset 100%, scroll wheel to adjust ±5%  (Ctrl++ / Ctrl+- / Ctrl+0)")
-        self.scale_pill_btn.clicked.connect(self._reset_scale)
-        self.scale_pill_btn.wheel_step.connect(self._adjust_scale)
-        self.scale_plus_btn = QToolButton()
-        self.scale_plus_btn.setObjectName("ScalePill")
-        self.scale_plus_btn.setText("+")
-        self.scale_plus_btn.setFixedWidth(18)
-        self.scale_plus_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.scale_plus_btn.setToolTip("Scale UI up  (Ctrl++)")
-        self.scale_plus_btn.clicked.connect(lambda: self._adjust_scale(0.05))
+        self.scale_combo = QComboBox()
+        self.scale_combo.setObjectName("ScaleCombo")
+        self.scale_combo.setMinimumHeight(21)
+        self.scale_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        self.scale_combo.setMinimumContentsLength(4)
+        self.scale_combo.setMinimumWidth(62)
+        self.scale_combo.setMaximumWidth(86)
+        self.scale_combo.setCursor(Qt.CursorShape.PointingHandCursor)
+        for pct in UI_SCALE_PRESETS:
+            self.scale_combo.addItem(f"{pct}%", pct)
+        self.scale_combo.setToolTip(
+            "UI Scale %  (Ctrl++ / Ctrl+- / Ctrl+0)\nChoose an exact scale preset directly from the dropdown."
+        )
+        self.scale_combo.currentIndexChanged.connect(self._on_scale_combo_changed)
 
         self.theme_combo = QComboBox()
         self.theme_combo.setObjectName("ThemeCombo")
@@ -29169,6 +30011,15 @@ class MainWindow(QMainWindow):
         )
         self.theme_combo.currentIndexChanged.connect(self._on_theme_combo_changed)
         self._sync_theme_btn()
+
+        self.sound_mode_btn = QToolButton()
+        self.sound_mode_btn.setObjectName("SoundPill")
+        self.sound_mode_btn.setIcon(VECTOR_ASSETS.icon("sound_all", 12))
+        self.sound_mode_btn.setIconSize(QSize(12, 12))
+        self.sound_mode_btn.setFixedSize(24, 21)
+        self.sound_mode_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.sound_mode_btn.setToolTip("Sound Mode: All sounds (click to cycle All / Important only / No sound)")
+        self.sound_mode_btn.clicked.connect(self._cycle_sound_mode)
 
         self.low_power_corner_btn = QToolButton()
         self.low_power_corner_btn.setObjectName("PerfPill")
@@ -29197,10 +30048,9 @@ class MainWindow(QMainWindow):
         self.menu_btn.setCursor(Qt.CursorShape.PointingHandCursor)
 
         gc_lay.addWidget(self.panel_btn, 0)
-        gc_lay.addWidget(self.scale_minus_btn, 0)
-        gc_lay.addWidget(self.scale_pill_btn, 0)
-        gc_lay.addWidget(self.scale_plus_btn, 0)
+        gc_lay.addWidget(self.scale_combo, 0)
         gc_lay.addWidget(self.theme_combo, 0)
+        gc_lay.addWidget(self.sound_mode_btn, 0)
         gc_lay.addWidget(self.low_power_corner_btn, 0)
         gc_lay.addWidget(self.cmd_btn, 0)
         gc_lay.addWidget(self.menu_btn, 0)
@@ -29919,17 +30769,40 @@ class MainWindow(QMainWindow):
         self.act_full = m.addAction("Fullscreen  (F11)")
         self.act_full.triggered.connect(self._toggle_fullscreen)
         m.addSeparator()
-        m.addAction("UI Scale +  (Ctrl++)", lambda: self._adjust_scale(0.05))
-        m.addAction("UI Scale \u2212  (Ctrl+-)", lambda: self._adjust_scale(-0.05))
-        m.addAction("UI Scale Reset 100%  (Ctrl+0)", lambda: self._reset_scale())
+        scale_menu = m.addMenu("UI Scale %")
+        self._scale_menu_acts: Dict[int, Any] = {}
+        for pct in UI_SCALE_PRESETS:
+            act_s = scale_menu.addAction(
+                f"{pct}%{'  (Default)' if pct == 100 else ''}",
+                lambda _chk=False, p=pct: self._set_scale_percent(p),
+            )
+            act_s.setCheckable(True)
+            self._scale_menu_acts[pct] = act_s
+        scale_menu.addSeparator()
+        scale_menu.addAction("Reset 100%  (Ctrl+0)", self._reset_scale)
+
+        sound_menu = m.addMenu("Sound Mode")
+        self._sound_menu_acts: Dict[str, Any] = {}
+        for mkey, mlabel, mtip in SOUND_MODES:
+            act_snd = sound_menu.addAction(
+                mlabel,
+                lambda _chk=False, mk=mkey: self._set_sound_mode(mk),
+            )
+            act_snd.setCheckable(True)
+            act_snd.setToolTip(mtip)
+            self._sound_menu_acts[mkey] = act_snd
+
         theme_menu = m.addMenu("UI Theme  (5 Themes)")
+        self._theme_menu_acts: Dict[str, Any] = {}
         for tkey in THEME_ORDER:
             act_t = theme_menu.addAction(
                 VECTOR_ASSETS.icon_for_theme("theme_badge", tkey, 14),
                 f"{THEMES[tkey]['name']}",
                 lambda _chk=False, tk=tkey: self._select_theme_by_key(tk),
             )
+            act_t.setCheckable(True)
             act_t.setToolTip(THEMES[tkey]["hint"])
+            self._theme_menu_acts[tkey] = act_t
         theme_menu.addSeparator()
         theme_menu.addAction("Cycle Next Theme  (Ctrl+Shift+T)", self._toggle_theme)
         m.addSeparator()
@@ -29939,11 +30812,11 @@ class MainWindow(QMainWindow):
         self.menu = m
 
     def _wire_shortcuts(self) -> None:
+        # Deduplicated shortcut bindings (fixes ambiguous Ctrl+Return overload)
         for seq_k, slot_fn in (
             ("Ctrl+Return", self._on_ctrl_enter_shortcut),
-            ("Escape", self._on_escape_shortcut),
-            ("Ctrl+Return", self._on_ctrl_enter_shortcut),
             ("Ctrl+Enter", self._on_ctrl_enter_shortcut),
+            ("Escape", self._on_escape_shortcut),
             ("Ctrl+1", lambda: self.tabs.setCurrentIndex(TAB_PROMPT)),
             ("Ctrl+2", lambda: self.tabs.setCurrentIndex(TAB_TEMPLATES)),
             ("Ctrl+3", lambda: self.tabs.setCurrentIndex(TAB_TAGS)),
@@ -29971,13 +30844,13 @@ class MainWindow(QMainWindow):
         # Deduplicate resolved key sequences so StandardKey.ZoomIn/Out NEVER collide with Ctrl++/Ctrl+-
         seen_zoom_seqs: Set[str] = set()
         for seq_sc, fn_sc in (
-            (QKeySequence(QKeySequence.StandardKey.ZoomIn), lambda: self._adjust_scale(0.05)),
-            (QKeySequence(QKeySequence.StandardKey.ZoomOut), lambda: self._adjust_scale(-0.05)),
-            (QKeySequence("Ctrl++"), lambda: self._adjust_scale(0.05)),
-            (QKeySequence("Ctrl+="), lambda: self._adjust_scale(0.05)),
-            (QKeySequence("Ctrl+Shift+="), lambda: self._adjust_scale(0.05)),
-            (QKeySequence("Ctrl+-"), lambda: self._adjust_scale(-0.05)),
-            (QKeySequence("Ctrl+_"), lambda: self._adjust_scale(-0.05)),
+            (QKeySequence(QKeySequence.StandardKey.ZoomIn), lambda: self._step_scale(1)),
+            (QKeySequence(QKeySequence.StandardKey.ZoomOut), lambda: self._step_scale(-1)),
+            (QKeySequence("Ctrl++"), lambda: self._step_scale(1)),
+            (QKeySequence("Ctrl+="), lambda: self._step_scale(1)),
+            (QKeySequence("Ctrl+Shift+="), lambda: self._step_scale(1)),
+            (QKeySequence("Ctrl+-"), lambda: self._step_scale(-1)),
+            (QKeySequence("Ctrl+_"), lambda: self._step_scale(-1)),
             (QKeySequence("Ctrl+0"), self._reset_scale),
         ):
             seq_key = seq_sc.toString(QKeySequence.SequenceFormat.PortableText)
@@ -30002,10 +30875,10 @@ class MainWindow(QMainWindow):
                     return True
                 if mods & Qt.KeyboardModifier.ControlModifier:
                     if k in (Qt.Key.Key_Plus, Qt.Key.Key_Equal):
-                        self._adjust_scale(0.05)
+                        self._step_scale(1)
                         return True
                     if k in (Qt.Key.Key_Minus, Qt.Key.Key_Underscore):
-                        self._adjust_scale(-0.05)
+                        self._step_scale(-1)
                         return True
                     if k == Qt.Key.Key_0:
                         self._reset_scale()
@@ -30018,10 +30891,10 @@ class MainWindow(QMainWindow):
                         self.on_generate()
                         return True
                     if k in (Qt.Key.Key_Plus, Qt.Key.Key_Equal):
-                        self._adjust_scale(0.05)
+                        self._step_scale(1)
                         return True
                     if k in (Qt.Key.Key_Minus, Qt.Key.Key_Underscore):
-                        self._adjust_scale(-0.05)
+                        self._step_scale(-1)
                         return True
                     if k == Qt.Key.Key_0:
                         self._reset_scale()
@@ -30097,14 +30970,15 @@ class MainWindow(QMainWindow):
         self._on_override_toggled(self.override_check.isChecked())
         self._on_size_changed()
 
-        # ---- v4 preferences: sounds, editor, custom-aspect echo row ----
+        # ---- v19 preferences: 3-mode audio policy + legacy migration ----
         ui_sounds = ui.get("sounds") or {}
+        legacy_en = ui_sounds.get("enabled", True) if "enabled" in ui_sounds else None
+        snd_mode = resolve_sound_mode(ui_sounds.get("mode"), legacy_enabled=legacy_en)
         SOUNDS.set_prefs(
-            bool(ui_sounds.get("enabled", True)),
+            snd_mode,
             {ev: bool(ui_sounds.get(ev, True)) for ev in SOUND_EVENT_LABELS},
         )
-        if hasattr(self, "sound_master_check"):
-            self._apply_sound_ui()
+        self._apply_sound_ui()
         if hasattr(self, "edit_brush_size"):
             eb = ui.get("edit_brush") or {}
             self.edit_brush_size.setValue(max(4, min(400, int(eb.get("size", 48)))))
@@ -30395,8 +31269,9 @@ class MainWindow(QMainWindow):
                 "gallery_page": self.gallery_tab.current_page(),
                 "gallery_fav_only": self.gallery_tab.is_fav_only(),
                 "theme": theme_name(),
-                # v4
+                # v19: 3-mode audio policy ('all' | 'important' | 'none') + legacy 'enabled'
                 "sounds": {
+                    "mode": SOUNDS.mode,
                     "enabled": SOUNDS.master,
                     **{ev: SOUNDS.enabled.get(ev, True) for ev in SOUND_EVENT_LABELS},
                 },
@@ -32954,9 +33829,11 @@ class MainWindow(QMainWindow):
             self,
             f"About {APP_NAME}",
             f"<b>{APP_NAME}</b> {APP_VERSION}<br><br>"
-            "Single-file AI Horde workstation (v16.0 Major Remaster): 5 distinctive flagship themes "
+            "Single-file AI Horde workstation (v19.0 Major Architecture Remaster): 5 ultra-distinctive flagship themes "
             "(SeeStation Sony Console, Sarif Gold Deus Ex HR, Oriental Spirit Kuro-Urushi Black & Red, "
             "Kreatendo Nintendo Wii/Wii U/DS/3DS Light Porcelain, Mint Serenity Linux Mint Evergreen Dark), "
+            "UI Scale % Dropdown Menu (75%\u2013150% unclipped scaling), 90-cue theme-voiced DSP audio engine with "
+            "videogame main-menu UI SFX & 3-mode audio settings (All / Important only / Mute), "
             "StudioTabDeck top-docked module ribbon, 3-tier responsive 800x600 chrome, Self-Improving A/B Arena "
             "with Preferences Memory DB, LRU-cached decks & smart 1x DPI low-end laptop optimization, "
             "socket-level instant-cancel SSE/NDJSON LLM/VLM Prompt Forge with live output & reasoning token counter, "
@@ -35379,15 +36256,37 @@ class MainWindow(QMainWindow):
 
     def _apply_theme_chrome_inner(self, scale: float = 1.0) -> None:
         s = set_ui_scale(scale)
+        qss_sig = (theme_name(), scale_percent(s), low_power_mode())
         app = QApplication.instance()
         if isinstance(app, QApplication):
-            apply_palette(app)
-            app.setStyleSheet(build_stylesheet(s))
+            if getattr(self, "_last_qss_sig", None) != qss_sig:
+                self._last_qss_sig = qss_sig
+                apply_palette(app)
+                app.setStyleSheet(build_stylesheet(s))
             CURSOR_ENGINE.set_theme(theme_name())
             CURSOR_ENGINE.refresh_widget_tree(self)
         self.setWindowIcon(VECTOR_ASSETS.icon("app_emblem", 32))
-        if hasattr(self, "scale_pill_btn"):
-            self.scale_pill_btn.setText(f"{scale_percent(s)}%")
+        self._sync_scale_controls(s)
+        # Scale toolbar & deck controls cleanly so 75%-150% never clips text or icons
+        btn_h = max(20, int(round(22 * s)))
+        btn_sq = max(22, int(round(25 * s)))
+        deck_h = max(24, int(round(27 * s)))
+        for sq_attr in ("sound_mode_btn", "low_power_corner_btn", "cmd_btn", "menu_btn"):
+            bw = getattr(self, sq_attr, None)
+            if bw is not None:
+                bw.setFixedSize(btn_sq, btn_h)
+        if hasattr(self, "panel_btn"):
+            self.panel_btn.setFixedSize(btn_sq, btn_h)
+        if hasattr(self, "scale_combo"):
+            self.scale_combo.setFixedHeight(btn_h)
+        if hasattr(self, "theme_combo"):
+            self.theme_combo.setFixedHeight(btn_h)
+        if hasattr(self, "n_spin"):
+            self.n_spin.setFixedHeight(deck_h)
+        if hasattr(self, "batch_btn"):
+            self.batch_btn.setFixedHeight(deck_h)
+        if hasattr(self, "mini_queue_btn"):
+            self.mini_queue_btn.setFixedSize(max(24, int(round(27 * s))), max(21, int(round(23 * s))))
         px = tab_icon_px(s)
         self._tab_icon_px = px
         if hasattr(self, "tabs"):
@@ -35481,10 +36380,13 @@ class MainWindow(QMainWindow):
             self.llm_vision_run_btn.setIcon(
                 VECTOR_ASSETS.icon("film" if self._llm_vision_task == "motion" else "eye", 13)
             )
-        if hasattr(self, "theme_combo"):
-            for i, tkey in enumerate(THEME_ORDER):
-                if i < self.theme_combo.count():
-                    self.theme_combo.setItemIcon(i, VECTOR_ASSETS.icon_for_theme("theme_badge", tkey, 14))
+        for c_attr in ("theme_combo", "settings_theme_combo"):
+            tc = getattr(self, c_attr, None)
+            if tc is not None:
+                for i, tkey in enumerate(THEME_ORDER):
+                    if i < tc.count():
+                        tc.setItemIcon(i, VECTOR_ASSETS.icon_for_theme("theme_badge", tkey, 14))
+        self._sync_sound_controls()
         if hasattr(self, "edit_tool_btns") and hasattr(self, "_edit_tool_icon_keys"):
             for k, ik in self._edit_tool_icon_keys.items():
                 btn = self.edit_tool_btns.get(k)
@@ -35529,6 +36431,8 @@ class MainWindow(QMainWindow):
         if hasattr(self, "si_mem_btn"):
             self.si_mem_btn.setIcon(VECTOR_ASSETS.icon("memory_db", 12))
         SOUNDS.set_theme(theme_name())
+        if not self._loading and SOUNDS.mode == SOUND_MODE_ALL:
+            QTimer.singleShot(80, SOUNDS.prewarm_active_theme)
         self._reapply_dynamic_styles()
 
     def _on_ctrl_enter_shortcut(self) -> None:
@@ -35663,13 +36567,27 @@ class MainWindow(QMainWindow):
         if not self._loading:
             SOUNDS.play("theme")
 
-    def _adjust_scale(self, delta: float) -> None:
-        """delta is in DISPLAY steps (e.g. +0.05 == one Ctrl++ notch)."""
+    def _sync_scale_controls(self, scale: float) -> None:
+        """Keep corner UI Scale dropdown, settings dropdown & menu actions in exact sync."""
+        pct = nearest_scale_preset(scale)
+        for attr in ("scale_combo", "settings_scale_combo"):
+            cb = getattr(self, attr, None)
+            if cb is not None:
+                ix = cb.findData(pct)
+                if ix >= 0 and cb.currentIndex() != ix:
+                    cb.blockSignals(True)
+                    cb.setCurrentIndex(ix)
+                    cb.blockSignals(False)
+        for p_val, act in getattr(self, "_scale_menu_acts", {}).items():
+            if act.isChecked() != (p_val == pct):
+                act.blockSignals(True)
+                act.setChecked(p_val == pct)
+                act.blockSignals(False)
+
+    def _set_scale_percent(self, pct: int) -> None:
+        """Apply an exact UI Scale percentage from dropdown, menu, or command palette."""
+        new = set_ui_scale(scale_for_percent(pct))
         ui = self.settings.setdefault("ui", {})
-        cur = ui_scale()
-        new = set_ui_scale(round(cur + delta * SCALE_REFERENCE, 3))
-        if abs(new - cur) < 1e-3:
-            return
         ui.pop("font_scale", None)
         ui.pop("font_scale_v2", None)
         ui["font_scale_v3"] = new
@@ -35677,14 +36595,41 @@ class MainWindow(QMainWindow):
         self._schedule_save()
         self._flash_summary(f"UI Scale: {scale_percent(new)}%  (Ctrl+0 resets)")
 
+    def _on_scale_combo_changed(self, _ix: int) -> None:
+        if not hasattr(self, "scale_combo"):
+            return
+        pct = self.scale_combo.currentData()
+        if pct is not None:
+            self._set_scale_percent(int(pct))
+
+    def _on_settings_scale_combo_changed(self, _ix: int) -> None:
+        if not hasattr(self, "settings_scale_combo"):
+            return
+        pct = self.settings_scale_combo.currentData()
+        if pct is not None:
+            self._set_scale_percent(int(pct))
+
+    def _on_settings_theme_combo_changed(self, _ix: int) -> None:
+        if not hasattr(self, "settings_theme_combo"):
+            return
+        key = str(self.settings_theme_combo.currentData() or "")
+        if key:
+            self._select_theme_by_key(key)
+
+    def _step_scale(self, direction: int) -> None:
+        """Step smoothly up (+1) or down (-1) through UI_SCALE_PRESETS."""
+        cur = ui_scale()
+        nxt = step_scale_preset(cur, direction)
+        if abs(nxt - cur) < 1e-4:
+            return
+        self._set_scale_percent(scale_percent(nxt))
+
+    def _adjust_scale(self, delta: float) -> None:
+        """Legacy helper mapped cleanly to preset stepping."""
+        self._step_scale(1 if delta >= 0 else -1)
+
     def _reset_scale(self) -> None:
-        ui = self.settings.setdefault("ui", {})
-        ui.pop("font_scale", None)
-        ui.pop("font_scale_v2", None)
-        ui["font_scale_v3"] = SCALE_REFERENCE
-        self._apply_theme_chrome(SCALE_REFERENCE)
-        self._schedule_save()
-        self._flash_summary("UI Scale reset to 100%")
+        self._set_scale_percent(100)
 
     def _toggle_fullscreen(self) -> None:
         self._fullscreen = not self._fullscreen
@@ -35772,23 +36717,81 @@ class MainWindow(QMainWindow):
             f"{m['label']} fixed: {m['sampler']} / {m['scheduler']} / {m['steps']} steps / CFG {m['cfg']}"
         )
 
+    def _set_sound_mode(self, mode: str) -> None:
+        """Switch between All sounds / Important notifications only / No sound."""
+        resolved = SOUNDS.set_mode(mode)
+        self._apply_sound_ui()
+        self._schedule_save()
+        if resolved == SOUND_MODE_ALL:
+            SOUNDS.prewarm_active_theme()
+            if not self._loading:
+                SOUNDS.play_ui("ui_toggle_on")
+            self._flash_summary("Audio: All sounds (notifications + UI menu SFX)")
+        elif resolved == SOUND_MODE_IMPORTANT:
+            if not self._loading:
+                SOUNDS.preview("saved")
+            self._flash_summary("Audio: Important notification sounds only")
+        else:
+            self._flash_summary("Audio: No sound (muted)")
+
+    def _cycle_sound_mode(self) -> None:
+        order = (SOUND_MODE_ALL, SOUND_MODE_IMPORTANT, SOUND_MODE_NONE)
+        try:
+            nxt = order[(order.index(SOUNDS.mode) + 1) % len(order)]
+        except ValueError:
+            nxt = SOUND_MODE_ALL
+        self._set_sound_mode(nxt)
+
+    def _on_sound_mode_radio(self, mode: str, checked: bool) -> None:
+        if checked and mode != SOUNDS.mode:
+            self._set_sound_mode(mode)
+
     def _on_sound_prefs_changed(self, _v: bool = False) -> None:
-        master = self.sound_master_check.isChecked()
-        enabled = {ev: cb.isChecked() for ev, cb in self.sound_event_checks.items()}
-        SOUNDS.set_prefs(master, enabled)
-        for cb in self.sound_event_checks.values():
-            cb.setEnabled(master)
+        enabled = {ev: cb.isChecked() for ev, cb in getattr(self, "sound_event_checks", {}).items()}
+        SOUNDS.set_prefs(SOUNDS.mode, enabled)
+        self._sync_sound_controls()
         self._schedule_save()
 
+    def _sync_sound_controls(self) -> None:
+        """Sync corner sound icon, Application Menu checkmarks & Settings backend label."""
+        mode = SOUNDS.mode
+        icon_map = {
+            SOUND_MODE_ALL: ("sound_all", "Sound Mode: All sounds (notifications + UI SFX)\nClick to cycle"),
+            SOUND_MODE_IMPORTANT: ("sound_notify", "Sound Mode: Important notification sounds only\nClick to cycle"),
+            SOUND_MODE_NONE: ("sound_mute", "Sound Mode: No sound (muted)\nClick to cycle"),
+        }
+        ik, tip = icon_map.get(mode, icon_map[SOUND_MODE_ALL])
+        btn = getattr(self, "sound_mode_btn", None)
+        if btn is not None:
+            isz = max(12, min(16, int(round(12 * ui_scale()))))
+            btn.setIcon(VECTOR_ASSETS.icon(ik, isz))
+            btn.setIconSize(QSize(isz, isz))
+            btn.setToolTip(tip)
+        for mk, act in getattr(self, "_sound_menu_acts", {}).items():
+            if act.isChecked() != (mk == mode):
+                act.blockSignals(True)
+                act.setChecked(mk == mode)
+                act.blockSignals(False)
+        lbl_b = getattr(self, "sound_backend_lbl", None)
+        if lbl_b is not None:
+            lbl_b.setText(f"Engine: {SOUNDS.backend_label()} \u2022 5 themes \u00d7 18 embedded DSP cues")
+
     def _apply_sound_ui(self) -> None:
-        self.sound_master_check.blockSignals(True)
-        self.sound_master_check.setChecked(SOUNDS.master)
-        self.sound_master_check.blockSignals(False)
-        for ev, cb in self.sound_event_checks.items():
+        mode = SOUNDS.mode
+        for mk, rb in getattr(self, "sound_mode_radios", {}).items():
+            rb.blockSignals(True)
+            rb.setChecked(mk == mode)
+            rb.blockSignals(False)
+        desc_map = {mk: desc for mk, _lbl, desc in SOUND_MODES}
+        if hasattr(self, "sound_mode_desc"):
+            self.sound_mode_desc.setText(desc_map.get(mode, ""))
+        notifs_active = mode != SOUND_MODE_NONE
+        for ev, cb in getattr(self, "sound_event_checks", {}).items():
             cb.blockSignals(True)
             cb.setChecked(SOUNDS.enabled.get(ev, True))
-            cb.setEnabled(SOUNDS.master)
+            cb.setEnabled(notifs_active)
             cb.blockSignals(False)
+        self._sync_sound_controls()
 
     def reset_options(self) -> None:
         for k, v in DEFAULT_OPTIONS.items():
@@ -36094,6 +37097,10 @@ class MainWindow(QMainWindow):
         ]
         for idx, (_ik, name, _tip) in enumerate(self._tab_specs):
             actions.append((f"Tab: {name}  (Ctrl+{idx + 1})", "TAB", lambda i=idx: self.tabs.setCurrentIndex(i)))
+        for mkey, mlabel, _mtip in SOUND_MODES:
+            actions.append((f"Audio: {mlabel}", "AUDIO", lambda mk=mkey: self._set_sound_mode(mk)))
+        for pct in (80, 90, 100, 110, 125, 150):
+            actions.append((f"UI Scale: {pct}%", "SCALE", lambda p=pct: self._set_scale_percent(p)))
         for tkey in THEME_ORDER:
             actions.append((f"Theme: {THEMES[tkey]['name']}", "THEME", lambda tk=tkey: self._select_theme_by_key(tk)))
         dlg = CommandPaletteDialog(actions, self)
@@ -36331,6 +37338,8 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------ Shutdown
     def closeEvent(self, event) -> None:  # noqa: N802
         ANIM_CLOCK.stop_all()
+        if _UI_SFX_FILTER is not None:
+            _UI_SFX_FILTER.reset_tracking()
         try:
             ANIM_CLOCK.ticked.disconnect(self._on_anim_clock_tick)
         except Exception:  # noqa: BLE001
@@ -36369,7 +37378,7 @@ class MainWindow(QMainWindow):
 
 
 # =============================================================================
-#  26. Application Entry Point (v17.0 — 800x600 Ready + Low-End Laptop Tuned)
+#  26. Application Entry Point (v19.0 — 800x600 Ready + Low-End Laptop Tuned)
 # =============================================================================
 def main() -> int:
     app = QApplication(sys.argv)
@@ -36377,6 +37386,7 @@ def main() -> int:
     app.setApplicationVersion(APP_VERSION)
     app.setStyle("Fusion")
     install_themed_cursors(app)
+    install_ui_sfx(app)
     win = MainWindow()
     scr = QGuiApplication.primaryScreen()
     if scr is not None:
@@ -36401,6 +37411,7 @@ def main() -> int:
     win.show()
     CURSOR_ENGINE.refresh_widget_tree(win)
     QTimer.singleShot(0, win._on_workspace_resized)
+    QTimer.singleShot(220, SOUNDS.prewarm_active_theme)
     return app.exec()
 
 
