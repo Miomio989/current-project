@@ -3,31 +3,13 @@ It features a completely nude woman who is a hentai female character with ultra-
 The CGi work has a vibrant color palette, soft lighting from multiple directions, nuanced shadows, and natural-looking body of the female character.
 
 [Before starting, clean up any remnants from the previous (unrelated) session]
-You are an expert software engineer. Your task is to remake this app drastically, dongi a major update to improve it generally, fixing any possile issues with UI, implementing the most efficient and optimal UI layout, fixing/preventing glitches, giving it professionally-done and refined look.
-Fix:
-Traceback (most recent call last):
-  File "D:\Documents\python\testing\hl.py", line 32244, in _on_log_record
-    if not self._log_matches_filters(rec):
-  File "D:\Documents\python\testing\hl.py", line 32231, in _log_matches_filters
-    ch = self.log_filter_combo.currentText()
-AttributeError: 'MainWindow' object has no attribute 'log_filter_combo'
-Traceback (most recent call last):
-  File "D:\Documents\python\testing\hl.py", line 35932, in <module>
-    raise SystemExit(main())
-  File "D:\Documents\python\testing\hl.py", line 35904, in main
-    win = MainWindow()
-  File "D:\Documents\python\testing\hl.py", line 25483, in __init__
-    self._build_ui()
-  File "D:\Documents\python\testing\hl.py", line 25531, in _build_ui
-    self.left = self._build_left()
-  File "D:\Documents\python\testing\hl.py", line 25749, in _build_left
-    self._build_prompt_tab(),
-  File "D:\Documents\python\testing\hl.py", line 25934, in _build_prompt_tab
-    aspect_mode_row.addWidget(self.aspect.orient_land, 1)
-AttributeError: 'AspectPicker' object has no attribute 'orient_land'
+You are an expert software engineer. Your task is to remake this app drastically, doing a major update to improve it generally, fixing any possile issues with UI, implementing the most efficient and optimal UI layout, improving the existing themes while keeping everything well-optimized, fixing/preventing glitches, giving it professionally-done and refined look.
 
+Also: implement the change of UI scale % as a dropdown menu instead of adjusting it in small portions by clicks on +/-
+Also: implement various types of sounds for each of existing themes
+Also: implement more soft sounds for various other interactions: hover over a button, pressing a button, opening context menu, etc.; think of it as the UI-related SFX in a videogame main menu. In the settings, offer three options: all sounds, only improtant notifications sounds, no sound.
 
-Generally, study the app properly to find out what you can improve or adjust.
+Generally, study the app properly to find out what you can improve or adjust. Feel free to make any changes for the better and more professionally-done implementation of the app.
 
 Constraints: Python 3.10.0, single-file .py (with its data in the subfolders), good optimization for low-end laptops, good visibility (can work even in 800x600 screen resolution); assets (vector graphics and sounds) are stored in the same py; made for East Asia users (though the language stays English only); five UI themes (improve eath further with more distinctive designs): Deus Ex HR golden style / Asia-inspired black and red / Sony-inspired UI / A theme inspired by Nintendo software UIs (Nintendo Wii/Wii U/DS/3DS aesthetics with their distinctive feel and colorful accents, light theme) / "Mint Serenity" theme which is dark but also with use of green colors, nature-inspired, and inspired by Linux Mint distro's desktop designs; professional standards of software engineering quality, up to 100k lines of code, up to 3 megabytes in size of the py file.
 Don't stop until everything is implemented properly. The web app shall have only a summary of work done, written in plain text, and nothing else.
@@ -110,6 +92,7 @@ from PyQt6.QtCore import (
     QAbstractListModel,
     QBuffer,
     QByteArray,
+    QDir,
     QEvent,
     QMimeData,
     QModelIndex,
@@ -229,7 +212,7 @@ except Exception:  # pragma: no cover - non-Windows platforms
 #  1. Constants, Workspace Paths & Legacy Migration
 # =============================================================================
 APP_NAME = "Horde Studio Lite"
-APP_VERSION = "17.0.0"
+APP_VERSION = "18.0.0"
 CLIENT_AGENT = f"HordeStudioLite:{APP_VERSION}:local-desktop"
 HORDE_URL = "https://stablehorde.net/api/v2"
 ANON_KEY = "0000000000"
@@ -272,6 +255,7 @@ WILDCARDS_DIR = os.path.join(DATA_DIR, "wildcards")
 TILES_DIR = os.path.join(DATA_DIR, "tiles")
 SCRATCH_DIR = os.path.join(DATA_DIR, "scratch")
 SOUNDS_DIR = os.path.join(DATA_DIR, "sounds")
+UI_CACHE_DIR = os.path.join(DATA_DIR, "ui_cache")
 QUEUE_JOURNAL_FILE = os.path.join(DATA_DIR, "queue_journal.json")
 RECONNECT_MAX_PATIENCE_SECS = 1800.0
 OUTAGE_SLEEP_JUMP_SECS = 60.0
@@ -1379,12 +1363,12 @@ sys.excepthook = _global_excepthook
 #     - Sarif Gold      (Deus Ex: Human Revolution — chamfered carbon-amber HUD)
 #     - Oriental Spirit (Kuro-Urushi Japanese Shrine Lacquer — neutral obsidian
 #                        jet-black & exact pure vermilion-crimson red)
-#     - Kreatendo       (Nintendo Wii / Wii U / DS / 3DS dark console aesthetic —
-#                        midnight frosted channel glass, luminous Wii Aqua-Sky
-#                        bevels, Miiverse Mint-Teal highlights & 3DS pill gloss)
-#     - Mint Serenity   (Linux Mint Cinnamon / Mint-Y-Dark inspired desktop UI —
-#                        high-contrast neutral dark charcoal/graphite panels,
-#                        crisp silver-white typography & botanical leaf-green accents)
+#     - Kreatendo       (Nintendo Wii / Wii U / DS / 3DS LIGHT porcelain software UI —
+#                        bright ceramic channel glass, Wii Aqua-Sky pillows,
+#                        Miiverse Mint, Mario Coral & Star Gold colorful accents)
+#     - Mint Serenity   (Linux Mint Cinnamon / Mint-Y-Dark nature-inspired dark UI —
+#                        restful evergreen-charcoal panels, Linux Mint leaf-green
+#                        accents, eucalyptus-teal dew highlights & organic leaf motifs)
 # =============================================================================
 THEME_ALIASES: Dict[str, str] = {
     "crimson": "oriental",
@@ -2494,10 +2478,81 @@ def tab_rail_height(scale: float = 1.0, icon_px: Optional[int] = None) -> int:
     return max(26, px + 10)
 
 
+_GLYPH_CACHE_VER = "v18"
+_GLYPHS_READY: Set[str] = set()
+_GLYPH_PATH_REGISTERED = False
+
+
+def _ensure_theme_control_glyphs(theme_key: str) -> Dict[str, str]:
+    """Synthesize razor-sharp @2x anti-aliased vector control glyphs (chevrons &
+    checkmarks) into data/ui_cache/ using pure QPainter (zero QtSvg dependency!)
+    so QComboBox, QSpinBox, QDoubleSpinBox and QCheckBox NEVER show ugly solid
+    white squares on any Qt6 platform or theme."""
+    global _GLYPH_PATH_REGISTERED
+    tk = resolve_theme_key(theme_key)
+    names = {
+        "down": f"{_GLYPH_CACHE_VER}_{tk}_down.png",
+        "up": f"{_GLYPH_CACHE_VER}_{tk}_up.png",
+        "check": f"{_GLYPH_CACHE_VER}_{tk}_check.png",
+    }
+    try:
+        os.makedirs(UI_CACHE_DIR, exist_ok=True)
+        if not _GLYPH_PATH_REGISTERED:
+            QDir.addSearchPath("studio", UI_CACHE_DIR)
+            _GLYPH_PATH_REGISTERED = True
+        if tk not in _GLYPHS_READY:
+            pal = THEMES.get(tk, C)
+            chevron_col = QColor(
+                "#0078b8" if tk == "kreatendo"
+                else ("#ffc93c" if tk == "gold"
+                else ("#ff3b30" if tk == "oriental"
+                else ("#87cf3e" if tk == "mint" else "#74c8ff")))
+            )
+            check_col = QColor(pal.get("acc_text", "#ffffff"))
+            cap = Qt.PenCapStyle.FlatCap if tk in ("oriental", "gold") else Qt.PenCapStyle.RoundCap
+            join = Qt.PenJoinStyle.MiterJoin if tk in ("oriental", "gold") else Qt.PenJoinStyle.RoundJoin
+            for kind, fname in names.items():
+                fpath = os.path.join(UI_CACHE_DIR, fname)
+                if os.path.isfile(fpath) and os.path.getsize(fpath) > 64:
+                    continue
+                img = QImage(24, 24, QImage.Format.Format_ARGB32_Premultiplied)
+                img.fill(Qt.GlobalColor.transparent)
+                p = QPainter(img)
+                p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+                if kind == "down":
+                    p.setPen(QPen(chevron_col, 3.1, Qt.PenStyle.SolidLine, cap, join))
+                    path = QPainterPath()
+                    path.moveTo(5.2, 8.8)
+                    path.lineTo(12.0, 15.8)
+                    path.lineTo(18.8, 8.8)
+                    p.drawPath(path)
+                elif kind == "up":
+                    p.setPen(QPen(chevron_col, 3.1, Qt.PenStyle.SolidLine, cap, join))
+                    path = QPainterPath()
+                    path.moveTo(5.2, 15.2)
+                    path.lineTo(12.0, 8.2)
+                    path.lineTo(18.8, 15.2)
+                    p.drawPath(path)
+                else:
+                    p.setPen(QPen(check_col, 3.4, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
+                    path = QPainterPath()
+                    path.moveTo(4.6, 12.6)
+                    path.lineTo(9.8, 17.6)
+                    path.lineTo(19.4, 6.6)
+                    p.drawPath(path)
+                p.end()
+                img.save(fpath, "PNG")
+            _GLYPHS_READY.add(tk)
+        return {k: f"url(studio:{v})" for k, v in names.items()}
+    except Exception:  # noqa: BLE001
+        return {"down": "none", "up": "none", "check": "none"}
+
+
 def build_stylesheet(scale: float = 1.0) -> str:
-    """Corporate East-Asian workstation stylesheet (v16.0 — 5 Flagship Themes, 800x600 & HiDPI).
+    """Corporate East-Asian workstation stylesheet (v18.0 — 5 Flagship Themes, 800x600 & HiDPI).
     LRU-cached per (theme, scale, low_power) for instant zero-lag theme & scale switching."""
     s = max(SCALE_MIN, min(SCALE_MAX, float(scale)))
+    _ensure_theme_control_glyphs(C["key"])
     ck = (C["key"], int(round(s * 100.0)), low_power_mode())
     cached_qss = _QSS_CACHE.get(ck)
     if cached_qss is not None:
@@ -2520,6 +2575,7 @@ def _build_stylesheet_uncached(s: float) -> str:
     phs = max(4, int(round(6 * s)))
     sb_w = max(10, min(16, int(round(12 * s))))
     U = THEME_UI.get(C["key"], THEME_UI["seestation"])
+    G = _ensure_theme_control_glyphs(C["key"])
     return f"""
 QWidget {{
     color: {C['text']};
@@ -2649,16 +2705,18 @@ QPlainTextEdit#SmallEdit {{
     color: {C['text']};
 }}
 QComboBox::drop-down {{
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
     border-left: 1px solid {C['line']};
-    width: 20px;
+    width: 19px;
     background: {_qgrad(C['btn_hi'], C['btn_mid'], C['btn_lo'])};
+    border-top-right-radius: {U['rad_md']};
+    border-bottom-right-radius: {U['rad_md']};
 }}
 QComboBox::down-arrow {{
-    image: none;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 5px solid {C['muted']};
-    margin-right: 6px;
+    image: {G['down']};
+    width: 10px;
+    height: 10px;
 }}
 QComboBox QAbstractItemView {{
     background: {C['deep']};
@@ -2668,11 +2726,22 @@ QComboBox QAbstractItemView {{
     outline: none;
     font-size: {f_sm}pt;
 }}
-QSpinBox::up-button, QDoubleSpinBox::up-button,
-QSpinBox::down-button, QDoubleSpinBox::down-button {{
-    width: 18px;
+QSpinBox::up-button, QDoubleSpinBox::up-button {{
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 17px;
     background: {_qgrad(C['btn_hi'], C['btn_mid'], C['btn_lo'])};
     border-left: 1px solid {C['line']};
+    border-bottom: 1px solid {C['line']};
+    border-top-right-radius: {U['rad_md']};
+}}
+QSpinBox::down-button, QDoubleSpinBox::down-button {{
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    width: 17px;
+    background: {_qgrad(C['btn_hi'], C['btn_mid'], C['btn_lo'])};
+    border-left: 1px solid {C['line']};
+    border-bottom-right-radius: {U['rad_md']};
 }}
 QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
 QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {{
@@ -2682,13 +2751,15 @@ QSpinBox::up-button:pressed, QDoubleSpinBox::up-button:pressed,
 QSpinBox::down-button:pressed, QDoubleSpinBox::down-button:pressed {{
     background: {C['btn_pre_hi']};
 }}
-QSpinBox::up-arrow {{
-    border-left: 4px solid transparent; border-right: 4px solid transparent;
-    border-bottom: 5px solid {C['muted']}; width: 0; height: 0;
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {{
+    image: {G['up']};
+    width: 9px;
+    height: 9px;
 }}
-QSpinBox::down-arrow {{
-    border-left: 4px solid transparent; border-right: 4px solid transparent;
-    border-top: 5px solid {C['muted']}; width: 0; height: 0;
+QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {{
+    image: {G['down']};
+    width: 9px;
+    height: 9px;
 }}
 
 /* ---- Glossy Bevelled Push & Tool Buttons ---- */
@@ -2824,10 +2895,7 @@ QCheckBox:disabled, QRadioButton:disabled {{
 QCheckBox::indicator, QRadioButton::indicator {{
     width: 14px;
     height: 14px;
-    border-top: 1px solid {C['sunken_bot']};
-    border-left: 1px solid {C['sunken_edge']};
-    border-right: 1px solid {C['sunken_edge']};
-    border-bottom: 1px solid {C['sunken_bot']};
+    border: 1.5px solid {C['line_hi']};
     background: {C['field_top']};
 }}
 QCheckBox::indicator {{
@@ -2837,15 +2905,16 @@ QRadioButton::indicator {{
     border-radius: 7px;
 }}
 QCheckBox::indicator:hover, QRadioButton::indicator:hover {{
-    border: 1px solid {C['acc_mid']};
+    border: 1.5px solid {C['acc_hi']};
 }}
 QCheckBox::indicator:checked {{
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['acc_hi']}, stop:1 {C['acc_lo']});
-    border: 1px solid {C['acc_edge']};
+    border: 1.5px solid {C['acc_edge']};
+    image: {G['check']};
 }}
 QRadioButton::indicator:checked {{
-    background: qradialgradient(cx:0.5,cy:0.42,radius:0.6, stop:0 {C['acc_spec']}, stop:0.55 {C['acc_hi']}, stop:1 {C['acc_lo']});
-    border: 1px solid {C['acc_edge']};
+    background: qradialgradient(cx:0.5,cy:0.42,radius:0.58, stop:0 {C['acc_spec']}, stop:0.52 {C['acc_hi']}, stop:1 {C['acc_lo']});
+    border: 1.5px solid {C['acc_edge']};
 }}
 
 /* ---- Horizontal Sliders (machined fader rails) ---- */
@@ -2995,7 +3064,7 @@ QTabWidget#EditSubTabs > QTabBar::tab {{
     font-weight: bold;
 }}
 QTabWidget#RightTabs > QTabBar::tab {{
-    padding: {pv}px {ph + 3}px;
+    padding: {pv}px {max(4, ph - 3)}px;
     margin-right: 2px;
 }}
 QTabBar::scroller {{
@@ -3388,15 +3457,16 @@ QPushButton:pressed, QToolButton:pressed {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #061021, stop:1 #112442);
 }
 QPushButton#Small, QToolButton#Small { border-radius: 6px; }
-QPushButton#Accent, QToolButton#Accent {
+QPushButton#Accent, QToolButton#Accent, QPushButton#ActAccent {
     border-radius: 8px;
     border: 1px solid #75cbff;
     border-top: 1px solid #d4f0ff;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
         stop:0 #38adff, stop:0.46 #0070d1, stop:0.54 #0454a6, stop:1 #03336e);
     color: #ffffff;
+    font-weight: bold;
 }
-QPushButton#Accent:hover, QToolButton#Accent:hover {
+QPushButton#Accent:hover, QToolButton#Accent:hover, QPushButton#ActAccent:hover {
     border: 1px solid #d6f0ff;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
         stop:0 #69c5ff, stop:0.46 #1c8cf0, stop:0.54 #0763ba, stop:1 #054185);
@@ -3529,13 +3599,15 @@ QPushButton:pressed, QToolButton:pressed {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #030303, stop:1 #161616);
 }
 QPushButton#Small, QToolButton#Small { border-radius: 0px; }
-QPushButton#Accent, QToolButton#Accent {
+QPushButton#Accent, QToolButton#Accent, QPushButton#ActAccent {
     border-radius: 0px; border: 1px solid #ff4238; border-top: 2px solid #ffd8d2;
+    border-bottom: 1px solid #d4a64a;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
         stop:0 #ff1e14, stop:0.46 #d40000, stop:0.54 #990000, stop:1 #4a0000);
     color: #ffffff;
+    font-weight: bold;
 }
-QPushButton#Accent:hover, QToolButton#Accent:hover {
+QPushButton#Accent:hover, QToolButton#Accent:hover, QPushButton#ActAccent:hover {
     border: 1px solid #ffffff;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
         stop:0 #ff382c, stop:0.46 #eb0800, stop:0.54 #b00000, stop:1 #630000);
@@ -3986,7 +4058,7 @@ QPushButton:pressed, QToolButton:pressed {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0d0a05, stop:1 #241c0d);
 }
 QPushButton#Small, QToolButton#Small { border-radius: 1px; }
-QPushButton#Accent, QToolButton#Accent {
+QPushButton#Accent, QToolButton#Accent, QPushButton#ActAccent {
     border-radius: 1px;
     border: 1px solid #ffeb99;
     border-top: 2px solid #fff8d4;
@@ -3995,7 +4067,7 @@ QPushButton#Accent, QToolButton#Accent {
     color: #120a01;
     font-weight: bold;
 }
-QPushButton#Accent:hover, QToolButton#Accent:hover {
+QPushButton#Accent:hover, QToolButton#Accent:hover, QPushButton#ActAccent:hover {
     border: 1px solid #ffffff;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
         stop:0 #ffe685, stop:0.46 #f2aa20, stop:0.54 #c9800e, stop:1 #875106);
@@ -4421,25 +4493,26 @@ def build_svg_document(asset_key: str, palette: Optional[Dict[str, str]] = None)
         if is_kreatendo:
             return (
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'>{defs}"
-                "<rect x='3' y='3' width='30' height='30' rx='11' fill='#121c2d' stroke='#a8edff' stroke-width='1.5'/>"
-                "<path d='M5,11 Q5,5 11,5 L25,5 Q31,5 31,11 L31,15 Q18,12 5,15 Z' fill='#ffffff' fill-opacity='0.14'/>"
-                "<path d='M10,31.2 L26,31.2' stroke='#2ce0b5' stroke-width='2.2' stroke-linecap='round'/>"
-                "<polygon points='13.5,10.5 26,18 13.5,25.5 16.8,18' fill='#e8fbff' stroke='#29c7ff' stroke-width='1.1' stroke-linejoin='round'/>"
+                "<rect x='2.5' y='2.5' width='31' height='31' rx='11.5' fill='#ffffff' stroke='#0078b8' stroke-width='1.8'/>"
+                "<path d='M5,12 Q5,5 12,5 L24,5 Q31,5 31,12 L31,16 Q18,12.5 5,16 Z' fill='#d6f2ff' fill-opacity='0.65'/>"
+                "<path d='M10,30.6 L26,30.6' stroke='#19b87a' stroke-width='2.4' stroke-linecap='round'/>"
+                "<polygon points='13.4,10.2 26.2,18 13.4,25.8 16.6,18' fill='#009ce0' stroke='#006da8' stroke-width='1.0' stroke-linejoin='round'/>"
                 "</svg>"
             )
         if is_mint:
             return (
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'>{defs}"
-                "<circle cx='18' cy='18' r='15' fill='#1c2127' stroke='#78db82' stroke-width='1.6'/>"
-                "<path d='M10,29 Q18,32.5 26,29' fill='none' stroke='#4fc7d4' stroke-width='1.8' stroke-linecap='round'/>"
-                "<polygon points='13,9.5 26.8,18 13,26.5 16.5,18' fill='#f2f5f8' stroke='#4aad5b' stroke-width='1.1' stroke-linejoin='round'/>"
+                "<circle cx='18' cy='18' r='15.2' fill='#142219' stroke='#d2f7be' stroke-width='1.6'/>"
+                "<path d='M9.5,28.8 Q18,32.5 26.5,28.8' fill='none' stroke='#4ec7b8' stroke-width='2.0' stroke-linecap='round'/>"
+                "<polygon points='13.2,9.8 26.8,18 13.2,26.2 16.6,18' fill='#e8ffea' stroke='#87cf3e' stroke-width='1.1' stroke-linejoin='round'/>"
                 "</svg>"
             )
         if is_oriental:
             return (
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'>{defs}"
-                f"<polygon points='18,3 33,18 18,33 3,18' fill='#0a0a0a' stroke='#ffd8d2' stroke-width='1.6'/>"
-                f"<polygon points='13.5,10 26.5,18 13.5,26 16.5,18' fill='#ffffff' stroke='#ff1e14' stroke-width='0.9'/>"
+                "<polygon points='18,2.5 33.5,18 18,33.5 2.5,18' fill='#070707' stroke='#d8a94e' stroke-width='1.5'/>"
+                "<polygon points='18,5.5 30.5,18 18,30.5 5.5,18' fill='none' stroke='#ff281e' stroke-width='1.1'/>"
+                "<polygon points='13.5,10 26.5,18 13.5,26 16.5,18' fill='#ffffff' stroke='#ff1e14' stroke-width='0.9'/>"
                 "</svg>"
             )
         return (
@@ -4564,75 +4637,88 @@ def build_svg_document(asset_key: str, palette: Optional[Dict[str, str]] = None)
         if is_oriental:
             return (
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'>{defs}"
-                "<circle cx='120' cy='120' r='96' fill='none' stroke='#e00000' stroke-opacity='0.24' stroke-width='1.6'/>"
-                "<circle cx='120' cy='120' r='82' fill='none' stroke='#383838' stroke-opacity='0.58' stroke-width='1.1' stroke-dasharray='6 4'/>"
-                "<polygon points='120,26 214,120 120,214 26,120' fill='#080808' fill-opacity='0.82' stroke='#e00000' stroke-width='2.2'/>"
-                "<polygon points='120,46 194,120 120,194 46,120' fill='none' stroke='#ff1c14' stroke-opacity='0.44' stroke-width='1.2'/>"
-                "<circle cx='120' cy='120' r='34' fill='#cc0000' fill-opacity='0.24' stroke='#ff1810' stroke-width='2.0'/>"
-                "<line x1='74' y1='96' x2='166' y2='96' stroke='#ff1a12' stroke-width='3.2' stroke-linecap='square'/>"
-                "<line x1='84' y1='107' x2='156' y2='107' stroke='#cc0000' stroke-width='2.0'/>"
-                "<line x1='96' y1='96' x2='96' y2='150' stroke='#e60000' stroke-width='2.8'/>"
-                "<line x1='144' y1='96' x2='144' y2='150' stroke='#e60000' stroke-width='2.8'/>"
-                "<line x1='120' y1='12' x2='120' y2='40' stroke='#ff1810' stroke-width='2.0'/>"
-                "<line x1='120' y1='200' x2='120' y2='228' stroke='#ff1810' stroke-width='2.0'/>"
-                "<line x1='12' y1='120' x2='40' y2='120' stroke='#ff1810' stroke-width='2.0'/>"
-                "<line x1='200' y1='120' x2='228' y2='120' stroke='#ff1810' stroke-width='2.0'/>"
+                "<circle cx='120' cy='120' r='102' fill='none' stroke='#e00000' stroke-opacity='0.26' stroke-width='1.5'/>"
+                "<circle cx='120' cy='120' r='90' fill='none' stroke='#d8a94e' stroke-opacity='0.36' stroke-width='1.0' stroke-dasharray='5 5'/>"
+                "<polygon points='120,22 218,120 120,218 22,120' fill='#070707' fill-opacity='0.86' stroke='#e8140e' stroke-width='2.2'/>"
+                "<polygon points='120,38 202,120 120,202 38,120' fill='none' stroke='#d8a94e' stroke-opacity='0.48' stroke-width='1.1'/>"
+                "<rect x='84' y='84' width='72' height='72' fill='none' stroke='#ff2418' stroke-opacity='0.26' stroke-width='1.1'/>"
+                "<circle cx='120' cy='120' r='36' fill='#cc0000' fill-opacity='0.26' stroke='#ff1e14' stroke-width='2.0'/>"
+                "<path d='M68,94 Q120,86 172,94' fill='none' stroke='#ff2418' stroke-width='4.0' stroke-linecap='square'/>"
+                "<line x1='80' y1='107' x2='160' y2='107' stroke='#d8a94e' stroke-width='2.1'/>"
+                "<line x1='96' y1='94' x2='94' y2='154' stroke='#e8140e' stroke-width='3.2'/>"
+                "<line x1='144' y1='94' x2='146' y2='154' stroke='#e8140e' stroke-width='3.2'/>"
+                "<line x1='120' y1='93' x2='120' y2='107' stroke='#ff382c' stroke-width='2.4'/>"
+                "<line x1='120' y1='10' x2='120' y2='36' stroke='#ff1810' stroke-width='2.0'/>"
+                "<line x1='120' y1='204' x2='120' y2='230' stroke='#ff1810' stroke-width='2.0'/>"
+                "<line x1='10' y1='120' x2='36' y2='120' stroke='#ff1810' stroke-width='2.0'/>"
+                "<line x1='204' y1='120' x2='230' y2='120' stroke='#ff1810' stroke-width='2.0'/>"
                 "</svg>"
             )
         if is_seestation:
             wave = (
                 "<path d='M8,150 C58,118 96,178 148,138 C186,108 208,150 232,126' "
-                "fill='none' stroke='url(#mGold)' stroke-opacity='0.58' stroke-width='2.5' stroke-linecap='round'/>"
+                "fill='none' stroke='url(#mGold)' stroke-opacity='0.68' stroke-width='2.6' stroke-linecap='round'/>"
                 f"<path d='M6,164 C60,134 100,190 152,152 C190,124 212,162 234,140' "
-                f"fill='none' stroke='{p['svg_rim']}' stroke-opacity='0.36' stroke-width='1.8' stroke-linecap='round'/>"
+                f"fill='none' stroke='{p['svg_rim']}' stroke-opacity='0.44' stroke-width='1.9' stroke-linecap='round'/>"
                 f"<path d='M10,136 C56,110 92,160 142,126 C180,100 204,136 230,114' "
-                f"fill='none' stroke='{p['svg_metal_1']}' stroke-opacity='0.24' stroke-width='1.3' stroke-linecap='round'/>"
-                "<circle cx='186' cy='86' r='7' fill='url(#coreGlow)'/>"
-                f"<circle cx='60' cy='96' r='3.4' fill='{p['svg_metal_1']}' fill-opacity='0.7'/>"
+                f"fill='none' stroke='{p['svg_metal_1']}' stroke-opacity='0.28' stroke-width='1.4' stroke-linecap='round'/>"
+                "<circle cx='186' cy='84' r='8' fill='url(#coreGlow)'/>"
+                f"<circle cx='58' cy='94' r='3.8' fill='{p['svg_metal_1']}' fill-opacity='0.78'/>"
             )
             return (
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'>{defs}"
-                f"<circle cx='120' cy='120' r='98' fill='none' stroke='{p['svg_watermark']}' stroke-opacity='0.22' stroke-width='1.4'/>"
-                f"<circle cx='120' cy='120' r='80' fill='url(#bodyLac)' fill-opacity='0.44' stroke='url(#mGold)' stroke-width='1.8'/>"
-                f"{_seestation_four_symbols(120.0, 114.0, 82.0, 3.6)}"
+                f"<circle cx='120' cy='120' r='100' fill='none' stroke='{p['svg_watermark']}' stroke-opacity='0.26' stroke-width='1.4' stroke-dasharray='12 6'/>"
+                f"<circle cx='120' cy='120' r='84' fill='url(#bodyLac)' fill-opacity='0.52' stroke='url(#mGold)' stroke-width='2.0'/>"
+                f"<circle cx='120' cy='120' r='74' fill='none' stroke='{p['svg_rim']}' stroke-opacity='0.24' stroke-width='1.0'/>"
+                f"{_seestation_four_symbols(120.0, 113.0, 84.0, 3.8)}"
                 f"{wave}"
                 "</svg>"
             )
         if is_kreatendo:
             return (
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'>{defs}"
-                "<rect x='24' y='24' width='192' height='192' rx='46' fill='#ffffff' fill-opacity='0.78' stroke='#7cb8e0' stroke-width='2.4'/>"
-                "<path d='M34,76 C34,42 54,34 86,34 L154,34 C186,34 206,42 206,76 L206,96 Q120,76 34,96 Z' fill='#dff3ff' fill-opacity='0.55'/>"
-                "<rect x='54' y='50' width='132' height='74' rx='16' fill='#f5fbff' stroke='#009ce0' stroke-width='2.6'/>"
-                "<rect x='64' y='60' width='112' height='54' rx='10' fill='#2ec6ff' fill-opacity='0.22' stroke='#009ce0' stroke-opacity='0.55' stroke-width='1.3'/>"
-                "<rect x='66' y='138' width='108' height='50' rx='14' fill='#f5fbff' stroke='#19b87a' stroke-width='2.3'/>"
-                "<rect x='82' y='159' width='22' height='8' rx='3' fill='#466482' fill-opacity='0.78'/>"
-                "<rect x='89' y='152' width='8' height='22' rx='3' fill='#466482' fill-opacity='0.78'/>"
-                "<circle cx='146' cy='155' r='5.2' fill='#009ce0' fill-opacity='0.88'/>"
-                "<circle cx='157' cy='163' r='5.2' fill='#e63b4b' fill-opacity='0.88'/>"
-                "<circle cx='146' cy='171' r='5.2' fill='#f5a800' fill-opacity='0.90'/>"
-                "<circle cx='135' cy='163' r='5.2' fill='#19b87a' fill-opacity='0.88'/>"
+                "<rect x='20' y='20' width='200' height='200' rx='50' fill='#ffffff' fill-opacity='0.88' stroke='#72b7e6' stroke-width='2.8'/>"
+                "<rect x='26' y='26' width='188' height='188' rx='44' fill='none' stroke='#ffffff' stroke-width='2.0'/>"
+                "<path d='M32,76 C32,40 54,30 88,30 L152,30 C186,30 208,40 208,76 L208,96 Q120,74 32,96 Z' fill='#d6f0ff' fill-opacity='0.64'/>"
+                "<rect x='50' y='46' width='140' height='78' rx='18' fill='#f7fcff' stroke='#009ce0' stroke-width='2.8'/>"
+                "<rect x='60' y='56' width='120' height='58' rx='11' fill='#26c4ff' fill-opacity='0.26' stroke='#009ce0' stroke-opacity='0.62' stroke-width='1.5'/>"
+                "<path d='M64,74 Q120,60 176,74 L176,63 Q120,56 64,63 Z' fill='#ffffff' fill-opacity='0.70'/>"
+                "<rect x='62' y='136' width='116' height='54' rx='16' fill='#f7fcff' stroke='#19b87a' stroke-width='2.5'/>"
+                "<rect x='79' y='159' width='24' height='8.5' rx='3.2' fill='#385778' fill-opacity='0.85'/>"
+                "<rect x='86.7' y='151.3' width='8.5' height='24' rx='3.2' fill='#385778' fill-opacity='0.85'/>"
+                "<circle cx='148' cy='154' r='5.8' fill='#009ce0'/>"
+                "<circle cx='160' cy='163' r='5.8' fill='#e63b4b'/>"
+                "<circle cx='148' cy='172' r='5.8' fill='#f5a600'/>"
+                "<circle cx='136' cy='163' r='5.8' fill='#19b87a'/>"
+                "<path d='M70,206 L170,206' stroke='#009ce0' stroke-width='3.0' stroke-linecap='round' stroke-opacity='0.6'/>"
+                "<path d='M124,206 L170,206' stroke='#19b87a' stroke-width='3.0' stroke-linecap='round' stroke-opacity='0.85'/>"
                 "</svg>"
             )
         if is_mint:
             return (
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'>{defs}"
-                "<circle cx='120' cy='120' r='96' fill='none' stroke='#66c770' stroke-opacity='0.28' stroke-width='1.8'/>"
-                "<circle cx='120' cy='120' r='82' fill='#1e2328' fill-opacity='0.82' stroke='#4d5762' stroke-width='1.8'/>"
-                "<path d='M64,166 C64,96 96,66 176,66 C176,136 144,166 64,166 Z' fill='#4ca85a' fill-opacity='0.34' stroke='#75d47d' stroke-width='2.8'/>"
-                "<path d='M74,158 C104,132 132,106 164,76' fill='none' stroke='#eef5ef' stroke-width='2.6' stroke-linecap='round'/>"
-                "<path d='M100,136 L100,104 M124,114 L148,114' fill='none' stroke='#a8eba9' stroke-opacity='0.82' stroke-width='2.0' stroke-linecap='round'/>"
-                "<circle cx='90' cy='84' r='4.6' fill='#eef5ef' fill-opacity='0.70'/>"
-                "<circle cx='158' cy='154' r='3.6' fill='#56c2cf' fill-opacity='0.72'/>"
+                "<circle cx='120' cy='120' r='100' fill='none' stroke='#87cf3e' stroke-opacity='0.30' stroke-width='1.8'/>"
+                "<circle cx='120' cy='120' r='86' fill='#17221b' fill-opacity='0.86' stroke='#496b54' stroke-width='2.0'/>"
+                "<circle cx='120' cy='120' r='74' fill='none' stroke='#4ec7b8' stroke-opacity='0.28' stroke-width='1.2' stroke-dasharray='8 5'/>"
+                "<path d='M62,168 C62,94 96,62 178,62 C178,136 144,168 62,168 Z' fill='#54b84d' fill-opacity='0.34' stroke='#87cf3e' stroke-width='3.0'/>"
+                "<path d='M72,160 C104,132 134,104 166,74' fill='none' stroke='#eefcf0' stroke-width='2.8' stroke-linecap='round'/>"
+                "<path d='M98,136 L98,102 M122,114 L152,114 M110,124 L110,94' fill='none' stroke='#b7f5a6' stroke-opacity='0.84' stroke-width='2.0' stroke-linecap='round'/>"
+                "<circle cx='88' cy='84' r='5.0' fill='#eefcf0' fill-opacity='0.78'/>"
+                "<circle cx='160' cy='154' r='4.2' fill='#4ec7b8' fill-opacity='0.84'/>"
                 "</svg>"
             )
         return (
             f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'>{defs}"
-            f"<circle cx='120' cy='120' r='96' fill='none' stroke='{p['svg_watermark']}' stroke-opacity='0.24' stroke-width='1.5' stroke-dasharray='8 6'/>"
-            "<polygon points='120,24 202,72 202,168 120,216 38,168 38,72' fill='url(#bodyLac)' fill-opacity='0.58' stroke='url(#mGold)' stroke-width='2.2'/>"
-            f"<polygon points='120,44 184,82 184,158 120,196 56,158 56,82' fill='none' stroke='{p['svg_rim']}' stroke-opacity='0.44' stroke-width='1.2'/>"
-            "<polygon points='120,66 168,148 72,148' fill='url(#mVert)' fill-opacity='0.34' stroke='url(#mGold)' stroke-width='2.0'/>"
-            "<circle cx='120' cy='122' r='22' fill='url(#coreGlow)' opacity='0.56'/>"
+            f"<circle cx='120' cy='120' r='100' fill='none' stroke='{p['svg_watermark']}' stroke-opacity='0.28' stroke-width='1.5' stroke-dasharray='10 5'/>"
+            "<polygon points='120,20 206,70 206,170 120,220 34,170 34,70' fill='url(#bodyLac)' fill-opacity='0.64' stroke='url(#mGold)' stroke-width='2.4'/>"
+            f"<polygon points='120,38 188,78 188,162 120,202 52,162 52,78' fill='none' stroke='{p['svg_rim']}' stroke-opacity='0.52' stroke-width='1.3'/>"
+            "<polygon points='120,62 172,150 68,150' fill='url(#mVert)' fill-opacity='0.38' stroke='url(#mGold)' stroke-width='2.2'/>"
+            "<polygon points='120,86 148,136 92,136' fill='none' stroke='#fff4c2' stroke-opacity='0.62' stroke-width='1.1'/>"
+            "<circle cx='120' cy='122' r='24' fill='url(#coreGlow)' opacity='0.62'/>"
+            "<line x1='120' y1='8' x2='120' y2='24' stroke='#ffc93c' stroke-width='1.8'/>"
+            "<line x1='120' y1='216' x2='120' y2='232' stroke='#ffc93c' stroke-width='1.8'/>"
+            "<line x1='14' y1='120' x2='30' y2='120' stroke='#ffc93c' stroke-width='1.5'/>"
+            "<line x1='210' y1='120' x2='226' y2='120' stroke='#ffc93c' stroke-width='1.5'/>"
             "</svg>"
         )
 
@@ -6201,7 +6287,7 @@ def _migrate_legacy_files() -> None:
 
 
 def ensure_dirs() -> None:
-    for d in (DATA_DIR, OUTPUT_DIR, TEMP_DIR, TILES_DIR, WILDCARDS_DIR, SCRATCH_DIR, SOUNDS_DIR):
+    for d in (DATA_DIR, OUTPUT_DIR, TEMP_DIR, TILES_DIR, WILDCARDS_DIR, SCRATCH_DIR, SOUNDS_DIR, UI_CACHE_DIR):
         try:
             os.makedirs(d, exist_ok=True)
         except OSError:
@@ -15889,12 +15975,20 @@ class ElideLabel(QLabel):
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         super().setText(text)
 
+    def sizeHint(self) -> QSize:  # noqa: N802
+        fm = QFontMetrics(self.font())
+        m = self.contentsMargins()
+        w = fm.horizontalAdvance(self._full) + m.left() + m.right() + 12
+        h = fm.height() + m.top() + m.bottom() + 4
+        return QSize(max(16, w), max(16, h))
+
     def minimumSizeHint(self) -> QSize:  # noqa: N802
         fm = QFontMetrics(self.font())
         return QSize(12, fm.height() + 2)
 
     def setText(self, text: str) -> None:  # noqa: N802
         self._full = text or ""
+        self.updateGeometry()
         self._apply_elide()
 
     def full_text(self) -> str:
@@ -15906,7 +16000,12 @@ class ElideLabel(QLabel):
 
     def _apply_elide(self) -> None:
         fm = QFontMetrics(self.font())
-        avail = max(16, self.width() - 8)
+        m = self.contentsMargins()
+        w = self.width()
+        if w <= 2:
+            super().setText(self._full)
+            return
+        avail = max(16, w - m.left() - m.right() - 4)
         super().setText(fm.elidedText(self._full, Qt.TextElideMode.ElideRight, avail))
 
 
@@ -16091,6 +16190,7 @@ class SectionHeader(QWidget):
         self._lay.setSpacing(3)
         self.title_label = ElideLabel("")
         self.title_label.setObjectName("Kicker")
+        self.title_label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         self.title_label.setFont(_font(9.0 * ui_scale(), True, 0.4))
         self.title_label.setText(title)
         self._lay.addSpacing(13)
@@ -16574,9 +16674,9 @@ class ToastOverlay(QObject):
 class IgnitionGenerateButton(QPushButton):
     """Flagship East-Asian 'ENGAGE / SORTIE' style Generate CTA button."""
 
-    _SHEEN_DURATION = 0.92      # seconds for one smooth specular glide
-    _IDLE_CADENCE_MS = 7800     # calm ambient shimmer cadence when active
-    _HOVER_COOLDOWN = 1.85      # minimum seconds between hover sheen triggers
+    _SHEEN_DURATION = 0.88      # seconds for one smooth specular glide
+    _IDLE_CADENCE_MS = 10500    # low-CPU calm ambient shimmer cadence when active
+    _HOVER_COOLDOWN = 2.00      # minimum seconds between hover sheen triggers
     _GLOW_DURATION = 0.20       # smooth hover corona fade time
 
     def __init__(self, text: str = "GENERATE", parent: Optional[QWidget] = None) -> None:
@@ -16998,52 +17098,68 @@ class IgnitionGenerateButton(QPushButton):
             p.drawPath(_theme_frame_path(badge_r, tkey, rad_see=4.5, ch_gold=3.0))
             p.setPen(QColor(C["acc_spec"]))
             p.drawText(badge_r, Qt.AlignmentFlag.AlignCenter, badge_txt)
-        elif r.width() >= 255:
+        elif r.width() >= 250:
             hint_txt = "CTRL+\u21B5"
-            p.setFont(_font(6.8 * self._ui_scale, True, 0.4))
+            p.setFont(_font(max(6.2, 6.7 * self._ui_scale), True, 0.35))
             fm_h = QFontMetrics(p.font())
             badge_w = fm_h.horizontalAdvance(hint_txt) + 10
+            badge_h = max(14, min(18, fm_h.height() + 3))
             bx = int(r.right() - badge_w - (9 if tkey == "oriental" else 7))
-            by = int(r.center().y() - 7)
-            badge_r = QRectF(bx, by, badge_w, 15)
-            p.setBrush(QColor(0, 0, 0, 95))
-            p.setPen(QPen(QColor(255, 255, 255, 72), 0.9))
+            by = int(r.center().y() - badge_h / 2.0)
+            badge_r = QRectF(bx, by, badge_w, badge_h)
+            p.setBrush(QColor(0, 0, 0, 160 if tkey in ("gold", "mint") else 112))
+            p.setPen(QPen(QColor(C["acc_spec"] if tkey in ("gold", "mint") else "#ffffff"), 0.85))
             p.drawPath(_theme_frame_path(badge_r, tkey, rad_see=4.0, ch_gold=2.5))
-            hc = QColor(C["acc_text"]); hc.setAlpha(200)
-            p.setPen(hc)
+            p.setPen(QColor(C["acc_spec"] if tkey in ("gold", "mint") else "#ffffff"))
             p.drawText(badge_r, Qt.AlignmentFlag.AlignCenter, hint_txt)
 
-        right_pad = 10 + (badge_w + 6 if badge_w > 0 else 0)
+        right_pad = 9 + (badge_w + 6 if badge_w > 0 else 0)
         txt_w = max(24, int(r.right() - txt_left - right_pad))
-        title_h = int(round(bh * 0.54))
-        sub_h = max(12, int(bh) - title_h - 4)
-        title_rect = QRect(txt_left, int(r.top() + 2), txt_w, title_h)
-        sub_rect = QRect(txt_left, int(r.top() + title_h - 1), txt_w, sub_h)
 
-        title_pt = max(9.4, min(14.0, (10.5 if self._compact_mode else 11.8) * self._ui_scale))
-        title_font = _font(title_pt, True, 1.8)
+        # Exact font-metrics vertical layout so Title + Subtext NEVER collide or clip at any height/scale
+        avail_h = max(24.0, r.height() - 5.0)
+        title_pt = max(8.6, min(13.2, (9.8 if self._compact_mode else 11.2) * self._ui_scale))
+        sub_pt = max(6.4, min(9.2, (6.9 if self._compact_mode else 7.4) * self._ui_scale))
+        title_font = _font(title_pt, True, 1.4)
+        sub_font = _font(sub_pt, True, 0.35)
+        fm_t = QFontMetrics(title_font)
+        fm_s = QFontMetrics(sub_font)
+        need_h = fm_t.height() + fm_s.height()
+        if need_h > avail_h:
+            shrink = max(0.76, avail_h / max(1.0, float(need_h)))
+            title_font = _font(max(8.0, title_pt * shrink), True, 1.1)
+            sub_font = _font(max(6.0, sub_pt * shrink), True, 0.2)
+            fm_t = QFontMetrics(title_font)
+            fm_s = QFontMetrics(sub_font)
+        th = fm_t.height()
+        sh = fm_s.height()
+        gap = 1 if (th + sh + 1 <= avail_h) else -1
+        block_h = th + gap + sh
+        top_y = int(round(r.center().y() - block_h / 2.0))
+        title_rect = QRect(txt_left, top_y, txt_w, th)
+        sub_rect = QRect(txt_left, top_y + th + gap, txt_w, sh)
+
         p.setFont(title_font)
         if tkey in ("oriental", "kreatendo"):
-            shadow_col = QColor(0, 0, 0, 185)
+            shadow_col = QColor(0, 0, 0, 175)
         elif tkey == "seestation":
-            shadow_col = QColor(3, 10, 22, 175)
+            shadow_col = QColor(3, 10, 22, 165)
         elif tkey == "mint":
-            shadow_col = QColor(227, 255, 237, 95)
+            shadow_col = QColor(227, 255, 237, 90)
         else:
-            shadow_col = QColor(255, 246, 200, 100)
-        title_el = QFontMetrics(title_font).elidedText(self.text().upper(), Qt.TextElideMode.ElideRight, title_rect.width())
+            shadow_col = QColor(255, 246, 200, 95)
+        title_el = fm_t.elidedText(self.text().upper(), Qt.TextElideMode.ElideRight, title_rect.width())
         p.setPen(shadow_col)
         p.drawText(title_rect.translated(0, 1), Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, title_el)
         p.setPen(QColor(C["acc_text"] if enabled else C["dim"]))
         p.drawText(title_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, title_el)
 
-        sub_font = _font(max(6.8, 7.6 * self._ui_scale), True, 0.5)
         p.setFont(sub_font)
         sub_col = QColor(C["acc_text"] if enabled else C["dim"])
-        sub_col.setAlpha(215)
+        sub_col.setAlpha(225)
         p.setPen(sub_col)
         sub_txt = self._active_badge if self._active_badge else self._sub_text
-        sub_el = QFontMetrics(sub_font).elidedText(sub_txt, Qt.TextElideMode.ElideRight, sub_rect.width())
+        sub_el = fm_s.elidedText(sub_txt, Qt.TextElideMode.ElideRight, sub_rect.width())
         p.drawText(sub_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, sub_el)
         p.end()
 
@@ -17362,8 +17478,58 @@ class TagFlowPromptEdit(QPlainTextEdit):
                 break
         return rects
 
+    def adjust_tag_weight(self, delta: float) -> bool:
+        """East-Asia SD/Anima power-user shortcut (Ctrl+Up / Ctrl+Down):
+        nudge emphasis weight of the selected text or tag under caret."""
+        tc = self.textCursor()
+        limit = self.editable_end()
+        if tc.hasSelection():
+            s0 = min(tc.selectionStart(), tc.selectionEnd(), limit)
+            s1 = min(max(tc.selectionStart(), tc.selectionEnd()), limit)
+        else:
+            self._elements = parse_prompt_elements(self.toPlainText())
+            cpos = min(tc.position(), limit)
+            el = next((e for e in self._elements if e.start <= cpos <= e.end), None)
+            if el is None:
+                return False
+            s0, s1 = el.start, min(el.end, limit)
+        if s1 <= s0:
+            return False
+        raw = self.toPlainText()[s0:s1].strip()
+        if not raw:
+            return False
+        m = re.match(r"^\((.+):([0-9]+(?:\.[0-9]+)?)\)$", raw)
+        if m:
+            inner = m.group(1).strip()
+            w = float(m.group(2)) + float(delta)
+        else:
+            inner = raw
+            w = 1.0 + float(delta)
+        w = max(0.10, min(2.50, round(w, 2)))
+        new_tok = inner if abs(w - 1.0) < 0.005 else f"({inner}:{w:.2f}".rstrip("0").rstrip(".") + ")"
+        tc.beginEditBlock()
+        tc.setPosition(s0)
+        tc.setPosition(s1, QTextCursor.MoveMode.KeepAnchor)
+        tc.insertText(new_tok)
+        tc.setPosition(s0)
+        tc.setPosition(s0 + len(new_tok), QTextCursor.MoveMode.KeepAnchor)
+        tc.endEditBlock()
+        self.setTextCursor(tc)
+        self._flash_ranges = [(s0, s0 + len(new_tok))]
+        self._flash_timer.start()
+        self.viewport().update()
+        return True
+
     # ---- Keyboard events ----------------------------------------------------
     def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
+        if (event.modifiers() & Qt.KeyboardModifier.ControlModifier) and event.key() in (
+            Qt.Key.Key_Up,
+            Qt.Key.Key_Down,
+        ):
+            step = 0.05 if (event.modifiers() & Qt.KeyboardModifier.ShiftModifier) else 0.10
+            if self.adjust_tag_weight(step if event.key() == Qt.Key.Key_Up else -step):
+                event.accept()
+                return
         if event.key() == Qt.Key.Key_Control:
             self._sync_ctrl_mode(True)
         elif event.key() == Qt.Key.Key_Escape and (self._dragging or self._selected_indices):
@@ -18105,7 +18271,7 @@ class AspectButton(QAbstractButton):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setMinimumWidth(0)
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
-        self.setMinimumHeight(max(25, int(round(30 * ui_scale()))))
+        self.setMinimumHeight(max(23, int(round(27 * ui_scale()))))
         orient_lbl = "Square" if group == "square" else ("Landscape" if group == "land" else "Portrait")
         self.setToolTip(
             f"{key} ({orient_lbl})  \u2014  {w} \u00d7 {h} px\n"
@@ -18128,7 +18294,7 @@ class AspectButton(QAbstractButton):
 
     def sizeHint(self) -> QSize:  # noqa: N802
         s = ui_scale()
-        return QSize(max(44, int(round(58 * s))), max(25, int(round(30 * s))))
+        return QSize(max(44, int(round(56 * s))), max(23, int(round(27 * s))))
 
     def paintEvent(self, event) -> None:  # noqa: N802
         p = QPainter(self)
@@ -18226,20 +18392,50 @@ class AspectButton(QAbstractButton):
 class AspectPicker(QWidget):
     """Unified aspect-ratio & resolution picker displaying ALL orientations
     (Square, Landscape & Portrait) together with Shift+Click multi-selection
-    for random resolution picking per generated image."""
+    for random resolution picking per generated image, PLUS quick LAND / PORT
+    orientation & group-pool action buttons."""
 
     changed = pyqtSignal(str)
     selection_changed = pyqtSignal(list)
-    orient_clicked = pyqtSignal(str)  # kept for legacy signal compatibility
+    orient_clicked = pyqtSignal(str)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self._selected_keys: List[str] = ["1:1"]
+        self._last_land_key: str = "16:9"
+        self._last_port_key: str = "9:16"
         self._grid = QGridLayout(self)
         self._grid.setContentsMargins(0, 0, 0, 0)
         self._grid.setHorizontalSpacing(3)
         self._grid.setVerticalSpacing(3)
         self._buttons: Dict[str, AspectButton] = {}
+
+        # Quick orientation / group-pool buttons (docked in Prompt tab mode bar)
+        self.orient_land = QToolButton()
+        self.orient_land.setObjectName("Small")
+        self.orient_land.setText("LAND")
+        self.orient_land.setCheckable(True)
+        self.orient_land.setMinimumWidth(0)
+        self.orient_land.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self.orient_land.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.orient_land.setToolTip(
+            "Landscape quick-select (switches to last Landscape preset or flips current ratio).\n"
+            "Shift+Click: select ALL Landscape presets as a Random Resolution Pool."
+        )
+        self.orient_land.clicked.connect(lambda: self._on_orient_btn("land"))
+
+        self.orient_port = QToolButton()
+        self.orient_port.setObjectName("Small")
+        self.orient_port.setText("PORT")
+        self.orient_port.setCheckable(True)
+        self.orient_port.setMinimumWidth(0)
+        self.orient_port.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self.orient_port.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.orient_port.setToolTip(
+            "Portrait quick-select (switches to last Portrait preset or flips current ratio).\n"
+            "Shift+Click: select ALL Portrait presets as a Random Resolution Pool."
+        )
+        self.orient_port.clicked.connect(lambda: self._on_orient_btn("port"))
 
         # Ordered unified display: Row 0-1 Square + Landscape (6 tiles), Row 2-3 Portrait (5 tiles + Pool/1x slot)
         ordered = (
@@ -18257,7 +18453,7 @@ class AspectPicker(QWidget):
         # 12th slot: compact Random-Pool status / 1x collapse button (fills 4x3 grid symmetrically!)
         self.pool_btn = QToolButton()
         self.pool_btn.setObjectName("Small")
-        self.pool_btn.setText("Shift+Clk")
+        self.pool_btn.setText("Shift:Pool")
         self.pool_btn.setMinimumWidth(0)
         self.pool_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
         self.pool_btn.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -18269,6 +18465,33 @@ class AspectPicker(QWidget):
         self._grid.addWidget(self.pool_btn, len(ordered) // cols, len(ordered) % cols)
 
         self._sync_visuals()
+
+    def _on_orient_btn(self, group: str) -> None:
+        shift = bool(QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
+        group_keys = [a["key"] for a in ASPECTS if a["group"] == group]
+        if shift and group_keys:
+            if set(group_keys).issubset(set(self._selected_keys)) and len(self._selected_keys) > len(group_keys):
+                self._selected_keys = [k for k in self._selected_keys if k not in group_keys]
+            elif self._selected_keys == group_keys:
+                self._selected_keys = [group_keys[0]]
+            else:
+                self._selected_keys = list(group_keys)
+        else:
+            cur_k = self._selected_keys[0] if self._selected_keys else "1:1"
+            cur_a = ASPECT_BY_KEY.get(cur_k)
+            if cur_a and cur_a["group"] != group:
+                inv = invert_aspect_key(cur_k) if cur_a["group"] in ("land", "port") else ""
+                if inv in ASPECT_BY_KEY and ASPECT_BY_KEY[inv]["group"] == group:
+                    target = inv
+                else:
+                    target = self._last_land_key if group == "land" else self._last_port_key
+            else:
+                target = self._last_land_key if group == "land" else self._last_port_key
+            self._selected_keys = [target if target in ASPECT_BY_KEY else (group_keys[0] if group_keys else "1:1")]
+        self._sync_visuals()
+        self.orient_clicked.emit(group)
+        self.changed.emit(self._selected_keys[0])
+        self.selection_changed.emit(list(self._selected_keys))
 
     def _on_tile_clicked(self, key: str, shift: bool) -> None:
         if key not in self._buttons:
@@ -18291,19 +18514,32 @@ class AspectPicker(QWidget):
             on = k in self._selected_keys
             b.setChecked(on)
             b.set_pool_index((self._selected_keys.index(k) + 1) if (multi and on) else 0)
+        groups = {ASPECT_BY_KEY[k]["group"] for k in self._selected_keys if k in ASPECT_BY_KEY}
+        for k in self._selected_keys:
+            a = ASPECT_BY_KEY.get(k)
+            if a and a["group"] == "land":
+                self._last_land_key = k
+            elif a and a["group"] == "port":
+                self._last_port_key = k
+        self.orient_land.blockSignals(True)
+        self.orient_port.blockSignals(True)
+        self.orient_land.setChecked("land" in groups)
+        self.orient_port.setChecked("port" in groups)
+        self.orient_land.blockSignals(False)
+        self.orient_port.blockSignals(False)
         if multi:
             names = ", ".join(
                 f"{k} ({ASPECT_BY_KEY[k]['w']}\u00d7{ASPECT_BY_KEY[k]['h']})"
                 for k in self._selected_keys if k in ASPECT_BY_KEY
             )
-            self.pool_btn.setText(f"\u2684 {len(self._selected_keys)} \u00d7 1")
+            self.pool_btn.setText(f"Pool \u00d7{len(self._selected_keys)}")
             self.pool_btn.setToolTip(
                 f"Random Resolution Pool ({len(self._selected_keys)} selected):\n{names}\n\n"
                 "Each generated image randomly chooses one preset from this pool.\n"
                 "Click to reset back to a single preset."
             )
         else:
-            self.pool_btn.setText("\u2684 Shift")
+            self.pool_btn.setText("Shift:Pool")
             self.pool_btn.setToolTip(
                 "Hold Shift and click presets to select multiple resolutions for random picking."
             )
@@ -18726,11 +18962,19 @@ class ModuleContextRibbon(QWidget):
                 QPointF(r.left() + 5.1, cy),
             ]))
 
-        # Parse optional trailing "Ctrl+N" keycap token cleanly
-        parts = [seg.strip() for seg in self._text.split("\u00b7") if seg.strip()]
+        # Parse optional "Ctrl+N" keycap token cleanly from ANY position in ribbon text
+        raw_parts = [seg.strip() for seg in self._text.split("\u00b7") if seg.strip()]
+        parts: List[str] = []
         shortcut_txt = ""
-        if parts and parts[-1].startswith("Ctrl+"):
-            shortcut_txt = parts.pop()
+        for seg in raw_parts:
+            m_sc = re.search(r"\b(Ctrl\+\d+)\b", seg)
+            if m_sc and not shortcut_txt:
+                shortcut_txt = m_sc.group(1)
+                cleaned = re.sub(r"\s*\bCtrl\+\d+\b\s*", " ", seg).strip()
+                if cleaned:
+                    parts.append(cleaned)
+            else:
+                parts.append(seg)
         title_txt = parts[0] if parts else self._text
         detail_txt = "  \u00b7  ".join(parts[1:]) if len(parts) > 1 else ""
 
@@ -19903,7 +20147,26 @@ class _ViewerCanvas(QWidget):
         ox = (self.width() - tw) // 2
         oy = (self.height() - th) // 2
         target = QRect(ox, oy, tw, th)
-        p.drawPixmap(target, pm)
+        # Low-end laptop speedup: cache scaled pixmap for active zoom/fit size so hover/HUD repaints are 1:1 blits
+        if tw == pm.width() and th == pm.height():
+            p.drawPixmap(ox, oy, pm)
+        elif tw <= 3840 and th <= 3840:
+            sck = (pm.cacheKey(), tw, th, low_power_mode())
+            if getattr(self._viewer, "_scaled_cache_key", None) != sck:
+                mode = (
+                    Qt.TransformationMode.FastTransformation
+                    if low_power_mode()
+                    else Qt.TransformationMode.SmoothTransformation
+                )
+                self._viewer._scaled_pm = pm.scaled(tw, th, Qt.AspectRatioMode.IgnoreAspectRatio, mode)
+                self._viewer._scaled_cache_key = sck
+            spm = getattr(self._viewer, "_scaled_pm", None)
+            if spm is not None and not spm.isNull():
+                p.drawPixmap(ox, oy, spm)
+            else:
+                p.drawPixmap(target, pm)
+        else:
+            p.drawPixmap(target, pm)
         # Crisp subtle frame around artwork
         p.setPen(QPen(QColor(C["line_hi"]), 1.0))
         p.setBrush(Qt.BrushStyle.NoBrush)
@@ -19995,6 +20258,8 @@ class ImageViewer(QScrollArea):
         self.path = path if (path and os.path.isfile(path)) else None
         self.meta = read_image_metadata(self.path) if self.path else {}
         self._pixmap = QPixmap(self.path) if self.path else None
+        self._scaled_cache_key = None
+        self._scaled_pm = None
         if self._fit:
             self._recompute_fit()
         else:
@@ -20287,9 +20552,34 @@ class RecentStripGallery(QListWidget):
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setUniformItemSizes(True)
         self.setSpacing(3)
-        self.setFixedHeight(64)
+        self._compact_h = False
+        self.setFixedHeight(26)
         self.setItemDelegate(ThumbDelegate(self))
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def sync_strip_height(self, scale: float, compact: bool = False) -> None:
+        self._compact_h = bool(compact)
+        if self.count() == 0:
+            gh = max(22, min(30, int(round(24 * scale))))
+        else:
+            gh = max(44, min(80, int(round((48 if compact else 62) * scale))))
+        if self.height() != gh:
+            self.setFixedHeight(gh)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        super().paintEvent(event)
+        if self.count() == 0:
+            p = QPainter(self.viewport())
+            p.setFont(_font(max(7.2, 8.0 * ui_scale())))
+            p.setPen(QColor(C["dim"]))
+            r_txt = self.viewport().rect().adjusted(8, 0, -8, 0)
+            hint = QFontMetrics(p.font()).elidedText(
+                "Recent renders appear here  \u00b7  Drag & drop any image onto the viewer",
+                Qt.TextElideMode.ElideRight,
+                max(24, r_txt.width()),
+            )
+            p.drawText(r_txt, Qt.AlignmentFlag.AlignCenter, hint)
+            p.end()
 
     def wheelEvent(self, event) -> None:  # noqa: N802
         dy = event.angleDelta().y()
@@ -21140,6 +21430,8 @@ class ShortcutsDialog(QDialog):
         ("F11", "Fullscreen"),
         ("F10", "Application menu"),
         ("F1", "This shortcut reference"),
+        ("Ctrl + Up / Down (in prompt)", "Nudge tag emphasis weight (+/-0.10, +Shift for +/-0.05) e.g. (tag:1.1)"),
+        ("Shift + Click (Aspect tile / LAND / PORT)", "Build or toggle a Random Resolution Pool for varied aspect generations"),
         ("Hold Ctrl (in prompt)", "Tag-block mode: click to select, drag to reorder"),
         ("Ctrl + Shift + Click (in prompt)", "Select a range of tag blocks"),
         ("Esc (in prompt)", "Cancel tag selection / drag"),
@@ -22657,15 +22949,15 @@ class ArenaImagePane(QFrame):
         lay.setSpacing(4)
 
         hdr = QHBoxLayout()
-        hdr.setSpacing(4)
-        self.title_lbl = make_label(f"CANDIDATE {slot}", "Kicker")
+        hdr.setSpacing(3)
+        self.title_lbl = make_label(f"#{slot}", "Chip")
         self.status_lbl = ElideLabel("Idle")
         self.status_lbl.setObjectName("Caption")
-        self.retry_btn = make_button("RETRY", lambda: self.retry_clicked.emit(self.slot), small=True, tip=f"Retry Candidate {slot} with the same seed")
+        self.retry_btn = make_button("Retry", lambda: self.retry_clicked.emit(self.slot), small=True, tip=f"Retry Candidate {slot} with the same seed")
         self.retry_btn.setVisible(False)
-        self.inspect_btn = make_button("VIEW", self._on_inspect, small=True, tip=f"Open Image {slot} full-size in Viewer")
+        self.inspect_btn = make_button("View", self._on_inspect, small=True, tip=f"Open Image {slot} full-size in Viewer")
         self.inspect_btn.setEnabled(False)
-        self.save_btn = make_button("SAVE", self._on_save, small=True, tip=f"Save Image {slot} to outputs/")
+        self.save_btn = make_button("Save", self._on_save, small=True, tip=f"Save Image {slot} to outputs/")
         self.save_btn.setEnabled(False)
         hdr.addWidget(self.title_lbl, 0)
         hdr.addWidget(self.status_lbl, 1)
@@ -22796,7 +23088,7 @@ class SelfImprovingArenaWidget(QWidget):
         self.vote_a_btn.setToolTip("Mark A as Good and B as Bad — saves content prompt pair to PreferencesMemory")
         self.vote_a_btn.clicked.connect(lambda: self.vote_cast.emit("A"))
 
-        self.vote_tie_btn = QPushButton("\uFF1D  Tie")
+        self.vote_tie_btn = QPushButton("=  Tie")
         self.vote_tie_btn.setObjectName("VoteTieBtn")
         self.vote_tie_btn.setCheckable(True)
         self.vote_tie_btn.setMinimumWidth(0)
@@ -25507,16 +25799,17 @@ class MainWindow(QMainWindow):
         self._resize_debounce_timer.setInterval(24)
         self._resize_debounce_timer.timeout.connect(self._on_workspace_resized)
 
-        # Thread-safe in-memory logger bridge
+        # Thread-safe in-memory logger bridge (subscribed AFTER _build_ui() so
+        # Queue log widgets always exist before any live record can arrive!)
         self._log_bridge = _LogBridge(self)
         self._log_bridge.logged.connect(self._on_log_record)
-        STUDIO_LOG.subscribe(self._log_bridge.logged.emit)
 
-        self.setWindowTitle(f"{APP_NAME}  {APP_VERSION}  \u2014  AI Horde Workstation")
+        self.setWindowTitle(f"{APP_NAME}  v{APP_VERSION}  \u2014  AI Horde Workstation")
         self.setWindowIcon(VECTOR_ASSETS.icon("app_emblem", 32))
         self.setMinimumSize(640, 460)
 
         self._build_ui()
+        STUDIO_LOG.subscribe(self._log_bridge.logged.emit)
         self.toast = ToastOverlay(self.centralWidget())
         self.prompt_hl = SpanHighlighter(self.prompt_book, self.prompt_edit.document())
         self.neg_hl = SpanHighlighter(self.neg_book, self.neg_edit.document())
@@ -25663,15 +25956,16 @@ class MainWindow(QMainWindow):
                 dl.setContentsMargins(7, 7, 7, 6)
                 dl.setSpacing(5)
         if hasattr(self, "gallery"):
-            gh = max(44, min(80, int(round((48 if compact_h else 62) * scale))))
-            if self.gallery.height() != gh:
-                self.gallery.setFixedHeight(gh)
+            self.gallery.sync_strip_height(scale, compact=compact_h)
         if hasattr(self, "gen_btn"):
             self.gen_btn.apply_metrics(scale, compact=compact_h)
             if hasattr(self, "mini_queue"):
                 mq_h = max(44, int(round((48 if compact_h else 74) * scale)))
                 if self.mini_queue.height() != mq_h:
                     self.mini_queue.setFixedHeight(mq_h)
+        if hasattr(self, "deck") and self.deck.layout() is not None:
+            self.deck.updateGeometry()
+            self.deck.layout().activate()
         if hasattr(self, "edit_ctx_stack"):
             self.edit_ctx_stack.setMaximumHeight(max(64, int(round(78 * scale))))
             self.edit_ctx_stack.updateGeometry()
@@ -25686,18 +25980,33 @@ class MainWindow(QMainWindow):
             if getattr(self, "_deck_narrow", None) != narrow_l:
                 self._deck_narrow = narrow_l
                 self._update_deck_badges()
+            compact_pbar = (lw > 0 and lw < 345)
+            if getattr(self, "_pbar_compact", None) != compact_pbar:
+                self._pbar_compact = compact_pbar
+                for b_attr, b_txt in (("copy_prompt_btn", "Copy"), ("hist_btn", "Hist")):
+                    btn = getattr(self, b_attr, None)
+                    if btn is not None:
+                        if compact_pbar:
+                            btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
+                            btn.setText("")
+                            btn.setMaximumWidth(32)
+                        else:
+                            btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+                            btn.setText(b_txt)
+                            btn.setMaximumWidth(16777215)
         if hasattr(self, "right_tabs") and hasattr(self, "gallery_btn"):
             rw = self.right_tabs.width()
-            # 4-tier scale-aware responsive right workspace chrome (ZERO tab-bar overlap at 800x600..4K!)
+            # v18.0: True pixel-budget 4-tier right workspace chrome — ZERO tab/corner overlap
+            # at 800x600, dragged splits, or HiDPI scaling!
             eff_rw = (rw / max(0.85, scale)) if rw > 0 else 640.0
-            if eff_rw >= 545.0:
-                tier = 0  # Wide: full labels + full scale controls + theme combo + low-power + cmd + menu
-            elif eff_rw >= 420.0:
-                tier = 1  # 800x600 Standard: crisp tabs + wheel-enabled scale pill + theme combo + cmd + menu
-            elif eff_rw >= 315.0:
-                tier = 2  # Compact: concise tabs + compact theme combo + menu
+            if eff_rw >= 620.0:
+                tier = 0  # Wide: Viewer/Gallery/Arena + -/100%/+ + full Theme + Perf + Cmd + Menu
+            elif eff_rw >= 465.0:
+                tier = 1  # 800x600 Standard: View/Gal/Arena + 100% pill + crisp Theme + Cmd + Menu
+            elif eff_rw >= 355.0:
+                tier = 2  # Compact split: View/Gal/A/B + compact Theme + Menu
             else:
-                tier = 3  # Ultra-narrow: minimal tabs + panel toggle + menu (zero overflow!)
+                tier = 3  # Ultra-narrow: V/G/A + Panel toggle + Menu (zero overflow!)
             if getattr(self, "_viewer_tier", None) != tier:
                 self._viewer_tier = tier
                 self.gallery_btn.setText("Strip" if tier == 0 else "\u25A6")
@@ -25710,19 +26019,39 @@ class MainWindow(QMainWindow):
                     self.low_power_corner_btn.setVisible(tier == 0)
                 if hasattr(self, "theme_combo"):
                     self.theme_combo.setVisible(tier <= 2)
-                    self.theme_combo.setMinimumWidth(62 if tier == 2 else (80 if tier == 1 else 104))
-                    self.theme_combo.setMaximumWidth(90 if tier == 2 else (118 if tier == 1 else 152))
+                    use_short = tier >= 1
+                    for ti, tk in enumerate(THEME_ORDER):
+                        if ti < self.theme_combo.count():
+                            lbl = str(THEMES[tk]["label"] if use_short else THEMES[tk]["name"])
+                            if use_short and tk == "mint":
+                                lbl = "Mint"
+                            elif use_short and tk == "gold":
+                                lbl = "Sarif"
+                            self.theme_combo.setItemText(ti, lbl)
+                    if tier == 0:
+                        self.theme_combo.setMinimumWidth(132)
+                        self.theme_combo.setMaximumWidth(168)
+                    elif tier == 1:
+                        self.theme_combo.setMinimumWidth(114)
+                        self.theme_combo.setMaximumWidth(124)
+                    else:
+                        self.theme_combo.setMinimumWidth(84)
+                        self.theme_combo.setMaximumWidth(100)
                 if hasattr(self, "cmd_btn"):
                     self.cmd_btn.setVisible(tier <= 1)
                 rt_labels = (
                     ("V", "G", "A") if tier == 3
                     else (("View", "Gal", "A/B") if tier == 2
-                    else (("View", "Gallery", "Arena") if tier == 1
+                    else (("View", "Gal", "Arena") if tier == 1
                     else ("Viewer", "Gallery", "Arena")))
                 )
                 for rt_i, rt_lbl in enumerate(rt_labels):
                     if rt_i < self.right_tabs.count():
                         self.right_tabs.setTabText(rt_i, rt_lbl)
+                if hasattr(self, "_global_corner"):
+                    self._global_corner.adjustSize()
+                self.right_tabs.tabBar().updateGeometry()
+                self.right_tabs.updateGeometry()
 
     def _schedule_workspace_resize(self) -> None:
         if hasattr(self, "_resize_debounce_timer"):
@@ -25824,13 +26153,14 @@ class MainWindow(QMainWindow):
         hdr = SectionHeader("Prompt")
         self.prompt_tok_lbl = QLabel("0 tok")
         self.prompt_tok_lbl.setObjectName("Chip")
-        self.prompt_tok_lbl.setToolTip("Estimated prompt token count (live)")
+        self.prompt_tok_lbl.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
+        self.prompt_tok_lbl.setToolTip("Estimated prompt token count (live) · Ctrl+Up/Down nudges tag weights")
         hdr.add_right(self.prompt_tok_lbl)
         lay.addWidget(hdr)
 
-        # Dedicated balanced Prompt Action Strip (prevents SectionHeader crushing at 800x600!)
+        # Dedicated balanced Prompt Action Strip (fits effortlessly down to 220px at 800x600!)
         pbar = QHBoxLayout()
-        pbar.setSpacing(3)
+        pbar.setSpacing(2)
         self.neg_btn = QToolButton()
         self.neg_btn.setObjectName("Small")
         self.neg_btn.setText("NEG")
@@ -25840,6 +26170,14 @@ class MainWindow(QMainWindow):
         self.neg_btn.setToolTip("Show / hide model-specific Negative Prompt  (Ctrl+Shift+N)")
         self.neg_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.neg_btn.toggled.connect(self._toggle_negative)
+        self.clean_prompt_btn = QToolButton()
+        self.clean_prompt_btn.setObjectName("Small")
+        self.clean_prompt_btn.setText("Clean")
+        self.clean_prompt_btn.setMinimumWidth(0)
+        self.clean_prompt_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self.clean_prompt_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.clean_prompt_btn.setToolTip("Clean & deduplicate comma-separated tags (removes extra commas, spaces & duplicates)")
+        self.clean_prompt_btn.clicked.connect(self._clean_prompt_tags)
         self.copy_prompt_btn = QToolButton()
         self.copy_prompt_btn.setObjectName("Small")
         self.copy_prompt_btn.setIcon(VECTOR_ASSETS.icon("copy", 12))
@@ -25870,6 +26208,7 @@ class MainWindow(QMainWindow):
         self.hist_btn.setToolTip("Prompt History  (Ctrl+H)")
         self.hist_btn.clicked.connect(self.open_history)
         pbar.addWidget(self.neg_btn, 1)
+        pbar.addWidget(self.clean_prompt_btn, 1)
         pbar.addWidget(self.copy_prompt_btn, 1)
         pbar.addWidget(self.clear_btn, 1)
         pbar.addWidget(self.hist_btn, 1)
@@ -25947,9 +26286,11 @@ class MainWindow(QMainWindow):
         hdr2 = SectionHeader("Aspect")
         self.aspect = AspectPicker()
         self.aspect.changed.connect(self._on_aspect_tile_changed)
+        self.aspect.selection_changed.connect(lambda _ks: self._on_aspect_tile_changed())
         self.aspect.orient_clicked.connect(self._on_aspect_orient_clicked)
         self.size_caption = ElideLabel("")
         self.size_caption.setObjectName("Value")
+        self.size_caption.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Preferred)
         hdr2.add_right(self.size_caption)
         lay.addWidget(hdr2)
 
@@ -26517,26 +26858,33 @@ class MainWindow(QMainWindow):
         if self.llm_model_combo.lineEdit() is not None:
             self.llm_model_combo.lineEdit().setPlaceholderText("model id — or click MODELS")
         self.llm_model_combo.currentTextChanged.connect(lambda _t: self._llm_schedule_save())
-        self.llm_models_btn = make_button("MODELS", self.llm_fetch_models, small=True)
+        self.llm_models_btn = make_button("Fetch", self.llm_fetch_models, small=True, tip="Fetch available models from endpoint (/models)")
+        self.llm_models_btn.setMinimumWidth(44)
         mrow = QHBoxLayout()
-        mrow.setSpacing(4)
+        mrow.setSpacing(3)
         mrow.addWidget(self.llm_model_combo, 1)
-        mrow.addWidget(self.llm_models_btn)
+        mrow.addWidget(self.llm_models_btn, 0)
 
         self.llm_temp_spin = QDoubleSpinBox()
         self.llm_temp_spin.setRange(0.0, 2.0)
         self.llm_temp_spin.setSingleStep(0.05)
         self.llm_temp_spin.setDecimals(2)
+        self.llm_temp_spin.setMinimumWidth(0)
+        self.llm_temp_spin.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.llm_temp_spin.valueChanged.connect(lambda _v: self._llm_schedule_save())
         self.llm_topp_spin = QDoubleSpinBox()
         self.llm_topp_spin.setRange(0.05, 1.0)
         self.llm_topp_spin.setSingleStep(0.02)
         self.llm_topp_spin.setDecimals(2)
+        self.llm_topp_spin.setMinimumWidth(0)
+        self.llm_topp_spin.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.llm_topp_spin.valueChanged.connect(lambda _v: self._llm_schedule_save())
         self.llm_maxtok_spin = QSpinBox()
         self.llm_maxtok_spin.setRange(0, 32768)
         self.llm_maxtok_spin.setSingleStep(256)
         self.llm_maxtok_spin.setSpecialValueText("auto")
+        self.llm_maxtok_spin.setMinimumWidth(0)
+        self.llm_maxtok_spin.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.llm_maxtok_spin.setToolTip("Max output tokens (0 / auto = server default)")
         self.llm_maxtok_spin.valueChanged.connect(lambda _v: self._llm_schedule_save())
         self.llm_stream_cb = QCheckBox("Stream")
@@ -26544,27 +26892,31 @@ class MainWindow(QMainWindow):
         self.llm_stream_cb.setCursor(Qt.CursorShape.PointingHandCursor)
         self.llm_stream_cb.setToolTip("Stream tokens live (SSE) with real-time token counter & one-by-one prompt parsing")
         self.llm_stream_cb.toggled.connect(lambda _v: self._llm_schedule_save())
-        srow = QHBoxLayout()
-        srow.setSpacing(4)
-        srow.addWidget(make_label("T", "Caption"))
-        srow.addWidget(self.llm_temp_spin)
-        srow.addWidget(make_label("P", "Caption"))
-        srow.addWidget(self.llm_topp_spin)
-        srow.addWidget(make_label("Max", "Caption"))
-        srow.addWidget(self.llm_maxtok_spin)
-        srow.addWidget(self.llm_stream_cb)
-        srow.addStretch(1)
 
-        eg.addWidget(make_label("Base URL", "Caption"), 0, 0)
+        # Zero-overflow 2-row Sampling grid (fits cleanly down to 215px on 800x600 displays!)
+        sgrid = QGridLayout()
+        sgrid.setContentsMargins(0, 0, 0, 0)
+        sgrid.setHorizontalSpacing(4)
+        sgrid.setVerticalSpacing(3)
+        sgrid.addWidget(make_label("Temp", "Caption"), 0, 0)
+        sgrid.addWidget(self.llm_temp_spin, 0, 1)
+        sgrid.addWidget(make_label("Top-P", "Caption"), 0, 2)
+        sgrid.addWidget(self.llm_topp_spin, 0, 3)
+        sgrid.addWidget(make_label("Max", "Caption"), 1, 0)
+        sgrid.addWidget(self.llm_maxtok_spin, 1, 1)
+        sgrid.addWidget(self.llm_stream_cb, 1, 2, 1, 2)
+        sgrid.setColumnStretch(1, 1)
+        sgrid.setColumnStretch(3, 1)
+
+        eg.addWidget(make_label("URL", "Caption"), 0, 0)
         eg.addWidget(self.llm_url_edit, 0, 1)
-        eg.addWidget(make_label("API Key", "Caption"), 1, 0)
+        eg.addWidget(make_label("Key", "Caption"), 1, 0)
         eg.addWidget(self.llm_key_edit, 1, 1)
         eg.addWidget(make_label("Model", "Caption"), 2, 0)
         eg.addLayout(mrow, 2, 1)
-        eg.addWidget(make_label("Sampling", "Caption"), 3, 0)
-        eg.addLayout(srow, 3, 1)
         eg.setColumnStretch(1, 1)
         lay.addLayout(eg)
+        lay.addLayout(sgrid)
 
         # Dual Specialized System Prompt Templates (Anima vs Krea 2)
         sys_wrap = QWidget()
@@ -27502,27 +27854,30 @@ class MainWindow(QMainWindow):
         )
         self.api_key_edit.setText(self.api_key)
         self.api_key_edit.editingFinished.connect(self._save_api_key_from_edit)
+        self.api_key_edit.setMinimumWidth(0)
         self.api_key_reveal_btn = QToolButton()
         self.api_key_reveal_btn.setObjectName("Small")
         self.api_key_reveal_btn.setText("SHOW")
         self.api_key_reveal_btn.setCheckable(True)
-        self.api_key_reveal_btn.setMinimumWidth(0)
-        self.api_key_reveal_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self.api_key_reveal_btn.setFixedWidth(58)
         self.api_key_reveal_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.api_key_reveal_btn.setToolTip("Reveal / hide the typed key")
         self.api_key_reveal_btn.toggled.connect(self._on_api_key_reveal)
-        krow = QHBoxLayout()
-        krow.setSpacing(3)
-        krow.addWidget(self.api_key_edit, 1)
-        krow.addWidget(self.api_key_reveal_btn)
-        krow.addWidget(make_button("PASTE", self._paste_api_key, small=True, compress=True,
-                                   tip="Paste the key from the clipboard and save it"), 1)
-        krow.addWidget(make_button("SAVE", self._save_api_key_from_edit, small=True, accent=True, compress=True,
-                                   tip="Write the key to data/key.txt and apply it"), 1)
-        krow.addWidget(make_button("CLEAR", self._clear_api_key, small=True, compress=True,
-                                   tip="Remove the stored key — back to anonymous access"), 1)
-        lay.addLayout(krow)
-        self.anon_check = QCheckBox("Send anonymous requests (ignore the stored key)")
+        krow1 = QHBoxLayout()
+        krow1.setSpacing(3)
+        krow1.addWidget(self.api_key_edit, 1)
+        krow1.addWidget(self.api_key_reveal_btn, 0)
+        lay.addLayout(krow1)
+        krow2 = QHBoxLayout()
+        krow2.setSpacing(3)
+        krow2.addWidget(make_button("PASTE", self._paste_api_key, small=True, compress=True,
+                                    tip="Paste the key from the clipboard and save it"), 1)
+        krow2.addWidget(make_button("SAVE", self._save_api_key_from_edit, small=True, accent=True, compress=True,
+                                    tip="Write the key to data/key.txt and apply it"), 1)
+        krow2.addWidget(make_button("CLEAR", self._clear_api_key, small=True, compress=True,
+                                    tip="Remove the stored key — back to anonymous access"), 1)
+        lay.addLayout(krow2)
+        self.anon_check = QCheckBox("Anonymous mode (ignore stored key)")
         self.anon_check.setCursor(Qt.CursorShape.PointingHandCursor)
         self.anon_check.setToolTip(
             "Always send the default anonymous key 0000000000 with every request,\n"
@@ -27639,7 +27994,8 @@ class MainWindow(QMainWindow):
 
         # Sound Notifications (v4)
         def build_sounds(g: QVBoxLayout) -> None:
-            self.sound_master_check = QCheckBox("Enable sound notifications (audible even while the window is inactive)")
+            self.sound_master_check = QCheckBox("Enable sound notifications")
+            self.sound_master_check.setToolTip("Play subtle theme-voiced chimes (audible even while window is inactive)")
             self.sound_master_check.setCursor(Qt.CursorShape.PointingHandCursor)
             self.sound_master_check.toggled.connect(self._on_sound_prefs_changed)
             g.addWidget(self.sound_master_check)
@@ -27684,7 +28040,7 @@ class MainWindow(QMainWindow):
             qg.addWidget(self.poll_spin, 1, 1)
             qg.setColumnStretch(2, 1)
             g.addLayout(qg)
-            self.low_power_check = QCheckBox("Low-Power / Laptop Optimization (reduced motion, lower preview RAM)")
+            self.low_power_check = QCheckBox("Low-Power Laptop Mode (reduced motion/RAM)")
             self.low_power_check.setCursor(Qt.CursorShape.PointingHandCursor)
             self.low_power_check.setToolTip(
                 "Optimized for low-end laptops: slows animation clock to 5 FPS, disables idle button shimmer, "
@@ -27801,7 +28157,7 @@ class MainWindow(QMainWindow):
         self.ups_tpl_group = QButtonGroup(self)
         self.ups_tpl_group.setExclusive(True)
         self.ups_tpl_btns: Dict[str, QPushButton] = {}
-        for k, lbl, obj in (("anime", "ANIMA", "SegL"), ("krea", "KREA", "SegR")):
+        for k, lbl, obj in (("anime", "ANIMA", "SegL"), ("krea", "KREA", "Seg"), ("moss", "MOSS-S", "SegR")):
             b = QPushButton(lbl)
             b.setObjectName(obj)
             b.setCheckable(True)
@@ -28568,20 +28924,20 @@ class MainWindow(QMainWindow):
         )
         self.edit_apply_btn.setEnabled(False)
         self.edit_footer_save_btn = make_button(
-            "Save Copy", self.edit_save_new, accent=True, compress=True,
+            "Save", self.edit_save_new, accent=True, compress=True,
             tip="Save edited image separately into outputs/ as a NEW file (<name>_edited_<timestamp>.png) without modifying the original (Ctrl+S)",
-            icon_key="save_copy", icon_size=13,
+            icon_key="save_copy", icon_size=12,
         )
         self.edit_footer_save_btn.setEnabled(False)
         self.edit_save_as_btn = make_button(
-            "Save As…", self.edit_save_as, small=True, compress=True,
+            "Export\u2026", self.edit_save_as, small=True, compress=True,
             tip="Export edited image separately as PNG / WebP / JPEG to any folder (Ctrl+Shift+S)",
-            icon_key="save_as", icon_size=13,
+            icon_key="save_as", icon_size=12,
         )
         self.edit_save_as_btn.setEnabled(False)
         footer_row.addWidget(self.edit_apply_btn, 2)
         footer_row.addWidget(self.edit_footer_save_btn, 3)
-        footer_row.addWidget(self.edit_save_as_btn, 2)
+        footer_row.addWidget(self.edit_save_as_btn, 3)
         root_lay.addLayout(footer_row)
 
         # Editor keyboard map
@@ -28698,10 +29054,11 @@ class MainWindow(QMainWindow):
         self.queue_progress = ThinProgressBar()
         self.mini_queue_btn = QToolButton()
         self.mini_queue_btn.setObjectName("Small")
-        self.mini_queue_btn.setText("MQ")
+        self.mini_queue_btn.setIcon(VECTOR_ASSETS.icon("tab_queue", 13))
+        self.mini_queue_btn.setIconSize(QSize(13, 13))
         self.mini_queue_btn.setCheckable(True)
         self.mini_queue_btn.setChecked(False)
-        self.mini_queue_btn.setFixedWidth(30)
+        self.mini_queue_btn.setFixedSize(26, 22)
         self.mini_queue_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.mini_queue_btn.setToolTip("Show / collapse compact Mini-Queue inside the Command Deck (saves height at 800x600)")
         self.mini_queue_btn.toggled.connect(self._on_mini_queue_toggled)
@@ -29707,7 +30064,11 @@ class MainWindow(QMainWindow):
         self.preview_section.set_expanded(bool(s.get("preview_visible", False)))
         self.prompt_sliders_section.set_expanded(bool(s.get("sliders_drawer_visible", True)))
 
-        self.aspect.set_current(str(s.get("aspect") or "1:1"))
+        saved_pool = s.get("aspect_pool")
+        if isinstance(saved_pool, list) and saved_pool:
+            self.aspect.set_selected_keys([str(k) for k in saved_pool], emit=False)
+        else:
+            self.aspect.set_current(str(s.get("aspect") or "1:1"))
         self.seed_edit.setText(str(s.get("seed") or ""))
         self.n_spin.setValue(max(1, min(4, int(s.get("n") or 1))))
         self.direct_save_check.setChecked(bool(s.get("save_direct", False)))
@@ -29981,6 +30342,7 @@ class MainWindow(QMainWindow):
             "sliders_drawer_visible": self.prompt_sliders_section.is_expanded(),
             "model": self.current_model(),
             "aspect": self.aspect.current()["key"],
+            "aspect_pool": self.aspect.selected_keys(),
             "seed": self.seed_edit.text().strip(),
             "n": self.n_spin.value(),
             "save_direct": self.direct_save_check.isChecked(),
@@ -30175,6 +30537,38 @@ class MainWindow(QMainWindow):
     def _apply_default_negative(self) -> None:
         self.neg_edit.setPlainText(DEFAULT_NEGATIVES.get(self._active_model_key, ""))
 
+    def _clean_prompt_tags(self) -> None:
+        """Normalize spacing/commas and deduplicate repeated tags (case-insensitive)
+        while preserving exact tag order and emphasis weights — tailored for
+        Danbooru/Gelbooru & multi-stack East-Asia prompt workflows."""
+        raw = self.prompt_edit.editable_text()
+        if not raw.strip():
+            self._flash_summary("Prompt is empty.")
+            return
+        parts = [re.sub(r"\s+", " ", seg).strip() for seg in raw.split(",")]
+        seen: Set[str] = set()
+        cleaned: List[str] = []
+        removed = 0
+        for p in parts:
+            if not p:
+                continue
+            key = p.lower()
+            if key in seen:
+                removed += 1
+                continue
+            seen.add(key)
+            cleaned.append(p)
+        result = ", ".join(cleaned)
+        if result == raw:
+            self._flash_summary("Prompt already clean (0 duplicates).")
+            return
+        self.prompt_edit.set_editable_text(result)
+        self._on_prompt_changed()
+        self._flash_summary(
+            f"Cleaned prompt ({removed} duplicate tag{'s' if removed != 1 else ''} removed)"
+            if removed else "Cleaned prompt spacing & commas"
+        )
+
     def _on_prompt_changed(self) -> None:
         text = self.prompt_edit.toPlainText()
         maintain_spans(self.prompt_book, text)
@@ -30182,8 +30576,17 @@ class MainWindow(QMainWindow):
         if hasattr(self, "prompt_tok_lbl"):
             tok = estimate_tokens(text)
             ch = len(text.strip())
-            self.prompt_tok_lbl.setText(f"~{tok}t" if ch else "0t")
-            self.prompt_tok_lbl.setToolTip(f"Prompt length: {ch} chars · ~{tok} estimated tokens")
+            self.prompt_tok_lbl.setText(f"~{tok} tok" if ch else "0 tok")
+            if tok > 225:
+                self.prompt_tok_lbl.setStyleSheet(f"color: {C['err']}; border-color: {C['err']}; font-weight: bold;")
+            elif tok > 150:
+                self.prompt_tok_lbl.setStyleSheet(f"color: {C['warn']}; border-color: {C['warn']}; font-weight: bold;")
+            else:
+                self.prompt_tok_lbl.setStyleSheet("")
+            self.prompt_tok_lbl.setToolTip(
+                f"Prompt length: {ch} chars · ~{tok} estimated tokens\n"
+                "Tip: Press Ctrl+Up / Ctrl+Down on any tag to nudge weight (tag:1.1)"
+            )
         self._schedule_save()
         self._update_preview()
 
@@ -30210,7 +30613,11 @@ class MainWindow(QMainWindow):
         m = MODELS[self.current_model()]
         w, h, _k = self._current_size()
         n = self.n_spin.value()
-        bits = [m["label"], f"\u00d7{n}", f"{w}\u00d7{h}"]
+        if not self.aspect_custom_btn.isChecked() and self.aspect.is_multi():
+            size_bit = f"POOL \u00d7{len(self.aspect.selected_keys())}"
+        else:
+            size_bit = f"{w}\u00d7{h}"
+        bits = [m["label"], f"\u00d7{n}", size_bit]
         active = self._active_horde_loras()
         if active:
             bits.append(f"LORA {len(active)}")
@@ -31684,11 +32091,11 @@ class MainWindow(QMainWindow):
             "clip_skip": 0,
         }
 
-    def _current_size(self) -> Tuple[int, int, str]:
+    def _current_size(self, roll_pool: bool = False) -> Tuple[int, int, str]:
         if self.aspect_custom_btn.isChecked():
             # custom values are always rounded to the nearest multiple of 64
             return snap64_nearest(self.cw_spin.value()), snap64_nearest(self.ch_spin.value()), "custom"
-        a = self.aspect.current()
+        a = self.aspect.pick_random() if (roll_pool and self.aspect.is_multi()) else self.aspect.current()
         return int(a["w"]), int(a["h"]), str(a["key"])
 
     def _expand_prompt_wildcards(self, text: str) -> str:
@@ -31752,6 +32159,7 @@ class MainWindow(QMainWindow):
         seed_override: Optional[str] = None,
         apply_template: bool = False,
         via: str = "",
+        roll_pool: bool = True,
     ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         feats = model_features(self.current_model())
         if prompt_override is not None:
@@ -31772,7 +32180,7 @@ class MainWindow(QMainWindow):
         full = final + (f" ### {neg}" if neg else "")
         model = self.current_model()
         gs = self._gen_settings()
-        w, h, akey = self._current_size()
+        w, h, akey = self._current_size(roll_pool=(bool(roll_pool) and not dry_run))
         n_images = int(n_override) if n_override is not None else self.n_spin.value()
         params: Dict[str, Any] = {
             "sampler_name": gs["sampler"],
@@ -31842,7 +32250,7 @@ class MainWindow(QMainWindow):
             return
         w, h, _k = self._current_size()
         if w * h > MEGAPIXEL_BUDGET:
-            self.tabs.setCurrentIndex(TAB_HORDE)
+            self.tabs.setCurrentIndex(TAB_PROMPT)
             self._flash_summary(f"Custom size {w}\u00d7{h} exceeds 1 MP limit.")
             return
         enabled_loras = sum(
@@ -31900,8 +32308,8 @@ class MainWindow(QMainWindow):
         line becomes its own queued request through the active pipeline."""
         w, h, _k = self._current_size()
         if w * h > MEGAPIXEL_BUDGET:
-            self.tabs.setCurrentIndex(TAB_HORDE)
-            self._flash_summary(f"Custom size {w}×{h} exceeds 1 MP limit.")
+            self.tabs.setCurrentIndex(TAB_PROMPT)
+            self._flash_summary(f"Custom size {w}\u00d7{h} exceeds 1 MP limit.")
             return
         clip = ""
         try:
@@ -32263,7 +32671,18 @@ class MainWindow(QMainWindow):
             self._flash_timer.start()
 
     # ---- In-memory diagnostic console ----
+    def _log_console_ready(self) -> bool:
+        return (
+            hasattr(self, "log_filter_combo")
+            and hasattr(self, "log_level_combo")
+            and hasattr(self, "log_search_edit")
+            and hasattr(self, "log_edit")
+            and hasattr(self, "log_autoscroll_btn")
+        )
+
     def _log_matches_filters(self, rec: LogRecord) -> bool:
+        if not self._log_console_ready():
+            return False
         ch = self.log_filter_combo.currentText()
         if ch != "ALL" and rec.channel != ch:
             return False
@@ -32276,6 +32695,8 @@ class MainWindow(QMainWindow):
         return True
 
     def _on_log_record(self, rec: LogRecord) -> None:
+        if not self._log_console_ready():
+            return
         try:
             if not self._log_matches_filters(rec):
                 return
@@ -32291,6 +32712,8 @@ class MainWindow(QMainWindow):
             pass  # widgets already destroyed during interpreter shutdown
 
     def _refresh_log_console(self) -> None:
+        if not self._log_console_ready():
+            return
         level_colors = {
             "OK": C["ok"], "ERROR": C["err"], "WARN": C["warn"],
             "NET": C["info"], "INFO": C["muted"],
@@ -32313,7 +32736,8 @@ class MainWindow(QMainWindow):
 
     def _clear_logs(self) -> None:
         STUDIO_LOG.clear()
-        self.log_edit.clear()
+        if hasattr(self, "log_edit"):
+            self.log_edit.clear()
 
     # ------------------------------------------------------------------ Results, Toasts & Aesthetics
     def on_image_ready(self, path: str, meta: Dict[str, Any]) -> None:
@@ -32402,6 +32826,8 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------ Viewer & Gallery Actions
     def refresh_gallery(self, select: Optional[str] = None) -> None:
         self.gallery.refresh(self.store.list_recent(include_output=True), select=select)
+        compact_h = self.height() > 0 and self.height() <= 640
+        self.gallery.sync_strip_height(ui_scale(), compact=compact_h)
         if select:
             for i in range(self.gallery.count()):
                 it = self.gallery.item(i)
@@ -34975,7 +35401,7 @@ class MainWindow(QMainWindow):
         for hdr in self.findChildren(SectionHeader):
             hdr.apply_scale(s)
         for ab in self.findChildren(AspectButton):
-            ab.setMinimumHeight(max(26, int(round(32 * s))))
+            ab.setMinimumHeight(max(23, int(round(27 * s))))
             ab.update()
         for fc in self.findChildren(FolderChipButton):
             fc.setMinimumHeight(max(21, int(round(24 * s))))
@@ -35012,6 +35438,7 @@ class MainWindow(QMainWindow):
         for attr, ik, sz in (
             ("hist_btn", "history", 12),
             ("copy_prompt_btn", "copy", 12),
+            ("mini_queue_btn", "tab_queue", 13),
             ("low_power_corner_btn", "perf_bolt", 12),
             ("batch_btn", "batch", 13),
             ("edit_split_save_btn", "split", 13),
@@ -35326,9 +35753,12 @@ class MainWindow(QMainWindow):
     def _on_size_changed(self) -> None:
         w, h, key = self._current_size()
         if key == "custom":
-            self.size_caption.setText(f"{w} \u00d7 {h} custom \u00b764")
+            self.size_caption.setText(f"{w}\u00d7{h} custom")
+        elif self.aspect.is_multi():
+            ks = self.aspect.selected_keys()
+            self.size_caption.setText(f"Pool \u00d7{len(ks)} ({', '.join(ks[:2])}{'…' if len(ks) > 2 else ''})")
         else:
-            self.size_caption.setText(f"{w} \u00d7 {h}")
+            self.size_caption.setText(f"{w}\u00d7{h}")
         if w * h > MEGAPIXEL_BUDGET:
             self.size_warn.setText(f"\u26A0 {w}\u00d7{h} = {w * h / 1e6:.2f} MP — exceeds the 1 MP AI Horde limit.")
         else:
@@ -35449,6 +35879,8 @@ class MainWindow(QMainWindow):
         self.mini_queue.setVisible(True)
 
     def _update_server_status(self) -> None:
+        if bool(self.windowState() & Qt.WindowState.WindowMinimized):
+            return
         if self.bridge and self.bridge.running:
             if self.bridge.is_connected():
                 st = f"CONNECTED ({self.bridge.client_label()}, {self.bridge.served} reqs)"
@@ -35581,10 +36013,17 @@ class MainWindow(QMainWindow):
             by_name = {m.get("name"): m for m in (res.get("mods") or []) if isinstance(m, dict)}
             for mname, lb in self.model_status_labels.items():
                 info = by_name.get(mname)
+                mlbl = MODELS.get(mname, {}).get("label", mname)
                 if info:
-                    lb.setText(f"{mname}: {info.get('count', 0)} worker(s), queue {info.get('queued', 0)}, ETA {info.get('eta', '?')}s")
+                    qraw = info.get("queued", 0) or 0
+                    try:
+                        qf = float(qraw)
+                        qtxt = f"{qf / 1e6:.1f}M" if qf >= 1e6 else (f"{qf / 1e3:.1f}k" if qf >= 1e3 else f"{qf:.0f}")
+                    except (TypeError, ValueError):
+                        qtxt = str(qraw)
+                    lb.setText(f"{mlbl}: {info.get('count', 0)}w \u00b7 q {qtxt} \u00b7 ETA {info.get('eta', '?')}s")
                 else:
-                    lb.setText(f"{mname}: 0 active workers")
+                    lb.setText(f"{mlbl}: 0 active workers")
             if self.effective_key() == ANON_KEY:
                 self._horde_chip_state = "info"
                 self.chip_horde.setText("HORDE \u2022 ANON")
@@ -35639,6 +36078,7 @@ class MainWindow(QMainWindow):
             ("Generate Image  (Ctrl+Enter)", "ACTION", lambda: self.on_generate()),
             ("Batch Prompt Queue  (Ctrl+Shift+V)", "ACTION", self.open_batch_queue_dialog),
             ("Save Current / Edited Copy  (Ctrl+S)", "ACTION", self._on_save_shortcut),
+            ("Clean & Deduplicate Prompt Tags", "ACTION", self._clean_prompt_tags),
             ("Copy Positive Prompt", "ACTION", self._copy_prompt_text),
             ("Open Preferences Memory DB", "ARENA", self.open_preferences_memory_dialog),
             ("Forge Self-Improving A/B Pair", "ARENA", self.llm_self_improve_forge),
@@ -35793,7 +36233,7 @@ class MainWindow(QMainWindow):
         try:
             if not use_tpl:
                 self.active_template = None
-            payload, meta = self.build_payload(prompt_override=raw_p, n_override=1)
+            payload, meta = self.build_payload(prompt_override=raw_p, n_override=1, roll_pool=False)
         finally:
             self.active_template = saved_tpl
         if seed:
