@@ -5,22 +5,14 @@ The CGi work has a vibrant color palette, soft lighting from multiple directions
 [Before starting, clean up any remnants from the previous (unrelated) session]
 You are an expert software engineer. Your task is to remake this app drastically, dongi a major update to improve it generally, fixing any possile issues with UI, implementing the most efficient and optimal UI layout, fixing/preventing glitches, giving it professionally-done and refined look.
 
-Also fix
-  File "D:\Documents\python\testing\hl.py", line 34201, in <module>
-    raise SystemExit(main())
-  File "D:\Documents\python\testing\hl.py", line 34173, in main
-    win = MainWindow()
-  File "D:\Documents\python\testing\hl.py", line 23874, in __init__
-    self._build_ui()
-  File "D:\Documents\python\testing\hl.py", line 23922, in _build_ui
-    self.left = self._build_left()
-  File "D:\Documents\python\testing\hl.py", line 24116, in _build_left
-    self._build_edit_tab(),
-  File "D:\Documents\python\testing\hl.py", line 26797, in _build_edit_tab
-    self.edit_split_vert.st.setCheckable(True)
-AttributeError: 'QPushButton' object has no attribute 'st'
-
-Also, fix any other error.
+Also:
+- Make sure I can enlarge/resize the prompt input form, by dragging its corner, for better visibility of a long prompt
+- the "self-improving" tab at LLM part is supposed to be not "a subtab inside it", but a one of two actual subtabs under the main tab (i.e. once switched to LLM part, I can also choose between "Basic" subtab and "Self-Improving" subtab, two in total
+- Implement dropdown menu for percentage of the UI scaling up, instead of clicking + or -
+- Make Kreatendo theme look more like actual Nintendo's UI style and Nintendo's visual design/aesthetical approach; don't make it too bright (so it's feels better on a display in a completely dark room, not hurting eyes) and just keep it balanced, with good visibility/readability
+- For images editor, implement better lens flares, more distinctive and advanced color filters (5 for photos, 5 for anime artworks), implement chromatic aberration ("simple" type and depth-based type for when depth map is available); make any other possible improvements of the images editor
+- Make the resolutions for different aspect ratios be displayed together, also implement selection of multiple resolution presets when Shift is pressed down, to choose randomly from those selected
+- Make sure the preference entries also includes the user's prompt the t2i prompts were generated from, to include it in the examples sent to the LLM later (to show it exactly the example how to work with user's requests)
 
 Generally, study the app properly to find out what you can improve or adjust.
 
@@ -223,7 +215,7 @@ except Exception:  # pragma: no cover - non-Windows platforms
 #  1. Constants, Workspace Paths & Legacy Migration
 # =============================================================================
 APP_NAME = "Horde Studio Lite"
-APP_VERSION = "15.0.0"
+APP_VERSION = "16.0.0"
 CLIENT_AGENT = f"HordeStudioLite:{APP_VERSION}:local-desktop"
 HORDE_URL = "https://stablehorde.net/api/v2"
 ANON_KEY = "0000000000"
@@ -1767,7 +1759,7 @@ THEMES: Dict[str, Dict[str, str]] = {
         "key": "mint",
         "label": "Mint Serenity",
         "name": "Mint Serenity",
-        "hint": "Linux Mint Cinnamon / Mint-Y-Dark nature-inspired workstation — calm evergreen-slate charcoal panels, iconic Linux Mint leaf-green accents, eucalyptus moss trims & alpine-jade dew highlights",
+        "hint": "Linux Mint Cinnamon / Mint-Y-Dark nature-inspired dark workstation — lush evergreen-charcoal panels, iconic Linux Mint leaf-green accents, eucalyptus moss trims & alpine-jade dew highlights",
         "win": "#131916",
         "win2": "#0c110f",
         "plate_hi": "#202b25",
@@ -1874,8 +1866,18 @@ def low_power_mode() -> bool:
 
 def set_low_power_mode(enabled: bool) -> bool:
     global _LOW_POWER_MODE
-    _LOW_POWER_MODE = bool(enabled)
-    if 'ANIM_CLOCK' in globals():
+    val = bool(enabled)
+    if val != _LOW_POWER_MODE:
+        _LOW_POWER_MODE = val
+        _THEME_BACKDROP_CACHE.clear()
+        _BEVEL_DECK_CACHE.clear()
+        _QSS_CACHE.clear()
+        if "VECTOR_ASSETS" in globals():
+            try:
+                VECTOR_ASSETS.invalidate_theme()
+            except Exception:  # noqa: BLE001
+                pass
+    if "ANIM_CLOCK" in globals():
         ANIM_CLOCK.set_low_power(_LOW_POWER_MODE)
     return _LOW_POWER_MODE
 
@@ -1952,21 +1954,25 @@ THEME_UI: Dict[str, Dict[str, str]] = {
     "kreatendo": {
         "rad_lg": "13px", "rad_md": "10px", "rad_tab": "11px", "rad_pill": "15px",
         "kick_ls": "0.35px", "btn_ls": "0.2px", "scroll_w": "12px",
-        "tab_accent": "border-top: 2px solid #26bfff; border-bottom: 2.5px solid #0096db;",
+        "tab_accent": "border-top: 2px solid #26bfff; border-bottom: 2.5px solid #19b87a;",
         "panel_border": "border: 1.5px solid #aac7e3; border-top: 2px solid #ffffff;",
         "focus_ring": "border: 1.5px solid #009ce0;",
     },
     "mint": {
         "rad_lg": "8px", "rad_md": "6px", "rad_tab": "7px", "rad_pill": "11px",
         "kick_ls": "0.35px", "btn_ls": "0.2px", "scroll_w": "12px",
-        "tab_accent": "border-bottom: 2px solid #69cf72; border-top: 1px solid #4d6b58;",
-        "panel_border": "border: 1px solid #2c3f34; border-top: 1px solid #4c6b58;",
-        "focus_ring": "border: 1px solid #69cf72;",
+        "tab_accent": "border-bottom: 2px solid #87cf3e; border-top: 1px solid #4b6b57;",
+        "panel_border": "border: 1px solid #2b3f33; border-top: 1px solid #4b6b57;",
+        "focus_ring": "border: 1px solid #78d46a;",
     },
 }
 
-_THEME_BACKDROP_CACHE: "collections.OrderedDict[Tuple[str, int, int], QPixmap]" = collections.OrderedDict()
+_THEME_BACKDROP_CACHE: "collections.OrderedDict[Tuple[str, int, int, bool], QPixmap]" = collections.OrderedDict()
 _THEME_BACKDROP_MAX = 6
+_BEVEL_DECK_CACHE: "collections.OrderedDict[Tuple[str, int, int, bool], QPixmap]" = collections.OrderedDict()
+_BEVEL_DECK_MAX = 8
+_QSS_CACHE: "collections.OrderedDict[Tuple[str, int, bool], str]" = collections.OrderedDict()
+_QSS_CACHE_MAX = 12
 
 
 def _chamfer_path(r: QRectF, ch: float) -> QPainterPath:
@@ -2012,27 +2018,40 @@ def _theme_frame_path(
 
 
 def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str] = None) -> None:
-    """LRU-cached, low-RAM signature backdrop per flagship design language (v14.0):
+    """LRU-cached, low-RAM signature backdrop per flagship design language (v16.0):
     - SeeStation: Sony/SCE PS3 XMB silk-wave aurora, PS4 lightbar glow & 4 symbols
     - Sarif Gold: Deus Ex: HR cyber-renaissance isometric triangle mosaic & amber HUD
-    - Oriental Spirit: Kuro-Urushi neutral jet-black lacquer, arterial red sun-ring & Torii
-    - Kreatendo: Nintendo Wii / Wii U / DS / 3DS dark frosted channel glass with Aqua-Sky
-      disc-slot lightbar, Miiverse Mint glow, subtle channel tile grid & DS/3DS dual-screen emblem
-    - Mint Serenity: Linux Mint Cinnamon / Mint-Y-Dark neutral dark charcoal-graphite canvas
-      with restrained botanical mint-leaf & alpine-teal accents and clean silver-white contrast
+    - Oriental Spirit: Kuro-Urushi neutral jet-black lacquer, vermilion sun-ring, Asanoha & kintsugi gold trim
+    - Kreatendo: Nintendo Wii / Wii U / DS / 3DS LIGHT porcelain channel glass with Aqua-Sky
+      disc-slot lightbar, Miiverse Mint glow, Wii scanlines, channel tile grid & DS/3DS colorful emblem
+    - Mint Serenity: Linux Mint Cinnamon / Mint-Y-Dark evergreen-charcoal botanical canvas
+      with organic leaf-vein ribbons, canopy dew bokeh, alpine-jade mist & Mint Leaf emblem
     """
     w, h = max(1, rect.width()), max(1, rect.height())
     k = resolve_theme_key(theme_key or C.get("key", "seestation"))
-    ck = (k, w, h)
+    lp = low_power_mode()
+    ck = (k, w, h, lp)
     pm = _THEME_BACKDROP_CACHE.get(ck)
     if pm is not None:
         _THEME_BACKDROP_CACHE.move_to_end(ck)
     else:
         pm = QPixmap(w, h)
         p = QPainter(pm)
-        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, not lp)
         bg = QLinearGradient(0, 0, 0, h)
-        if k == "seestation":
+        if lp:
+            bg.setColorAt(0.0, QColor(C["win"]))
+            bg.setColorAt(1.0, QColor(C["win2"]))
+            p.fillRect(0, 0, w, h, bg)
+            bar = QLinearGradient(0, 0, w, 0)
+            bar.setColorAt(0.0, QColor(0, 0, 0, 0))
+            bar.setColorAt(0.24, QColor(C["acc_mid"]))
+            bar.setColorAt(0.50, QColor(C["acc_hi"]))
+            bar.setColorAt(0.76, QColor(C["info"] if k in ("kreatendo", "mint") else C["acc_mid"]))
+            bar.setColorAt(1.0, QColor(0, 0, 0, 0))
+            p.setPen(QPen(QBrush(bar), 2.0))
+            p.drawLine(QPointF(12, 1.5), QPointF(max(12, w - 12), 1.5))
+        elif k == "seestation":
             bg.setColorAt(0.0, QColor("#081a3b"))
             bg.setColorAt(0.42, QColor("#040e24"))
             bg.setColorAt(1.0, QColor("#02050d"))
@@ -2358,6 +2377,8 @@ def set_theme(name: str) -> None:
     C.clear()
     C.update(THEMES[key])
     _THEME_BACKDROP_CACHE.clear()
+    _BEVEL_DECK_CACHE.clear()
+    _QSS_CACHE.clear()
     if "ANIM_ASSETS" in globals():
         try:
             ANIM_ASSETS.clear_cache()
@@ -2425,11 +2446,22 @@ def tab_rail_height(scale: float = 1.0, icon_px: Optional[int] = None) -> int:
 
 
 def build_stylesheet(scale: float = 1.0) -> str:
-    """Corporate East-Asian workstation stylesheet (v10.0 — 800x600 & HiDPI).
-    Proportional Ctrl+/Ctrl- scaling across fonts, padding, scrollbars, and
-    controls, zero-scroll auto-fit tab rails, machined splitter handles, and
-    three deeply differentiated East-Asian UX design languages."""
+    """Corporate East-Asian workstation stylesheet (v16.0 — 5 Flagship Themes, 800x600 & HiDPI).
+    LRU-cached per (theme, scale, low_power) for instant zero-lag theme & scale switching."""
     s = max(SCALE_MIN, min(SCALE_MAX, float(scale)))
+    ck = (C["key"], int(round(s * 100.0)), low_power_mode())
+    cached_qss = _QSS_CACHE.get(ck)
+    if cached_qss is not None:
+        _QSS_CACHE.move_to_end(ck)
+        return cached_qss
+    qss = _build_stylesheet_uncached(s)
+    _QSS_CACHE[ck] = qss
+    while len(_QSS_CACHE) > _QSS_CACHE_MAX:
+        _QSS_CACHE.popitem(last=False)
+    return qss
+
+
+def _build_stylesheet_uncached(s: float) -> str:
     f_base = max(7.5, round(9.6 * s, 1))
     f_sm = max(7.2, round(8.8 * s, 1))
     f_xs = max(6.8, round(8.0 * s, 1))
@@ -2904,7 +2936,7 @@ QTabWidget#IconTabs > QTabBar::tab {{
     padding: 1px 0px;
     margin-right: 0px;
 }}
-QTabWidget#IconTabs > QTabBar {{
+QTabWidget#IconTabs > QTabBar, QWidget#IconTabs QTabBar#IconRailBar {{
     background: {C['win']};
 }}
 QTabWidget#EditSubTabs > QTabBar::tab {{
@@ -3038,14 +3070,30 @@ QScrollArea > QWidget > QWidget {{
 }}
 
 /* ---- Active Tab Identity Ribbon & Compact Scale Pill ---- */
-QLabel#TabRibbon {{
-    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 {C['tab_on_hi']}, stop:0.65 {C['plate_lo']}, stop:1 transparent);
-    color: {C['kicker']};
-    border-bottom: 1px solid {C['line']};
-    padding: 2px 7px;
+QFrame#StudioTabPane {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['plate_lo']}, stop:1 {C['win']});
+    border: 1px solid {C['line']};
+    border-top: none;
+    border-bottom-left-radius: {U['rad_lg']};
+    border-bottom-right-radius: {U['rad_lg']};
+}}
+QToolButton#PerfPill {{
+    background: {C['deep']};
+    color: {C['muted']};
+    border: 1px solid {C['line']};
+    border-radius: {U['rad_md']};
+    padding: 1px 3px;
     font-size: {f_xs}pt;
-    font-weight: bold;
-    letter-spacing: {U['kick_ls']};
+    font-weight: 700;
+}}
+QToolButton#PerfPill:hover {{
+    border: 1px solid {C['acc_hi']};
+    color: {C['text_hi']};
+}}
+QToolButton#PerfPill:checked {{
+    background: {C['sel_bg']};
+    color: {C['ok']};
+    border: 1px solid {C['ok']};
 }}
 QWidget#CornerDock {{
     background: transparent;
@@ -3094,11 +3142,14 @@ def theme_extras_qss(f_xs: float = 8.0, pv: int = 3, ph: int = 8, pvs: Optional[
     phs_val = max(4, int(ph) - 2)
     rail_pin = f"""
 /* ---- Icon Tab Rail Compact Geometry (zero-scroll 800x600 guarantee) ---- */
-QTabWidget#IconTabs > QTabBar::tab {{
+QTabWidget#IconTabs > QTabBar::tab, QWidget#IconTabs QTabBar#IconRailBar::tab {{
     padding: 2px 1px;
     margin: 0px;
     min-width: 14px;
     border-radius: {U['rad_tab']};
+}}
+QWidget#IconTabs QTabBar#IconRailBar {{
+    background: {C['win']};
 }}
 QTabWidget#IconTabs::pane {{
     margin-top: -1px;
@@ -3295,6 +3346,19 @@ QPushButton#Chip:checked {
 }
 QToolButton#ScalePill { border-radius: 9px; }
 QComboBox#ThemeCombo { border-radius: 9px; border-left: 2px solid #4db8ff; }
+QFrame#StudioTabPane {
+    border-radius: 8px;
+    border: 1px solid #233d61;
+    border-top: 1px solid #4fb6ff;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0d1a30, stop:1 #040914);
+}
+QLabel#TabRibbon {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #10325e, stop:0.55 #0a1b36, stop:1 #040914);
+    border-top: 1px solid #2d5588;
+    border-bottom: 1px solid #3bb0ff;
+    border-left: 3px solid #57c1ff;
+    color: #eff7ff;
+}
 QFrame#Plate {
     border-radius: 9px;
     border: 1px solid #1e3557;
@@ -3394,9 +3458,16 @@ QPushButton#Chip { border-radius: 0px; border-left: 2px solid #484848; }
 QPushButton#Chip:checked { background: #260604; border: 1px solid #ff1a12; border-left: 3px solid #ff1410; color: #ffffff; }
 QToolButton#ScalePill { border-radius: 0px; }
 QComboBox#ThemeCombo { border-radius: 0px; border-left: 2px solid #e60000; }
-QFrame#Plate {
+QFrame#Plate, QFrame#StudioTabPane {
     border-radius: 0px; border: 1px solid #2b2b2b; border-top: 2px solid #cc0000;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #161616, stop:1 #090909);
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #151515, stop:1 #080808);
+}
+QLabel#TabRibbon {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #220604, stop:0.48 #111111, stop:1 #050505);
+    border-top: 1px solid #2e2e2e;
+    border-bottom: 1px solid #cc0000;
+    border-left: 3px solid #ff1e14;
+    color: #ffffff;
 }
 QLineEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
     border-radius: 0px; border: 1px solid #2f2f2f; border-left: 2px solid #444444;
@@ -3518,7 +3589,7 @@ QComboBox#ThemeCombo {
     border-left: 2.5px solid #009ce0;
     border-right: 2.5px solid #19b87a;
 }
-QFrame#Plate {
+QFrame#Plate, QFrame#StudioTabPane {
     border-radius: 12px;
     border: 1.5px solid #b1cfe8;
     border-top: 2px solid #ffffff;
@@ -3614,124 +3685,132 @@ QSplitter#RootSplitter::handle {
 
     if k == "mint":
         return """
-/* ============ Mint Serenity (Linux Mint Cinnamon / Mint-Y-Dark Nature-Inspired UI) ============ */
+/* ============ Mint Serenity (Linux Mint Cinnamon / Mint-Y-Dark Evergreen Nature UI) ============ */
 QPushButton, QToolButton {
-    border-radius: 6px;
-    border: 1px solid #2e4035;
-    border-top: 1px solid #4e6d5a;
+    border-radius: 7px;
+    border: 1px solid #2b3f33;
+    border-top: 1px solid #4d6e59;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-        stop:0 #2b3a31, stop:0.48 #212e26, stop:0.54 #1a241e, stop:1 #141c17);
-    color: #eef6f0;
+        stop:0 #28382e, stop:0.48 #1f2d25, stop:0.54 #18231d, stop:1 #121b16);
+    color: #ecf6ee;
 }
 QPushButton:hover, QToolButton:hover {
-    border: 1px solid #68d174;
-    border-top: 1px solid #b0f2b5;
+    border: 1px solid #78d46a;
+    border-top: 1px solid #c9f7be;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-        stop:0 #414a54, stop:0.48 #343c44, stop:0.54 #2b3239, stop:1 #232930);
-    color: #ffffff;
+        stop:0 #344a3c, stop:0.48 #283b30, stop:0.54 #1f2f26, stop:1 #17241d);
+    color: #f8fff9;
 }
 QPushButton:pressed, QToolButton:pressed {
-    border: 1px solid #4aad5b;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1b2025, stop:1 #2e353d);
+    border: 1px solid #57b347;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #111a15, stop:1 #223329);
 }
-QPushButton#Small, QToolButton#Small { border-radius: 5px; }
-QPushButton#Accent, QToolButton#Accent {
-    border-radius: 6px;
-    border: 1px solid #88e08e;
-    border-top: 1px solid #dcffe0;
+QPushButton#Small, QToolButton#Small { border-radius: 6px; }
+QPushButton#Accent, QToolButton#Accent, QPushButton#ActAccent {
+    border-radius: 7px;
+    border: 1px solid #96e36b;
+    border-top: 1px solid #e6ffda;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-        stop:0 #6ad174, stop:0.48 #4aad5b, stop:0.54 #388d47, stop:1 #266933);
-    color: #051408;
+        stop:0 #87cf3e, stop:0.46 #5bb849, stop:0.54 #3f9642, stop:1 #286e33);
+    color: #061708;
     font-weight: bold;
 }
-QPushButton#Accent:hover, QToolButton#Accent:hover {
-    border: 1px solid #ecffee;
+QPushButton#Accent:hover, QToolButton#Accent:hover, QPushButton#ActAccent:hover {
+    border: 1px solid #f0ffea;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-        stop:0 #87e68e, stop:0.48 #5ec76d, stop:0.54 #45a656, stop:1 #307e40);
-    color: #041006;
+        stop:0 #a1e35b, stop:0.46 #6ecc5a, stop:0.54 #4cab4f, stop:1 #32823e);
+    color: #041206;
 }
-QPushButton#SegL { border-top-left-radius: 6px; border-bottom-left-radius: 6px; border-top-right-radius: 0px; border-bottom-right-radius: 0px; }
+QPushButton#SegL { border-top-left-radius: 7px; border-bottom-left-radius: 7px; border-top-right-radius: 0px; border-bottom-right-radius: 0px; }
 QPushButton#Seg { border-radius: 0px; }
-QPushButton#SegR { border-top-right-radius: 6px; border-bottom-right-radius: 6px; border-top-left-radius: 0px; border-bottom-left-radius: 0px; }
+QPushButton#SegR { border-top-right-radius: 7px; border-bottom-right-radius: 7px; border-top-left-radius: 0px; border-bottom-left-radius: 0px; }
 QPushButton#SegL:checked, QPushButton#Seg:checked, QPushButton#SegR:checked {
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #5ec76d, stop:0.52 #3c964b, stop:1 #276e36);
-    border: 1px solid #a2eda8;
-    color: #051408;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #84cc43, stop:0.50 #50a846, stop:1 #2c7536);
+    border: 1px solid #bef29b;
+    color: #051507;
     font-weight: bold;
 }
-QPushButton#Chip { border-radius: 9px; border: 1px solid #444f59; }
+QPushButton#Chip { border-radius: 10px; border: 1px solid #354c3e; }
 QPushButton#Chip:checked {
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #295944, stop:1 #1b3d2f);
-    border: 1px solid #68d174;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #23543a, stop:1 #163827);
+    border: 1px solid #87cf3e;
     color: #f4fff6;
 }
 QToolButton#ScalePill { border-radius: 8px; }
-QComboBox#ThemeCombo { border-radius: 7px; border-left: 2px solid #63cc70; border-right: 1px solid #4fc7d4; }
-QFrame#Plate {
+QComboBox#ThemeCombo { border-radius: 7px; border-left: 2.5px solid #87cf3e; border-right: 1.5px solid #4ec7b8; }
+QFrame#Plate, QFrame#StudioTabPane {
     border-radius: 8px;
-    border: 1px solid #2c3e33;
-    border-top: 1px solid #4b6956;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #212d26, stop:0.5 #1a241e, stop:1 #141c17);
+    border: 1px solid #2b3f33;
+    border-top: 1px solid #4b6b57;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1e2a23, stop:0.55 #17211b, stop:1 #111914);
+}
+QLabel#TabRibbon {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #213428, stop:0.60 #18251e, stop:1 #111914);
+    border-top: 1px solid #344c3d;
+    border-bottom: 1px solid #4ea854;
+    border-left: 3px solid #87cf3e;
+    color: #e8fae9;
 }
 QLineEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
-    border-radius: 5px;
-    border: 1px solid #2d4034;
-    border-bottom: 1px solid #486452;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0f1612, stop:1 #17211b);
-    color: #f2faf4;
+    border-radius: 6px;
+    border: 1px solid #2c4034;
+    border-bottom: 1px solid #476654;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0e1511, stop:1 #16201a);
+    color: #eff9f1;
 }
 QLineEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
-    border: 1px solid #63cc70;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #151b1a, stop:1 #1f2826);
+    border: 1px solid #78d46a;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #131e18, stop:1 #1c2b22);
 }
 QListView, QListWidget {
-    border-radius: 6px;
-    border: 1px solid #384049;
-    background: #161a1e;
-    alternate-background-color: #1e2329;
+    border-radius: 7px;
+    border: 1px solid #2b3f33;
+    background: #101713;
+    alternate-background-color: #16201a;
+    color: #ecf5ee;
 }
-QTabWidget::pane { border-radius: 7px; border: 1px solid #384049; border-top: 1px solid #54606c; }
+QTabWidget::pane { border-radius: 8px; border: 1px solid #2c4034; border-top: 1px solid #4b6b57; }
 QTabBar::tab {
-    border-top-left-radius: 6px; border-top-right-radius: 6px;
-    border: 1px solid #343c44; border-top: 1px solid #505b66;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #292f36, stop:1 #1d2127);
-    color: #cad3dc;
+    border-top-left-radius: 7px; border-top-right-radius: 7px;
+    border: 1px solid #26382d; border-top: 1px solid #3f5c4a;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #202d25, stop:1 #151e19);
+    color: #b5ceb9;
 }
 QTabBar::tab:hover {
-    border-top: 1px solid #88e08e;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #343c44, stop:1 #262c33);
-    color: #ffffff;
+    border-top: 1px solid #87cf3e;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2a3d31, stop:1 #1d2b23);
+    color: #f6fff7;
 }
 QTabBar::tab:selected {
-    border: 1px solid #57bd65; border-bottom: 2px solid #78db82;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2a3a35, stop:1 #1e2926);
-    color: #ffffff;
+    border: 1px solid #5bb850; border-bottom: 2px solid #87cf3e;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #264030, stop:1 #192b21);
+    color: #f8fff9;
 }
 QSlider::groove:horizontal {
-    height: 6px; border-radius: 3px; background: #13161a; border: 1px solid #3f4852;
+    height: 6px; border-radius: 3px; background: #0e1511; border: 1px solid #304739;
 }
 QSlider::handle:horizontal {
     border-radius: 7px; width: 14px; height: 14px; margin: -5px 0;
-    background: qradialgradient(cx:0.35,cy:0.30,radius:0.75, stop:0 #f4fff6, stop:0.45 #78db82, stop:0.85 #3a8f49, stop:1 #1d4d26);
-    border: 1px solid #d8ffdd;
+    background: qradialgradient(cx:0.35,cy:0.30,radius:0.75, stop:0 #f4fff4, stop:0.45 #87cf3e, stop:0.85 #3e9143, stop:1 #1b4a23);
+    border: 1px solid #dcffd8;
 }
 QSlider::sub-page:horizontal {
     border-radius: 3px;
-    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #3a8c48, stop:0.65 #63cc70, stop:1 #4fc7d4);
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #358240, stop:0.55 #78cc47, stop:1 #4ec7b8);
 }
-QProgressBar { border-radius: 6px; border: 1px solid #3e4750; background: #13161a; }
+QProgressBar { border-radius: 6px; border: 1px solid #304739; background: #0e1511; }
 QProgressBar::chunk {
     border-radius: 4px;
-    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #3c914b, stop:0.58 #63cc70, stop:1 #4fc7d4);
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #358240, stop:0.55 #87cf3e, stop:1 #4ec7b8);
 }
-QCheckBox::indicator { border-radius: 4px; border: 1.5px solid #606c78; background: #161a1e; }
-QCheckBox::indicator:checked { background: #52b860; border: 1.5px solid #dcffe0; }
-QMenu { border-radius: 7px; border: 1px solid #4aad5b; background: #21262c; }
-QMenu::item:selected { border-radius: 4px; background: #2b633e; color: #ffffff; }
+QCheckBox::indicator { border-radius: 4px; border: 1.5px solid #4d6b58; background: #101713; }
+QCheckBox::indicator:checked { background: #64bf4d; border: 1.5px solid #e0ffda; }
+QMenu { border-radius: 8px; border: 1px solid #4ea854; background: #16211b; }
+QMenu::item:selected { border-radius: 5px; background: #23593a; color: #f8fff9; }
 QScrollBar::handle:vertical, QScrollBar::handle:horizontal { border-radius: 5px; }
 QSplitter#RootSplitter::handle {
     background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-        stop:0 #13161a, stop:0.38 #3d4650, stop:0.50 #63cc70, stop:0.62 #3d4650, stop:1 #13161a);
+        stop:0 #0d1410, stop:0.38 #2f4638, stop:0.50 #78d46a, stop:0.62 #2f4638, stop:1 #0d1410);
     width: 7px;
 }
 """ + rail_pin
@@ -3783,11 +3862,18 @@ QPushButton#Chip:checked {
 }
 QToolButton#ScalePill { border-radius: 1px; }
 QComboBox#ThemeCombo { border-radius: 1px; border-left: 2px solid #ffc93c; }
-QFrame#Plate {
+QFrame#Plate, QFrame#StudioTabPane {
     border-radius: 1px;
     border: 1px solid #4a3b1d;
-    border-top: 2px solid #b88a28;
+    border-top: 2px solid #c99426;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #211b10, stop:0.5 #151109, stop:1 #0c0a05);
+}
+QLabel#TabRibbon {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #382a10, stop:0.55 #1a1409, stop:1 #0b0803);
+    border-top: 1px solid #6b5424;
+    border-bottom: 1px solid #c99426;
+    border-left: 3px solid #ffd04d;
+    color: #fff6d9;
 }
 QLineEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
     border-radius: 1px;
@@ -4751,6 +4837,34 @@ _MINI_ICON_MOTIFS: Dict[str, str] = {
         "<polygon points='17.4,2.8 19.6,8.0 14.2,7.2' fill='{pri}'/>"
         "<circle cx='12' cy='12' r='2.2' fill='{pri}'/>"
     ),
+    "memory_db": (
+        "<ellipse cx='12' cy='6.2' rx='7.2' ry='2.8' fill='{core}' stroke='{acc}' stroke-width='1.8'/>"
+        "<path d='M4.8,6.2 L4.8,17.8 C4.8,19.4 8.0,20.6 12,20.6 C16.0,20.6 19.2,19.4 19.2,17.8 L19.2,6.2' "
+        "fill='{core}' stroke='{pri}' stroke-width='1.8'/>"
+        "<path d='M4.8,11.8 C4.8,13.4 8.0,14.6 12,14.6 C16.0,14.6 19.2,13.4 19.2,11.8' fill='none' stroke='{acc}' stroke-width='1.5'/>"
+        "<circle cx='16.5' cy='16.8' r='1.7' fill='{acc}'/>"
+    ),
+    "prune": (
+        "<circle cx='7.2' cy='7.4' r='2.6' fill='none' stroke='{pri}' stroke-width='1.8'/>"
+        "<circle cx='7.2' cy='16.6' r='2.6' fill='none' stroke='{pri}' stroke-width='1.8'/>"
+        "<line x1='9.4' y1='8.8' x2='19.8' y2='16.8' stroke='{acc}' stroke-width='2.0' stroke-linecap='round'/>"
+        "<line x1='9.4' y1='15.2' x2='19.8' y2='7.2' stroke='{pri}' stroke-width='2.0' stroke-linecap='round'/>"
+        "<circle cx='13.6' cy='12' r='1.3' fill='{acc}'/>"
+    ),
+    "arena_ab": (
+        "<rect x='2.4' y='4.2' width='8.2' height='15.6' rx='1.8' fill='{core}' stroke='{acc}' stroke-width='1.8'/>"
+        "<rect x='13.4' y='4.2' width='8.2' height='15.6' rx='1.8' fill='{core}' stroke='{pri}' stroke-width='1.8'/>"
+        "<path d='M5.0,14.8 L6.5,9.2 L8.0,14.8 M5.4,13.2 L7.6,13.2' fill='none' stroke='{acc}' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/>"
+        "<path d='M16.0,9.4 L16.0,14.6 M16.0,9.4 L18.2,9.4 C19.2,9.4 19.2,11.9 18.0,11.9 L16.0,11.9 M16.0,11.9 L18.4,11.9 C19.5,11.9 19.5,14.6 18.2,14.6 L16.0,14.6' fill='none' stroke='{pri}' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/>"
+    ),
+    "perf_bolt": (
+        "<polygon points='13.6,2.4 5.4,13.2 11.4,13.2 10.2,21.6 18.6,10.6 12.6,10.6' "
+        "fill='{acc}' stroke='{pri}' stroke-width='1.3' stroke-linejoin='round'/>"
+    ),
+    "dock_left": (
+        "<rect x='2.8' y='4.0' width='18.4' height='16.0' rx='2.2' fill='{core}' stroke='{pri}' stroke-width='1.8'/>"
+        "<rect x='3.6' y='4.8' width='6.2' height='14.4' rx='1.2' fill='{acc}'/>"
+    ),
 }
 MINI_ICON_KEYS: Set[str] = set(_MINI_ICON_MOTIFS.keys())
 
@@ -4799,7 +4913,9 @@ class VectorAssetEngine:
                     scr_dpr = float(app_i.primaryScreen().devicePixelRatio())
             except Exception:  # noqa: BLE001
                 scr_dpr = 1.0
-        dpr = 1 if low_power_mode() else max(2, min(3, int(math.ceil(scr_dpr))))
+        # Low-end laptop optimization: 100%-DPI screens render cleanly at 1x (75% less icon RAM/CPU);
+        # HiDPI displays (>1.05x) still get crisp 2x vector supersampling.
+        dpr = 1 if (low_power_mode() or scr_dpr <= 1.05) else min(2, int(math.ceil(scr_dpr)))
         pm = QPixmap(w * dpr, h * dpr)
         pm.fill(Qt.GlobalColor.transparent)
         pm.setDevicePixelRatio(float(dpr))
@@ -7278,9 +7394,12 @@ def hq_resize(img: QImage, w: int, h: int) -> QImage:
         try:
             rgba = img.convertToFormat(QImage.Format.Format_RGBA8888)
             ptr = rgba.constBits()
+            if ptr is None:
+                raise ValueError("Null QImage pixel buffer")
             ptr.setsize(rgba.sizeInBytes())
-            pil = _PILImage.frombytes("RGBA", (rgba.width(), rgba.height()), bytes(ptr))
-            resample = getattr(getattr(_PILImage, "Resampling", _PILImage), "LANCZOS", _PILImage.BICUBIC)
+            pil = _PILImage.frombytes("RGBA", (rgba.width(), rgba.height()), bytes(memoryview(ptr)))
+            _pil_res = getattr(_PILImage, "Resampling", _PILImage)
+            resample = getattr(_pil_res, "LANCZOS", getattr(_pil_res, "BICUBIC", 1))
             pil = pil.resize((w, h), resample)
             raw = pil.tobytes("raw", "RGBA")
             out = QImage(raw, w, h, w * 4, QImage.Format.Format_RGBA8888).copy()
@@ -7606,8 +7725,10 @@ def _edit_lut(fn: Any) -> List[int]:
 def _qimg_to_pil(img: QImage):
     rgba = img.convertToFormat(QImage.Format.Format_RGBA8888)
     ptr = rgba.constBits()
+    if ptr is None:
+        return _PILImage.new("RGBA", (max(1, rgba.width()), max(1, rgba.height())), (0, 0, 0, 0))
     ptr.setsize(rgba.sizeInBytes())
-    return _PILImage.frombytes("RGBA", (rgba.width(), rgba.height()), bytes(ptr))
+    return _PILImage.frombytes("RGBA", (rgba.width(), rgba.height()), bytes(memoryview(ptr)))
 
 
 def _pil_to_qimg(pil) -> QImage:
@@ -7804,9 +7925,9 @@ def _apply_edit_qt(img: QImage, a: Dict[str, float]) -> Tuple[QImage, List[str]]
         skipped.append("saturation+")
     if abs(a["vibrance"]) > 0.01:
         skipped.append("vibrance")
-    for k in ("hdr", "bloom", "grain"):
-        if a[k] > 0.01:
-            skipped.append(k)
+    for adj_key in ("hdr", "bloom", "grain"):
+        if a[adj_key] > 0.01:
+            skipped.append(adj_key)
     return work, skipped
 
 
@@ -14370,13 +14491,14 @@ def _feathered_tile(tile_img: QImage, e_l: int, e_t: int, e_r: int, e_b: int) ->
                 zones.append((0, fl))
             if fr:
                 zones.append((w - fr, w))
-            for x0, x1 in zones:
-                for x in range(x0, x1):
-                    alpha = ax[x]
-                    if alpha < 0.9999:
-                        col = img.pixelColor(x, y)
-                        col.setAlpha(int(round(col.alpha() * alpha)))
-                        img.setPixelColor(x, y, col)
+            if ax is not None:
+                for x0, x1 in zones:
+                    for x in range(x0, x1):
+                        alpha = ax[x]
+                        if alpha < 0.9999:
+                            col = img.pixelColor(x, y)
+                            col.setAlpha(int(round(col.alpha() * alpha)))
+                            img.setPixelColor(x, y, col)
         else:
             # Vertical ramp active: process the full row
             for x in range(w):
@@ -15104,12 +15226,18 @@ def make_button(
     icon_key: str = "",
     icon_size: int = 14,
     compress: bool = False,
+    checkable: bool = False,
+    checked: bool = False,
 ) -> QPushButton:
     b = QPushButton(text)
     if accent:
         b.setObjectName("Accent")
     elif small:
         b.setObjectName("Small")
+    if checkable:
+        b.setCheckable(True)
+        if checked:
+            b.setChecked(True)
     b.setCursor(Qt.CursorShape.PointingHandCursor)
     if compress:
         b.setMinimumWidth(0)
@@ -15122,6 +15250,28 @@ def make_button(
     if slot is not None:
         b.clicked.connect(slot)
     return b
+
+
+def _relayout_item_view(view: QAbstractItemView) -> None:
+    """PyQt6-safe item view relayout (replaces non-public doItemsLayout)."""
+    view.scheduleDelayedItemsLayout()
+    vp = view.viewport()
+    if vp is not None:
+        vp.update()
+
+
+def _bind_shortcut(
+    seq: Any,
+    parent: QWidget,
+    slot: Callable[[], Any],
+    context: Optional[Qt.ShortcutContext] = None,
+) -> QShortcut:
+    """Create and connect a QShortcut cleanly across all PyQt6 versions."""
+    sc = QShortcut(seq if isinstance(seq, QKeySequence) else QKeySequence(seq), parent)
+    if context is not None:
+        sc.setContext(context)
+    sc.activated.connect(slot)
+    return sc
 
 
 def make_label(text: str, name: str = "") -> QLabel:
@@ -15180,12 +15330,12 @@ class _ResettableSlider(QSlider):
 
 
 class BevelDeck(QFrame):
-    """Sculpted command deck with unmistakable bespoke architecture across all 5 themes:
+    """Sculpted, LRU-pixmap-cached command deck with unmistakable architecture across all 5 themes:
     - SeeStation: Sony PS4 sapphire OLED glass + XMB dual silk wave + cyan lightbar
-    - Sarif Gold: Deus Ex: HR chamfered carbon plate + triangle facets + gold brackets
-    - Oriental Spirit: Kuro-Urushi neutral jet-black altar + pure red Torii lintels
-    - Kreatendo: Nintendo Wii / Wii U / DS / 3DS dark frosted channel glass + Aqua-Sky & Miiverse-Mint rail
-    - Mint Serenity: Linux Mint Cinnamon dark charcoal-graphite bevel + Mint-Leaf & Alpine-Teal horizon
+    - Sarif Gold: Deus Ex: HR chamfered carbon plate + isometric facets + gold HUD brackets
+    - Oriental Spirit: Kuro-Urushi neutral jet-black altar + vermilion Torii lintels + kintsugi gold hairline
+    - Kreatendo: Nintendo Wii / Wii U / DS / 3DS LIGHT porcelain dome + Aqua/Mint rail + 4-dot ABXY strip
+    - Mint Serenity: Linux Mint Cinnamon evergreen-charcoal bevel + botanical leaf vein + Mint-Leaf horizon
     """
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
@@ -15193,122 +15343,139 @@ class BevelDeck(QFrame):
         self.setObjectName("Deck")
 
     def paintEvent(self, event) -> None:  # noqa: N802
-        p = QPainter(self)
-        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-        r = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+        w, h = max(1, self.width()), max(1, self.height())
         key = resolve_theme_key(C.get("key", "seestation"))
-        grad = QLinearGradient(r.left(), r.top(), r.left(), r.bottom())
-        grad.setColorAt(0.0, QColor(C["deck_hi"]))
-        grad.setColorAt(0.46, QColor(C["deck_mid"]))
-        grad.setColorAt(1.0, QColor(C["deck_lo"]))
-        frame_path = _theme_frame_path(r, key, rad_see=9.0, ch_gold=8.0)
-        p.setBrush(QBrush(grad))
-        p.setPen(QPen(QColor(C["line_hi"] if key in ("seestation", "kreatendo", "mint") else C["line"]), 1.05))
-        p.drawPath(frame_path)
-
-        p.save()
-        p.setClipPath(frame_path)
-        if key == "seestation":
-            for dy, amp, al, lw in ((24.0, 14.0, 52, 1.7), (34.0, 10.0, 28, 1.1)):
-                wave = QPainterPath()
-                wave.moveTo(r.left() - 6, r.top() + dy)
-                wave.cubicTo(
-                    r.left() + r.width() * 0.30, r.top() + dy - amp,
-                    r.left() + r.width() * 0.68, r.top() + dy + amp,
-                    r.right() + 6, r.top() + dy - amp * 0.4,
-                )
-                wc = QColor(C["acc_hi"]); wc.setAlpha(al)
-                p.setPen(QPen(wc, lw))
-                p.setBrush(Qt.BrushStyle.NoBrush)
-                p.drawPath(wave)
-            rail = QLinearGradient(r.left(), r.top(), r.right(), r.top())
-            a0 = QColor(C["acc_hi"]); a0.setAlpha(0)
-            rail.setColorAt(0.0, a0)
-            rail.setColorAt(0.22, QColor(C["acc_mid"]))
-            rail.setColorAt(0.50, QColor(C["acc_spec"]))
-            rail.setColorAt(0.78, QColor(C["acc_mid"]))
-            rail.setColorAt(1.0, a0)
-            p.setPen(QPen(QBrush(rail), 2.1))
-            p.drawLine(QPointF(r.left() + 8, r.top() + 1.5), QPointF(r.right() - 8, r.top() + 1.5))
-        elif key == "oriental":
-            p.setPen(QPen(QColor(C["acc_hi"]), 2.2))
-            p.drawLine(QPointF(r.left() + 1, r.top() + 1.2), QPointF(r.right() - 1, r.top() + 1.2))
-            p.setPen(QPen(QColor(C["acc_lo"]), 1.0))
-            p.drawLine(QPointF(r.left() + 14, r.top() + 5.0), QPointF(r.right() - 14, r.top() + 5.0))
-            slash = QLinearGradient(r.right() - 70, r.top(), r.right() - 18, r.bottom())
-            slash.setColorAt(0.0, QColor(245, 16, 10, 0))
-            slash.setColorAt(0.5, QColor(245, 16, 10, 36))
-            slash.setColorAt(1.0, QColor(245, 16, 10, 0))
-            p.setPen(QPen(QBrush(slash), 1.5))
-            p.drawLine(QPointF(r.right() - 62, r.top()), QPointF(r.right() - 22, r.bottom()))
-            p.setPen(Qt.PenStyle.NoPen)
-            p.setBrush(QBrush(QColor(C["acc_hi"])))
-            p.drawPolygon(QPolygonF([QPointF(r.left() + 1, r.top() + 1), QPointF(r.left() + 13, r.top() + 1), QPointF(r.left() + 1, r.top() + 13)]))
-            p.setBrush(QBrush(QColor(C["acc_mid"])))
-            p.drawPolygon(QPolygonF([QPointF(r.right() - 1, r.bottom() - 1), QPointF(r.right() - 11, r.bottom() - 1), QPointF(r.right() - 1, r.bottom() - 11)]))
-        elif key == "kreatendo":
-            # Nintendo Wii / Wii U LIGHT porcelain dome gloss + colorful Aqua/Mint/Gold top ribbon
-            gloss = QLinearGradient(r.left(), r.top(), r.left(), r.top() + 26.0)
-            gloss.setColorAt(0.0, QColor(255, 255, 255, 215))
-            gloss.setColorAt(1.0, QColor(255, 255, 255, 0))
-            p.setPen(Qt.PenStyle.NoPen)
-            p.setBrush(gloss)
-            p.drawRect(QRectF(r.left(), r.top(), r.width(), 26.0))
-            rail = QLinearGradient(r.left(), r.top(), r.right(), r.top())
-            rail.setColorAt(0.0, QColor(0, 156, 224, 0))
-            rail.setColorAt(0.18, QColor("#009ce0"))
-            rail.setColorAt(0.50, QColor("#2ec6ff"))
-            rail.setColorAt(0.78, QColor("#19b87a"))
-            rail.setColorAt(1.0, QColor(25, 184, 122, 0))
-            p.setPen(QPen(QBrush(rail), 2.4))
-            p.drawLine(QPointF(r.left() + 10, r.top() + 1.5), QPointF(r.right() - 10, r.top() + 1.5))
-            # Playful 4-dot Nintendo ABXY micro-strip top-right
-            p.setPen(Qt.PenStyle.NoPen)
-            for idx_d, dcol in enumerate(("#009ce0", "#e63b4b", "#f5a800", "#19b87a")):
-                p.setBrush(QColor(dcol))
-                p.drawEllipse(QPointF(r.right() - 28.0 + idx_d * 6.2, r.top() + 6.5), 1.9, 1.9)
-        elif key == "mint":
-            # Linux Mint Cinnamon neutral graphite bevel + crisp Mint-Leaf & Alpine-Teal hairline
-            arc = QPainterPath()
-            arc.moveTo(r.left() - 4, r.top() + 28)
-            arc.cubicTo(
-                r.left() + r.width() * 0.36, r.top() + 9,
-                r.left() + r.width() * 0.72, r.top() + 24,
-                r.right() + 4, r.top() + 11,
-            )
-            p.setBrush(Qt.BrushStyle.NoBrush)
-            p.setPen(QPen(QColor(99, 204, 112, 34), 1.5))
-            p.drawPath(arc)
-            rail = QLinearGradient(r.left(), r.top(), r.right(), r.top())
-            rail.setColorAt(0.0, QColor(99, 204, 112, 0))
-            rail.setColorAt(0.22, QColor("#63cc70"))
-            rail.setColorAt(0.52, QColor("#ebffef"))
-            rail.setColorAt(0.78, QColor("#4fc7d4"))
-            rail.setColorAt(1.0, QColor(79, 199, 212, 0))
-            p.setPen(QPen(QBrush(rail), 2.0))
-            p.drawLine(QPointF(r.left() + 8, r.top() + 1.5), QPointF(r.right() - 8, r.top() + 1.5))
+        lp = low_power_mode()
+        ck = (key, w, h, lp)
+        pm = _BEVEL_DECK_CACHE.get(ck)
+        if pm is not None:
+            _BEVEL_DECK_CACHE.move_to_end(ck)
         else:
-            p.setPen(Qt.PenStyle.NoPen)
-            step = 24.0
-            for ci in range(0, int(r.width() // step) + 2):
-                if (ci * 5 + 1) % 3 == 0:
-                    tx = r.left() + ci * step
-                    p.setBrush(QColor(247, 194, 62, 13))
-                    p.drawPolygon(QPolygonF([QPointF(tx, r.top()), QPointF(tx + step, r.top()), QPointF(tx + step * 0.5, r.top() + 20)]))
-            p.setPen(QPen(QColor(C["acc_mid"]), 1.8))
-            p.drawLine(QPointF(r.left() + 8, r.top() + 1.3), QPointF(r.right() - 8, r.top() + 1.3))
-            p.setPen(QPen(QColor(C["acc_spec"]), 1.5))
-            ch = 8.0
-            p.drawLine(QPointF(r.left() + 1.5, r.top() + ch + 9), QPointF(r.left() + 1.5, r.top() + ch))
-            p.drawLine(QPointF(r.left() + 1.5, r.top() + ch), QPointF(r.left() + ch, r.top() + 1.5))
-            p.drawLine(QPointF(r.right() - 1.5, r.top() + ch + 9), QPointF(r.right() - 1.5, r.top() + ch))
-            p.drawLine(QPointF(r.right() - 1.5, r.top() + ch), QPointF(r.right() - ch, r.top() + 1.5))
-            p.drawLine(QPointF(r.right() - 1.5, r.bottom() - ch - 9), QPointF(r.right() - 1.5, r.bottom() - ch))
-            p.drawLine(QPointF(r.right() - 1.5, r.bottom() - ch), QPointF(r.right() - ch, r.bottom() - 1.5))
-        p.restore()
-        p.setPen(QPen(QColor(C["sunken_bot"]), 1.0))
-        p.drawLine(QPointF(r.left() + 6, r.bottom() - 1.5), QPointF(r.right() - 6, r.bottom() - 1.5))
-        p.end()
+            pm = QPixmap(w, h)
+            pm.fill(Qt.GlobalColor.transparent)
+            p = QPainter(pm)
+            p.setRenderHint(QPainter.RenderHint.Antialiasing, not lp)
+            r = QRectF(0.5, 0.5, max(1.0, w - 1.0), max(1.0, h - 1.0))
+            grad = QLinearGradient(r.left(), r.top(), r.left(), r.bottom())
+            grad.setColorAt(0.0, QColor(C["deck_hi"]))
+            grad.setColorAt(0.46, QColor(C["deck_mid"]))
+            grad.setColorAt(1.0, QColor(C["deck_lo"]))
+            frame_path = _theme_frame_path(r, key, rad_see=9.0, ch_gold=8.0)
+            p.setBrush(QBrush(grad))
+            p.setPen(QPen(QColor(C["line_hi"] if key in ("seestation", "kreatendo", "mint") else C["line"]), 1.05))
+            p.drawPath(frame_path)
+
+            p.save()
+            p.setClipPath(frame_path)
+            if key == "seestation":
+                if not lp:
+                    for dy, amp, al, lw in ((24.0, 14.0, 52, 1.7), (34.0, 10.0, 28, 1.1)):
+                        wave = QPainterPath()
+                        wave.moveTo(r.left() - 6, r.top() + dy)
+                        wave.cubicTo(
+                            r.left() + r.width() * 0.30, r.top() + dy - amp,
+                            r.left() + r.width() * 0.68, r.top() + dy + amp,
+                            r.right() + 6, r.top() + dy - amp * 0.4,
+                        )
+                        wc = QColor(C["acc_hi"]); wc.setAlpha(al)
+                        p.setPen(QPen(wc, lw))
+                        p.setBrush(Qt.BrushStyle.NoBrush)
+                        p.drawPath(wave)
+                rail = QLinearGradient(r.left(), r.top(), r.right(), r.top())
+                a0 = QColor(C["acc_hi"]); a0.setAlpha(0)
+                rail.setColorAt(0.0, a0)
+                rail.setColorAt(0.22, QColor(C["acc_mid"]))
+                rail.setColorAt(0.50, QColor(C["acc_spec"]))
+                rail.setColorAt(0.78, QColor(C["acc_mid"]))
+                rail.setColorAt(1.0, a0)
+                p.setPen(QPen(QBrush(rail), 2.1))
+                p.drawLine(QPointF(r.left() + 8, r.top() + 1.5), QPointF(r.right() - 8, r.top() + 1.5))
+            elif key == "oriental":
+                p.setPen(QPen(QColor(C["acc_hi"]), 2.2))
+                p.drawLine(QPointF(r.left() + 1, r.top() + 1.2), QPointF(r.right() - 1, r.top() + 1.2))
+                p.setPen(QPen(QColor(214, 168, 84, 72), 0.9))
+                p.drawLine(QPointF(r.left() + 14, r.top() + 4.8), QPointF(r.right() - 14, r.top() + 4.8))
+                if not lp:
+                    slash = QLinearGradient(r.right() - 70, r.top(), r.right() - 18, r.bottom())
+                    slash.setColorAt(0.0, QColor(245, 16, 10, 0))
+                    slash.setColorAt(0.5, QColor(245, 16, 10, 36))
+                    slash.setColorAt(1.0, QColor(245, 16, 10, 0))
+                    p.setPen(QPen(QBrush(slash), 1.5))
+                    p.drawLine(QPointF(r.right() - 62, r.top()), QPointF(r.right() - 22, r.bottom()))
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(QBrush(QColor(C["acc_hi"])))
+                p.drawPolygon(QPolygonF([QPointF(r.left() + 1, r.top() + 1), QPointF(r.left() + 13, r.top() + 1), QPointF(r.left() + 1, r.top() + 13)]))
+                p.setBrush(QBrush(QColor(C["acc_mid"])))
+                p.drawPolygon(QPolygonF([QPointF(r.right() - 1, r.bottom() - 1), QPointF(r.right() - 11, r.bottom() - 1), QPointF(r.right() - 1, r.bottom() - 11)]))
+            elif key == "kreatendo":
+                if not lp:
+                    gloss = QLinearGradient(r.left(), r.top(), r.left(), r.top() + 26.0)
+                    gloss.setColorAt(0.0, QColor(255, 255, 255, 220))
+                    gloss.setColorAt(1.0, QColor(255, 255, 255, 0))
+                    p.setPen(Qt.PenStyle.NoPen)
+                    p.setBrush(gloss)
+                    p.drawRect(QRectF(r.left(), r.top(), r.width(), 26.0))
+                rail = QLinearGradient(r.left(), r.top(), r.right(), r.top())
+                rail.setColorAt(0.0, QColor(0, 156, 224, 0))
+                rail.setColorAt(0.18, QColor("#009ce0"))
+                rail.setColorAt(0.50, QColor("#2ec6ff"))
+                rail.setColorAt(0.78, QColor("#19b87a"))
+                rail.setColorAt(1.0, QColor(25, 184, 122, 0))
+                p.setPen(QPen(QBrush(rail), 2.4))
+                p.drawLine(QPointF(r.left() + 10, r.top() + 1.5), QPointF(r.right() - 10, r.top() + 1.5))
+                p.setPen(Qt.PenStyle.NoPen)
+                for idx_d, dcol in enumerate(("#009ce0", "#e63b4b", "#f5a800", "#19b87a")):
+                    p.setBrush(QColor(dcol))
+                    p.drawEllipse(QPointF(r.right() - 28.0 + idx_d * 6.2, r.top() + 6.5), 1.9, 1.9)
+            elif key == "mint":
+                if not lp:
+                    arc = QPainterPath()
+                    arc.moveTo(r.left() - 4, r.top() + 28)
+                    arc.cubicTo(
+                        r.left() + r.width() * 0.36, r.top() + 9,
+                        r.left() + r.width() * 0.72, r.top() + 24,
+                        r.right() + 4, r.top() + 11,
+                    )
+                    p.setBrush(Qt.BrushStyle.NoBrush)
+                    p.setPen(QPen(QColor(135, 207, 62, 38), 1.5))
+                    p.drawPath(arc)
+                rail = QLinearGradient(r.left(), r.top(), r.right(), r.top())
+                rail.setColorAt(0.0, QColor(135, 207, 62, 0))
+                rail.setColorAt(0.22, QColor("#87cf3e"))
+                rail.setColorAt(0.52, QColor("#e6ffda"))
+                rail.setColorAt(0.78, QColor("#4ec7b8"))
+                rail.setColorAt(1.0, QColor(78, 199, 184, 0))
+                p.setPen(QPen(QBrush(rail), 2.0))
+                p.drawLine(QPointF(r.left() + 8, r.top() + 1.5), QPointF(r.right() - 8, r.top() + 1.5))
+            else:
+                if not lp:
+                    p.setPen(Qt.PenStyle.NoPen)
+                    step = 24.0
+                    for ci in range(0, int(r.width() // step) + 2):
+                        if (ci * 5 + 1) % 3 == 0:
+                            tx = r.left() + ci * step
+                            p.setBrush(QColor(247, 194, 62, 14))
+                            p.drawPolygon(QPolygonF([QPointF(tx, r.top()), QPointF(tx + step, r.top()), QPointF(tx + step * 0.5, r.top() + 20)]))
+                p.setPen(QPen(QColor(C["acc_mid"]), 1.8))
+                p.drawLine(QPointF(r.left() + 8, r.top() + 1.3), QPointF(r.right() - 8, r.top() + 1.3))
+                p.setPen(QPen(QColor(C["acc_spec"]), 1.5))
+                ch = 8.0
+                p.drawLine(QPointF(r.left() + 1.5, r.top() + ch + 9), QPointF(r.left() + 1.5, r.top() + ch))
+                p.drawLine(QPointF(r.left() + 1.5, r.top() + ch), QPointF(r.left() + ch, r.top() + 1.5))
+                p.drawLine(QPointF(r.right() - 1.5, r.top() + ch + 9), QPointF(r.right() - 1.5, r.top() + ch))
+                p.drawLine(QPointF(r.right() - 1.5, r.top() + ch), QPointF(r.right() - ch, r.top() + 1.5))
+                p.drawLine(QPointF(r.right() - 1.5, r.bottom() - ch - 9), QPointF(r.right() - 1.5, r.bottom() - ch))
+                p.drawLine(QPointF(r.right() - 1.5, r.bottom() - ch), QPointF(r.right() - ch, r.bottom() - 1.5))
+            p.restore()
+            p.setPen(QPen(QColor(C["sunken_bot"]), 1.0))
+            p.drawLine(QPointF(r.left() + 6, r.bottom() - 1.5), QPointF(r.right() - 6, r.bottom() - 1.5))
+            p.end()
+            _BEVEL_DECK_CACHE[ck] = pm
+            while len(_BEVEL_DECK_CACHE) > _BEVEL_DECK_MAX:
+                _BEVEL_DECK_CACHE.popitem(last=False)
+        out = QPainter(self)
+        out.drawPixmap(0, 0, pm)
+        out.end()
 
 
 class SectionHeader(QWidget):
@@ -15533,9 +15700,17 @@ class FolderChipButton(QAbstractButton):
         p.setClipPath(frame)
         p.setBrush(QBrush(QColor(self.folder_color)))
         p.setPen(Qt.PenStyle.NoPen)
-        if tkey in ("seestation", "mint"):
+        if tkey == "seestation":
             bar_h = 2.4 if checked else 1.5
             p.drawRoundedRect(QRectF(r.left() + 6.0, r.bottom() - bar_h - 0.8, max(4.0, r.width() - 12.0), bar_h), 1.2, 1.2)
+        elif tkey == "mint":
+            bar_h = 2.5 if checked else 1.6
+            mg = QLinearGradient(r.left() + 6.0, 0, r.right() - 6.0, 0)
+            mg.setColorAt(0.0, QColor(self.folder_color))
+            mg.setColorAt(0.65, QColor("#87cf3e"))
+            mg.setColorAt(1.0, QColor("#4ec7b8"))
+            p.setBrush(mg)
+            p.drawRoundedRect(QRectF(r.left() + 6.0, r.bottom() - bar_h - 0.8, max(4.0, r.width() - 12.0), bar_h), 1.25, 1.25)
         elif tkey == "kreatendo":
             bar_h = 2.6 if checked else 1.6
             p.drawRoundedRect(QRectF(r.left() + 8.0, r.bottom() - bar_h - 0.8, max(4.0, r.width() - 16.0), bar_h), 1.3, 1.3)
@@ -15669,8 +15844,14 @@ class Toast(QWidget):
         p.setClipPath(frame)
         p.setPen(Qt.PenStyle.NoPen)
         p.setBrush(QBrush(QColor(kind_col)))
-        if tkey in ("seestation", "mint"):
+        if tkey == "seestation":
             p.drawRoundedRect(QRectF(r.left() + 3, r.top() + 5, 3.2, r.height() - 10), 1.6, 1.6)
+        elif tkey == "mint":
+            tg = QLinearGradient(0, r.top() + 4, 0, r.bottom() - 4)
+            tg.setColorAt(0.0, QColor("#87cf3e"))
+            tg.setColorAt(1.0, QColor("#4ec7b8"))
+            p.setBrush(tg)
+            p.drawRoundedRect(QRectF(r.left() + 3, r.top() + 4, 3.5, r.height() - 8), 1.75, 1.75)
         elif tkey == "kreatendo":
             p.drawRoundedRect(QRectF(r.left() + 3, r.top() + 5, 3.8, r.height() - 10), 1.9, 1.9)
             p.setBrush(QColor("#2ce0b5"))
@@ -15817,7 +15998,7 @@ class IgnitionGenerateButton(QPushButton):
 
         # Single lightweight frame driver: ONLY runs while sheen or hover glow is moving
         self._anim_timer = QTimer(self)
-        self._anim_timer.setInterval(33)  # ~30 FPS capped, zero CPU when stopped
+        self._anim_timer.setInterval(40)  # ~25 FPS capped for low-end laptops, zero CPU when stopped
         self._anim_timer.timeout.connect(self._tick_animation)
 
         # Single calm idle ambient shimmer timer
@@ -16336,6 +16517,10 @@ class TagFlowPromptEdit(QPlainTextEdit):
 
     def editable_text(self) -> str:
         return self._full_text()[: self.editable_end()]
+
+    def user_text(self) -> str:
+        """Compatibility alias for editable_text() (excludes read-only ghost text)."""
+        return self.editable_text()
 
     def set_ghost(self, text: str) -> None:
         """Replace the read-only ghost tail (LoRA triggers) without touching the
@@ -17071,9 +17256,16 @@ class AspectButton(QAbstractButton):
                 kg.setColorAt(1.0, QColor("#2ce0b5"))
                 p.setBrush(kg)
                 p.drawRoundedRect(QRectF(r.left() + 6.0, r.bottom() - 3.0, max(4.0, r.width() - 12.0), 2.2), 1.1, 1.1)
-            elif tkey in ("seestation", "mint"):
+            elif tkey == "seestation":
                 p.setBrush(QBrush(QColor(C["acc_spec"])))
                 p.drawRoundedRect(QRectF(r.left() + 6.0, r.bottom() - 2.8, max(4.0, r.width() - 12.0), 2.0), 1.0, 1.0)
+            elif tkey == "mint":
+                ag = QLinearGradient(r.left() + 6, 0, r.right() - 6, 0)
+                ag.setColorAt(0.0, QColor("#dcffd8"))
+                ag.setColorAt(0.6, QColor("#87cf3e"))
+                ag.setColorAt(1.0, QColor("#4ec7b8"))
+                p.setBrush(ag)
+                p.drawRoundedRect(QRectF(r.left() + 6.0, r.bottom() - 2.9, max(4.0, r.width() - 12.0), 2.2), 1.1, 1.1)
             elif tkey == "oriental":
                 p.setBrush(QBrush(QColor(C["acc_spec"])))
                 p.drawRect(QRectF(r.left() + 1.0, r.top() + 1.0, 3.0, r.height() - 2.0))
@@ -17463,6 +17655,95 @@ class _AutoFitIconTabBar(QTabBar):
         p.restore()
 
 
+
+
+class StudioTabDeck(QWidget):
+    """Optimal v16.0 Workstation Left Tab Deck:
+    Stacks the zero-scroll 9-icon rail flush at the top edge (Fitts's Law),
+    places the Active Module Context Ribbon DIRECTLY beneath the icon rail
+    for instantaneous spatial orientation, and hosts each module page inside
+    a themed QStackedWidget pane. Exposes a 100% drop-in QTabWidget API."""
+
+    currentChanged = pyqtSignal(int)
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setObjectName("IconTabs")
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(0)
+
+        self._bar = _AutoFitIconTabBar(self)
+        self._bar.setObjectName("IconRailBar")
+        self._bar.currentChanged.connect(self._on_bar_changed)
+        lay.addWidget(self._bar, 0)
+
+        self.ribbon = ElideLabel("PROMPT  \u00b7  Ctrl+1")
+        self.ribbon.setObjectName("TabRibbon")
+        self.ribbon.setMinimumHeight(20)
+        self.ribbon.setMaximumHeight(24)
+        self.ribbon.setToolTip("Active module \u2014 switch tabs with Ctrl+1..9 or click the icon rail above")
+        lay.addWidget(self.ribbon, 0)
+
+        self._pane = QFrame(self)
+        self._pane.setObjectName("StudioTabPane")
+        pl = QVBoxLayout(self._pane)
+        pl.setContentsMargins(1, 1, 1, 1)
+        pl.setSpacing(0)
+        self._stack = QStackedWidget(self._pane)
+        pl.addWidget(self._stack, 1)
+        lay.addWidget(self._pane, 1)
+
+    def _on_bar_changed(self, idx: int) -> None:
+        if 0 <= idx < self._stack.count():
+            self._stack.setCurrentIndex(idx)
+        self.currentChanged.emit(idx)
+
+    def tabBar(self) -> _AutoFitIconTabBar:  # noqa: N802
+        return self._bar
+
+    def setTabBar(self, bar: _AutoFitIconTabBar) -> None:  # noqa: N802
+        if bar is not self._bar:
+            bar.deleteLater()
+
+    def setUsesScrollButtons(self, use: bool) -> None:  # noqa: N802
+        self._bar.setUsesScrollButtons(bool(use))
+
+    def setIconSize(self, size: QSize) -> None:  # noqa: N802
+        self._bar.setIconSize(size)
+
+    def addTab(self, widget: QWidget, icon: QIcon, label: str = "") -> int:  # noqa: N802
+        idx = self._stack.addWidget(widget)
+        self._bar.addTab(icon, label)
+        if idx == 0:
+            self._stack.setCurrentIndex(0)
+        return idx
+
+    def count(self) -> int:
+        return self._bar.count()
+
+    def currentIndex(self) -> int:  # noqa: N802
+        return self._bar.currentIndex()
+
+    def setCurrentIndex(self, index: int) -> None:  # noqa: N802
+        if 0 <= index < self._bar.count():
+            self._bar.setCurrentIndex(index)
+            if self._stack.currentIndex() != index:
+                self._stack.setCurrentIndex(index)
+
+    def setTabIcon(self, index: int, icon: QIcon) -> None:  # noqa: N802
+        self._bar.setTabIcon(index, icon)
+
+    def setTabToolTip(self, index: int, tip: str) -> None:  # noqa: N802
+        self._bar.setTabToolTip(index, tip)
+
+    def widget(self, index: int) -> Optional[QWidget]:
+        return self._stack.widget(index)
+
+    def indexOf(self, widget: QWidget) -> int:  # noqa: N802
+        return self._stack.indexOf(widget)
+
+
 class _AutoFitTextTabBar(QTabBar):
     """Zero-scroll equal-distribution labeled tab bar (for LLM sub-tabs, Edit sub-tabs,
     and Right Stage tabs) that mathematically centers [icon + label] inside every tab
@@ -17693,7 +17974,6 @@ class FlowLayout(QLayout):
             w = item.widget() if item is not None else None
             if w is not None:
                 w.hide()
-                w.setParent(None)
                 w.deleteLater()
         self.invalidate()
 
@@ -17910,8 +18190,7 @@ class LoraListView(QListWidget):
             it = self.item(i)
             if it is not None:
                 it.setSizeHint(QSize(160, h))
-        self.doItemsLayout()
-        self.viewport().update()
+        _relayout_item_view(self)
 
     def row_height(self) -> int:
         return self._row_height
@@ -18003,7 +18282,6 @@ class ActiveLoraSlidersBar(QWidget):
             w = item.widget()
             if w is not None:
                 w.hide()
-                w.setParent(None)
                 w.deleteLater()
         active_sliders = [e for e in entries if e.get("enabled") and e.get("use_slider")]
         for e in active_sliders:
@@ -18676,7 +18954,10 @@ class ImageViewer(QScrollArea):
     def mousePressEvent(self, event) -> None:  # noqa: N802
         # Clicking the floating live-queue HUD pill jumps directly to the Queue tab
         if event.button() == Qt.MouseButton.LeftButton and not self._hud_rect.isEmpty():
-            cpos = self._canvas.mapFrom(self.viewport(), event.position().toPoint())
+            vp = self.viewport()
+            if vp is None:
+                return
+            cpos = self._canvas.mapFrom(vp, event.position().toPoint())
             if self._hud_rect.contains(cpos):
                 self.hud_clicked.emit()
                 event.accept()
@@ -19085,6 +19366,10 @@ class GalleryBrowser(QWidget):
         self._dirty = True
         self._thumb_cache: "collections.OrderedDict[Tuple[str, int], QPixmap]" = collections.OrderedDict()
         self._loader: Optional[GalleryThumbLoader] = None
+        self._search_debounce = QTimer(self)
+        self._search_debounce.setSingleShot(True)
+        self._search_debounce.setInterval(90)
+        self._search_debounce.timeout.connect(lambda: self._apply_filters(reset_page=True))
         self._build()
 
     def _build(self) -> None:
@@ -19099,7 +19384,7 @@ class GalleryBrowser(QWidget):
         self.search_edit.setPlaceholderText("Search prompt or filename\u2026")
         self.search_edit.setClearButtonEnabled(True)
         self.search_edit.setMinimumWidth(48)
-        self.search_edit.textChanged.connect(lambda _t: self._apply_filters(reset_page=True))
+        self.search_edit.textChanged.connect(lambda _t: self._search_debounce.start())
         self.fav_btn = QToolButton()
         self.fav_btn.setObjectName("Small")
         self.fav_btn.setText("\u2605")
@@ -19212,9 +19497,9 @@ class GalleryBrowser(QWidget):
         self.status_lbl.setMinimumHeight(22)
         lay.addWidget(self.status_lbl)
 
-        QShortcut(QKeySequence("Ctrl+C"), self, activated=self._copy_image)
-        QShortcut(QKeySequence("Ctrl+P"), self, activated=self._copy_prompt)
-        QShortcut(QKeySequence(Qt.Key.Key_Delete), self.view, activated=self._delete_selected)
+        _bind_shortcut("Ctrl+C", self, self._copy_image)
+        _bind_shortcut("Ctrl+P", self, self._copy_prompt)
+        _bind_shortcut(Qt.Key.Key_Delete, self.view, self._delete_selected)
 
     def mark_dirty(self) -> None:
         self._dirty = True
@@ -21220,36 +21505,42 @@ class SelfImprovingArenaWidget(QWidget):
         vl.setSpacing(4)
 
         vrow = QHBoxLayout()
-        vrow.setSpacing(5)
-        self.vote_a_btn = QPushButton("\u25C0  A IS BETTER")
+        vrow.setSpacing(4)
+        self.vote_a_btn = QPushButton("\u25C0  A Wins")
         self.vote_a_btn.setObjectName("VoteWinBtn")
         self.vote_a_btn.setCheckable(True)
+        self.vote_a_btn.setMinimumWidth(0)
+        self.vote_a_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.vote_a_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.vote_a_btn.setToolTip("Mark A as Good and B as Bad — saves content prompt pair to PreferencesMemory")
         self.vote_a_btn.clicked.connect(lambda: self.vote_cast.emit("A"))
 
-        self.vote_tie_btn = QPushButton("\uFF1D  TIE  (Don't Save)")
+        self.vote_tie_btn = QPushButton("\uFF1D  Tie")
         self.vote_tie_btn.setObjectName("VoteTieBtn")
         self.vote_tie_btn.setCheckable(True)
+        self.vote_tie_btn.setMinimumWidth(0)
+        self.vote_tie_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.vote_tie_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.vote_tie_btn.setToolTip("Tie — skips saving to PreferencesMemory")
+        self.vote_tie_btn.setToolTip("Tie (Don't Save) — skips saving to PreferencesMemory")
         self.vote_tie_btn.clicked.connect(lambda: self.vote_cast.emit("tie"))
 
-        self.vote_b_btn = QPushButton("B IS BETTER  \u25B6")
+        self.vote_b_btn = QPushButton("B Wins  \u25B6")
         self.vote_b_btn.setObjectName("VoteWinBtn")
         self.vote_b_btn.setCheckable(True)
+        self.vote_b_btn.setMinimumWidth(0)
+        self.vote_b_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.vote_b_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.vote_b_btn.setToolTip("Mark B as Good and A as Bad — saves content prompt pair to PreferencesMemory")
         self.vote_b_btn.clicked.connect(lambda: self.vote_cast.emit("B"))
 
-        vrow.addWidget(self.vote_a_btn, 2)
-        vrow.addWidget(self.vote_tie_btn, 1)
-        vrow.addWidget(self.vote_b_btn, 2)
+        vrow.addWidget(self.vote_a_btn, 3)
+        vrow.addWidget(self.vote_tie_btn, 2)
+        vrow.addWidget(self.vote_b_btn, 3)
         vl.addLayout(vrow)
 
         rrow = QHBoxLayout()
-        rrow.setSpacing(3)
-        rrow.addWidget(make_label("Winner Rating (optional):", "Caption"))
+        rrow.setSpacing(2)
+        rrow.addWidget(make_label("Rating:", "Caption"))
         self.star_btns: Dict[Optional[int], QToolButton] = {}
         self.star_group = QButtonGroup(self)
         self.star_group.setExclusive(True)
@@ -21258,6 +21549,7 @@ class SelfImprovingArenaWidget(QWidget):
             sb.setObjectName("StarBtn")
             sb.setText(lbl)
             sb.setCheckable(True)
+            sb.setMinimumWidth(0)
             sb.setCursor(Qt.CursorShape.PointingHandCursor)
             sb.setToolTip("Optional user-made 1-5 quality rating saved with the winning prompt (NOT Horde aesthetic rating)")
             self.star_group.addButton(sb)
@@ -21266,10 +21558,10 @@ class SelfImprovingArenaWidget(QWidget):
         self.star_btns[None].setChecked(True)
         self.star_group.buttonClicked.connect(self._on_star_clicked)
         rrow.addStretch(1)
+        vl.addLayout(rrow)
         self.vote_feedback = ElideLabel("Forge & render a pair to vote.")
         self.vote_feedback.setObjectName("Caption")
-        rrow.addWidget(self.vote_feedback, 1)
-        vl.addLayout(rrow)
+        vl.addWidget(self.vote_feedback)
         lay.addWidget(vote_box, 0)
 
         self.set_vote_enabled(False)
@@ -21358,7 +21650,7 @@ class CommandPaletteDialog(QDialog):
         self.search.setFocus()
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:  # noqa: N802
-        if obj is self.search and event.type() == QEvent.Type.KeyPress:
+        if obj is self.search and event.type() == QEvent.Type.KeyPress and isinstance(event, QKeyEvent):
             key = event.key()
             if key in (Qt.Key.Key_Down, Qt.Key.Key_Up) and self.list_w.count() > 0:
                 cur = self.list_w.currentRow()
@@ -21686,7 +21978,7 @@ class EditCanvas(QWidget):
         self._stroke_snapshot: Optional[QImage] = None   # layer copy during a stroke
         self._stroke_tag = ""                       # which layer the stroke edits
         self._stroke_bbox: Optional[QRect] = None
-        self._stroke_undo: List[Tuple[str, QRect, QImage]] = []
+        self._stroke_undo: List[Tuple[str, QRect, Any]] = []
         # ---- v4.2: polygonal mask selection --------------------------------
         self._poly_pts: List[QPointF] = []
         self._poly_drawing = False
@@ -21981,7 +22273,8 @@ class EditCanvas(QWidget):
         if self._mask is None:
             return 0.0
         if self._eff_cov is None:
-            self._eff_cov = mask_coverage(self.effective_mask())
+            eff = self.effective_mask()
+            self._eff_cov = mask_coverage(eff) if eff is not None else 0.0
         return self._eff_cov
 
     def has_mask(self) -> bool:
@@ -22321,8 +22614,8 @@ class EditCanvas(QWidget):
             elif tag == "paint":
                 layer = self._paint
             elif tag == "poly":
-                st = snap
-                self._poly_smooth, self._poly_feather, self._poly_expand = st
+                if isinstance(snap, tuple) and len(snap) == 3:
+                    self._poly_smooth, self._poly_feather, self._poly_expand = snap
                 self._render_poly_shape()
                 self.mask_changed.emit()
                 return True
@@ -22954,6 +23247,8 @@ class EditCanvas(QWidget):
                 return
             if self._tool == self.TOOL_CROP:
                 self._ensure_crop_rect()
+                if self._crop_rect is None:
+                    return
                 self._crop_press = QPointF(pos)
                 self._crop_origin = QRectF(self._crop_rect)
                 self._crop_drag = self._crop_handle_at(pos)
@@ -23264,7 +23559,9 @@ class EditCanvas(QWidget):
             if pm is not None and not pm.isNull():
                 painter.drawPixmap(dr, pm, QRectF(0, 0, pm.width(), pm.height()))
             else:
-                painter.drawImage(dr, self._doc if use_original else shown)
+                fallback_img = self._doc if use_original else shown
+                if fallback_img is not None and not fallback_img.isNull():
+                    painter.drawImage(dr, fallback_img)
 
         def _draw_paint_layer(painter: QPainter) -> None:
             if self._paint is None or self._compare:
@@ -23887,10 +24184,14 @@ class MainWindow(QMainWindow):
         self._flash_timer.setInterval(2600)
         self._flash_timer.timeout.connect(self._update_summary)
 
-        # Gentle periodic telemetry refresh (heartbeat + account every 3 min)
+        # Typed flare slider registries (eliminates dynamic attribute lookup hazards)
+        self._flare_sliders: Dict[str, QSlider] = {}
+        self._flare_val_labels: Dict[str, QLabel] = {}
+
+        # Gentle periodic telemetry refresh (heartbeat + account every 3 min; skipped while minimized)
         self._telemetry_timer = QTimer(self)
         self._telemetry_timer.setInterval(180000)
-        self._telemetry_timer.timeout.connect(self.startup_network)
+        self._telemetry_timer.timeout.connect(self._on_telemetry_tick)
         self._telemetry_timer.start()
 
         # Thread-safe in-memory logger bridge
@@ -24035,8 +24336,8 @@ class MainWindow(QMainWindow):
         scale = ui_scale()
         compact_h = self.height() > 0 and self.height() <= 640
         if hasattr(self, "tab_ribbon"):
-            # On 800x600 displays, keep active-module ribbon ultra-compact to maximize workspace height
-            self.tab_ribbon.setVisible(not compact_h)
+            # Top module ribbon stays visible at 800x600 (only collapses on ultra-short <520px windows)
+            self.tab_ribbon.setVisible(self.height() == 0 or self.height() >= 520)
         if hasattr(self, "deck") and self.deck.layout() is not None:
             dl = self.deck.layout()
             if compact_h:
@@ -24071,18 +24372,28 @@ class MainWindow(QMainWindow):
                 self._update_deck_badges()
         if hasattr(self, "right_tabs") and hasattr(self, "gallery_btn"):
             rw = self.right_tabs.width()
-            narrow_r = (rw > 0 and rw < 420)
-            if getattr(self, "_viewer_narrow", None) != narrow_r:
-                self._viewer_narrow = narrow_r
-                self.gallery_btn.setText("Strip" if not narrow_r else "\u25A6")
-                if hasattr(self, "theme_combo"):
-                    self.theme_combo.setMinimumWidth(64 if narrow_r else 96)
+            # 3-tier responsive right workspace chrome:
+            # Tier 0 (wide >= 520px), Tier 1 (compact 380..519px — 800x600 default), Tier 2 (ultra-narrow < 380px)
+            tier = 0 if (rw == 0 or rw >= 520) else (1 if rw >= 380 else 2)
+            if getattr(self, "_viewer_tier", None) != tier:
+                self._viewer_tier = tier
+                self.gallery_btn.setText("Strip" if tier == 0 else "\u25A6")
                 if hasattr(self, "scale_minus_btn") and hasattr(self, "scale_plus_btn"):
-                    show_pm = not narrow_r
-                    self.scale_minus_btn.setVisible(show_pm)
-                    self.scale_plus_btn.setVisible(show_pm)
+                    self.scale_minus_btn.setVisible(tier == 0)
+                    self.scale_plus_btn.setVisible(tier == 0)
+                if hasattr(self, "scale_pill_btn"):
+                    self.scale_pill_btn.setVisible(tier <= 1)
+                if hasattr(self, "low_power_corner_btn"):
+                    self.low_power_corner_btn.setVisible(tier == 0)
+                if hasattr(self, "theme_combo"):
+                    self.theme_combo.setMinimumWidth(56 if tier == 2 else (78 if tier == 1 else 100))
+                    self.theme_combo.setMaximumWidth(84 if tier == 2 else (112 if tier == 1 else 148))
                 if hasattr(self, "cmd_btn"):
-                    self.cmd_btn.setVisible(rw == 0 or rw >= 340)
+                    self.cmd_btn.setVisible(tier <= 1)
+                rt_labels = ("View", "Gal", "A/B") if tier == 2 else ("Viewer", "Gallery", "Arena")
+                for rt_i, rt_lbl in enumerate(rt_labels):
+                    if rt_i < self.right_tabs.count():
+                        self.right_tabs.setTabText(rt_i, rt_lbl)
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
@@ -24115,10 +24426,8 @@ class MainWindow(QMainWindow):
         lay.setContentsMargins(0, 0, 3, 0)
         lay.setSpacing(4)
 
-        self.tabs = QTabWidget()
-        self.tabs.setObjectName("IconTabs")
-        self._icon_tabbar = _AutoFitIconTabBar(self.tabs)
-        self.tabs.setTabBar(self._icon_tabbar)
+        self.tabs = StudioTabDeck()
+        self._icon_tabbar = self.tabs.tabBar()
         self.tabs.setUsesScrollButtons(False)
         self._tabbar_style = _IconTabBarStyle(QStyleFactory.create("fusion"))
         self.tabs.tabBar().setStyle(self._tabbar_style)
@@ -24150,13 +24459,9 @@ class MainWindow(QMainWindow):
             self.tabs.addTab(wgt, VECTOR_ASSETS.icon(icon_key, self._tab_icon_px), "")
             self.tabs.setTabToolTip(idx, tip)
         self.tabs.currentChanged.connect(self._on_left_tab_changed)
-        # Sleek East-Asian Active Tab Context Ribbon directly beneath the 9-icon rail
-        self.tab_ribbon = ElideLabel("PROMPT  \u00b7  Ctrl+1")
-        self.tab_ribbon.setObjectName("TabRibbon")
-        self.tab_ribbon.setMinimumHeight(20)
-        self.tab_ribbon.setToolTip("Active module — switch tabs with Ctrl+1..9 or click the icon rail above")
+        # Active Module Context Ribbon is docked DIRECTLY beneath the 9-icon rail inside StudioTabDeck
+        self.tab_ribbon = self.tabs.ribbon
         lay.addWidget(self.tabs, 1)
-        lay.addWidget(self.tab_ribbon, 0)
         self.deck = self._build_deck()
         lay.addWidget(self.deck, 0)
         w.setMinimumWidth(212)
@@ -24180,41 +24485,58 @@ class MainWindow(QMainWindow):
         scroll, lay = self._scroll_tab()
 
         hdr = SectionHeader("Prompt")
+        self.prompt_tok_lbl = QLabel("0 tok")
+        self.prompt_tok_lbl.setObjectName("Chip")
+        self.prompt_tok_lbl.setToolTip("Estimated prompt token count (live)")
+        hdr.add_right(self.prompt_tok_lbl)
+        lay.addWidget(hdr)
+
+        # Dedicated balanced Prompt Action Strip (prevents SectionHeader crushing at 800x600!)
+        pbar = QHBoxLayout()
+        pbar.setSpacing(3)
         self.neg_btn = QToolButton()
         self.neg_btn.setObjectName("Small")
         self.neg_btn.setText("NEG")
         self.neg_btn.setCheckable(True)
+        self.neg_btn.setMinimumWidth(0)
+        self.neg_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.neg_btn.setToolTip("Show / hide model-specific Negative Prompt  (Ctrl+Shift+N)")
         self.neg_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.neg_btn.toggled.connect(self._toggle_negative)
         self.copy_prompt_btn = QToolButton()
         self.copy_prompt_btn.setObjectName("Small")
-        self.copy_prompt_btn.setText("COPY")
+        self.copy_prompt_btn.setIcon(VECTOR_ASSETS.icon("copy", 12))
+        self.copy_prompt_btn.setIconSize(QSize(12, 12))
+        self.copy_prompt_btn.setText("Copy")
+        self.copy_prompt_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.copy_prompt_btn.setMinimumWidth(0)
+        self.copy_prompt_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.copy_prompt_btn.setToolTip("Copy positive prompt to clipboard")
         self.copy_prompt_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.copy_prompt_btn.clicked.connect(self._copy_prompt_text)
         self.clear_btn = QToolButton()
         self.clear_btn.setObjectName("Small")
-        self.clear_btn.setText("CLEAR")
+        self.clear_btn.setText("Clear")
+        self.clear_btn.setMinimumWidth(0)
+        self.clear_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.clear_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.clear_btn.clicked.connect(lambda: self.prompt_edit.clear())
         self.hist_btn = QToolButton()
         self.hist_btn.setObjectName("Small")
-        self.hist_btn.setIcon(VECTOR_ASSETS.icon("history", 14))
-        self.hist_btn.setText("HIST")
+        self.hist_btn.setIcon(VECTOR_ASSETS.icon("history", 12))
+        self.hist_btn.setIconSize(QSize(12, 12))
+        self.hist_btn.setText("Hist")
         self.hist_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.hist_btn.setMinimumWidth(0)
+        self.hist_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.hist_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.hist_btn.setToolTip("Prompt History  (Ctrl+H)")
         self.hist_btn.clicked.connect(self.open_history)
-        self.prompt_tok_lbl = QLabel("0 tok")
-        self.prompt_tok_lbl.setObjectName("Caption")
-        self.prompt_tok_lbl.setToolTip("Estimated prompt token count (live)")
-        hdr.add_right(self.prompt_tok_lbl)
-        hdr.add_right(self.neg_btn)
-        hdr.add_right(self.copy_prompt_btn)
-        hdr.add_right(self.clear_btn)
-        hdr.add_right(self.hist_btn)
-        lay.addWidget(hdr)
+        pbar.addWidget(self.neg_btn, 1)
+        pbar.addWidget(self.copy_prompt_btn, 1)
+        pbar.addWidget(self.clear_btn, 1)
+        pbar.addWidget(self.hist_btn, 1)
+        lay.addLayout(pbar)
 
         self.prompt_edit = TagFlowPromptEdit()
         self.prompt_edit.setPlaceholderText(
@@ -24404,9 +24726,9 @@ class MainWindow(QMainWindow):
         ]):
             gg.addWidget(make_label(_lbl, "Caption"), _idx, 0)
             gg.addWidget(_wdg, _idx, 1)
-            if hasattr(_wdg, "currentIndexChanged"):
+            if isinstance(_wdg, QComboBox):
                 _wdg.currentIndexChanged.connect(lambda _i: self._schedule_save())
-            else:
+            elif isinstance(_wdg, (QSpinBox, QDoubleSpinBox)):
                 _wdg.valueChanged.connect(lambda _v: self._schedule_save())
         gg.setColumnStretch(1, 1)
         gl.addLayout(gg)
@@ -26121,19 +26443,20 @@ class MainWindow(QMainWindow):
             cell_u.addWidget(make_label(lbl, "Caption"))
             cell_u.addWidget(wdg, 1)
             grid.addLayout(cell_u, r_u, c_u)
-            wdg.valueChanged.connect(lambda _v: self._on_ups_settings_changed())
+            if isinstance(wdg, (QSpinBox, QDoubleSpinBox)):
+                wdg.valueChanged.connect(lambda _v: self._on_ups_settings_changed())
         grid.setColumnStretch(0, 1)
         grid.setColumnStretch(1, 1)
-        for r_c, (lbl, wdg) in enumerate((
+        for r_c, (lbl, cb_w) in enumerate((
             ("Upscaler", self.ups_upscaler_combo),
             ("Model", self.ups_model_combo),
         ), start=3):
             row_c = QHBoxLayout()
             row_c.setSpacing(4)
             row_c.addWidget(make_label(lbl, "Caption"))
-            row_c.addWidget(wdg, 1)
+            row_c.addWidget(cb_w, 1)
             grid.addLayout(row_c, r_c, 0, 1, 2)
-            wdg.currentIndexChanged.connect(lambda _i: self._on_ups_settings_changed())
+            cb_w.currentIndexChanged.connect(lambda _i: self._on_ups_settings_changed())
         lay.addLayout(grid)
 
         trow_seg = QHBoxLayout()
@@ -26433,6 +26756,8 @@ class MainWindow(QMainWindow):
             cell.addWidget(sl)
             r_pos, c_pos = divmod(idx_fs, 2)
             fgrid.addLayout(cell, r_pos, c_pos)
+            self._flare_sliders[key] = sl
+            self._flare_val_labels[key] = val
             setattr(self, f"edit_flare_sl_{key}", sl)
             setattr(self, f"edit_flare_val_{key}", val)
         fgrid.setColumnStretch(0, 1)
@@ -26825,7 +27150,7 @@ class MainWindow(QMainWindow):
         self.edit_split_group = QButtonGroup(self)
         self.edit_split_vert = QPushButton("Vertical │")
         self.edit_split_vert.setObjectName("SegL")
-        self.edit_split_vert.st.setCheckable(True)
+        self.edit_split_vert.setCheckable(True)
         self.edit_split_vert.setChecked(True)
         self.edit_split_vert.setToolTip("Split into left and right halves")
         self.edit_split_horz = QPushButton("Horizontal —")
@@ -27156,6 +27481,16 @@ class MainWindow(QMainWindow):
         self.theme_combo.currentIndexChanged.connect(self._on_theme_combo_changed)
         self._sync_theme_btn()
 
+        self.low_power_corner_btn = QToolButton()
+        self.low_power_corner_btn.setObjectName("PerfPill")
+        self.low_power_corner_btn.setIcon(VECTOR_ASSETS.icon("perf_bolt", 12))
+        self.low_power_corner_btn.setIconSize(QSize(12, 12))
+        self.low_power_corner_btn.setFixedSize(24, 21)
+        self.low_power_corner_btn.setCheckable(True)
+        self.low_power_corner_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.low_power_corner_btn.setToolTip("Toggle Low-Power Laptop Mode (reduces animations & backdrop CPU/RAM)")
+        self.low_power_corner_btn.toggled.connect(self._on_low_power_toggled)
+
         self.cmd_btn = QToolButton()
         self.cmd_btn.setObjectName("Small")
         self.cmd_btn.setText("\u2318")
@@ -27177,6 +27512,7 @@ class MainWindow(QMainWindow):
         gc_lay.addWidget(self.scale_pill_btn, 0)
         gc_lay.addWidget(self.scale_plus_btn, 0)
         gc_lay.addWidget(self.theme_combo, 0)
+        gc_lay.addWidget(self.low_power_corner_btn, 0)
         gc_lay.addWidget(self.cmd_btn, 0)
         gc_lay.addWidget(self.menu_btn, 0)
         self.right_tabs.setCornerWidget(self._global_corner, Qt.Corner.TopRightCorner)
@@ -27335,9 +27671,10 @@ class MainWindow(QMainWindow):
         self.arena_widget.retry_slot.connect(self._arena_retry_slot)
         self.arena_widget.open_memory_editor.connect(self.open_preferences_memory_dialog)
         self.arena_widget.prompts_toggled.connect(lambda _v: self._llm_schedule_save())
-        self.right_tabs.addTab(self.right_stack, "Viewer")
-        self.right_tabs.addTab(self.gallery_tab, "Gallery")
-        self.right_tabs.addTab(self.arena_widget, "Arena")
+        self.right_tabs.setIconSize(QSize(13, 13))
+        self.right_tabs.addTab(self.right_stack, VECTOR_ASSETS.icon("image", 13), "Viewer")
+        self.right_tabs.addTab(self.gallery_tab, VECTOR_ASSETS.icon("layers", 13), "Gallery")
+        self.right_tabs.addTab(self.arena_widget, VECTOR_ASSETS.icon("arena_ab", 13), "Arena")
         self.right_tabs.setMinimumWidth(240)
         self.right_tabs.currentChanged.connect(self._on_right_tab_changed)
         return self.right_tabs
@@ -27799,10 +28136,10 @@ class MainWindow(QMainWindow):
         self._edit_stage_flare_bright_lab.setText("100%")
         self._edit_stage_flare_hue_lab.setText("0°")
         self._edit_stage_flare_hue2_lab.setText("0°")
-        self.edit_stage_flare_size.valueChanged.connect(lambda v: self.edit_flare_sl_scale.setValue(v))
-        self.edit_stage_flare_bright.valueChanged.connect(lambda v: self.edit_flare_sl_brightness.setValue(v))
-        self.edit_stage_flare_hue.valueChanged.connect(lambda v: self.edit_flare_sl_hue.setValue(v))
-        self.edit_stage_flare_hue2.valueChanged.connect(lambda v: self.edit_flare_sl_hue2.setValue(v))
+        self.edit_stage_flare_size.valueChanged.connect(lambda v: self._flare_sliders["scale"].setValue(v))
+        self.edit_stage_flare_bright.valueChanged.connect(lambda v: self._flare_sliders["brightness"].setValue(v))
+        self.edit_stage_flare_hue.valueChanged.connect(lambda v: self._flare_sliders["hue"].setValue(v))
+        self.edit_stage_flare_hue2.valueChanged.connect(lambda v: self._flare_sliders["hue2"].setValue(v))
         self.edit_stage_flare_dup = make_button("Copy", self.edit_flare_duplicate_selected, small=True,
                                                 tip="Duplicate selected flare", icon_key="duplicate", icon_size=12)
         self.edit_stage_flare_del = make_button("Remove", self.edit_flare_remove_selected, small=True,
@@ -27912,32 +28249,34 @@ class MainWindow(QMainWindow):
         self.menu = m
 
     def _wire_shortcuts(self) -> None:
-        QShortcut(QKeySequence("Ctrl+Return"), self, activated=self._on_ctrl_enter_shortcut)
-        QShortcut(QKeySequence("Escape"), self, activated=self._on_escape_shortcut)
-        QShortcut(QKeySequence("Ctrl+Enter"), self, activated=self._on_ctrl_enter_shortcut)
-        QShortcut(QKeySequence("Ctrl+1"), self, activated=lambda: self.tabs.setCurrentIndex(TAB_PROMPT))
-        QShortcut(QKeySequence("Ctrl+2"), self, activated=lambda: self.tabs.setCurrentIndex(TAB_TEMPLATES))
-        QShortcut(QKeySequence("Ctrl+3"), self, activated=lambda: self.tabs.setCurrentIndex(TAB_TAGS))
-        QShortcut(QKeySequence("Ctrl+4"), self, activated=lambda: self.tabs.setCurrentIndex(TAB_LORA))
-        QShortcut(QKeySequence("Ctrl+5"), self, activated=lambda: self.tabs.setCurrentIndex(TAB_LLM))
-        QShortcut(QKeySequence("Ctrl+6"), self, activated=lambda: self.tabs.setCurrentIndex(TAB_QUEUE))
-        QShortcut(QKeySequence("Ctrl+7"), self, activated=lambda: self.tabs.setCurrentIndex(TAB_HORDE))
-        QShortcut(QKeySequence("Ctrl+8"), self, activated=lambda: self.tabs.setCurrentIndex(TAB_UPSCALE))
-        QShortcut(QKeySequence("Ctrl+9"), self, activated=lambda: self.tabs.setCurrentIndex(TAB_EDIT))
-        QShortcut(QKeySequence("Ctrl+Shift+N"), self, activated=lambda: self.neg_btn.toggle())
-        QShortcut(QKeySequence("Ctrl+H"), self, activated=self.open_history)
-        QShortcut(QKeySequence("Ctrl+K"), self, activated=self.open_command_palette)
-        QShortcut(QKeySequence("Ctrl+Shift+V"), self, activated=lambda: self.open_batch_queue_dialog())
-        QShortcut(QKeySequence("Ctrl+R"), self, activated=self._reroll_wildcards)
-        QShortcut(QKeySequence("Ctrl+L"), self, activated=lambda: self.panel_btn.toggle())
-        QShortcut(QKeySequence("Ctrl+G"), self, activated=lambda: self.gallery_btn.toggle())
-        QShortcut(QKeySequence("Ctrl+S"), self, activated=self._on_save_shortcut)
-        QShortcut(QKeySequence("Ctrl+Shift+S"), self, activated=self._on_save_as_shortcut)
-        QShortcut(QKeySequence("Ctrl+Shift+T"), self, activated=self._toggle_theme)
-        QShortcut(QKeySequence("F11"), self, activated=self._toggle_fullscreen)
-        QShortcut(QKeySequence("F10"), self, activated=lambda: self.menu.exec(
-            self.menu_btn.mapToGlobal(QPoint(0, self.menu_btn.height()))))
-        QShortcut(QKeySequence("F1"), self, activated=self.show_shortcuts)
+        for seq_k, slot_fn in (
+            ("Ctrl+Return", self._on_ctrl_enter_shortcut),
+            ("Escape", self._on_escape_shortcut),
+            ("Ctrl+Enter", self._on_ctrl_enter_shortcut),
+            ("Ctrl+1", lambda: self.tabs.setCurrentIndex(TAB_PROMPT)),
+            ("Ctrl+2", lambda: self.tabs.setCurrentIndex(TAB_TEMPLATES)),
+            ("Ctrl+3", lambda: self.tabs.setCurrentIndex(TAB_TAGS)),
+            ("Ctrl+4", lambda: self.tabs.setCurrentIndex(TAB_LORA)),
+            ("Ctrl+5", lambda: self.tabs.setCurrentIndex(TAB_LLM)),
+            ("Ctrl+6", lambda: self.tabs.setCurrentIndex(TAB_QUEUE)),
+            ("Ctrl+7", lambda: self.tabs.setCurrentIndex(TAB_HORDE)),
+            ("Ctrl+8", lambda: self.tabs.setCurrentIndex(TAB_UPSCALE)),
+            ("Ctrl+9", lambda: self.tabs.setCurrentIndex(TAB_EDIT)),
+            ("Ctrl+Shift+N", lambda: self.neg_btn.toggle()),
+            ("Ctrl+H", self.open_history),
+            ("Ctrl+K", self.open_command_palette),
+            ("Ctrl+Shift+V", lambda: self.open_batch_queue_dialog()),
+            ("Ctrl+R", self._reroll_wildcards),
+            ("Ctrl+L", lambda: self.panel_btn.toggle()),
+            ("Ctrl+G", lambda: self.gallery_btn.toggle()),
+            ("Ctrl+S", self._on_save_shortcut),
+            ("Ctrl+Shift+S", self._on_save_as_shortcut),
+            ("Ctrl+Shift+T", self._toggle_theme),
+            ("F11", self._toggle_fullscreen),
+            ("F10", lambda: self.menu.exec(self.menu_btn.mapToGlobal(QPoint(0, self.menu_btn.height())))),
+            ("F1", self.show_shortcuts),
+        ):
+            _bind_shortcut(seq_k, self, slot_fn)
         for seq_sc, fn_sc in (
             (QKeySequence(QKeySequence.StandardKey.ZoomIn), lambda: self._adjust_scale(0.05)),
             (QKeySequence(QKeySequence.StandardKey.ZoomOut), lambda: self._adjust_scale(-0.05)),
@@ -30849,8 +31188,11 @@ class MainWindow(QMainWindow):
             self,
             f"About {APP_NAME}",
             f"<b>{APP_NAME}</b> {APP_VERSION}<br><br>"
-            "Single-file AI Horde workstation (v14.0 Major Remaster): 5 distinctive flagship themes "
-            "(SeeStation, Sarif Gold, Oriental Spirit, Kreatendo Wii/Wii U/DS/3DS Dark, Mint Serenity Cinnamon Dark), "
+            "Single-file AI Horde workstation (v16.0 Major Remaster): 5 distinctive flagship themes "
+            "(SeeStation Sony Console, Sarif Gold Deus Ex HR, Oriental Spirit Kuro-Urushi Black & Red, "
+            "Kreatendo Nintendo Wii/Wii U/DS/3DS Light Porcelain, Mint Serenity Linux Mint Evergreen Dark), "
+            "StudioTabDeck top-docked module ribbon, 3-tier responsive 800x600 chrome, Self-Improving A/B Arena "
+            "with Preferences Memory DB, LRU-cached decks & smart 1x DPI low-end laptop optimization, "
             "socket-level instant-cancel SSE/NDJSON LLM/VLM Prompt Forge with live output & reasoning token counter, "
             "preamble-safe one-by-one prompt parsing & smart non-intrusive streaming list, "
             "crash-safe fsync+backup Queue Engine with magic-byte CDN validation, sleep/wake recovery & anti-stall watchdog, "
@@ -31561,14 +31903,15 @@ class MainWindow(QMainWindow):
         i = self.tabs.currentIndex() if idx is None else int(idx)
         if 0 <= i < len(self._tab_specs):
             _ik, name, _tip = self._tab_specs[i]
-            base = f"{name.upper()}   \u00b7   Ctrl+{i + 1}   \u00b7   {i + 1}/{len(self._tab_specs)}"
-            # v11: while the deck is hidden (non-Prompt tabs) the ribbon
-            # carries a compact live queue badge so nothing is lost.
+            m_lbl = MODELS.get(getattr(self, "active_model", DEFAULT_MODEL), {}).get("short", "")
+            base = f"{name.upper()}  \u00b7  Ctrl+{i + 1}"
+            if m_lbl:
+                base += f"  \u00b7  {m_lbl}"
             if hasattr(self, "queue") and self.tabs.currentIndex() != TAB_PROMPT:
                 counts = self.queue.counts()
                 live = counts["queued"] + counts["active"]
                 if live > 0:
-                    base += f"   \u00b7   QUEUE {live}"
+                    base += f"  \u00b7  Q:{live}"
             self.tab_ribbon.setText(base)
 
     def _on_left_tab_changed(self, idx: int) -> None:
@@ -31775,12 +32118,15 @@ class MainWindow(QMainWindow):
     def _sync_stage_flare_quick_sliders(self) -> None:
         if not hasattr(self, "edit_stage_flare_size"):
             return
-        for sl_src, sl_dst, lab_dst, k in (
-            (self.edit_flare_sl_scale, self.edit_stage_flare_size, self._edit_stage_flare_size_lab, "scale"),
-            (self.edit_flare_sl_brightness, self.edit_stage_flare_bright, self._edit_stage_flare_bright_lab, "brightness"),
-            (self.edit_flare_sl_hue, self.edit_stage_flare_hue, self._edit_stage_flare_hue_lab, "hue"),
-            (self.edit_flare_sl_hue2, self.edit_stage_flare_hue2, self._edit_stage_flare_hue2_lab, "hue2"),
+        for sl_dst, lab_dst, k in (
+            (self.edit_stage_flare_size, self._edit_stage_flare_size_lab, "scale"),
+            (self.edit_stage_flare_bright, self._edit_stage_flare_bright_lab, "brightness"),
+            (self.edit_stage_flare_hue, self._edit_stage_flare_hue_lab, "hue"),
+            (self.edit_stage_flare_hue2, self._edit_stage_flare_hue2_lab, "hue2"),
         ):
+            sl_src = self._flare_sliders.get(k)
+            if sl_src is None:
+                continue
             v = int(sl_src.value())
             sl_dst.blockSignals(True)
             sl_dst.setValue(v)
@@ -31791,14 +32137,14 @@ class MainWindow(QMainWindow):
         return {
             "preset": str(self.edit_flare_combo.currentData() or FLARE_PRESETS[0]["key"]),
             "x": 0.5, "y": 0.42,
-            "scale": int(self.edit_flare_sl_scale.value()),
-            "brightness": int(self.edit_flare_sl_brightness.value()),
-            "saturation": int(self.edit_flare_sl_saturation.value()),
-            "stretch": int(self.edit_flare_sl_stretch.value()),
-            "hue": int(self.edit_flare_sl_hue.value()),
-            "hue2": int(self.edit_flare_sl_hue2.value()),
-            "contrast": int(self.edit_flare_sl_contrast.value()),
-            "opacity": int(self.edit_flare_sl_opacity.value()),
+            "scale": int(self._flare_sliders["scale"].value()),
+            "brightness": int(self._flare_sliders["brightness"].value()),
+            "saturation": int(self._flare_sliders["saturation"].value()),
+            "stretch": int(self._flare_sliders["stretch"].value()),
+            "hue": int(self._flare_sliders["hue"].value()),
+            "hue2": int(self._flare_sliders["hue2"].value()),
+            "contrast": int(self._flare_sliders["contrast"].value()),
+            "opacity": int(self._flare_sliders["opacity"].value()),
             "visible": True,
             "locked": False,
             "solo": False,
@@ -31855,10 +32201,14 @@ class MainWindow(QMainWindow):
             self._edit_flare_sel = index
             clamped = max(30, min(250, int(new_scale)))
             self.edit_flares[index]["scale"] = clamped
-            self.edit_flare_sl_scale.blockSignals(True)
-            self.edit_flare_sl_scale.setValue(clamped)
-            self.edit_flare_sl_scale.blockSignals(False)
-            self.edit_flare_val_scale.setText(f"{clamped}%")
+            sl_sc = self._flare_sliders.get("scale")
+            if sl_sc is not None:
+                sl_sc.blockSignals(True)
+                sl_sc.setValue(clamped)
+                sl_sc.blockSignals(False)
+            lb_sc = self._flare_val_labels.get("scale")
+            if lb_sc is not None:
+                lb_sc.setText(f"{clamped}%")
             self._sync_stage_flare_quick_sliders()
             self.edit_canvas.set_flares(self.edit_flares, self._edit_flare_sel)
             self._edit_schedule_recompute()
@@ -33296,10 +33646,10 @@ class MainWindow(QMainWindow):
         if hasattr(self, "lora_list"):
             self.lora_list.refresh_scaled_rows()
         if hasattr(self, "queue_view"):
-            self.queue_view.doItemsLayout()
+            _relayout_item_view(self.queue_view)
         if hasattr(self, "mini_queue"):
             self.mini_queue.setFixedHeight(max(64, int(round(78 * s))))
-            self.mini_queue.doItemsLayout()
+            _relayout_item_view(self.mini_queue)
         if hasattr(self, "gallery"):
             self.gallery.setFixedHeight(max(52, min(84, int(round(64 * s)))))
         self._sync_deck_and_viewer_density()
@@ -33313,8 +33663,16 @@ class MainWindow(QMainWindow):
                 self.tabs.setTabIcon(idx, VECTOR_ASSETS.icon(icon_key, px))
             self.tabs.tabBar().update()
         self._sync_theme_btn()
+        if hasattr(self, "right_tabs"):
+            rt_sz = max(12, min(16, int(round(13 * ui_scale()))))
+            self.right_tabs.setIconSize(QSize(rt_sz, rt_sz))
+            for rt_idx, rt_ik in ((0, "image"), (1, "layers"), (2, "arena_ab")):
+                if rt_idx < self.right_tabs.count():
+                    self.right_tabs.setTabIcon(rt_idx, VECTOR_ASSETS.icon(rt_ik, rt_sz))
         for attr, ik, sz in (
-            ("hist_btn", "history", 14),
+            ("hist_btn", "history", 12),
+            ("copy_prompt_btn", "copy", 12),
+            ("low_power_corner_btn", "perf_bolt", 12),
             ("batch_btn", "batch", 13),
             ("edit_split_save_btn", "split", 13),
             ("edit_split_cmp_btn", "compare", 13),
@@ -33442,8 +33800,14 @@ class MainWindow(QMainWindow):
             self.act_low_power.blockSignals(True)
             self.act_low_power.setChecked(lp)
             self.act_low_power.blockSignals(False)
+        if hasattr(self, "low_power_corner_btn"):
+            self.low_power_corner_btn.blockSignals(True)
+            self.low_power_corner_btn.setChecked(lp)
+            self.low_power_corner_btn.blockSignals(False)
         if hasattr(self, "gen_btn"):
             self.gen_btn.sync_low_power()
+        for deck_w in self.findChildren(BevelDeck):
+            deck_w.update()
         if hasattr(self, "edit_base") and self.edit_base is not None:
             self._rebuild_edit_preview_caches()
 
@@ -33460,6 +33824,13 @@ class MainWindow(QMainWindow):
             ANIM_CLOCK.set_suspended(minimized)
             if hasattr(self, "gen_btn"):
                 if minimized:
+                    self.gen_btn.stop_animations()
+                else:
+                    self.gen_btn.sync_low_power()
+        elif et == QEvent.Type.ActivationChange:
+            active = self.isActiveWindow()
+            if hasattr(self, "gen_btn"):
+                if not active:
                     self.gen_btn.stop_animations()
                 else:
                     self.gen_btn.sync_low_power()
@@ -33827,6 +34198,11 @@ class MainWindow(QMainWindow):
         self._refresh_key_label()
         self.check_account()
 
+    def _on_telemetry_tick(self) -> None:
+        if bool(self.windowState() & Qt.WindowState.WindowMinimized):
+            return
+        self.startup_network()
+
     def startup_network(self) -> None:
         self.refresh_horde()
         if self.effective_key() != ANON_KEY:
@@ -33906,7 +34282,7 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------ v15.0 Quick Actions, Command Palette & Self-Improving Arena
     def _copy_prompt_text(self) -> None:
-        txt = self.prompt_edit.user_text().strip()
+        txt = self.prompt_edit.editable_text().strip()
         if not txt:
             self._flash_summary("Prompt is empty.")
             return
@@ -34193,7 +34569,7 @@ class MainWindow(QMainWindow):
 
 
 # =============================================================================
-#  26. Application Entry Point (v15.0 — 800x600 Ready + Low-End Laptop Tuned)
+#  26. Application Entry Point (v16.0 — 800x600 Ready + Low-End Laptop Tuned)
 # =============================================================================
 def main() -> int:
     app = QApplication(sys.argv)
