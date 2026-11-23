@@ -1,15 +1,17 @@
 [Before starting, clean up any remnants from the previous (unrelated) session]
 You are an expert software engineer. Your task is to remake this app drastically, dongi a major update to improve it generally, fixing any possile issues with UI, implementing the most efficient and optimal UI layout, fixing/preventing glitches, giving it professionally-done and refined look.
 
-Make sure it won't lose queued tasks but will either generate image or report an error, and make sure it can handle internet connection being lost sometimes when tasks are in queue. 
-Make sure LLM part is implemented properly: can count streamed output tokens, can display the parsed prompts one by one as they are streamed, can stop streaming or stop a request anytime; Improve everything else, remaking fully for the more professionally-implemented state.
-Make sure the tabs' icons will be centered on the tabs switching elements and fit it correctly, NOT glued to tab element's left side.
-Improve overall interface to work with LLM requests.
-Implement subtabs of the LLM tab: Basic and Self-Improving. The latter is another way to work with the currently selected LLM: 1. it will generate a pair of prompts (only for content/scene, without the medium-specific style) that both follows the user's request but are different, prompting it in two diferent ways (different wording/prompt structure, different approaches to designs, etc - so it both follows the user's request but in different and distinctive ways of doing that.); 2. then, it will generate two images, using those two prompts with the same seeds and placing the generations next to each other; 3. the user can then vote, choosing the best in the pair (A is better, B is better, or Tie); the user also can rate the better image in between 1 and 5. If the choice weren't Tie, then results of the vote wil be stored in a specific "PreferencesMemory" will then be stored in a file from the settings subfolder (NOT the images generated - just the pair of the prompts, one of which is marked as "Good" and other is "Bad"; the rating - the User-made, NOT Horde's Aesthetical rating - for better one will also be here if available; the prompt template, if it were applied for the image generation, won't be written along). The system prompt for Self-Improving mode will thereby contain this database, as much of entries as the input context length allows together with the rest of System prompt and the user's input itself, with order from the higher-rated ones t the lower-rated ones. So it's a query of prompts "good/bad" pairs examples, where "good" also has a rating and the pairs with the best ones comes first; it is inserted in system prompt as a separate (XML-tagged) part of it, like "Examples" part for better understanding of the task by the AI (it is supposed to form further prompts learning User's preferences from here, and the understanding shall become more deep eventually, as the amount of examples to compare will grow during the app usage in this mode). If there are too many of entries available, then not all of those will be included (it will be choosen randomly which entries to include within the available limit, and which to not). There are separate Memory databases for Krea Turbo, Anima 2 Turbo and Moss. There is also Preferences Memory editor, where the user can view the entries, and can choose to prune some amount of the oldest examples. The system prompt itself should consider that (as long as at least one entry is present), and should itself be vague (so it relies more on what the examples will tell it, rather than on hard constraints on the prompting).
+Also fix
+  File "D:\Documents\python\testing\hl.py", line 28242
+    def _lora_ghost_text(self) -> None:
+    ^^^
+SyntaxError: invalid syntax
+
+Also, fix any other error.
 
 Generally, study the app properly to find out what you can improve or adjust.
 
-Constraints: Python 3.10.0, single-file .py (with its data in the subfolders), good optimization for low-end laptops, good visibility (can work even in 800x600 screen resolution); assets (vector graphics and sounds) are stored in the same py; made for East Asia users (though the language stays English only); five UI themes (improve eath forther with more distinctive designs): Deus Ex HR golden style / Asia-inspired black and red / Sony-inspired UI; A theme inspired by Nintendo software UIs (NOT Switch, instead modify it to lean towards Nintendo Wii/Wii U/DS/3DS aestetics with their distinctive feel and colorful accent, change it towards light theme so it's NOT dark theme, while still have perfect visibility/readability); "Mint Serenity" theme which is dark but also with use of green colors, nature-inspired, and inspired by Linux Mint distro's desktop designs; professional standards of software engineering quality, up to 100k lines of code, up to 3 megabytes in size of the py file.
+Constraints: Python 3.10.0, single-file .py (with its data in the subfolders), good optimization for low-end laptops, good visibility (can work even in 800x600 screen resolution); assets (vector graphics and sounds) are stored in the same py; made for East Asia users (though the language stays English only); five UI themes (improve eath further with more distinctive designs): Deus Ex HR golden style / Asia-inspired black and red / Sony-inspired UI / A theme inspired by Nintendo software UIs (Nintendo Wii/Wii U/DS/3DS aesthetics with their distinctive feel and colorful accents, light theme) / "Mint Serenity" theme which is dark but also with use of green colors, nature-inspired, and inspired by Linux Mint distro's desktop designs; professional standards of software engineering quality, up to 100k lines of code, up to 3 megabytes in size of the py file.
 Don't stop until everything is implemented properly. The web app shall have only a summary of work done, written in plain text, and nothing else.
 
 The old version code:
@@ -1067,7 +1069,15 @@ DEFAULT_LLM_SETTINGS: Dict[str, Any] = {
     "vision_motion_prompts": {m: build_default_motion_prompt(m) for m in VIDEO_MOTION_MODES},
     "stream": True,
     "max_tokens": 0,
+    "context_length": DEFAULT_LLM_CONTEXT_LENGTH,
+    "endpoint_visible": True,
+    "active_subtab": 0,
     "raw_drawer_visible": False,
+    "si_user_input": "",
+    "si_auto_render": True,
+    "si_apply_template": True,
+    "si_fixed_seed": "",
+    "si_show_prompts": True,
 }
 
 DEFAULT_LORA_DATA: Dict[str, Any] = {
@@ -1909,18 +1919,18 @@ THEME_UI: Dict[str, Dict[str, str]] = {
         "focus_ring": "border: 1px solid #5cc0ff;",
     },
     "kreatendo": {
-        "rad_lg": "12px", "rad_md": "9px", "rad_tab": "10px", "rad_pill": "14px",
-        "kick_ls": "0.4px", "btn_ls": "0.25px", "scroll_w": "12px",
-        "tab_accent": "border-top: 1.5px solid #7ee3ff; border-bottom: 2.5px solid #29c7ff;",
-        "panel_border": "border: 1px solid #2f4361; border-top: 2px solid #5a80ad;",
-        "focus_ring": "border: 1.5px solid #29c7ff;",
+        "rad_lg": "13px", "rad_md": "10px", "rad_tab": "11px", "rad_pill": "15px",
+        "kick_ls": "0.35px", "btn_ls": "0.2px", "scroll_w": "12px",
+        "tab_accent": "border-top: 2px solid #26bfff; border-bottom: 2.5px solid #0096db;",
+        "panel_border": "border: 1.5px solid #aac7e3; border-top: 2px solid #ffffff;",
+        "focus_ring": "border: 1.5px solid #009ce0;",
     },
     "mint": {
-        "rad_lg": "7px", "rad_md": "5px", "rad_tab": "6px", "rad_pill": "10px",
+        "rad_lg": "8px", "rad_md": "6px", "rad_tab": "7px", "rad_pill": "11px",
         "kick_ls": "0.35px", "btn_ls": "0.2px", "scroll_w": "12px",
-        "tab_accent": "border-bottom: 2px solid #66c770; border-top: 1px solid #4e5963;",
-        "panel_border": "border: 1px solid #363e46; border-top: 1px solid #525d68;",
-        "focus_ring": "border: 1px solid #66c770;",
+        "tab_accent": "border-bottom: 2px solid #69cf72; border-top: 1px solid #4d6b58;",
+        "panel_border": "border: 1px solid #2c3f34; border-top: 1px solid #4c6b58;",
+        "focus_ring": "border: 1px solid #69cf72;",
     },
 }
 
@@ -2108,7 +2118,7 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
             p.drawLine(QPointF(w * 0.12, h * 0.94), QPointF(w * 0.92, h * 0.08))
             p.setPen(QPen(QColor(240, 10, 6, 95), 2.0))
             p.drawLine(QPointF(0, 1.5), QPointF(w, 1.5))
-            p.setPen(QPen(QColor(150, 0, 0, 56), 1.0))
+            p.setPen(QPen(QColor(214, 168, 84, 48), 0.9))
             p.drawLine(QPointF(18, 5.5), QPointF(w - 18, 5.5))
             p.setPen(Qt.PenStyle.NoPen)
             p.setBrush(QColor(255, 20, 14, 155))
@@ -2116,94 +2126,110 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
             p.setBrush(QColor(180, 0, 0, 130))
             p.drawPolygon(QPolygonF([QPointF(w, h), QPointF(w - 14, h), QPointF(w, h - 14)]))
         elif k == "kreatendo":
-            # Nintendo Wii / Wii U / DS / 3DS dark frosted channel glass canvas
-            bg.setColorAt(0.0, QColor("#151d2b"))
-            bg.setColorAt(0.48, QColor("#0f1520"))
-            bg.setColorAt(1.0, QColor("#080b12"))
+            # Nintendo Wii / Wii U / DS / 3DS LIGHT ceramic porcelain & sky-channel canvas
+            bg.setColorAt(0.0, QColor("#f7fbff"))
+            bg.setColorAt(0.48, QColor("#ebf4fd"))
+            bg.setColorAt(1.0, QColor("#dceaf8"))
             p.fillRect(0, 0, w, h, bg)
-            # Soft Wii / Wii U Aqua-Sky radial atmosphere (top-left) + Miiverse Mint glow (bottom-right)
-            l_glow = QRadialGradient(w * 0.14, h * 0.16, max(w, h) * 0.72)
-            l_glow.setColorAt(0.0, QColor(41, 199, 255, 64))
-            l_glow.setColorAt(0.45, QColor(0, 130, 200, 24))
-            l_glow.setColorAt(1.0, QColor(0, 0, 0, 0))
+            # Joyful translucent Wii U WaraWara-style pastel atmospheric glows
+            l_glow = QRadialGradient(w * 0.14, h * 0.14, max(w, h) * 0.68)
+            l_glow.setColorAt(0.0, QColor(0, 178, 245, 42))
+            l_glow.setColorAt(0.45, QColor(90, 205, 255, 16))
+            l_glow.setColorAt(1.0, QColor(255, 255, 255, 0))
             p.fillRect(0, 0, w, h, l_glow)
-            r_glow = QRadialGradient(w * 0.88, h * 0.82, max(w, h) * 0.56)
-            r_glow.setColorAt(0.0, QColor(44, 224, 181, 44))
-            r_glow.setColorAt(0.48, QColor(20, 145, 130, 16))
-            r_glow.setColorAt(1.0, QColor(0, 0, 0, 0))
+            r_glow = QRadialGradient(w * 0.86, h * 0.82, max(w, h) * 0.56)
+            r_glow.setColorAt(0.0, QColor(34, 204, 130, 34))
+            r_glow.setColorAt(0.50, QColor(255, 190, 46, 14))
+            r_glow.setColorAt(1.0, QColor(255, 255, 255, 0))
             p.fillRect(0, 0, w, h, r_glow)
-            # Classic Wii Channel / 3DS HOME subtle horizontal frosted scanlines
-            p.setPen(QPen(QColor(180, 222, 255, 9), 1.0))
-            for sy in range(10, h, 14):
+            # Classic Wii Menu clean horizontal silver-sky pinstripe scanlines
+            p.setPen(QPen(QColor(135, 178, 218, 28), 1.0))
+            for sy in range(8, h, 10):
                 p.drawLine(0, sy, w, sy)
-            # Glossy curved Wii / Wii U dome reflection arc across upper viewport
+            # Glossy white ceramic dome reflection sweep across top viewport
             arc = QPainterPath()
-            arc.moveTo(-24, h * 0.34)
-            arc.quadTo(w * 0.50, h * 0.12, w + 24, h * 0.32)
+            arc.moveTo(-24, h * 0.30)
+            arc.quadTo(w * 0.50, h * 0.10, w + 24, h * 0.28)
             arc.lineTo(w + 24, 0)
             arc.lineTo(-24, 0)
             arc.closeSubpath()
-            hg = QLinearGradient(0, 0, 0, h * 0.36)
-            hg.setColorAt(0.0, QColor(225, 246, 255, 20))
-            hg.setColorAt(1.0, QColor(225, 246, 255, 0))
+            hg = QLinearGradient(0, 0, 0, h * 0.32)
+            hg.setColorAt(0.0, QColor(255, 255, 255, 165))
+            hg.setColorAt(1.0, QColor(255, 255, 255, 0))
             p.setPen(Qt.PenStyle.NoPen)
             p.setBrush(hg)
             p.drawPath(arc)
-            # Subtle rounded Wii Channel / 3DS HOME grid tile outlines in background
-            tile_step = 68
-            p.setBrush(Qt.BrushStyle.NoBrush)
-            p.setPen(QPen(QColor(115, 204, 255, 13), 1.0))
+            # Soft rounded Wii Channel / 3DS HOME grid tile cards
+            tile_step = 72
+            p.setBrush(QColor(255, 255, 255, 52))
+            p.setPen(QPen(QColor(115, 175, 224, 42), 1.0))
             for gy in range(18, h - 24, tile_step):
                 for gx in range(18, w - 24, tile_step):
                     if ((gx // tile_step) + (gy // tile_step)) % 3 == 0:
-                        p.drawRoundedRect(QRectF(gx, gy, 44, 30), 8.0, 8.0)
-            # Glowing top Wii Disc-Slot Aqua lightbar
+                        p.drawRoundedRect(QRectF(gx, gy, 46, 32), 9.0, 9.0)
+            # Colorful playful Wii U / 3DS floating bubbles
+            p.setPen(Qt.PenStyle.NoPen)
+            for bx_f, by_f, br, rgba in (
+                (0.12, 0.24, 5.0, (0, 168, 232, 46)),
+                (0.84, 0.20, 4.4, (25, 184, 122, 46)),
+                (0.24, 0.78, 3.8, (255, 184, 28, 48)),
+                (0.76, 0.74, 4.2, (235, 92, 108, 40)),
+                (0.52, 0.16, 3.2, (0, 155, 224, 38)),
+            ):
+                p.setBrush(QColor(*rgba))
+                p.drawEllipse(QPointF(w * bx_f, h * by_f), br, br)
+            # Luminous top Wii Disc-Slot Aqua + Miiverse Mint lightbar
             rail = QLinearGradient(0, 0, w, 0)
-            rail.setColorAt(0.0, QColor(41, 199, 255, 0))
-            rail.setColorAt(0.22, QColor(41, 199, 255, 130))
-            rail.setColorAt(0.50, QColor(210, 248, 255, 185))
-            rail.setColorAt(0.78, QColor(44, 224, 181, 125))
-            rail.setColorAt(1.0, QColor(44, 224, 181, 0))
-            p.setPen(QPen(QBrush(rail), 2.1))
+            rail.setColorAt(0.0, QColor(0, 166, 235, 0))
+            rail.setColorAt(0.20, QColor(0, 166, 235, 185))
+            rail.setColorAt(0.50, QColor(56, 206, 255, 230))
+            rail.setColorAt(0.80, QColor(25, 184, 122, 180))
+            rail.setColorAt(1.0, QColor(25, 184, 122, 0))
+            p.setPen(QPen(QBrush(rail), 2.4))
             p.drawLine(QPointF(14, 2.0), QPointF(w - 14, 2.0))
-            # Subtle DS/3DS Dual-Screen + Classic D-Pad + 3DS Home ring watermark bottom-right
+            # Crisp DS / 3DS Dual-Screen + D-Pad + colorful Nintendo ABXY badge bottom-right
             if w >= 220 and h >= 140:
-                bx, by = w - 82.0, h - 28.0
-                # Classic Nintendo D-Pad silhouette
+                bx, by = w - 92.0, h - 28.0
                 p.setPen(Qt.PenStyle.NoPen)
-                p.setBrush(QColor(150, 224, 255, 54))
-                p.drawRoundedRect(QRectF(bx + 10, by + 2, 5.2, 16.0), 1.5, 1.5)
-                p.drawRoundedRect(QRectF(bx + 4.6, by + 7.4, 16.0, 5.2), 1.5, 1.5)
-                # DS / 3DS / Wii U dual-screen glyph
-                p.setBrush(Qt.BrushStyle.NoBrush)
-                p.setPen(QPen(QColor(76, 211, 255, 68), 1.4))
-                p.drawRoundedRect(QRectF(bx + 29, by + 1, 20, 10), 2.5, 2.5)
-                p.setPen(QPen(QColor(44, 224, 181, 68), 1.3))
-                p.drawRoundedRect(QRectF(bx + 32, by + 13, 14, 8), 2.2, 2.2)
-                # Subtle glowing HOME halo dot
-                p.setPen(QPen(QColor(255, 209, 102, 62), 1.3))
-                p.drawEllipse(QPointF(bx + 60, by + 10.5), 5.5, 5.5)
+                p.setBrush(QColor(115, 152, 190, 95))
+                p.drawRoundedRect(QRectF(bx + 8, by + 2, 5.2, 16.0), 1.6, 1.6)
+                p.drawRoundedRect(QRectF(bx + 2.6, by + 7.4, 16.0, 5.2), 1.6, 1.6)
+                p.setBrush(QColor(255, 255, 255, 130))
+                p.setPen(QPen(QColor(0, 150, 219, 135), 1.4))
+                p.drawRoundedRect(QRectF(bx + 26, by + 1, 20, 10), 2.8, 2.8)
+                p.setPen(QPen(QColor(25, 184, 122, 135), 1.3))
+                p.drawRoundedRect(QRectF(bx + 29, by + 13, 14, 8), 2.4, 2.4)
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(QColor(0, 150, 219, 155))
+                p.drawEllipse(QPointF(bx + 59, by + 5.0), 2.5, 2.5)
+                p.setBrush(QColor(224, 62, 74, 155))
+                p.drawEllipse(QPointF(bx + 65, by + 10.5), 2.5, 2.5)
+                p.setBrush(QColor(235, 162, 0, 165))
+                p.drawEllipse(QPointF(bx + 59, by + 16.0), 2.5, 2.5)
+                p.setBrush(QColor(20, 170, 104, 160))
+                p.drawEllipse(QPointF(bx + 53, by + 10.5), 2.5, 2.5)
         elif k == "mint":
-            # Linux Mint Cinnamon / Mint-Y-Dark neutral dark charcoal canvas + fresh botanical green accents
-            bg.setColorAt(0.0, QColor("#21262b"))
-            bg.setColorAt(0.48, QColor("#181c20"))
-            bg.setColorAt(1.0, QColor("#111417"))
+            # Linux Mint Cinnamon / Mint-Y-Dark nature-inspired evergreen-charcoal botanical canvas
+            bg.setColorAt(0.0, QColor("#18241d"))
+            bg.setColorAt(0.46, QColor("#121a16"))
+            bg.setColorAt(1.0, QColor("#0a100d"))
             p.fillRect(0, 0, w, h, bg)
-            # Clean restrained Mint-green atmospheric glow (neutral dark backdrop remains crisp!)
-            m1 = QRadialGradient(w * 0.20, h * 0.16, max(w, h) * 0.68)
-            m1.setColorAt(0.0, QColor(102, 199, 112, 42))
-            m1.setColorAt(0.45, QColor(68, 150, 82, 14))
+            # Serene canopy leaf-green atmospheric glow + soft alpine-jade mist
+            m1 = QRadialGradient(w * 0.18, h * 0.15, max(w, h) * 0.72)
+            m1.setColorAt(0.0, QColor(112, 212, 118, 52))
+            m1.setColorAt(0.42, QColor(54, 145, 76, 20))
             m1.setColorAt(1.0, QColor(0, 0, 0, 0))
             p.fillRect(0, 0, w, h, m1)
-            m2 = QRadialGradient(w * 0.86, h * 0.84, max(w, h) * 0.52)
-            m2.setColorAt(0.0, QColor(86, 194, 207, 26))
+            m2 = QRadialGradient(w * 0.86, h * 0.84, max(w, h) * 0.56)
+            m2.setColorAt(0.0, QColor(76, 199, 184, 34))
+            m2.setColorAt(0.50, QColor(42, 120, 88, 14))
             m2.setColorAt(1.0, QColor(0, 0, 0, 0))
             p.fillRect(0, 0, w, h, m2)
-            # Subtle organic botanical curves (silver-sage + mint accents on dark graphite)
+            # Flowing organic botanical leaf-vein ribbons
             for y0, lift, col_rgba, lw in (
-                (0.76, 0.22, (117, 212, 125, 34), 1.6),
-                (0.85, 0.18, (186, 202, 212, 20), 1.15),
-                (0.22, -0.12, (86, 194, 207, 20), 1.05),
+                (0.76, 0.23, (135, 207, 62, 34), 1.6),
+                (0.84, 0.18, (112, 212, 118, 28), 1.25),
+                (0.22, -0.12, (76, 199, 184, 24), 1.1),
             ):
                 stem = QPainterPath()
                 stem.moveTo(-16, h * y0)
@@ -2215,36 +2241,36 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
                 p.setBrush(Qt.BrushStyle.NoBrush)
                 p.setPen(QPen(QColor(*col_rgba), lw))
                 p.drawPath(stem)
-            # Subtle warm silver & mint dew points
+            # Gentle firefly / forest dew points
             p.setPen(Qt.PenStyle.NoPen)
             for mx, my, mr, is_mint in (
-                (0.14, 0.24, 2.2, True), (0.33, 0.70, 1.8, False), (0.60, 0.26, 2.4, True),
-                (0.77, 0.48, 1.7, False), (0.85, 0.21, 2.1, True), (0.46, 0.80, 1.6, False),
+                (0.14, 0.24, 2.3, True), (0.33, 0.70, 1.8, False), (0.60, 0.26, 2.5, True),
+                (0.77, 0.48, 1.8, False), (0.85, 0.21, 2.2, True), (0.46, 0.80, 1.7, False),
             ):
-                p.setBrush(QColor(117, 212, 125, 34) if is_mint else QColor(215, 224, 232, 22))
-                p.drawEllipse(QPointF(w * mx, h * my), mr * 2.0, mr * 2.0)
-                p.setBrush(QColor(232, 255, 236, 56) if is_mint else QColor(238, 241, 244, 42))
+                p.setBrush(QColor(135, 207, 62, 38) if is_mint else QColor(125, 224, 190, 26))
+                p.drawEllipse(QPointF(w * mx, h * my), mr * 2.1, mr * 2.1)
+                p.setBrush(QColor(232, 255, 228, 66) if is_mint else QColor(220, 250, 240, 48))
                 p.drawEllipse(QPointF(w * mx, h * my), mr, mr)
-            # Crisp Mint-Y top hairline bar
+            # Crisp Cinnamon Mint-Y top leaf hairline bar
             rail = QLinearGradient(0, 0, w, 0)
-            rail.setColorAt(0.0, QColor(102, 199, 112, 0))
-            rail.setColorAt(0.25, QColor(102, 199, 112, 120))
-            rail.setColorAt(0.50, QColor(200, 245, 206, 150))
-            rail.setColorAt(0.75, QColor(86, 194, 207, 100))
-            rail.setColorAt(1.0, QColor(86, 194, 207, 0))
-            p.setPen(QPen(QBrush(rail), 1.8))
+            rail.setColorAt(0.0, QColor(105, 207, 114, 0))
+            rail.setColorAt(0.24, QColor(105, 207, 114, 135))
+            rail.setColorAt(0.50, QColor(214, 255, 202, 175))
+            rail.setColorAt(0.76, QColor(76, 199, 184, 115))
+            rail.setColorAt(1.0, QColor(76, 199, 184, 0))
+            p.setPen(QPen(QBrush(rail), 1.9))
             p.drawLine(QPointF(16, 2.0), QPointF(w - 16, 2.0))
-            # Subtle bottom-right Mint Leaf silhouette watermark
+            # Subtle bottom-right Mint Leaf emblem watermark
             if w >= 220 and h >= 140:
-                bx, by = w - 42.0, h - 36.0
+                bx, by = w - 44.0, h - 38.0
                 leaf = QPainterPath()
-                leaf.moveTo(bx, by + 22)
-                leaf.cubicTo(bx, by + 4, bx + 10, by, bx + 26, by)
-                leaf.cubicTo(bx + 26, by + 16, bx + 16, by + 22, bx, by + 22)
-                p.setBrush(QColor(102, 199, 112, 34))
-                p.setPen(QPen(QColor(138, 217, 142, 76), 1.3))
+                leaf.moveTo(bx, by + 24)
+                leaf.cubicTo(bx, by + 4, bx + 11, by, bx + 28, by)
+                leaf.cubicTo(bx + 28, by + 17, bx + 17, by + 24, bx, by + 24)
+                p.setBrush(QColor(105, 207, 114, 42))
+                p.setPen(QPen(QColor(152, 232, 146, 92), 1.35))
                 p.drawPath(leaf)
-                p.drawLine(QPointF(bx + 4, by + 18), QPointF(bx + 20, by + 4))
+                p.drawLine(QPointF(bx + 4, by + 20), QPointF(bx + 22, by + 4))
         else:
             # Sarif Gold: Deus Ex: HR Neo-Baroque Cyber-Renaissance carbon & amber
             bg.setColorAt(0.0, QColor("#141007"))
@@ -3077,24 +3103,91 @@ QFrame#StreamHud {{
     border-radius: {U['rad_md']};
 }}
 QFrame#DeckOfflineBanner {{
-    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #3a1a0c, stop:0.5 #2c1409, stop:1 #221008);
+    background: {'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #fff5e0, stop:0.5 #ffebc4, stop:1 #ffe3b0)' if is_light_theme() else 'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #3a1a0c, stop:0.5 #2c1409, stop:1 #221008)'};
     border: 1px solid {C['warn']};
     border-radius: {U['rad_md']};
 }}
 QFrame#OfflineBanner {{
-    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-        stop:0 #3a1208, stop:0.55 #2a0d06, stop:1 #1a0704);
+    background: {'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #fff4de, stop:0.55 #ffe7bf, stop:1 #ffdca6)' if is_light_theme() else 'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #3a1208, stop:0.55 #2a0d06, stop:1 #1a0704)'};
     border: 1px solid {C['warn']};
     border-left: 3px solid {C['err']};
     border-radius: {U['rad_md']};
 }}
 QLabel#DirtyBadge {{
-    background: {C['acc_deep']};
+    background: {'#fff1cc' if is_light_theme() else C['acc_deep']};
     color: {C['warn']};
     border: 1px solid {C['warn']};
     border-radius: {U['rad_pill']};
     padding: 1px 6px;
     font-weight: 700;
+}}
+QTabWidget#LlmSubTabs > QTabBar::tab {{
+    padding: {pvs_val}px 6px;
+    margin-right: 2px;
+    font-size: {f_rib}pt;
+    font-weight: 700;
+}}
+QFrame#MemBanner {{
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 {C['plate_hi']}, stop:1 {C['plate_lo']});
+    border: 1px solid {C['line_hi']};
+    border-left: 3px solid {C['acc_mid']};
+    border-radius: {U['rad_md']};
+}}
+QFrame#ArenaCard {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['plate_hi']}, stop:1 {C['plate_lo']});
+    border: 1.5px solid {C['line']};
+    border-radius: {U['rad_lg']};
+}}
+QFrame#ArenaCardWin {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['tab_on_hi']}, stop:1 {C['plate_lo']});
+    border: 2px solid {C['ok']};
+    border-radius: {U['rad_lg']};
+}}
+QPushButton#VoteWinBtn {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['acc_hi']}, stop:0.5 {C['acc_mid']}, stop:1 {C['acc_lo']});
+    color: {C['acc_text']};
+    border: 1.5px solid {C['acc_edge']};
+    border-radius: {U['rad_md']};
+    padding: {pv + 1}px {ph}px;
+    font-weight: 700;
+}}
+QPushButton#VoteWinBtn:hover {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['acc_hov_hi']}, stop:0.5 {C['acc_hov_mid']}, stop:1 {C['acc_hov_lo']});
+}}
+QPushButton#VoteWinBtn:checked {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #32cc7a, stop:0.5 #199e59, stop:1 #0f6e3d);
+    color: #ffffff;
+    border: 1.5px solid #a8ffd0;
+}}
+QPushButton#VoteTieBtn {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['btn_hi']}, stop:1 {C['btn_lo']});
+    color: {C['text']};
+    border: 1px solid {C['line_hi']};
+    border-radius: {U['rad_md']};
+    padding: {pv + 1}px {ph}px;
+    font-weight: 700;
+}}
+QPushButton#VoteTieBtn:checked {{
+    background: {C['sel_bg']};
+    color: {C['text_hi']};
+    border: 1.5px solid {C['warn']};
+}}
+QToolButton#StarBtn {{
+    background: {C['btn_mid']};
+    color: {C['muted']};
+    border: 1px solid {C['line']};
+    border-radius: {U['rad_pill']};
+    padding: 1px 6px;
+    font-weight: 700;
+}}
+QToolButton#StarBtn:hover {{
+    border: 1px solid {C['warn']};
+    color: {C['warn']};
+}}
+QToolButton#StarBtn:checked {{
+    background: {'#ffbe2e' if is_light_theme() else '#7a4d08'};
+    color: {'#261400' if is_light_theme() else '#fff4c2'};
+    border: 1.5px solid {'#b86e00' if is_light_theme() else '#ffd04d'};
 }}
 """
     if k == "seestation":
@@ -4099,18 +4192,19 @@ def build_svg_document(asset_key: str, palette: Optional[Dict[str, str]] = None)
         if is_kreatendo:
             return (
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>{defs}"
-                "<rect x='1.5' y='1.5' width='21' height='21' rx='7.0' fill='#121a29' stroke='#4cd3ff' stroke-width='1.6'/>"
-                "<rect x='4.8' y='4.6' width='14.4' height='7.4' rx='2.2' fill='#00a2e8' stroke='#c4f4ff' stroke-width='0.9'/>"
-                "<rect x='6.4' y='13.6' width='11.2' height='5.8' rx='2.0' fill='#142436' stroke='#2ce0b5' stroke-width='1.2'/>"
-                "<circle cx='14.8' cy='16.5' r='1.3' fill='#ffd166'/>"
+                "<rect x='1.5' y='1.5' width='21' height='21' rx='7.2' fill='#ffffff' stroke='#009ce0' stroke-width='1.8'/>"
+                "<rect x='4.8' y='4.4' width='14.4' height='7.4' rx='2.2' fill='#26bfff' stroke='#0074b8' stroke-width='0.9'/>"
+                "<rect x='6.4' y='13.4' width='11.2' height='5.8' rx='2.0' fill='#f0f8ff' stroke='#19b87a' stroke-width='1.3'/>"
+                "<circle cx='14.6' cy='16.3' r='1.5' fill='#f5a600'/>"
+                "<circle cx='9.6' cy='16.3' r='1.3' fill='#e03c4e'/>"
                 "</svg>"
             )
         if is_mint:
             return (
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>{defs}"
-                "<circle cx='12' cy='12' r='10.4' fill='#1e2328' stroke='#66c770' stroke-width='1.7'/>"
-                "<path d='M6.6,17.0 C6.6,9.6 10.2,6.6 17.4,6.6 C17.4,13.8 14.0,17.0 6.6,17.0 Z' fill='#66c770' stroke='#e8ffec' stroke-width='0.95'/>"
-                "<path d='M8.0,15.6 L15.6,8.2' stroke='#162119' stroke-width='1.5' stroke-linecap='round'/>"
+                "<circle cx='12' cy='12' r='10.4' fill='#142019' stroke='#6fd678' stroke-width='1.8'/>"
+                "<path d='M6.6,17.0 C6.6,9.6 10.2,6.6 17.4,6.6 C17.4,13.8 14.0,17.0 6.6,17.0 Z' fill='#6fd678' stroke='#e8ffec' stroke-width='0.95'/>"
+                "<path d='M8.0,15.6 L15.6,8.2' stroke='#122417' stroke-width='1.6' stroke-linecap='round'/>"
                 "</svg>"
             )
         return (
@@ -4767,15 +4861,15 @@ def _cursor_theme_tokens(theme_key: str) -> Dict[str, str]:
         }
     if k == "kreatendo":
         return {
-            "fill1": "#1e2c42", "fill2": "#0e1522", "rim": "#ffffff",
-            "acc": "#29c7ff", "acc2": "#2ce0b5", "gem": "#e8fbff",
-            "shadow": "#060910", "warn": "#ff5c6c", "join": "round",
+            "fill1": "#ffffff", "fill2": "#e2f1fc", "rim": "#0f2d4d",
+            "acc": "#009ce0", "acc2": "#19b87a", "gem": "#ffbe2e",
+            "shadow": "#0b223b", "warn": "#d62d3d", "join": "round",
         }
     if k == "mint":
         return {
-            "fill1": "#2f363d", "fill2": "#1a1e22", "rim": "#f2f5f7",
-            "acc": "#66c770", "acc2": "#358744", "gem": "#e3ffea",
-            "shadow": "#0b0d0f", "warn": "#ef645b", "join": "round",
+            "fill1": "#283b30", "fill2": "#141f18", "rim": "#edf7f0",
+            "acc": "#6fd678", "acc2": "#358744", "gem": "#e8ffec",
+            "shadow": "#080f0b", "warn": "#ef645b", "join": "round",
         }
     # Sarif Gold (Deus Ex: HR)
     return {
@@ -5854,6 +5948,372 @@ def load_llm_settings() -> Dict[str, Any]:
 
 def save_llm_settings(data: Dict[str, Any]) -> None:
     write_text(LLM_SETTINGS_FILE, json.dumps(data, indent=2, ensure_ascii=False))
+
+
+# ---- Self-Improving PreferencesMemory Store (separate per model stack) -------
+class PreferencesMemoryStore:
+    """Crash-safe per-model preference memory database stored inside data/:
+      - data/preferences_memory_krea.json   (Krea 2 Turbo)
+      - data/preferences_memory_anima.json  (Anima 2 Turbo)
+      - data/preferences_memory_moss.json   (Moss)
+
+    Stores ONLY the raw content/scene prompt pairs ('good' and 'bad'), optional
+    user-made rating (1..5, NEVER Horde aesthetic rating), timestamp, and optional
+    short user request note. NEVER stores generated images or applied templates."""
+
+    def __init__(self, files: Optional[Dict[str, str]] = None) -> None:
+        self._files: Dict[str, str] = dict(files or PREF_MEMORY_FILES)
+        self._cache: Dict[str, List[Dict[str, Any]]] = {}
+        self._lock = threading.Lock()
+
+    @staticmethod
+    def normalize_stack(stack: str) -> str:
+        s = str(stack or "krea").strip().lower()
+        if s in ("anima", "anime", "anima2", "anima-turbo-v1.1"):
+            return "anime"
+        if s in ("moss", "moss-s", "moss-image-sft"):
+            return "moss"
+        return "krea"
+
+    def path_for(self, stack: str) -> str:
+        key = self.normalize_stack(stack)
+        return self._files.get(key, PREF_MEMORY_FILES["krea"])
+
+    @staticmethod
+    def _clean_entry(raw: Any) -> Optional[Dict[str, Any]]:
+        if not isinstance(raw, dict):
+            return None
+        good = " ".join(str(raw.get("good") or "").split()).strip()
+        bad = " ".join(str(raw.get("bad") or "").split()).strip()
+        if not good or not bad:
+            return None
+        rating_raw = raw.get("rating")
+        rating: Optional[int] = None
+        if rating_raw is not None and rating_raw != "":
+            try:
+                rv = int(rating_raw)
+                if 1 <= rv <= 5:
+                    rating = rv
+            except (TypeError, ValueError):
+                rating = None
+        try:
+            created = float(raw.get("created_at") or time.time())
+        except (TypeError, ValueError):
+            created = time.time()
+        eid = str(raw.get("id") or f"pm_{int(created * 1000)}_{secrets.token_hex(3)}")
+        req = " ".join(str(raw.get("request") or "").split()).strip()[:260]
+        return {
+            "id": eid,
+            "created_at": created,
+            "good": good,
+            "bad": bad,
+            "rating": rating,
+            "request": req,
+        }
+
+    def load(self, stack: str, force: bool = False) -> List[Dict[str, Any]]:
+        key = self.normalize_stack(stack)
+        with self._lock:
+            if not force and key in self._cache:
+                return copy.deepcopy(self._cache[key])
+            path = self.path_for(key)
+            bak = path + ".bak"
+            loaded: List[Dict[str, Any]] = []
+            for cand in (path, bak):
+                if not os.path.isfile(cand):
+                    continue
+                try:
+                    with open(cand, "r", encoding="utf-8") as fh:
+                        doc = json.load(fh)
+                    raw_items = doc.get("entries") if isinstance(doc, dict) else (doc if isinstance(doc, list) else [])
+                    if isinstance(raw_items, list):
+                        for item in raw_items:
+                            cleaned = self._clean_entry(item)
+                            if cleaned is not None:
+                                loaded.append(cleaned)
+                        break
+                except (OSError, ValueError):
+                    continue
+            loaded.sort(key=lambda e: float(e.get("created_at", 0.0)))
+            self._cache[key] = loaded
+            return copy.deepcopy(loaded)
+
+    def _save_locked(self, key: str, items: List[Dict[str, Any]]) -> bool:
+        path = self.path_for(key)
+        bak = path + ".bak"
+        parent = os.path.dirname(path)
+        try:
+            if parent:
+                os.makedirs(parent, exist_ok=True)
+            tmp = f"{path}.tmp.{os.getpid()}"
+            doc = {
+                "version": 1,
+                "stack": key,
+                "model_label": PREF_MEMORY_LABELS.get(key, key),
+                "updated_at": time.time(),
+                "entries": items,
+            }
+            with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+                json.dump(doc, fh, indent=2, ensure_ascii=False)
+                fh.flush()
+                try:
+                    os.fsync(fh.fileno())
+                except OSError:
+                    pass
+            if os.path.isfile(path):
+                try:
+                    shutil.copy2(path, bak)
+                except OSError:
+                    pass
+            os.replace(tmp, path)
+            return True
+        except OSError as exc:
+            STUDIO_LOG.error("SYS", f"Failed saving PreferencesMemory ({key}): {exc}")
+            return False
+
+    def add_pair(
+        self,
+        stack: str,
+        good_prompt: str,
+        bad_prompt: str,
+        rating: Optional[int] = None,
+        request: str = "",
+    ) -> Optional[Dict[str, Any]]:
+        """Persist a non-Tie Good/Bad content-prompt pair (NEVER template, NEVER images)."""
+        key = self.normalize_stack(stack)
+        now = time.time()
+        entry = self._clean_entry({
+            "id": f"pm_{int(now * 1000)}_{secrets.token_hex(3)}",
+            "created_at": now,
+            "good": good_prompt,
+            "bad": bad_prompt,
+            "rating": rating,
+            "request": request,
+        })
+        if entry is None:
+            return None
+        if key not in self._cache:
+            self.load(key, force=True)
+        with self._lock:
+            items = list(self._cache.get(key, []))
+            items.append(entry)
+            items.sort(key=lambda e: float(e.get("created_at", 0.0)))
+            self._cache[key] = items
+            self._save_locked(key, items)
+            return copy.deepcopy(entry)
+
+    def update_rating(self, stack: str, entry_id: str, rating: Optional[int]) -> bool:
+        key = self.normalize_stack(stack)
+        if key not in self._cache:
+            self.load(key, force=True)
+        norm_r: Optional[int] = None
+        if rating is not None:
+            try:
+                rv = int(rating)
+                if 1 <= rv <= 5:
+                    norm_r = rv
+            except (TypeError, ValueError):
+                norm_r = None
+        with self._lock:
+            items = self._cache.get(key, [])
+            for item in items:
+                if item.get("id") == entry_id:
+                    item["rating"] = norm_r
+                    self._save_locked(key, items)
+                    return True
+            return False
+
+    def delete_entry(self, stack: str, entry_id: str) -> bool:
+        key = self.normalize_stack(stack)
+        if key not in self._cache:
+            self.load(key, force=True)
+        with self._lock:
+            items = self._cache.get(key, [])
+            before = len(items)
+            items = [e for e in items if e.get("id") != entry_id]
+            if len(items) == before:
+                return False
+            self._cache[key] = items
+            self._save_locked(key, items)
+            return True
+
+    def prune_oldest(self, stack: str, count: int) -> int:
+        """Delete up to `count` oldest entries (by created_at ascending) from `stack` DB."""
+        key = self.normalize_stack(stack)
+        n = max(0, int(count))
+        if n <= 0:
+            return 0
+        if key not in self._cache:
+            self.load(key, force=True)
+        with self._lock:
+            items = sorted(self._cache.get(key, []), key=lambda e: float(e.get("created_at", 0.0)))
+            removed = min(n, len(items))
+            if removed <= 0:
+                return 0
+            kept = items[removed:]
+            self._cache[key] = kept
+            self._save_locked(key, kept)
+            return removed
+
+    def clear(self, stack: str) -> int:
+        key = self.normalize_stack(stack)
+        if key not in self._cache:
+            self.load(key, force=True)
+        with self._lock:
+            removed = len(self._cache.get(key, []))
+            self._cache[key] = []
+            self._save_locked(key, [])
+            return removed
+
+    def stats(self, stack: str) -> Dict[str, Any]:
+        items = self.load(stack)
+        rated = [int(e["rating"]) for e in items if isinstance(e.get("rating"), int)]
+        avg_r = (sum(rated) / len(rated)) if rated else 0.0
+        est_tok = 0
+        for e in items:
+            est_tok += estimate_tokens(e.get("good", "")) + estimate_tokens(e.get("bad", "")) + 18
+        return {
+            "count": len(items),
+            "rated_count": len(rated),
+            "avg_rating": avg_r,
+            "est_tokens": est_tok,
+        }
+
+
+def _format_pref_example_xml(entry: Dict[str, Any]) -> str:
+    rating = entry.get("rating")
+    r_attr = f' rating="{int(rating)}/5"' if isinstance(rating, int) and 1 <= rating <= 5 else ""
+    good = xml_escape(str(entry.get("good") or "").strip())
+    bad = xml_escape(str(entry.get("bad") or "").strip())
+    return f"  <Example{r_attr}>\n    <Good>{good}</Good>\n    <Bad>{bad}</Bad>\n  </Example>"
+
+
+def build_self_improving_system_prompt(
+    stack: str,
+    entries: Sequence[Dict[str, Any]],
+    user_input: str = "",
+    context_length: int = DEFAULT_LLM_CONTEXT_LENGTH,
+    max_output_tokens: int = 0,
+    rng: Optional[random.Random] = None,
+) -> Dict[str, Any]:
+    """Assemble the Self-Improving system prompt with XML-tagged <PreferencesMemory>.
+
+    Design rules honored strictly:
+    - Keeps prompting guidance deliberately vague so the LLM infers the user's
+      preferences primarily from the Good/Bad examples rather than rigid constraints.
+    - Prompts describe ONLY content/scene (omitting medium-specific style), in two
+      genuinely different & distinctive approaches that both follow the user's request.
+    - Packs as many memory entries as fit within `context_length` alongside the rest
+      of the system prompt, user input, and output reserve.
+    - When more entries exist than fit in the context window, randomly selects which
+      entries to include within the available limit.
+    - Orders all included entries from highest-rated to lowest-rated (5 -> 1 -> unrated)."""
+    stack_key = PreferencesMemoryStore.normalize_stack(stack)
+    model_lbl = PREF_MEMORY_LABELS.get(stack_key, "Image Model")
+    ctx_limit = max(1024, int(context_length or DEFAULT_LLM_CONTEXT_LENGTH))
+    out_reserve = int(max_output_tokens) if int(max_output_tokens or 0) > 0 else min(1024, max(384, ctx_limit // 5))
+    out_reserve = min(out_reserve, max(256, ctx_limit // 2))
+    total = len(entries)
+
+    if total > 0:
+        base_prompt = (
+            "You write pairs of image prompts for a user.\n"
+            "Given the user's request, write TWO distinct prompts (<prompt_a> and <prompt_b>) that both satisfy "
+            "the user's request while approaching it in two genuinely different ways (different wording, prompt "
+            "structure, framing, composition, or design choices).\n"
+            "Describe ONLY the scene and content — omit medium-specific style directives (do not specify art "
+            "medium, rendering style, camera/lens style, or boilerplate quality tags).\n"
+            "Below is an XML <PreferencesMemory> section containing past <Example> pairs where <Good> is the "
+            "prompt the user preferred (with their personal 1-5 rating when available, ordered from highest-rated "
+            "to lowest-rated) and <Bad> is the alternative they rejected. Rely primarily on these examples to "
+            "infer what the user likes and dislikes, and let that understanding shape both new prompts while "
+            "keeping A and B meaningfully distinct from each other.\n"
+            "Output ONLY the two prompts wrapped in <prompt_a>...</prompt_a> and <prompt_b>...</prompt_b> "
+            "with no extra commentary."
+        )
+    else:
+        base_prompt = (
+            "You write pairs of image prompts for a user.\n"
+            "Given the user's request, write TWO distinct prompts (<prompt_a> and <prompt_b>) that both satisfy "
+            "the user's request while approaching it in two genuinely different ways (different wording, prompt "
+            "structure, framing, composition, or design choices).\n"
+            "Describe ONLY the scene and content — omit medium-specific style directives (do not specify art "
+            "medium, rendering style, camera/lens style, or boilerplate quality tags).\n"
+            "Output ONLY the two prompts wrapped in <prompt_a>...</prompt_a> and <prompt_b>...</prompt_b> "
+            "with no extra commentary."
+        )
+
+    base_tok = estimate_tokens(base_prompt)
+    user_tok = estimate_tokens(user_input or "")
+    overhead_tok = 140
+    avail_mem_tok = max(0, ctx_limit - base_tok - user_tok - out_reserve - overhead_tok)
+
+    selected: List[Dict[str, Any]] = []
+    sampled_randomly = False
+    mem_tok_used = 0
+
+    if total > 0 and avail_mem_tok > 32:
+        items_with_cost: List[Tuple[Dict[str, Any], str, int]] = []
+        total_mem_cost = 0
+        for e in entries:
+            xml_block = _format_pref_example_xml(e)
+            tok = estimate_tokens(xml_block) + 2
+            items_with_cost.append((e, xml_block, tok))
+            total_mem_cost += tok
+
+        if total_mem_cost <= avail_mem_tok:
+            chosen = items_with_cost
+            mem_tok_used = total_mem_cost
+        else:
+            # Too many entries for available context budget -> randomly choose which to include!
+            sampled_randomly = True
+            gen = rng if rng is not None else random
+            shuffled = list(items_with_cost)
+            gen.shuffle(shuffled)
+            chosen = []
+            acc = 0
+            for tup in shuffled:
+                if acc + tup[2] <= avail_mem_tok:
+                    chosen.append(tup)
+                    acc += tup[2]
+            mem_tok_used = acc
+
+        # Order included entries from highest-rated to lowest-rated (5 -> 4 -> 3 -> 2 -> 1 -> unrated)
+        chosen.sort(
+            key=lambda tup: (
+                -(int(tup[0]["rating"]) if isinstance(tup[0].get("rating"), int) else 0),
+                -float(tup[0].get("created_at") or 0.0),
+            )
+        )
+        selected = [tup[0] for tup in chosen]
+
+        if chosen:
+            examples_xml = "\n".join(tup[1] for tup in chosen)
+            mem_xml = (
+                f'\n\n<PreferencesMemory target="{xml_escape(model_lbl)}" '
+                f'included="{len(chosen)}" total="{total}" order="highest-rated-first">\n'
+                f"<Examples>\n{examples_xml}\n</Examples>\n</PreferencesMemory>"
+            )
+            full_sys = base_prompt + mem_xml
+        else:
+            full_sys = base_prompt
+    else:
+        full_sys = base_prompt
+
+    used_tok = estimate_tokens(full_sys) + user_tok
+    return {
+        "system_prompt": full_sys,
+        "included": len(selected),
+        "total": total,
+        "used_tokens": used_tok,
+        "mem_tokens": mem_tok_used,
+        "budget_tokens": ctx_limit,
+        "avail_mem_tokens": avail_mem_tok,
+        "sampled_randomly": sampled_randomly,
+    }
+
+
+PREF_MEMORY = PreferencesMemoryStore()
 
 
 # ---- Foldered LoRA library (data/loras.json) --------------------------------
@@ -10131,10 +10591,11 @@ class StreamingPromptParser:
             return []
 
         newly: List[str] = []
+        max_items = 2 if self.mode == "pair" else 10000
         if self._used_xml:
-            while True:
+            while len(self.emitted) < max_items:
                 tail = self._visible_buf[self._scan_pos:]
-                m_open = self._OPEN_PROMPT_RE.search(tail)
+                m_open = self._open_tag_re.search(tail)
                 if m_open is None:
                     break
                 tag_name = re.escape(m_open.group(1))
@@ -10148,13 +10609,34 @@ class StreamingPromptParser:
                     self.emitted.append(inner)
                     newly.append(inner)
             tail2 = self._visible_buf[self._scan_pos:]
-            m_open = self._OPEN_PROMPT_RE.search(tail2)
-            if m_open is not None:
-                rem = re.sub(r"</?(?:prompt(?:_\d+)?|item)\b[^>]*>", "", tail2[m_open.end():], flags=re.I)
+            m_open = self._open_tag_re.search(tail2)
+            if m_open is not None and len(self.emitted) < max_items:
+                rem = re.sub(r"</?(?:prompt(?:_[a-z0-9]+)?|candidate_[ab]|option_[ab]|[ab]|item)\b[^>]*>", "", tail2[m_open.end():], flags=re.I)
                 rem = " ".join(xml_unescape(rem).split()).strip()
                 if len(rem) >= (18 if stopped else 10):
                     self.emitted.append(rem)
                     newly.append(rem)
+        elif self.mode == "pair" and not self.emitted and _strip_code_fences(self._visible_buf).lstrip().startswith("{"):
+            # Fallback JSON object parsing: {"prompt_a": "...", "prompt_b": "..."} or {"a": "...", "b": "..."}
+            try:
+                jdoc = json.loads(_strip_code_fences(self._visible_buf))
+                if isinstance(jdoc, dict):
+                    for ka in ("prompt_a", "a", "A", "first", "prompt_1", "option_a"):
+                        va = jdoc.get(ka)
+                        if isinstance(va, str) and va.strip():
+                            pa = " ".join(va.split()).strip()
+                            self.emitted.append(pa)
+                            newly.append(pa)
+                            break
+                    for kb in ("prompt_b", "b", "B", "second", "prompt_2", "option_b"):
+                        vb = jdoc.get(kb)
+                        if isinstance(vb, str) and vb.strip():
+                            pb = " ".join(vb.split()).strip()
+                            self.emitted.append(pb)
+                            newly.append(pb)
+                            break
+            except ValueError:
+                pass
         elif self._used_json:
             newly.extend(self._drain_json_strings())
             rem = self._visible_buf[self._json_scan_pos:].lstrip(" \t\r\n,")
@@ -12677,7 +13159,13 @@ class JobWorker(QThread):
                     0.0,
                 )
                 return
-            STUDIO_LOG.ok("HORDE", f"Job #{jid} complete ({len(paths)} image(s))")
+            n_expected = max(1, int((job.payload.get("params") or {}).get("n") or 1))
+            if len(paths) < n_expected:
+                note = f"Delivered {len(paths)}/{n_expected} image(s) (remaining lost to CDN/filter)"
+                self.progress.emit(jid, {"message": note})
+                STUDIO_LOG.warn("HORDE", f"Job #{jid} partial delivery: {note}")
+            else:
+                STUDIO_LOG.ok("HORDE", f"Job #{jid} complete ({len(paths)} image(s))")
             self._emit_completed(paths, STATE_DONE)
             return
 
@@ -16618,11 +17106,22 @@ class _AutoFitIconTabBar(QTabBar):
         return QSize(max(162, self.count() * 18), self._rail_h)
 
     def paintEvent(self, event) -> None:  # noqa: N802
-        super().paintEvent(event)
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
         cur = self.currentIndex()
         tkey = resolve_theme_key(C.get("key", "seestation"))
+        base_ico_px = max(12, self.iconSize().width())
+
+        # Draw each tab shape via active QSS/style, then paint its vector icon
+        # mathematically dead-center inside tabRect(i) (NEVER left-glued by Fusion!).
+        for i in range(self.count()):
+            if i == cur:
+                continue
+            self._paint_single_icon_tab(p, i, False, base_ico_px)
+        if 0 <= cur < self.count():
+            self._paint_single_icon_tab(p, cur, True, base_ico_px)
+
         if cur >= 0:
             tr = QRectF(self.tabRect(cur)).adjusted(0.5, 0.5, -0.5, -0.5)
             if tr.width() >= 6 and tr.height() >= 6:
@@ -16654,20 +17153,20 @@ class _AutoFitIconTabBar(QTabBar):
                     p.drawRect(QRectF(tr.left() + 1.0, tr.bottom() - 2.0, max(2.0, tr.width() - 2.0), 1.8))
                 elif tkey == "kreatendo":
                     bar = QLinearGradient(tr.left() + 2, 0, tr.right() - 2, 0)
-                    bar.setColorAt(0.0, QColor("#29c7ff"))
-                    bar.setColorAt(0.5, QColor("#c8f5ff"))
-                    bar.setColorAt(1.0, QColor("#2ce0b5"))
+                    bar.setColorAt(0.0, QColor("#009ce0"))
+                    bar.setColorAt(0.5, QColor("#2cc4ff"))
+                    bar.setColorAt(1.0, QColor("#19b87a"))
                     p.setPen(Qt.PenStyle.NoPen)
                     p.setBrush(bar)
-                    p.drawRoundedRect(QRectF(tr.left() + 2.5, tr.bottom() - 3.0, max(4.0, tr.width() - 5.0), 2.6), 1.3, 1.3)
+                    p.drawRoundedRect(QRectF(tr.left() + 2.5, tr.bottom() - 3.0, max(4.0, tr.width() - 5.0), 2.8), 1.4, 1.4)
                 elif tkey == "mint":
                     bar = QLinearGradient(tr.left() + 3, 0, tr.right() - 3, 0)
                     bar.setColorAt(0.0, QColor(C["acc_mid"]))
-                    bar.setColorAt(0.5, QColor(C["acc_spec"]))
+                    bar.setColorAt(0.5, QColor("#87cf3e"))
                     bar.setColorAt(1.0, QColor(C["acc_mid"]))
                     p.setPen(Qt.PenStyle.NoPen)
                     p.setBrush(bar)
-                    p.drawRoundedRect(QRectF(tr.left() + 3.0, tr.bottom() - 2.6, max(4.0, tr.width() - 6.0), 2.3), 1.1, 1.1)
+                    p.drawRoundedRect(QRectF(tr.left() + 3.0, tr.bottom() - 2.6, max(4.0, tr.width() - 6.0), 2.4), 1.2, 1.2)
                 else:
                     p.setPen(Qt.PenStyle.NoPen)
                     p.setBrush(QColor(C["acc_spec"]))
@@ -16686,10 +17185,10 @@ class _AutoFitIconTabBar(QTabBar):
             if qr.width() >= 14:
                 if self._queue_offline and self._queue_badge > 0:
                     badge_col = QColor(C["warn"])
-                    txt_col = QColor("#120902")
+                    txt_col = QColor("#ffffff" if is_light_theme() else "#120902")
                     lbl = "!"
                 elif self._queue_badge > 0:
-                    badge_col = QColor(C["acc_hi"])
+                    badge_col = QColor(C["acc_mid"] if is_light_theme() else C["acc_hi"])
                     txt_col = QColor(C["acc_text"])
                     lbl = str(min(9, self._queue_badge))
                 else:
@@ -16721,7 +17220,7 @@ class _AutoFitIconTabBar(QTabBar):
                 p.setPen(QPen(QColor(C["win2"]), 0.9))
                 p.drawEllipse(br)
                 p.setFont(_font(5.8, True))
-                p.setPen(QColor("#06131c"))
+                p.setPen(QColor("#ffffff" if is_light_theme() else "#06131c"))
                 p.drawText(br, Qt.AlignmentFlag.AlignCenter, str(min(9, self._lora_count)))
 
         # Unsaved Edit indicator dot on TAB_EDIT
@@ -16733,10 +17232,37 @@ class _AutoFitIconTabBar(QTabBar):
                 p.drawEllipse(QRectF(er.right() - 8.5, er.top() + 2.0, 6.8, 6.8))
         p.end()
 
+    def _paint_single_icon_tab(self, p: QPainter, index: int, selected: bool, base_ico_px: int) -> None:
+        opt = QStyleOptionTab()
+        self.initStyleOption(opt, index)
+        icon = self.tabIcon(index)
+        opt.icon = QIcon()
+        opt.text = ""
+        self.style().drawControl(QStyle.ControlElement.CE_TabBarTabShape, opt, p, self)
+        if icon.isNull():
+            return
+        tr = self.tabRect(index)
+        if tr.width() < 8 or tr.height() < 8:
+            return
+        # Fit icon cleanly inside the tab rectangle with balanced padding and exact mathematical centering
+        pad_x = 4 if tr.width() >= 22 else 2
+        pad_y = 4 if tr.height() >= 22 else 2
+        isz = max(12, min(base_ico_px, tr.width() - pad_x * 2, tr.height() - pad_y * 2))
+        cx = tr.left() + (tr.width() - isz) // 2
+        cy = tr.top() + (tr.height() - isz) // 2
+        mode = QIcon.Mode.Active if selected else (QIcon.Mode.Normal if self.isTabEnabled(index) else QIcon.Mode.Disabled)
+        state = QIcon.State.On if selected else QIcon.State.Off
+        p.save()
+        if not selected and not (opt.state & QStyle.StateFlag.State_MouseOver):
+            p.setOpacity(0.84 if not is_light_theme() else 0.88)
+        icon.paint(p, QRect(cx, cy, isz, isz), Qt.AlignmentFlag.AlignCenter, mode, state)
+        p.restore()
+
 
 class _AutoFitTextTabBar(QTabBar):
-    """Zero-scroll equal-distribution sub-tab bar (for Edit sub-tabs) that fits
-    cleanly on narrow 800x600 laptop panels without scroll buttons."""
+    """Zero-scroll equal-distribution labeled tab bar (for LLM sub-tabs, Edit sub-tabs,
+    and Right Stage tabs) that mathematically centers [icon + label] inside every tab
+    element — never gluing icons to the left side — and fits cleanly at 800x600."""
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -16746,7 +17272,7 @@ class _AutoFitTextTabBar(QTabBar):
         self.setElideMode(Qt.TextElideMode.ElideRight)
 
     def minimumSizeHint(self) -> QSize:  # noqa: N802
-        return QSize(max(1, self.count()) * 32, max(24, int(round(25 * ui_scale()))))
+        return QSize(max(1, self.count()) * 32, max(24, int(round(26 * ui_scale()))))
 
     def tabSizeHint(self, index: int) -> QSize:  # noqa: N802
         n = max(1, self.count())
@@ -16754,8 +17280,84 @@ class _AutoFitTextTabBar(QTabBar):
         avail = max(n * 32, pw - 2)
         base = avail // n
         rem = avail - base * n
-        h = max(24, int(round(26 * ui_scale())), super().tabSizeHint(index).height())
+        h = max(24, int(round(27 * ui_scale())), super().tabSizeHint(index).height())
         return QSize(max(32, base + (1 if index < rem else 0)), h)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
+        cur = self.currentIndex()
+        for i in range(self.count()):
+            if i == cur:
+                continue
+            self._paint_centered_tab(p, i, False)
+        if 0 <= cur < self.count():
+            self._paint_centered_tab(p, cur, True)
+        p.end()
+
+    def _paint_centered_tab(self, p: QPainter, index: int, selected: bool) -> None:
+        opt = QStyleOptionTab()
+        self.initStyleOption(opt, index)
+        icon = self.tabIcon(index)
+        text = self.tabText(index)
+        opt.icon = QIcon()
+        opt.text = ""
+        self.style().drawControl(QStyle.ControlElement.CE_TabBarTabShape, opt, p, self)
+
+        tr = self.tabRect(index)
+        if tr.width() < 8 or tr.height() < 8:
+            return
+        inner = tr.adjusted(5, 2, -5, -3)
+        has_icon = not icon.isNull()
+        has_text = bool(text)
+        isz = max(12, min(self.iconSize().width() or 14, inner.height() - 2, inner.width() - 2)) if has_icon else 0
+        gap = 5 if (has_icon and has_text) else 0
+
+        fnt = self.font()
+        fnt.setBold(True)
+        p.setFont(fnt)
+        fm = QFontMetrics(fnt)
+
+        mode = QIcon.Mode.Active if selected else (QIcon.Mode.Normal if self.isTabEnabled(index) else QIcon.Mode.Disabled)
+        state = QIcon.State.On if selected else QIcon.State.Off
+        hovered = bool(opt.state & QStyle.StateFlag.State_MouseOver)
+        txt_col = QColor(C["text_hi"] if (selected or hovered) else C["muted"])
+        if not self.isTabEnabled(index):
+            txt_col = QColor(C["dim"])
+
+        if has_icon and not has_text:
+            ix = inner.left() + (inner.width() - isz) // 2
+            iy = inner.top() + (inner.height() - isz) // 2
+            icon.paint(p, QRect(ix, iy, isz, isz), Qt.AlignmentFlag.AlignCenter, mode, state)
+            return
+
+        if has_icon and has_text:
+            max_tw = max(0, inner.width() - isz - gap)
+            if max_tw < 14:
+                # Ultra-narrow: center icon cleanly instead of clipping text
+                ix = inner.left() + (inner.width() - isz) // 2
+                iy = inner.top() + (inner.height() - isz) // 2
+                icon.paint(p, QRect(ix, iy, isz, isz), Qt.AlignmentFlag.AlignCenter, mode, state)
+                return
+            elided = fm.elidedText(text, Qt.TextElideMode.ElideRight, max_tw)
+            tw = min(max_tw, fm.horizontalAdvance(elided))
+            group_w = isz + gap + tw
+            start_x = inner.left() + max(0, (inner.width() - group_w) // 2)
+            iy = inner.top() + (inner.height() - isz) // 2
+            icon.paint(p, QRect(start_x, iy, isz, isz), Qt.AlignmentFlag.AlignCenter, mode, state)
+            p.setPen(txt_col)
+            p.drawText(
+                QRect(start_x + isz + gap, inner.top(), tw + 2, inner.height()),
+                Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft,
+                elided,
+            )
+            return
+
+        if has_text:
+            elided = fm.elidedText(text, Qt.TextElideMode.ElideRight, max(8, inner.width()))
+            p.setPen(txt_col)
+            p.drawText(inner, Qt.AlignmentFlag.AlignCenter, elided)
 
 
 class _CompactStackedWidget(QStackedWidget):
@@ -19751,6 +20353,730 @@ class TagEditorDialog(QDialog):
         if 0 <= idx < len(rows) and 0 <= t < len(rows):
             rows[idx], rows[t] = rows[t], rows[idx]
             self._refill_groups(t)
+
+
+class PreferencesMemoryDialog(QDialog):
+    """Preferences Memory Editor (v15.0): inspect Good/Bad preference pairs stored
+    separately for Krea 2 Turbo, Anima 2 Turbo, and Moss, edit user ratings (1-5),
+    delete individual items, or prune any chosen number of the oldest examples."""
+
+    memory_changed = pyqtSignal(str)
+
+    def __init__(
+        self,
+        store: PreferencesMemoryStore,
+        initial_stack: str = "krea",
+        context_length: int = DEFAULT_LLM_CONTEXT_LENGTH,
+        parent: Optional[QWidget] = None,
+    ) -> None:
+        super().__init__(parent)
+        self.store = store
+        self.stack = PreferencesMemoryStore.normalize_stack(initial_stack)
+        self.context_length = max(1024, int(context_length or DEFAULT_LLM_CONTEXT_LENGTH))
+        self._visible_entries: List[Dict[str, Any]] = []
+        self._selected_id: Optional[str] = None
+        self.setWindowTitle("Preferences Memory Editor — Self-Improving LLM")
+        self.setSizeGripEnabled(True)
+
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(9, 9, 9, 9)
+        lay.setSpacing(6)
+
+        # Model DB switcher (separate databases for Krea Turbo, Anima 2 Turbo, Moss)
+        top_row = QHBoxLayout()
+        top_row.setSpacing(0)
+        self.stack_group = QButtonGroup(self)
+        self.stack_group.setExclusive(True)
+        self.stack_btns: Dict[str, QPushButton] = {}
+        for sk, lbl, obj in (
+            ("krea", "Krea 2 Turbo", "SegL"),
+            ("anime", "Anima 2 Turbo", "Seg"),
+            ("moss", "Moss", "SegR"),
+        ):
+            b = QPushButton(lbl)
+            b.setObjectName(obj)
+            b.setCheckable(True)
+            b.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.stack_group.addButton(b)
+            self.stack_btns[sk] = b
+            top_row.addWidget(b, 1)
+        self.stack_btns[self.stack].setChecked(True)
+        self.stack_group.buttonClicked.connect(self._on_stack_clicked)
+        lay.addLayout(top_row)
+
+        # Stats banner
+        self.stats_lbl = make_label("", "InfoBar")
+        self.stats_lbl.setWordWrap(True)
+        lay.addWidget(self.stats_lbl)
+
+        # Filter + Sort bar
+        f_row = QHBoxLayout()
+        f_row.setSpacing(5)
+        self.search_ed = QLineEdit()
+        self.search_ed.setPlaceholderText("Filter pairs by prompt text or request\u2026")
+        self.search_ed.setClearButtonEnabled(True)
+        self.search_ed.textChanged.connect(lambda _t: self._reload_list())
+        self.sort_combo = QComboBox()
+        self.sort_combo.addItem("Newest First", "newest")
+        self.sort_combo.addItem("Oldest First", "oldest")
+        self.sort_combo.addItem("Highest Rated First", "rating")
+        self.sort_combo.currentIndexChanged.connect(lambda _i: self._reload_list())
+        f_row.addWidget(self.search_ed, 2)
+        f_row.addWidget(self.sort_combo, 1)
+        lay.addLayout(f_row)
+
+        # Main split: Entry List (left) + Pair Inspector (right)
+        sp = QSplitter(Qt.Orientation.Horizontal)
+        self.entry_list = QListWidget()
+        self.entry_list.setAlternatingRowColors(True)
+        self.entry_list.setMinimumWidth(200)
+        self.entry_list.currentRowChanged.connect(self._on_row_selected)
+        sp.addWidget(self.entry_list)
+
+        insp = QWidget()
+        il = QVBoxLayout(insp)
+        il.setContentsMargins(6, 0, 0, 0)
+        il.setSpacing(4)
+
+        self.meta_lbl = make_label("Select a pair to inspect", "Caption")
+        self.meta_lbl.setWordWrap(True)
+        il.addWidget(self.meta_lbl)
+
+        # Inline User Rating editor (1..5 or Unrated)
+        r_row = QHBoxLayout()
+        r_row.setSpacing(3)
+        r_row.addWidget(make_label("User Rating:", "Caption"))
+        self.rate_group = QButtonGroup(self)
+        self.rate_group.setExclusive(True)
+        self.rate_btns: Dict[Optional[int], QToolButton] = {}
+        for rv, lbl in ((None, "None"), (1, "1\u2605"), (2, "2\u2605"), (3, "3\u2605"), (4, "4\u2605"), (5, "5\u2605")):
+            rb = QToolButton()
+            rb.setObjectName("StarBtn")
+            rb.setText(lbl)
+            rb.setCheckable(True)
+            rb.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.rate_group.addButton(rb)
+            self.rate_btns[rv] = rb
+            r_row.addWidget(rb)
+        self.rate_group.buttonClicked.connect(self._on_rating_clicked)
+        r_row.addStretch(1)
+        self.del_entry_btn = make_button("DELETE", self._delete_selected, small=True, tip="Delete the selected memory pair")
+        r_row.addWidget(self.del_entry_btn)
+        il.addLayout(r_row)
+
+        gh = QHBoxLayout()
+        gh.setSpacing(4)
+        gh.addWidget(make_label("GOOD PROMPT  (Preferred)", "Kicker"), 1)
+        gh.addWidget(make_button("COPY", lambda: QApplication.clipboard().setText(self.good_edit.toPlainText()), small=True))
+        il.addLayout(gh)
+        self.good_edit = QPlainTextEdit()
+        self.good_edit.setObjectName("SmallEdit")
+        self.good_edit.setReadOnly(True)
+        self.good_edit.setMinimumHeight(68)
+        il.addWidget(self.good_edit, 1)
+
+        bh = QHBoxLayout()
+        bh.setSpacing(4)
+        bh.addWidget(make_label("BAD PROMPT  (Rejected)", "Caption"), 1)
+        bh.addWidget(make_button("COPY", lambda: QApplication.clipboard().setText(self.bad_edit.toPlainText()), small=True))
+        il.addLayout(bh)
+        self.bad_edit = QPlainTextEdit()
+        self.bad_edit.setObjectName("SmallEdit")
+        self.bad_edit.setReadOnly(True)
+        self.bad_edit.setMinimumHeight(68)
+        il.addWidget(self.bad_edit, 1)
+
+        sp.addWidget(insp)
+        sp.setStretchFactor(0, 2)
+        sp.setStretchFactor(1, 3)
+        lay.addWidget(sp, 1)
+
+        # Dedicated Prune Oldest Examples Bar
+        prune_frame = QFrame()
+        prune_frame.setObjectName("Plate")
+        pl = QHBoxLayout(prune_frame)
+        pl.setContentsMargins(7, 5, 7, 5)
+        pl.setSpacing(5)
+        pl.addWidget(make_label("Prune oldest:", "Caption"))
+        self.prune_spin = QSpinBox()
+        self.prune_spin.setRange(1, 9999)
+        self.prune_spin.setValue(5)
+        self.prune_spin.setFixedWidth(64)
+        self.prune_spin.setToolTip("Number of oldest preference pairs to remove from this model's database")
+        pl.addWidget(self.prune_spin)
+        for qn in (5, 10, 25):
+            pl.addWidget(make_button(str(qn), lambda _c=False, v=qn: self.prune_spin.setValue(v), small=True))
+        self.prune_btn = make_button(
+            "PRUNE OLDEST",
+            self._prune_oldest,
+            accent=True,
+            small=True,
+            icon_key="prune",
+            icon_size=12,
+            tip="Remove the oldest N entries from the active model's PreferencesMemory database",
+        )
+        pl.addWidget(self.prune_btn)
+        pl.addStretch(1)
+        pl.addWidget(make_button("EXPORT\u2026", self._export_db, small=True))
+        pl.addWidget(make_button("CLEAR DB", self._clear_db, small=True))
+        pl.addWidget(make_button("CLOSE", self.accept, small=True))
+        lay.addWidget(prune_frame)
+
+        apply_adaptive_dialog_geometry(self, 740, 510, min_w=560, min_h=380)
+        self._reload_list()
+
+    def _on_stack_clicked(self, btn: QPushButton) -> None:
+        for sk, b in self.stack_btns.items():
+            if b is btn:
+                self.stack = sk
+                self._selected_id = None
+                self._reload_list()
+                return
+
+    def _reload_list(self) -> None:
+        all_entries = self.store.load(self.stack, force=False)
+        st = self.store.stats(self.stack)
+        mlbl = PREF_MEMORY_LABELS.get(self.stack, self.stack)
+        rel_path = os.path.relpath(self.store.path_for(self.stack), BASE_DIR)
+        probe = build_self_improving_system_prompt(
+            self.stack, all_entries, "", context_length=self.context_length
+        )
+        fit_note = (
+            f"fits all {probe['included']}/{probe['total']}"
+            if not probe["sampled_randomly"]
+            else f"random sample ~{probe['included']}/{probe['total']} fit ctx"
+        )
+        avg_txt = f"avg {st['avg_rating']:.1f}\u2605" if st["rated_count"] else "unrated"
+        self.stats_lbl.setText(
+            f"{mlbl}  \u00b7  {st['count']} pair(s) ({st['rated_count']} rated, {avg_txt})  \u00b7  "
+            f"~{st['est_tokens']:,} tok / {self.context_length:,} ctx ({fit_note})  \u00b7  {rel_path}"
+        )
+        self.prune_spin.setMaximum(max(1, len(all_entries)))
+        if all_entries and self.prune_spin.value() > len(all_entries):
+            self.prune_spin.setValue(min(5, len(all_entries)))
+        self.prune_btn.setEnabled(bool(all_entries))
+
+        q = self.search_ed.text().strip().lower()
+        filtered = [
+            e for e in all_entries
+            if not q
+            or q in e.get("good", "").lower()
+            or q in e.get("bad", "").lower()
+            or q in e.get("request", "").lower()
+        ]
+        mode = str(self.sort_combo.currentData() or "newest")
+        if mode == "oldest":
+            filtered.sort(key=lambda e: float(e.get("created_at", 0.0)))
+        elif mode == "rating":
+            filtered.sort(
+                key=lambda e: (
+                    -(int(e["rating"]) if isinstance(e.get("rating"), int) else 0),
+                    -float(e.get("created_at", 0.0)),
+                )
+            )
+        else:
+            filtered.sort(key=lambda e: -float(e.get("created_at", 0.0)))
+
+        self._visible_entries = filtered
+        self.entry_list.blockSignals(True)
+        self.entry_list.clear()
+        sel_row = -1
+        for idx, e in enumerate(filtered):
+            r = e.get("rating")
+            stars = ("\u2605" * int(r)) if isinstance(r, int) else "Unrated"
+            ts = time.strftime("%Y-%m-%d %H:%M", time.localtime(float(e.get("created_at", 0.0))))
+            snip = elide(e.get("good", ""), 66)
+            it = QListWidgetItem(f"[{stars}]  {ts}\n{snip}")
+            it.setData(Qt.ItemDataRole.UserRole, e.get("id"))
+            self.entry_list.addItem(it)
+            if e.get("id") == self._selected_id:
+                sel_row = idx
+        self.entry_list.blockSignals(False)
+
+        if filtered:
+            target = sel_row if sel_row >= 0 else 0
+            self.entry_list.setCurrentRow(target)
+            self._on_row_selected(target)
+        else:
+            self._selected_id = None
+            self._show_entry(None)
+
+    def _on_row_selected(self, row: int) -> None:
+        if 0 <= row < len(self._visible_entries):
+            e = self._visible_entries[row]
+            self._selected_id = e.get("id")
+            self._show_entry(e)
+        else:
+            self._selected_id = None
+            self._show_entry(None)
+
+    def _show_entry(self, entry: Optional[Dict[str, Any]]) -> None:
+        has = entry is not None
+        self.del_entry_btn.setEnabled(has)
+        for rb in self.rate_btns.values():
+            rb.setEnabled(has)
+        if not entry:
+            self.meta_lbl.setText("No preference pairs stored yet for this model.")
+            self.good_edit.clear()
+            self.bad_edit.clear()
+            self.rate_btns[None].setChecked(True)
+            return
+        ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(float(entry.get("created_at", 0.0))))
+        req = entry.get("request") or ""
+        req_str = f"  \u00b7  Request: {elide(req, 78)}" if req else ""
+        self.meta_lbl.setText(f"Recorded {ts}{req_str}")
+        self.good_edit.setPlainText(entry.get("good", ""))
+        self.bad_edit.setPlainText(entry.get("bad", ""))
+        rv = entry.get("rating") if isinstance(entry.get("rating"), int) else None
+        self.rate_group.blockSignals(True)
+        btn = self.rate_btns.get(rv, self.rate_btns[None])
+        btn.setChecked(True)
+        self.rate_group.blockSignals(False)
+
+    def _on_rating_clicked(self, btn: QAbstractButton) -> None:
+        if not self._selected_id:
+            return
+        for rv, b in self.rate_btns.items():
+            if b is btn:
+                if self.store.update_rating(self.stack, self._selected_id, rv):
+                    self.memory_changed.emit(self.stack)
+                    self._reload_list()
+                return
+
+    def _delete_selected(self) -> None:
+        if not self._selected_id:
+            return
+        if self.store.delete_entry(self.stack, self._selected_id):
+            self._selected_id = None
+            self.memory_changed.emit(self.stack)
+            self._reload_list()
+
+    def _prune_oldest(self) -> None:
+        all_entries = self.store.load(self.stack, force=False)
+        if not all_entries:
+            return
+        n = min(int(self.prune_spin.value()), len(all_entries))
+        if n <= 0:
+            return
+        oldest_ts = time.strftime("%Y-%m-%d %H:%M", time.localtime(float(all_entries[0].get("created_at", 0.0))))
+        cutoff_ts = time.strftime("%Y-%m-%d %H:%M", time.localtime(float(all_entries[n - 1].get("created_at", 0.0))))
+        mlbl = PREF_MEMORY_LABELS.get(self.stack, self.stack)
+        ans = QMessageBox.question(
+            self,
+            "Prune Oldest Examples",
+            f"Remove the {n} oldest preference pair(s) from {mlbl}?\n"
+            f"Span: {oldest_ts} \u2192 {cutoff_ts}\n"
+            f"Remaining after prune: {len(all_entries) - n} pair(s).",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
+        )
+        if ans != QMessageBox.StandardButton.Yes:
+            return
+        removed = self.store.prune_oldest(self.stack, n)
+        if removed:
+            self._selected_id = None
+            self.memory_changed.emit(self.stack)
+            self._reload_list()
+
+    def _export_db(self) -> None:
+        mlbl = self.stack
+        dest, _ = QFileDialog.getSaveFileName(
+            self, "Export PreferencesMemory JSON", f"preferences_memory_{mlbl}.json", "JSON (*.json)"
+        )
+        if not dest:
+            return
+        entries = self.store.load(self.stack, force=False)
+        write_text(dest, json.dumps({"version": 1, "stack": self.stack, "entries": entries}, indent=2, ensure_ascii=False))
+
+    def _clear_db(self) -> None:
+        all_entries = self.store.load(self.stack, force=False)
+        if not all_entries:
+            return
+        mlbl = PREF_MEMORY_LABELS.get(self.stack, self.stack)
+        ans = QMessageBox.question(
+            self,
+            "Clear PreferencesMemory",
+            f"Delete ALL {len(all_entries)} stored pair(s) for {mlbl}?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
+        )
+        if ans != QMessageBox.StandardButton.Yes:
+            return
+        self.store.clear(self.stack)
+        self._selected_id = None
+        self.memory_changed.emit(self.stack)
+        self._reload_list()
+
+
+class _ArenaImageCanvas(QWidget):
+    """Aspect-preserving side-by-side image canvas with live animated rendering /
+    offline status overlays and click-to-inspect support."""
+
+    inspect_requested = pyqtSignal(str)
+    retry_requested = pyqtSignal()
+
+    def __init__(self, slot: str, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.slot = slot
+        self._path: Optional[str] = None
+        self._pixmap: Optional[QPixmap] = None
+        self._state: str = "idle"
+        self._detail: str = "Generate a pair to compare side-by-side"
+        self._progress: float = 0.0
+        self._offline: bool = False
+        self._winner: bool = False
+        self.setMinimumSize(140, 140)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def set_image(self, path: Optional[str]) -> None:
+        self._path = path if (path and os.path.isfile(path)) else None
+        self._pixmap = QPixmap(self._path) if self._path else None
+        if self._pixmap is not None and not self._pixmap.isNull():
+            self._state = "ready"
+            self._detail = ""
+            self._progress = 1.0
+            self._offline = False
+        self.update()
+
+    def set_status(self, state: str, detail: str = "", progress: float = 0.0, offline: bool = False) -> None:
+        self._state = str(state or "idle")
+        self._detail = str(detail or "")
+        self._progress = max(0.0, min(1.0, float(progress)))
+        self._offline = bool(offline)
+        if state in ("streaming", "queued", "rendering", "error", "idle"):
+            if state != "ready":
+                self._pixmap = None
+                self._path = None
+        self.update()
+
+    def set_winner(self, win: bool) -> None:
+        if self._winner != bool(win):
+            self._winner = bool(win)
+            self.update()
+
+    def mouseDoubleClickEvent(self, event) -> None:  # noqa: N802
+        if self._path and os.path.isfile(self._path):
+            self.inspect_requested.emit(self._path)
+            event.accept()
+            return
+        super().mouseDoubleClickEvent(event)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
+        r = QRectF(self.rect()).adjusted(1.0, 1.0, -1.0, -1.0)
+        tkey = resolve_theme_key(C.get("key", "seestation"))
+        frame = _theme_frame_path(r, tkey, rad_see=8.0, ch_gold=5.0)
+        p.setBrush(QColor(C["deep"]))
+        p.setPen(QPen(QColor(C["ok"] if self._winner else C["line"]), 2.0 if self._winner else 1.0))
+        p.drawPath(frame)
+
+        p.save()
+        p.setClipPath(frame)
+        if self._pixmap is not None and not self._pixmap.isNull():
+            avail = r.adjusted(4.0, 4.0, -4.0, -4.0)
+            sc = min(avail.width() / max(1, self._pixmap.width()), avail.height() / max(1, self._pixmap.height()))
+            tw = max(1, int(round(self._pixmap.width() * sc)))
+            th = max(1, int(round(self._pixmap.height() * sc)))
+            tx = int(round(avail.center().x() - tw / 2.0))
+            ty = int(round(avail.center().y() - th / 2.0))
+            p.drawPixmap(QRect(tx, ty, tw, th), self._pixmap)
+            if self._winner:
+                pill = QRectF(r.left() + 8.0, r.top() + 8.0, 74.0, 20.0)
+                p.setBrush(QColor(C["ok"]))
+                p.setPen(Qt.PenStyle.NoPen)
+                p.drawRoundedRect(pill, 6.0, 6.0)
+                p.setFont(_font(7.6, True))
+                p.setPen(QColor("#ffffff"))
+                p.drawText(pill, Qt.AlignmentFlag.AlignCenter, f"WINNER {self.slot}")
+        else:
+            cx, cy = r.center().x(), r.center().y()
+            if self._state in ("streaming", "queued", "rendering"):
+                anim_key = "anim_reconnecting" if self._offline else ("anim_generating" if self._state == "rendering" else "anim_waiting")
+                asz = max(32, min(58, int(min(r.width(), r.height()) * 0.28)))
+                apm = ANIM_ASSETS.pixmap(anim_key, ANIM_CLOCK.frame, asz, tkey)
+                p.drawPixmap(int(cx - asz / 2), int(cy - asz / 2 - 16), apm)
+                p.setFont(_font(8.8, True))
+                p.setPen(QColor(C["warn"] if self._offline else C["text_hi"]))
+                lbl = "Offline \u2014 Held Safely" if self._offline else (
+                    f"Streaming Prompt {self.slot}\u2026" if self._state == "streaming" else f"Candidate {self.slot}"
+                )
+                p.drawText(QRectF(r.left() + 8, cy + asz / 2 - 10, r.width() - 16, 18), Qt.AlignmentFlag.AlignCenter, lbl)
+                p.setFont(_font(7.6))
+                p.setPen(QColor(C["muted"]))
+                det = QFontMetrics(p.font()).elidedText(self._detail, Qt.TextElideMode.ElideRight, max(40, int(r.width() - 20)))
+                p.drawText(QRectF(r.left() + 8, cy + asz / 2 + 8, r.width() - 16, 16), Qt.AlignmentFlag.AlignCenter, det)
+                bw = max(60.0, min(180.0, r.width() - 36.0))
+                br = QRectF(cx - bw / 2.0, cy + asz / 2 + 28, bw, 5.0)
+                p.setBrush(QColor(C["plate_lo"]))
+                p.setPen(QPen(QColor(C["line"]), 0.8))
+                p.drawRoundedRect(br, 2.5, 2.5)
+                fw = max(6.0, (br.width() - 2.0) * max(0.08, self._progress))
+                p.setBrush(QColor(C["warn"] if self._offline else C["acc_mid"]))
+                p.setPen(Qt.PenStyle.NoPen)
+                p.drawRoundedRect(QRectF(br.left() + 1, br.top() + 1, fw, 3.0), 1.5, 1.5)
+            elif self._state == "error":
+                p.setFont(_font(9.2, True))
+                p.setPen(QColor(C["err"]))
+                p.drawText(QRectF(r.left() + 10, cy - 22, r.width() - 20, 20), Qt.AlignmentFlag.AlignCenter, f"Candidate {self.slot} Failed")
+                p.setFont(_font(7.8))
+                p.setPen(QColor(C["muted"]))
+                p.drawText(
+                    QRectF(r.left() + 12, cy, r.width() - 24, 48),
+                    Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextWordWrap,
+                    self._detail or "Generation error",
+                )
+            else:
+                p.setFont(_font(16.0, True))
+                p.setPen(QColor(C["line_hi"]))
+                p.drawText(QRectF(r.left(), cy - 26, r.width(), 28), Qt.AlignmentFlag.AlignCenter, self.slot)
+                p.setFont(_font(8.0))
+                p.setPen(QColor(C["muted"]))
+                p.drawText(
+                    QRectF(r.left() + 12, cy + 4, r.width() - 24, 34),
+                    Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextWordWrap,
+                    self._detail,
+                )
+        p.restore()
+        p.end()
+
+
+class ArenaImagePane(QFrame):
+    """One side (Candidate A or B) of the Self-Improving side-by-side A/B Arena."""
+
+    inspect_clicked = pyqtSignal(str)
+    save_clicked = pyqtSignal(str)
+    retry_clicked = pyqtSignal(str)
+
+    def __init__(self, slot: str, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.slot = slot
+        self._path: Optional[str] = None
+        self.setObjectName("ArenaCard")
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(6, 5, 6, 5)
+        lay.setSpacing(4)
+
+        hdr = QHBoxLayout()
+        hdr.setSpacing(4)
+        self.title_lbl = make_label(f"CANDIDATE {slot}", "Kicker")
+        self.status_lbl = ElideLabel("Idle")
+        self.status_lbl.setObjectName("Caption")
+        self.retry_btn = make_button("RETRY", lambda: self.retry_clicked.emit(self.slot), small=True, tip=f"Retry Candidate {slot} with the same seed")
+        self.retry_btn.setVisible(False)
+        self.inspect_btn = make_button("VIEW", self._on_inspect, small=True, tip=f"Open Image {slot} full-size in Viewer")
+        self.inspect_btn.setEnabled(False)
+        self.save_btn = make_button("SAVE", self._on_save, small=True, tip=f"Save Image {slot} to outputs/")
+        self.save_btn.setEnabled(False)
+        hdr.addWidget(self.title_lbl, 0)
+        hdr.addWidget(self.status_lbl, 1)
+        hdr.addWidget(self.retry_btn, 0)
+        hdr.addWidget(self.inspect_btn, 0)
+        hdr.addWidget(self.save_btn, 0)
+        lay.addLayout(hdr)
+
+        self.canvas = _ArenaImageCanvas(slot, self)
+        self.canvas.inspect_requested.connect(self.inspect_clicked.emit)
+        lay.addWidget(self.canvas, 1)
+
+        self.prompt_box = QPlainTextEdit()
+        self.prompt_box.setObjectName("SmallEdit")
+        self.prompt_box.setReadOnly(True)
+        self.prompt_box.setMaximumHeight(64)
+        self.prompt_box.setMinimumHeight(42)
+        self.prompt_box.setPlaceholderText(f"Content prompt {slot} (template-free) appears here\u2026")
+        lay.addWidget(self.prompt_box, 0)
+
+    def _on_inspect(self) -> None:
+        if self._path:
+            self.inspect_clicked.emit(self._path)
+
+    def _on_save(self) -> None:
+        if self._path:
+            self.save_clicked.emit(self._path)
+
+    def set_prompt_visible(self, vis: bool) -> None:
+        self.prompt_box.setVisible(bool(vis))
+
+    def set_prompt_text(self, text: str) -> None:
+        self.prompt_box.setPlainText(text or "")
+
+    def set_image(self, path: Optional[str]) -> None:
+        self._path = path if (path and os.path.isfile(path)) else None
+        self.canvas.set_image(self._path)
+        has = bool(self._path)
+        self.inspect_btn.setEnabled(has)
+        self.save_btn.setEnabled(has)
+        if has:
+            self.retry_btn.setVisible(False)
+            self.status_lbl.setText("Ready")
+
+    def set_status(self, state: str, detail: str = "", progress: float = 0.0, offline: bool = False) -> None:
+        if state != "ready":
+            self._path = None
+            self.inspect_btn.setEnabled(False)
+            self.save_btn.setEnabled(False)
+        self.retry_btn.setVisible(state == "error")
+        self.status_lbl.setText(detail or state.capitalize())
+        self.canvas.set_status(state, detail, progress, offline)
+
+    def set_winner(self, win: bool) -> None:
+        self.setObjectName("ArenaCardWin" if win else "ArenaCard")
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.canvas.set_winner(win)
+
+
+class SelfImprovingArenaWidget(QWidget):
+    """Side-by-Side A/B Comparison & Voting Stage for LLM Self-Improving Mode."""
+
+    vote_cast = pyqtSignal(str)          # "A" | "B" | "tie"
+    rating_changed = pyqtSignal(object)  # Optional[int] (1..5 or None)
+    inspect_image = pyqtSignal(str)
+    save_image = pyqtSignal(str)
+    retry_slot = pyqtSignal(str)         # "A" | "B"
+    open_memory_editor = pyqtSignal()
+    prompts_toggled = pyqtSignal(bool)
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self._rating: Optional[int] = None
+        self._vote: Optional[str] = None
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(4, 4, 4, 4)
+        lay.setSpacing(4)
+
+        # Header strip: Model, Same Seed badge, Round status, Utilities
+        top = QHBoxLayout()
+        top.setSpacing(4)
+        self.seed_lbl = ElideLabel("Self-Improving A/B Arena  \u00b7  Same-Seed Comparison")
+        self.seed_lbl.setObjectName("InfoBar")
+        self.prompts_btn = make_button("Prompts", None, small=True, checkable=True, tip="Show / hide content prompts under A and B")
+        self.prompts_btn.setChecked(True)
+        self.prompts_btn.toggled.connect(self._on_prompts_toggled)
+        self.mem_btn = make_button("Memory", self.open_memory_editor.emit, small=True, icon_key="memory_db", icon_size=12, tip="Open Preferences Memory Editor")
+        top.addWidget(self.seed_lbl, 1)
+        top.addWidget(self.prompts_btn, 0)
+        top.addWidget(self.mem_btn, 0)
+        lay.addLayout(top)
+
+        # Side-by-side comparison panes (Candidate A next to Candidate B!)
+        pair_row = QHBoxLayout()
+        pair_row.setSpacing(5)
+        self.pane_a = ArenaImagePane("A", self)
+        self.pane_b = ArenaImagePane("B", self)
+        for pn in (self.pane_a, self.pane_b):
+            pn.inspect_clicked.connect(self.inspect_image.emit)
+            pn.save_clicked.connect(self.save_image.emit)
+            pn.retry_clicked.connect(self.retry_slot.emit)
+        pair_row.addWidget(self.pane_a, 1)
+        pair_row.addWidget(self.pane_b, 1)
+        lay.addLayout(pair_row, 1)
+
+        # Vote & User Rating Console
+        vote_box = QFrame()
+        vote_box.setObjectName("Plate")
+        vl = QVBoxLayout(vote_box)
+        vl.setContentsMargins(7, 5, 7, 5)
+        vl.setSpacing(4)
+
+        vrow = QHBoxLayout()
+        vrow.setSpacing(5)
+        self.vote_a_btn = QPushButton("\u25C0  A IS BETTER")
+        self.vote_a_btn.setObjectName("VoteWinBtn")
+        self.vote_a_btn.setCheckable(True)
+        self.vote_a_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.vote_a_btn.setToolTip("Mark A as Good and B as Bad — saves content prompt pair to PreferencesMemory")
+        self.vote_a_btn.clicked.connect(lambda: self.vote_cast.emit("A"))
+
+        self.vote_tie_btn = QPushButton("\uFF1D  TIE  (Don't Save)")
+        self.vote_tie_btn.setObjectName("VoteTieBtn")
+        self.vote_tie_btn.setCheckable(True)
+        self.vote_tie_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.vote_tie_btn.setToolTip("Tie — skips saving to PreferencesMemory")
+        self.vote_tie_btn.clicked.connect(lambda: self.vote_cast.emit("tie"))
+
+        self.vote_b_btn = QPushButton("B IS BETTER  \u25B6")
+        self.vote_b_btn.setObjectName("VoteWinBtn")
+        self.vote_b_btn.setCheckable(True)
+        self.vote_b_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.vote_b_btn.setToolTip("Mark B as Good and A as Bad — saves content prompt pair to PreferencesMemory")
+        self.vote_b_btn.clicked.connect(lambda: self.vote_cast.emit("B"))
+
+        vrow.addWidget(self.vote_a_btn, 2)
+        vrow.addWidget(self.vote_tie_btn, 1)
+        vrow.addWidget(self.vote_b_btn, 2)
+        vl.addLayout(vrow)
+
+        rrow = QHBoxLayout()
+        rrow.setSpacing(3)
+        rrow.addWidget(make_label("Winner Rating (optional):", "Caption"))
+        self.star_btns: Dict[Optional[int], QToolButton] = {}
+        self.star_group = QButtonGroup(self)
+        self.star_group.setExclusive(True)
+        for rv, lbl in ((None, "None"), (1, "1\u2605"), (2, "2\u2605"), (3, "3\u2605"), (4, "4\u2605"), (5, "5\u2605")):
+            sb = QToolButton()
+            sb.setObjectName("StarBtn")
+            sb.setText(lbl)
+            sb.setCheckable(True)
+            sb.setCursor(Qt.CursorShape.PointingHandCursor)
+            sb.setToolTip("Optional user-made 1-5 quality rating saved with the winning prompt (NOT Horde aesthetic rating)")
+            self.star_group.addButton(sb)
+            self.star_btns[rv] = sb
+            rrow.addWidget(sb)
+        self.star_btns[None].setChecked(True)
+        self.star_group.buttonClicked.connect(self._on_star_clicked)
+        rrow.addStretch(1)
+        self.vote_feedback = ElideLabel("Forge & render a pair to vote.")
+        self.vote_feedback.setObjectName("Caption")
+        rrow.addWidget(self.vote_feedback, 1)
+        vl.addLayout(rrow)
+        lay.addWidget(vote_box, 0)
+
+        self.set_vote_enabled(False)
+
+    def _on_prompts_toggled(self, on: bool) -> None:
+        self.pane_a.set_prompt_visible(on)
+        self.pane_b.set_prompt_visible(on)
+        self.prompts_toggled.emit(on)
+
+    def _on_star_clicked(self, btn: QAbstractButton) -> None:
+        for rv, b in self.star_btns.items():
+            if b is btn:
+                self._rating = rv
+                self.rating_changed.emit(rv)
+                return
+
+    def set_rating_ui(self, rating: Optional[int]) -> None:
+        self._rating = rating if (isinstance(rating, int) and 1 <= rating <= 5) else None
+        self.star_group.blockSignals(True)
+        self.star_btns[self._rating].setChecked(True)
+        self.star_group.blockSignals(False)
+
+    def set_vote_enabled(self, enabled: bool) -> None:
+        for b in (self.vote_a_btn, self.vote_tie_btn, self.vote_b_btn):
+            b.setEnabled(bool(enabled))
+
+    def set_vote_ui(self, vote: Optional[str], feedback: str = "") -> None:
+        self._vote = vote
+        self.vote_a_btn.setChecked(vote == "A")
+        self.vote_tie_btn.setChecked(vote == "tie")
+        self.vote_b_btn.setChecked(vote == "B")
+        self.pane_a.set_winner(vote == "A")
+        self.pane_b.set_winner(vote == "B")
+        if feedback:
+            self.vote_feedback.setText(feedback)
+
+    def set_header(self, model_lbl: str, seed: str, mem_count: int) -> None:
+        seed_part = f"Same Seed: {seed}" if seed else "Same Seed: pending"
+        self.seed_lbl.setText(f"{model_lbl}  \u00b7  {seed_part}  \u00b7  Memory: {mem_count} pair(s)")
+
+    def tick_animation(self) -> None:
+        if self.pane_a.canvas._state in ("streaming", "queued", "rendering"):
+            self.pane_a.canvas.update()
+        if self.pane_b.canvas._state in ("streaming", "queued", "rendering"):
+            self.pane_b.canvas.update()
+
 
 # =============================================================================
 #  25. Main Workstation Window (800x600 Optimized East-Asian Chrome)
@@ -23743,13 +25069,7 @@ class MainWindow(QMainWindow):
                 if mode == "i2va":
                     role = "first frame" if i == 0 else f"reference {i}"
                 elif mode == "fl2va":
-                    role = "first frame" if i == 0 else ("last frame" if i == 1 else f"reference {i - 1}")
-                else:
-                    role = f"reference {i + 1}"
-            else:
-                role = f"source {i + 1}"
-            it.setText(f"{i + 1}: {role}")
-            it.setToolTip(f"{os.path.basename(path)}\nrole: {role}")
+                    role = "f{os.path.basename(path)}\nrole: {role}"
             lst.addItem(it)
         # auto-suggest the best motion mode for the new attachment count
         if self._llm_vision_task == "motion":
@@ -25091,7 +26411,7 @@ class MainWindow(QMainWindow):
         self.edit_split_group = QButtonGroup(self)
         self.edit_split_vert = QPushButton("Vertical │")
         self.edit_split_vert.setObjectName("SegL")
-        self.edit_split_vert.setCheckable(True)
+        self.edit_split_vert.st.setCheckable(True)
         self.edit_split_vert.setChecked(True)
         self.edit_split_vert.setToolTip("Split into left and right halves")
         self.edit_split_horz = QPushButton("Horizontal —")
@@ -26936,6 +28256,85 @@ class MainWindow(QMainWindow):
         # ---- The LIST (filter + search + sort applied) -------------------------
         keep_uid: Optional[str] = self._lora_detail_uid()  # capture BEFORE clear()
         q = self._lora_search.strip().lower()
+        sort_mode = str(self.lora_sort_combo.curr------------------
+    def _lora_ghost_text(self) -> str:
+        """Trigger words of the active LoRAs, in order, shown as locked ghost text."""
+        parts: List[str] = []
+        seen: Set[str] = set()
+        for entry in self._active_lora_entries():
+            trig = lora_selected_trigger(entry)
+            low = trig.lower()
+            if trig and low not in seen:
+                seen.add(low)
+                parts.append(trig)
+        return ", ".join(parts)
+
+    def _refresh_lora_ghost(self) -> None:
+        ghost = self._lora_ghost_text()
+        self.prompt_edit.set_ghost(ghost)
+        g0, g1 = self.prompt_edit.ghost_range()
+        self.prompt_hl.set_ghost_range(g0, g1)
+        self._rehighlight(self.prompt_hl, "_prompt_hl_busy")
+        self._update_preview()
+
+    def _with_lora_triggers(self, prompt: str) -> str:
+        """Append active LoRA trigger words not already present in the prompt."""
+        base = prompt.rstrip()
+        low = base.lower()
+        additions: List[str] = []
+        for entry in self._active_lora_entries():
+            trig = lora_selected_trigger(entry)
+            if trig and trig.lower() not in low:
+                additions.append(trig)
+        if not additions:
+            return base
+        if not base:
+            return ", ".join(additions)
+        return base + ", " + ", ".join(additions)
+
+    def _folder_icon_key(self, folder: str) -> str:
+        return _LORA_FOLDER_ICON_KEYS.get(folder, "folder_generic")
+
+    def _rebuild_lora_ui(self) -> None:
+        view_key = self._lora_view_key()
+        stack = self._browsed_lora_stack()
+        folders = self._lora_stack_folders(view_key)
+        if self._lora_folder_filter not in folders and self._lora_folder_filter != "ALL":
+            self._lora_folder_filter = "ALL"
+
+        # Stack switcher follows the browsed stack (v4.2: ANIMA / KREA 2 / MOSS-S)
+        btn = self.lora_stack_btns.get(view_key if view_key in LORA_STACK_KEYS else "krea")
+        if btn is not None:
+            btn.setChecked(True)
+
+        # Folder chip strip (one line, scrolls horizontally, per-folder counts)
+        self.lora_folder_flow.clear_items()
+        self.lora_folder_btns: Dict[str, FolderChipButton] = {}
+        chips: List[Tuple[str, str, str]] = [("ALL", C["acc_hi"], f"ALL \u00b7 {len(stack)}")]
+        for f in folders:
+            cnt = sum(1 for e in stack if e.get("folder") == f)
+            chips.append((f, lora_folder_color(f), f"{f} \u00b7 {cnt}"))
+        for fname, fcol, flabel in chips:
+            icon_key = "" if fname == "ALL" else self._folder_icon_key(fname)
+            chip = FolderChipButton(flabel, fcol, icon_key)
+            chip.setChecked(fname == self._lora_folder_filter)
+            chip.clicked.connect(lambda _c=False, f=fname: self._select_lora_folder(f))
+            if fname != "ALL":
+                chip.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+                chip.customContextMenuRequested.connect(
+                    lambda pos, f=fname, ch=None: self._lora_folder_menu(f)
+                )
+            self.lora_folder_group.addButton(chip)
+            self.lora_folder_flow.addWidget(chip)
+            self.lora_folder_btns[fname] = chip
+        if hasattr(self, "lora_folder_wrap"):
+            self.lora_folder_wrap.updateGeometry()
+            w_strip = max(180, self.lora_folder_strip.viewport().width() or 260)
+            want_h = min(82, max(28, self.lora_folder_flow.heightForWidth(w_strip) + 4))
+            self.lora_folder_strip.setFixedHeight(want_h)
+        # ---- The LIST (filter + search + sort applied) -------------------------
+        keep_uid: Optional[str] = self._lora_detail_uid()  # capture BEFORE clear()
+        q = self._lora_search.strip().lower()
         sort_mode = str(self.lora_sort_combo.currentData() or "added") if hasattr(self, "lora_sort_combo") else "added"
         enabled_only = self.lora_enabled_only_btn.isChecked() if hasattr(self, "lora_enabled_only_btn") else False
         entries = list(stack)
@@ -26983,6 +28382,29 @@ class MainWindow(QMainWindow):
                     tip += f"\nTrigger: {trig}"
                 if entry.get("notes"):
                     tip += f"\nNotes: {entry['notes']}"
+                it.setToolTip(tip)
+                self.lora_list.addItem(it)
+                visible_entries.append(entry)
+                if keep_uid is not None and str(entry.get("uid") or "") == keep_uid:
+                    select_row = shown
+                shown += 1
+        finally:
+            self.lora_list.setUpdatesEnabled(True)
+        self.lora_list.set_entries(visible_entries)
+        self.lora_list.show_folder_names = self._lora_folder_filter == "ALL"
+        if select_row >= 0:
+            self.lora_list.setCurrentRow(select_row)
+        self._show_lora_details()
+        # The details dock only occupies space when a LoRA is actually selected
+        has_sel = self._lora_detail_entry() is not None
+        self.lora_detail.setVisible(has_sel)
+
+        # Count badge + status caption
+        total_ids = sum(1 for e in stack if e.get("id"))
+        self.lora_count_label.setText(f"{shown}/{total_ids}")
+        if shown == 0:
+            self.lora_status.setText(
+   
                 it.setToolTip(tip)
                 self.lora_list.addItem(it)
                 visible_entries.append(entry)
@@ -32160,3 +33582,23 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+it.setSizes([left_w, max(260, init_w - left_w)])
+        else:
+            init_w = max(760, min(1240, av.width() - 28))
+            init_h = max(540, min(780, av.height() - 40))
+            win.resize(init_w, init_h)
+        win.move(
+            av.left() + max(0, (av.width() - init_w) // 2),
+            av.top() + max(0, (av.height() - init_h) // 2),
+        )
+    else:
+        win.resize(1024, 680)
+    win.show()
+    CURSOR_ENGINE.refresh_widget_tree(win)
+    QTimer.singleShot(0, win._on_workspace_resized)
+    return app.exec()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
