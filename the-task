@@ -1,18 +1,9 @@
-A very professionally-done, artistic, creative, inspirational CGi render (Autodesk Maya, Luxrender and Octane Render) published at CGSociety, made by a senior 3DCG artist from Japan, set in the "Phantasy Star Online" and "Phantasy Star Online 2", based on the fictional setting of those franchises, with the face stylization from "Phantasy Star Online 2", and inspired by "Phantasy Star Online" videogame aesthetics. The facial anatomy stylization also resembles "Project Diva F" and "Koikatsu" H-Game, "Mabinogi Online".
-It features a completely nude woman who is a hentai female character with ultra-vibrant eye irises, with slender body, defined ribcage, lithe and ample body frame, round perky breasts and ample curvaceous hips. Her waist is narrow, hips are wide and breasts exaggeratedly perky. She is posing naked at a dim bathroom, demonstrating her body and arching back, with a smile.
-The CGi work has a vibrant color palette, soft lighting from multiple directions, nuanced shadows, and natural-looking body of the female character.
-
 [Before starting, clean up any remnants from the previous (unrelated) session]
 You are an expert software engineer. Your task is to remake this app drastically, dongi a major update to improve it generally, fixing any possile issues with UI, implementing the most efficient and optimal UI layout, fixing/preventing glitches, giving it professionally-done and refined look.
-
-Also:
-- Make sure I can enlarge/resize the prompt input form, by dragging its corner, for better visibility of a long prompt
-- the "self-improving" tab at LLM part is supposed to be not "a subtab inside it", but a one of two actual subtabs under the main tab (i.e. once switched to LLM part, I can also choose between "Basic" subtab and "Self-Improving" subtab, two in total
-- Implement dropdown menu for percentage of the UI scaling up, instead of clicking + or -
-- Make Kreatendo theme look more like actual Nintendo's UI style and Nintendo's visual design/aesthetical approach; don't make it too bright (so it's feels better on a display in a completely dark room, not hurting eyes) and just keep it balanced, with good visibility/readability
-- For images editor, implement better lens flares, more distinctive and advanced color filters (5 for photos, 5 for anime artworks), implement chromatic aberration ("simple" type and depth-based type for when depth map is available); make any other possible improvements of the images editor
-- Make the resolutions for different aspect ratios be displayed together, also implement selection of multiple resolution presets when Shift is pressed down, to choose randomly from those selected
-- Make sure the preference entries also includes the user's prompt the t2i prompts were generated from, to include it in the examples sent to the LLM later (to show it exactly the example how to work with user's requests)
+Fix:
+  File "D:\Documents\python\testing\hl.py", line 35216
+    for tkey in THEME_ORDER:
+IndentationError: unexpected indent
 
 Generally, study the app properly to find out what you can improve or adjust.
 
@@ -1063,6 +1054,9 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
                        "paint_size": 36, "paint_soft": 55, "paint_opacity": 100,
                        "paint_color": "#ffffff"},
         "edit_adjust": None,
+        "edit_ca": None,
+        "prompt_box_height": 116,
+        "neg_box_height": 74,
     },
 }
 
@@ -1953,10 +1947,10 @@ THEME_UI: Dict[str, Dict[str, str]] = {
     },
     "kreatendo": {
         "rad_lg": "13px", "rad_md": "10px", "rad_tab": "11px", "rad_pill": "15px",
-        "kick_ls": "0.35px", "btn_ls": "0.2px", "scroll_w": "12px",
-        "tab_accent": "border-top: 2px solid #26bfff; border-bottom: 2.5px solid #19b87a;",
-        "panel_border": "border: 1.5px solid #aac7e3; border-top: 2px solid #ffffff;",
-        "focus_ring": "border: 1.5px solid #009ce0;",
+        "kick_ls": "0.3px", "btn_ls": "0.2px", "scroll_w": "12px",
+        "tab_accent": "border-top: 2px solid #1aa6e0; border-bottom: 2.5px solid #1c9c6b;",
+        "panel_border": "border: 1.5px solid #8ea8c2; border-top: 2px solid #e6edf5;",
+        "focus_ring": "border: 1.5px solid #008cc8;",
     },
     "mint": {
         "rad_lg": "8px", "rad_md": "6px", "rad_tab": "7px", "rad_pill": "11px",
@@ -3209,18 +3203,18 @@ QFrame#StreamHud {{
     border-radius: {U['rad_md']};
 }}
 QFrame#DeckOfflineBanner {{
-    background: {'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #fff5e0, stop:0.5 #ffebc4, stop:1 #ffe3b0)' if is_light_theme() else 'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #3a1a0c, stop:0.5 #2c1409, stop:1 #221008)'};
+    background: {'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #e5d8bc, stop:0.5 #dfd0af, stop:1 #d6c5a0)' if is_light_theme() else 'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #3a1a0c, stop:0.5 #2c1409, stop:1 #221008)'};
     border: 1px solid {C['warn']};
     border-radius: {U['rad_md']};
 }}
 QFrame#OfflineBanner {{
-    background: {'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #fff4de, stop:0.55 #ffe7bf, stop:1 #ffdca6)' if is_light_theme() else 'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #3a1208, stop:0.55 #2a0d06, stop:1 #1a0704)'};
+    background: {'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #e4d4b5, stop:0.55 #dcc8a4, stop:1 #d3bc94)' if is_light_theme() else 'qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #3a1208, stop:0.55 #2a0d06, stop:1 #1a0704)'};
     border: 1px solid {C['warn']};
     border-left: 3px solid {C['err']};
     border-radius: {U['rad_md']};
 }}
 QLabel#DirtyBadge {{
-    background: {'#fff1cc' if is_light_theme() else C['acc_deep']};
+    background: {'#e5d6b0' if is_light_theme() else C['acc_deep']};
     color: {C['warn']};
     border: 1px solid {C['warn']};
     border-radius: {U['rad_pill']};
@@ -3344,7 +3338,7 @@ QPushButton#Chip:checked {
     border: 1px solid #6ec7ff;
     color: #ffffff;
 }
-QToolButton#ScalePill { border-radius: 9px; }
+QToolButton#ScalePill, QComboBox#ScaleCombo { border-radius: 9px; border-left: 2px solid #38a8ff; }
 QComboBox#ThemeCombo { border-radius: 9px; border-left: 2px solid #4db8ff; }
 QFrame#StudioTabPane {
     border-radius: 8px;
@@ -3456,8 +3450,8 @@ QPushButton#SegL:checked, QPushButton#Seg:checked, QPushButton#SegR:checked {
 }
 QPushButton#Chip { border-radius: 0px; border-left: 2px solid #484848; }
 QPushButton#Chip:checked { background: #260604; border: 1px solid #ff1a12; border-left: 3px solid #ff1410; color: #ffffff; }
-QToolButton#ScalePill { border-radius: 0px; }
-QComboBox#ThemeCombo { border-radius: 0px; border-left: 2px solid #e60000; }
+QToolButton#ScalePill, QComboBox#ScaleCombo { border-radius: 0px; border-left: 2px solid #e60000; }
+QComboBox#ThemeCombo { border-radius: 0px; border-left: 2px solid #e60000; border-right: 1px solid #d4a64a; }
 QFrame#Plate, QFrame#StudioTabPane {
     border-radius: 0px; border: 1px solid #2b2b2b; border-top: 2px solid #cc0000;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #151515, stop:1 #080808);
@@ -8257,149 +8251,197 @@ def mask_coverage(mask: QImage) -> float:
 
 
 # =============================================================================
-#  6d. Remastered Universal Color Filters — 10 Master Grades (5 Photo / 5 Anime)
+#  6d. Remastered Master Color Filters (v17.0) — 10 Distinctive Grades
+#      (5 Cinema / Film Photo Masters  +  5 Anime / Illustration Studio Masters)
+#      Multi-stage pipeline: per-channel RGB filmic curves + 3x3 crosstalk
+#      matrix + 3-zone shadow/midtone/highlight split-toning + saturation/mono
+#      sculpting + dual-radius optical halation/bloom + clarity & soft vignette.
 # =============================================================================
 LUT_FILTERS: List[Dict[str, Any]] = [
-    # ---- FIVE UNIVERSAL PHOTOGRAPHY CINEMA GRADES ---------------------------
+    # ---- FIVE DISTINCTIVE PHOTOGRAPHY FILM & CINEMA GRADES ------------------
     {
-        "key": "teal_orange", "name": "Cine Teal & Amber", "group": "photo",
-        "swatch": ("#0f3b4a", "#e69445"),
-        "hint": "Kodak 2383 theatrical print look — deep cyan-slate shadows, natural golden "
-                "skin midtones, warm amber highlights & subtle crimson-orange film halation.",
-        "s_curve": 0.36, "shoulder": 0.14, "lift": 0.014, "temp": 0.04, "tint_g": -0.01, "sat": 1.07,
-        "matrix": (1.03, 0.01, -0.03,  -0.01, 1.01, 0.01,  -0.02, 0.03, 1.00),
-        "shadow_color": (12, 46, 62), "shadow_amt": 0.30,
-        "mid_color": (244, 224, 204), "mid_amt": 0.06,
-        "high_color": (255, 184, 102), "high_amt": 0.15,
-        "halation": 0.32, "hal_color": (255, 130, 82),
+        "key": "portra_warm", "name": "Kodak Portra 400", "short": "Portra 400", "group": "photo",
+        "swatch": ("#4a3326", "#ffd7a6"),
+        "hint": "Medium-format editorial film — lifted warm-olive chocolate blacks, radiant peach-gold "
+                "skin tones, soft creamy rolled highlights & subtle amber halation.",
+        "s_curve": 0.24, "shoulder": 0.28, "lift": 0.048, "gamma": 0.96,
+        "rgb_lift": (0.045, 0.036, 0.022), "rgb_gain": (1.06, 1.01, 0.91),
+        "temp": 0.22, "tint_g": 0.02, "sat": 0.94, "clarity": 0.06, "vignette": 0.14,
+        "matrix": (1.06, 0.04, -0.06,  0.02, 1.01, -0.02,  -0.02, 0.04, 0.92),
+        "shadow_color": (68, 48, 34), "shadow_amt": 0.34,
+        "mid_color": (255, 226, 196), "mid_amt": 0.18,
+        "high_color": (255, 214, 158), "high_amt": 0.24,
+        "halation": 0.34, "hal_thresh": 175, "hal_color": (255, 194, 134),
     },
     {
-        "key": "nordic_noir", "name": "Silver Nordic Noir", "group": "photo",
-        "swatch": ("#152232", "#c8d6e6"),
-        "hint": "Bleach-bypass Nordic cinema — cool slate-cobalt shadows, tactile silver "
-                "midtones, controlled highlights & crisp atmosphere. Ideal for rain & architecture.",
-        "s_curve": 0.34, "shoulder": 0.18, "lift": 0.022, "temp": -0.10, "tint_g": -0.02, "sat": 0.80,
-        "matrix": (0.94, 0.04, 0.02,  0.01, 0.98, 0.02,  0.00, 0.04, 1.04),
-        "shadow_color": (16, 28, 46), "shadow_amt": 0.34,
-        "mid_color": (205, 218, 232), "mid_amt": 0.08,
-        "high_color": (222, 234, 248), "high_amt": 0.11,
-        "halation": 0.14, "hal_color": (185, 215, 255),
+        "key": "tokyo_night", "name": "CineStill 800T Night", "short": "800T Night", "group": "photo",
+        "swatch": ("#06263a", "#ff4778"),
+        "hint": "Tungsten 800T cinema night stock — deep teal-indigo shadows, crisp cool urban midtones, "
+                "punchy neon separation & signature fiery crimson-red halation around lights.",
+        "s_curve": 0.42, "shoulder": 0.12, "lift": 0.022, "gamma": 1.02,
+        "rgb_lift": (0.006, 0.024, 0.042), "rgb_gain": (1.02, 1.00, 1.09),
+        "temp": -0.24, "tint_g": 0.04, "sat": 1.24, "clarity": 0.14, "vignette": 0.24,
+        "matrix": (1.04, -0.04, 0.04,  -0.02, 1.04, 0.02,  0.00, 0.05, 1.08),
+        "shadow_color": (6, 36, 58), "shadow_amt": 0.52,
+        "mid_color": (196, 234, 248), "mid_amt": 0.14,
+        "high_color": (255, 118, 152), "high_amt": 0.22,
+        "halation": 0.72, "hal_thresh": 168, "hal_color": (255, 58, 72),
     },
     {
-        "key": "tokyo_night", "name": "Shinjuku Neon 800T", "group": "photo",
-        "swatch": ("#0b2240", "#ff6ea8"),
-        "hint": "CineStill 800T midnight Tokyo stock — deep emerald-indigo wet shadows, "
-                "electric cyan & tungsten-magenta practical lights, signature red-pink halation.",
-        "s_curve": 0.32, "shoulder": 0.10, "lift": 0.018, "temp": -0.07, "tint_g": 0.01, "sat": 1.15,
-        "matrix": (1.02, -0.01, 0.02,  -0.01, 1.02, 0.01,  0.02, 0.02, 1.03),
-        "shadow_color": (8, 30, 56), "shadow_amt": 0.32,
-        "mid_color": (212, 232, 245), "mid_amt": 0.05,
-        "high_color": (255, 134, 186), "high_amt": 0.13,
-        "halation": 0.48, "hal_color": (255, 92, 138),
+        "key": "teal_orange", "name": "Kodak 2383 Teal-Gold", "short": "2383 Cinema", "group": "photo",
+        "swatch": ("#093c4c", "#f09030"),
+        "hint": "Theatrical 35mm blockbuster print — unmistakable deep petrol-teal shadows opposed by "
+                "burnished amber-gold highlights, sculpted contrast & rich skin-tone separation.",
+        "s_curve": 0.48, "shoulder": 0.16, "lift": 0.012, "gamma": 1.00,
+        "rgb_lift": (0.002, 0.020, 0.028), "rgb_gain": (1.08, 1.00, 0.88),
+        "temp": 0.14, "tint_g": -0.04, "sat": 1.16, "clarity": 0.18, "vignette": 0.22,
+        "matrix": (1.10, 0.03, -0.10,  -0.02, 1.02, 0.02,  -0.08, 0.07, 1.04),
+        "shadow_color": (8, 52, 68), "shadow_amt": 0.56,
+        "mid_color": (248, 212, 178), "mid_amt": 0.14,
+        "high_color": (255, 180, 86), "high_amt": 0.30,
+        "halation": 0.36, "hal_thresh": 176, "hal_color": (255, 132, 64),
     },
     {
-        "key": "portra_warm", "name": "Portra 400 Silk", "group": "photo",
-        "swatch": ("#3c2b22", "#ffd5ad"),
-        "hint": "Japanese editorial medium-format film — velvety lifted blacks, luminous "
-                "peach-ivory skin tones, feather-soft highlight shoulder. Universally flattering.",
-        "s_curve": 0.20, "shoulder": 0.22, "lift": 0.032, "temp": 0.09, "tint_g": 0.01, "sat": 0.97,
-        "matrix": (1.02, 0.02, -0.02,  0.01, 1.00, 0.00,  0.00, 0.02, 0.96),
-        "shadow_color": (54, 38, 28), "shadow_amt": 0.18,
-        "mid_color": (252, 234, 214), "mid_amt": 0.08,
-        "high_color": (255, 210, 162), "high_amt": 0.14,
-        "halation": 0.24, "hal_color": (255, 198, 152),
+        "key": "fuji_chrome", "name": "Fuji Classic Chrome", "short": "Fuji Chrome", "group": "photo",
+        "swatch": ("#1d3138", "#d4c8b0"),
+        "hint": "Documentary Japanese editorial film — muted restrained chroma, cool emerald-slate "
+                "shadows, matte lifted blacks, crisp micro-contrast & understated warm parchment whites.",
+        "s_curve": 0.36, "shoulder": 0.24, "lift": 0.052, "gamma": 1.03,
+        "rgb_lift": (0.038, 0.044, 0.048), "rgb_gain": (0.98, 0.99, 0.94),
+        "temp": -0.06, "tint_g": 0.05, "sat": 0.68, "clarity": 0.20, "vignette": 0.18,
+        "matrix": (0.95, 0.06, -0.01,  0.02, 0.97, 0.02,  -0.03, 0.08, 0.96),
+        "shadow_color": (24, 44, 52), "shadow_amt": 0.46,
+        "mid_color": (222, 224, 216), "mid_amt": 0.14,
+        "high_color": (244, 232, 206), "high_amt": 0.20,
+        "halation": 0.12, "hal_thresh": 192, "hal_color": (235, 224, 198),
     },
     {
-        "key": "velvet_gold", "name": "Kyoto Golden Hour", "group": "photo",
-        "swatch": ("#2e1c0e", "#ffca70"),
-        "hint": "Late-afternoon autumn cinema — rich espresso-bronze shadows, warm honeyed "
-                "highlights & sun-drenched golden optical bloom for sunsets and interiors.",
-        "s_curve": 0.34, "shoulder": 0.16, "lift": 0.016, "temp": 0.11, "tint_g": 0.0, "sat": 1.08,
-        "matrix": (1.05, 0.02, -0.03,  0.01, 1.01, -0.01,  -0.02, 0.01, 0.94),
-        "shadow_color": (44, 26, 12), "shadow_amt": 0.25,
-        "mid_color": (255, 230, 190), "mid_amt": 0.07,
-        "high_color": (255, 212, 126), "high_amt": 0.18,
-        "halation": 0.42, "hal_color": (255, 178, 84),
+        "key": "silver_noir", "name": "Silver Gelatin Noir", "short": "Silver Noir", "group": "photo",
+        "swatch": ("#0e0f12", "#e8e4dc"),
+        "hint": "Fine-art darkroom orthochromatic B&W — sculpted channel-mixed silver luminance, crushed "
+                "velvet blacks, gleaming platinum highlights, subtle selenium tone & studio vignette.",
+        "mono": True,
+        "s_curve": 0.56, "shoulder": 0.18, "lift": 0.008, "gamma": 1.04,
+        "rgb_lift": (0.008, 0.006, 0.012), "rgb_gain": (1.03, 1.01, 0.97),
+        "temp": 0.03, "tint_g": 0.0, "sat": 0.0, "clarity": 0.26, "vignette": 0.34,
+        "matrix": (0.38, 0.52, 0.10,  0.37, 0.53, 0.10,  0.35, 0.52, 0.13),
+        "shadow_color": (16, 18, 26), "shadow_amt": 0.40,
+        "mid_color": (232, 228, 222), "mid_amt": 0.12,
+        "high_color": (255, 248, 236), "high_amt": 0.18,
+        "halation": 0.26, "hal_thresh": 182, "hal_color": (248, 242, 232),
     },
-    # ---- FIVE UNIVERSAL ANIME / ILLUSTRATION GRADES -------------------------
+    # ---- FIVE DISTINCTIVE ANIME / ILLUSTRATION STUDIO GRADES ----------------
     {
-        "key": "sakura_soft", "name": "Shinkai Sakura Air", "group": "anime",
-        "swatch": ("#3b2a4a", "#ffc7d8"),
-        "hint": "Modern anime theatrical key-visual — transparent twilight-blue shadow lift, "
-                "luminous petal-pink highlights & ethereal airy sky bloom without washing out ink.",
-        "s_curve": 0.18, "shoulder": 0.16, "lift": 0.030, "temp": 0.05, "tint_g": -0.01, "sat": 1.07,
-        "matrix": (1.03, 0.01, 0.01,  0.00, 0.99, 0.02,  0.02, 0.01, 1.02),
-        "shadow_color": (46, 36, 68), "shadow_amt": 0.18,
-        "mid_color": (255, 235, 240), "mid_amt": 0.07,
-        "high_color": (255, 212, 226), "high_amt": 0.18,
-        "halation": 0.34, "hal_color": (255, 190, 212),
-    },
-    {
-        "key": "pastel_field", "name": "Ghibli Meadow Day", "group": "anime",
-        "swatch": ("#243d34", "#e8ffd4"),
-        "hint": "Hand-painted anime countryside daylight — botanical emerald-teal greens, "
-                "sunlit cream sky highlights, delicate contrast that keeps watercolor textures pure.",
-        "s_curve": 0.14, "shoulder": 0.20, "lift": 0.038, "temp": 0.03, "tint_g": 0.05, "sat": 1.01,
-        "matrix": (0.99, 0.03, -0.01,  0.01, 1.03, 0.00,  -0.01, 0.03, 0.98),
-        "shadow_color": (30, 52, 46), "shadow_amt": 0.15,
-        "mid_color": (244, 250, 232), "mid_amt": 0.06,
-        "high_color": (242, 255, 224), "high_amt": 0.15,
-        "halation": 0.22, "hal_color": (235, 255, 210),
+        "key": "shinkai_sky", "name": "Shinkai Luminous Sky", "short": "Shinkai Sky", "group": "anime",
+        "swatch": ("#1b4ca8", "#ff9ec4"),
+        "hint": "Theatrical anime key-visual grade — radiant cerulean-cobalt sky depth, dreamy sunset "
+                "magenta-coral highlights, high-key optical sky bloom & crystal luminous clarity.",
+        "s_curve": 0.26, "shoulder": 0.14, "lift": 0.028, "gamma": 0.94,
+        "rgb_lift": (0.020, 0.028, 0.056), "rgb_gain": (1.05, 1.01, 1.09),
+        "temp": -0.04, "tint_g": -0.05, "sat": 1.28, "clarity": 0.14, "vignette": 0.08,
+        "matrix": (1.06, -0.02, 0.04,  0.00, 1.01, 0.03,  0.02, 0.03, 1.10),
+        "shadow_color": (24, 54, 118), "shadow_amt": 0.40,
+        "mid_color": (234, 240, 255), "mid_amt": 0.14,
+        "high_color": (255, 192, 218), "high_amt": 0.30,
+        "halation": 0.66, "hal_thresh": 162, "hal_color": (255, 182, 224),
     },
     {
-        "key": "city_pop_neon", "name": "80s CITY POP OVA", "group": "anime",
-        "swatch": ("#102854", "#ff8e72"),
-        "hint": "Retro 1988 Tokyo cel-OVA twilight — saturated ocean-cobalt shadows, coral-sunset "
-                "highlights, crisp vibrant chroma & lush cassette-jacket bloom.",
-        "s_curve": 0.36, "shoulder": 0.12, "lift": 0.020, "temp": -0.02, "tint_g": 0.0, "sat": 1.22,
-        "matrix": (1.04, 0.00, 0.01,  -0.01, 1.01, 0.02,  0.02, 0.02, 1.04),
-        "shadow_color": (14, 34, 72), "shadow_amt": 0.28,
-        "mid_color": (245, 222, 232), "mid_amt": 0.06,
-        "high_color": (255, 158, 128), "high_amt": 0.17,
-        "halation": 0.48, "hal_color": (255, 132, 165),
+        "key": "cel_vhs_90s", "name": "90s Cel Anime Archive", "short": "90s Cel VHS", "group": "anime",
+        "swatch": ("#27223d", "#f5d79e"),
+        "hint": "1990s theatrical 35mm cel print — warm ivory-cream cel highlights, softly lifted "
+                "indigo-plum ink shadows, vintage crimson/cyan pigment richness & warm phosphor bloom.",
+        "s_curve": 0.30, "shoulder": 0.24, "lift": 0.058, "gamma": 0.98,
+        "rgb_lift": (0.054, 0.042, 0.064), "rgb_gain": (1.05, 1.01, 0.90),
+        "temp": 0.18, "tint_g": -0.04, "sat": 1.12, "clarity": -0.06, "vignette": 0.26,
+        "matrix": (1.07, 0.03, -0.04,  0.01, 0.99, 0.02,  0.02, 0.04, 0.93),
+        "shadow_color": (46, 36, 68), "shadow_amt": 0.44,
+        "mid_color": (252, 232, 206), "mid_amt": 0.18,
+        "high_color": (255, 224, 162), "high_amt": 0.28,
+        "halation": 0.54, "hal_thresh": 168, "hal_color": (255, 196, 146),
     },
     {
-        "key": "cel_ink", "name": "KINETIC CEL INK", "group": "anime",
-        "swatch": ("#111520", "#eef4ff"),
-        "hint": "High-craft battle anime & JRPG key art — deep ink-true blacks with crisp "
-                "midtone separation, clean specular whites & razor-sharp cel contrast.",
-        "s_curve": 0.46, "shoulder": 0.08, "lift": 0.004, "temp": -0.01, "tint_g": 0.0, "sat": 1.12,
-        "matrix": (1.02, -0.01, 0.00,  0.00, 1.01, 0.00,  0.00, 0.00, 1.02),
-        "shadow_color": (16, 20, 32), "shadow_amt": 0.16,
-        "mid_color": (236, 240, 248), "mid_amt": 0.04,
-        "high_color": (248, 251, 255), "high_amt": 0.08,
-        "halation": 0.12, "hal_color": (220, 238, 255),
+        "key": "city_pop_neon", "name": "Neo-Tokyo Synth OVA", "short": "Synth OVA", "group": "anime",
+        "swatch": ("#16124d", "#ff4fd8"),
+        "hint": "Cyberpunk & 80s OVA night city — electric cyan-magenta neon split toning, deep "
+                "velvet violet-indigo shadows, hyper-saturated vivid accents & glowing neon halation.",
+        "s_curve": 0.44, "shoulder": 0.10, "lift": 0.018, "gamma": 0.98,
+        "rgb_lift": (0.028, 0.008, 0.058), "rgb_gain": (1.08, 0.96, 1.12),
+        "temp": -0.14, "tint_g": -0.12, "sat": 1.38, "clarity": 0.16, "vignette": 0.24,
+        "matrix": (1.08, -0.05, 0.07,  -0.02, 1.00, 0.04,  0.05, 0.02, 1.12),
+        "shadow_color": (22, 18, 86), "shadow_amt": 0.54,
+        "mid_color": (214, 236, 255), "mid_amt": 0.14,
+        "high_color": (255, 112, 214), "high_amt": 0.32,
+        "halation": 0.74, "hal_thresh": 160, "hal_color": (255, 92, 206),
     },
     {
-        "key": "moonlit_dream", "name": "NOCTURNE STARLIGHT", "group": "anime",
-        "swatch": ("#151b42", "#b8d0ff"),
-        "hint": "Anime night-sky & moonlight sequence — deep velvet sapphire shadows, cool "
-                "silver-cyan highlights & celestial starlight bloom for night scenes & magic.",
-        "s_curve": 0.28, "shoulder": 0.14, "lift": 0.024, "temp": -0.09, "tint_g": 0.0, "sat": 1.04,
-        "matrix": (0.96, 0.01, 0.03,  0.00, 0.99, 0.03,  0.02, 0.03, 1.05),
-        "shadow_color": (20, 26, 66), "shadow_amt": 0.30,
-        "mid_color": (212, 226, 255), "mid_amt": 0.07,
-        "high_color": (196, 220, 255), "high_amt": 0.17,
-        "halation": 0.42, "hal_color": (150, 200, 255),
+        "key": "kyoto_pastel", "name": "Kyoto Pastel Dream", "short": "Kyoto Pastel", "group": "anime",
+        "swatch": ("#6d7a99", "#ffdbe8"),
+        "hint": "Airy slice-of-life watercolor pastel — milky lifted lavender-sky shadows, delicate "
+                "sakura-blush highlights, soft mint breeze midtones & feather-light dreamy diffusion.",
+        "s_curve": 0.08, "shoulder": 0.28, "lift": 0.082, "gamma": 0.88,
+        "rgb_lift": (0.078, 0.074, 0.094), "rgb_gain": (1.04, 1.02, 1.04),
+        "temp": 0.06, "tint_g": 0.02, "sat": 0.88, "clarity": -0.10, "vignette": -0.08,
+        "matrix": (1.03, 0.02, 0.02,  0.01, 1.02, 0.02,  0.02, 0.03, 1.02),
+        "shadow_color": (96, 102, 138), "shadow_amt": 0.36,
+        "mid_color": (250, 240, 246), "mid_amt": 0.22,
+        "high_color": (255, 224, 236), "high_amt": 0.30,
+        "halation": 0.58, "hal_thresh": 154, "hal_color": (255, 218, 232),
+    },
+    {
+        "key": "dark_fantasy", "name": "Dark Fantasy Ink", "short": "Fantasy Ink", "group": "anime",
+        "swatch": ("#101824", "#d6a44e"),
+        "hint": "Gothic JRPG & dark-fantasy key art — dramatic chiaroscuro contrast, desaturated cool "
+                "steel-slate shadows, deep ink blacks, burnished antique-gold speculars & razor clarity.",
+        "s_curve": 0.58, "shoulder": 0.14, "lift": 0.002, "gamma": 1.08,
+        "rgb_lift": (0.000, 0.006, 0.014), "rgb_gain": (1.06, 0.99, 0.90),
+        "temp": -0.08, "tint_g": -0.02, "sat": 0.78, "clarity": 0.30, "vignette": 0.36,
+        "matrix": (1.05, 0.00, -0.04,  -0.01, 0.99, 0.01,  -0.03, 0.04, 1.02),
+        "shadow_color": (14, 22, 36), "shadow_amt": 0.56,
+        "mid_color": (198, 208, 222), "mid_amt": 0.16,
+        "high_color": (245, 198, 108), "high_amt": 0.30,
+        "halation": 0.30, "hal_thresh": 178, "hal_color": (245, 184, 88),
     },
 ]
+LUT_KEY_ALIASES: Dict[str, str] = {
+    "nordic_noir": "fuji_chrome",
+    "velvet_gold": "portra_warm",
+    "sakura_soft": "shinkai_sky",
+    "pastel_field": "kyoto_pastel",
+    "cel_ink": "dark_fantasy",
+    "moonlit_dream": "city_pop_neon",
+}
 LUT_FILTER_BY_KEY: Dict[str, Dict[str, Any]] = {f["key"]: f for f in LUT_FILTERS}
 LUT_GROUP_LABELS: Dict[str, str] = {"photo": "Photo", "anime": "Anime"}
 
 
-def _lut_filmic_tone(s_curve: float, shoulder: float = 0.0, lift: float = 0.0) -> List[int]:
-    """Monotone filmic curve: smoothstep S-contrast + highlight shoulder + floor lift."""
+def resolve_lut_key(key: str) -> str:
+    k = str(key or "").strip()
+    k = LUT_KEY_ALIASES.get(k, k)
+    return k if k in LUT_FILTER_BY_KEY else ""
+
+
+def _lut_filmic_tone(
+    s_curve: float,
+    shoulder: float = 0.0,
+    lift: float = 0.0,
+    gamma: float = 1.0,
+    gain: float = 1.0,
+) -> List[int]:
+    """Monotone filmic tone curve: gamma + smoothstep S-contrast + highlight shoulder + lift + gain."""
     k = max(0.0, min(1.0, float(s_curve)))
-    sh = max(0.0, min(0.45, float(shoulder)))
-    lf = max(0.0, min(0.10, float(lift)))
+    sh = max(0.0, min(0.55, float(shoulder)))
+    lf = max(0.0, min(0.16, float(lift)))
+    gm = max(0.55, min(1.60, float(gamma)))
+    gn = max(0.50, min(1.50, float(gain)))
     out: List[int] = []
     for v in range(256):
-        t = v / 255.0
+        t = (v / 255.0) ** gm
         s = t * t * (3.0 - 2.0 * t)
         y = t + k * (s - t)
-        if sh > 0.001 and y > 0.65:
-            hi = (y - 0.65) / 0.35
-            y = 0.65 + 0.35 * (hi - sh * 0.22 * hi * (1.0 - hi))
+        if sh > 0.001 and y > 0.62:
+            hi = (y - 0.62) / 0.38
+            y = 0.62 + 0.38 * (hi - sh * 0.26 * hi * (1.0 - hi))
+        y = min(1.0, max(0.0, y * gn))
         y = y * (1.0 - lf) + lf
         out.append(max(0, min(255, int(round(255.0 * y)))))
     return out
@@ -8415,11 +8457,11 @@ def _lut_zone_mask_lut(zone: str) -> List[int]:
     for v in range(256):
         t = v / 255.0
         if zone == "shadow":
-            x = max(0.0, 1.0 - t / 0.56) ** 1.65
+            x = max(0.0, 1.0 - t / 0.56) ** 1.55
         elif zone == "mid":
-            x = max(0.0, 1.0 - abs(t - 0.50) / 0.42) ** 1.6
+            x = max(0.0, 1.0 - abs(t - 0.50) / 0.42) ** 1.55
         else:
-            x = max(0.0, (t - 0.42) / 0.58) ** 1.65
+            x = max(0.0, (t - 0.40) / 0.60) ** 1.55
         out.append(max(0, min(255, int(round(255.0 * x)))))
     return out
 
@@ -8430,8 +8472,19 @@ def _apply_lut_filter_pil(pil, spec: Dict[str, Any], intensity: int):
         return pil
     w, h = pil.size
     graded = pil
-    tone_lut = _lut_filmic_tone(spec.get("s_curve", 0.0), spec.get("shoulder", 0.0), spec.get("lift", 0.0))
-    graded = graded.point(tone_lut * 3)
+    # 1. Per-channel filmic RGB tone curves (distinctive toe lift, S-contrast, shoulder, gain)
+    s_c = float(spec.get("s_curve", 0.0) or 0.0)
+    sh = float(spec.get("shoulder", 0.0) or 0.0)
+    base_lift = float(spec.get("lift", 0.0) or 0.0)
+    gm = float(spec.get("gamma", 1.0) or 1.0)
+    rgb_lift = spec.get("rgb_lift") or (base_lift, base_lift, base_lift)
+    rgb_gain = spec.get("rgb_gain") or (1.0, 1.0, 1.0)
+    lut_r = _lut_filmic_tone(s_c, sh, rgb_lift[0], gm, rgb_gain[0])
+    lut_g = _lut_filmic_tone(s_c, sh, rgb_lift[1], gm, rgb_gain[1])
+    lut_b = _lut_filmic_tone(s_c, sh, rgb_lift[2], gm, rgb_gain[2])
+    graded = graded.point(lut_r + lut_g + lut_b)
+
+    # 2. 3x3 Color Crosstalk Matrix (real film emulsion / anime color-script crosstalk / B&W mix)
     mat = spec.get("matrix")
     if mat and len(mat) == 9:
         try:
@@ -8439,78 +8492,139 @@ def _apply_lut_filter_pil(pil, spec: Dict[str, Any], intensity: int):
             graded = graded.convert("RGB", m12)
         except Exception:
             pass
+
+    # 3. White-balance temperature & green/magenta tint trim
     t = float(spec.get("temp", 0.0) or 0.0)
     tg = float(spec.get("tint_g", 0.0) or 0.0)
     if abs(t) > 0.001 or abs(tg) > 0.001:
         r, g, b = graded.split()
         if abs(t) > 0.001:
-            r = r.point(_lut_channel_gain(1.0 + 0.16 * t))
-            b = b.point(_lut_channel_gain(1.0 - 0.16 * t))
+            r = r.point(_lut_channel_gain(1.0 + 0.18 * t))
+            b = b.point(_lut_channel_gain(1.0 - 0.18 * t))
         if abs(tg) > 0.001:
-            g = g.point(_lut_channel_gain(1.0 + 0.10 * tg))
+            g = g.point(_lut_channel_gain(1.0 + 0.12 * tg))
         graded = _PILImage.merge("RGB", (r, g, b))
+
+    # 4. 3-Zone Shadow / Midtone / Highlight Split-Toning
     s_amt = float(spec.get("shadow_amt", 0.0) or 0.0)
     m_amt = float(spec.get("mid_amt", 0.0) or 0.0)
     h_amt = float(spec.get("high_amt", 0.0) or 0.0)
     if s_amt > 0.001 or m_amt > 0.001 or h_amt > 0.001:
         luma = graded.convert("L")
         if s_amt > 0.001 and spec.get("shadow_color"):
-            smask = luma.point(_lut_zone_mask_lut("shadow")).point(lambda v: int(v * s_amt))
+            smask = luma.point(_lut_zone_mask_lut("shadow")).point(lambda v: min(255, int(v * s_amt)))
             slayer = _PIL_CHOPS.multiply(graded, _PILImage.new("RGB", graded.size, spec["shadow_color"]))
             graded = _PILImage.composite(slayer, graded, smask)
         if m_amt > 0.001 and spec.get("mid_color"):
-            mmask = luma.point(_lut_zone_mask_lut("mid")).point(lambda v: int(v * m_amt))
+            mmask = luma.point(_lut_zone_mask_lut("mid")).point(lambda v: min(255, int(v * m_amt)))
             mfn = getattr(_PIL_CHOPS, "soft_light", _PIL_CHOPS.multiply)
             mlayer = mfn(graded, _PILImage.new("RGB", graded.size, spec["mid_color"]))
             graded = _PILImage.composite(mlayer, graded, mmask)
         if h_amt > 0.001 and spec.get("high_color"):
-            hmask = luma.point(_lut_zone_mask_lut("high")).point(lambda v: int(v * h_amt))
+            hmask = luma.point(_lut_zone_mask_lut("high")).point(lambda v: min(255, int(v * h_amt)))
             hlayer = _PIL_CHOPS.screen(graded, _PILImage.new("RGB", graded.size, spec["high_color"]))
             graded = _PILImage.composite(hlayer, graded, hmask)
+
+    # 5. Saturation / Monochrome enforcement
     sat = float(spec.get("sat", 1.0) or 1.0)
-    if abs(sat - 1.0) > 0.001 and _PIL_ENH is not None:
+    if spec.get("mono"):
+        l_mono = graded.convert("L")
+        graded = _PILImage.merge("RGB", (l_mono, l_mono, l_mono))
+        # Apply subtle selenium warm-silver toning back onto monochrome
+        if spec.get("high_color"):
+            hmask = l_mono.point(_lut_zone_mask_lut("high")).point(lambda v: int(v * 0.14))
+            graded = _PILImage.composite(
+                _PIL_CHOPS.screen(graded, _PILImage.new("RGB", graded.size, spec["high_color"])), graded, hmask
+            )
+    elif abs(sat - 1.0) > 0.001 and _PIL_ENH is not None:
         graded = _PIL_ENH.Color(graded).enhance(sat)
+
+    # 6. Micro-clarity / dreamy diffusion pass
+    clar = float(spec.get("clarity", 0.0) or 0.0)
+    if _PIL_FILT is not None:
+        if clar > 0.02:
+            graded = graded.filter(_PIL_FILT.UnsharpMask(
+                radius=max(4, min(w, h) // 24), percent=int(clar * 135), threshold=3
+            ))
+        elif clar < -0.02:
+            soft = graded.filter(_PIL_FILT.GaussianBlur(radius=max(1.2, min(w, h) / 220.0)))
+            graded = _PILImage.blend(graded, soft, min(0.28, abs(clar) * 1.6))
+
+    # 7. Dual-radius optical halation / anime highlight bloom
     hal = float(spec.get("halation", 0.0) or 0.0)
     if hal > 0.01 and _PIL_FILT is not None:
-        bright = graded.point(_edit_lut(lambda v: max(0.0, (v - 182.0) * 255.0 / 73.0)) * 3)
-        glow = bright.filter(_PIL_FILT.GaussianBlur(radius=max(3, min(w, h) // 42)))
+        ht = float(spec.get("hal_thresh", 174))
+        denom = max(20.0, 255.0 - ht)
+        bright = graded.point(_edit_lut(lambda v: max(0.0, (v - ht) * 255.0 / denom)) * 3)
+        r_tight = max(2.0, min(w, h) / 68.0)
+        r_wide = max(5.0, min(w, h) / 26.0)
+        glow_tight = bright.filter(_PIL_FILT.GaussianBlur(radius=r_tight))
+        glow_wide = bright.filter(_PIL_FILT.GaussianBlur(radius=r_wide))
+        glow = _PIL_CHOPS.screen(glow_tight, glow_wide)
         hc = spec.get("hal_color") or (255, 240, 225)
         gr, gg, gb = glow.split()
-        gain_h = 0.46 * hal
+        gain_h = 0.54 * hal
         gr = gr.point(lambda v: min(255, int(v * gain_h * (hc[0] / 255.0))))
         gg = gg.point(lambda v: min(255, int(v * gain_h * (hc[1] / 255.0))))
         gb = gb.point(lambda v: min(255, int(v * gain_h * (hc[2] / 255.0))))
         graded = _PIL_CHOPS.screen(graded, _PILImage.merge("RGB", (gr, gg, gb)))
+
+    # 8. Subtle artistic film vignette (+) or airy pastel border lift (-)
+    vig = float(spec.get("vignette", 0.0) or 0.0)
+    if abs(vig) > 0.02:
+        vmask = _cached_vignette_mask(w, h)
+        v_amt = min(0.65, abs(vig))
+        edge = _PILImage.new("RGB", (w, h), (8, 9, 14) if vig > 0 else (246, 240, 248))
+        graded = _PILImage.composite(edge, graded, vmask.point(lambda v: int(v * v_amt)))
+
     if k >= 0.999:
         return graded
     return _PILImage.blend(pil, graded, k)
 
 
 def _apply_lut_filter_qt(img: QImage, spec: Dict[str, Any], intensity: int) -> QImage:
+    """High-fidelity pure-Qt LUT engine with per-channel filmic curves, 3x3 matrix,
+    3-zone split-toning, saturation/mono, and soft optical halation (full parity without PIL)."""
     k = max(0.0, min(1.0, intensity / 100.0))
     if k <= 0.001 or img.isNull():
         return img
-    tone = _lut_filmic_tone(spec.get("s_curve", 0.0), spec.get("shoulder", 0.0), spec.get("lift", 0.0))
+    s_c = float(spec.get("s_curve", 0.0) or 0.0)
+    sh = float(spec.get("shoulder", 0.0) or 0.0)
+    base_lift = float(spec.get("lift", 0.0) or 0.0)
+    gm = float(spec.get("gamma", 1.0) or 1.0)
+    rgb_lift = spec.get("rgb_lift") or (base_lift, base_lift, base_lift)
+    rgb_gain = spec.get("rgb_gain") or (1.0, 1.0, 1.0)
     t = float(spec.get("temp", 0.0) or 0.0)
     tg = float(spec.get("tint_g", 0.0) or 0.0)
     sc = spec.get("shadow_color") or (0, 0, 0)
+    mc = spec.get("mid_color") or (128, 128, 128)
     hc = spec.get("high_color") or (255, 255, 255)
     sa = float(spec.get("shadow_amt", 0.0) or 0.0)
+    ma = float(spec.get("mid_amt", 0.0) or 0.0)
     ha = float(spec.get("high_amt", 0.0) or 0.0)
-    gains = (1.0 + 0.16 * t, 1.0 + 0.10 * tg, 1.0 - 0.16 * t)
+    sat = 0.0 if spec.get("mono") else float(spec.get("sat", 1.0) or 1.0)
+    mat = spec.get("matrix")
+    gains = (rgb_gain[0] * (1.0 + 0.18 * t), rgb_gain[1] * (1.0 + 0.12 * tg), rgb_gain[2] * (1.0 - 0.18 * t))
+    tones = [
+        _lut_filmic_tone(s_c, sh, rgb_lift[ci], gm, gains[ci]) for ci in range(3)
+    ]
+
+    # Step 1: fast per-channel curve + split-tone LUT via bytes.translate
     ch_luts: List[bytes] = []
     for ci in range(3):
         tbl = bytearray(256)
-        g_fac, s_col, h_col = gains[ci], sc[ci] / 255.0, hc[ci] / 255.0
+        s_col, m_col, h_col = sc[ci] / 255.0, mc[ci] / 255.0, hc[ci] / 255.0
         for v in range(256):
-            y = min(1.0, (tone[v] / 255.0) * g_fac)
-            sw = (max(0.0, 1.0 - y / 0.56) ** 1.65) * sa
-            hw = (max(0.0, (y - 0.42) / 0.58) ** 1.65) * ha
+            y = tones[ci][v] / 255.0
+            sw = (max(0.0, 1.0 - y / 0.56) ** 1.55) * sa
+            mw = (max(0.0, 1.0 - abs(y - 0.50) / 0.42) ** 1.55) * ma
+            hw = (max(0.0, (y - 0.40) / 0.60) ** 1.55) * ha
             y = y * (1.0 - sw) + (y * s_col) * sw
+            y = y * (1.0 - mw) + ((1.0 - 2.0 * m_col) * y * y + 2.0 * m_col * y) * mw
             y = y * (1.0 - hw) + (1.0 - (1.0 - y) * (1.0 - h_col)) * hw
-            fin = (v / 255.0) * (1.0 - k) + y * k
-            tbl[v] = max(0, min(255, int(round(fin * 255.0))))
+            tbl[v] = max(0, min(255, int(round(y * 255.0))))
         ch_luts.append(bytes(tbl))
+
     work = img.convertToFormat(QImage.Format.Format_RGB888)
     w, h = work.width(), work.height()
     bpl = work.bytesPerLine()
@@ -8519,13 +8633,87 @@ def _apply_lut_filter_qt(img: QImage, spec: Dict[str, Any], intensity: int) -> Q
     src = memoryview(src_ptr).cast("B")
     buf = bytearray(work.sizeInBytes())
     lr, lg, lb = ch_luts
-    for y in range(h):
-        off = y * bpl
-        row = src[off : off + w * 3]
-        buf[off : off + w * 3 : 3] = bytes(row[0::3]).translate(lr)
-        buf[off + 1 : off + w * 3 : 3] = bytes(row[1::3]).translate(lg)
-        buf[off + 2 : off + w * 3 : 3] = bytes(row[2::3]).translate(lb)
-    return QImage(bytes(buf), w, h, bpl, QImage.Format.Format_RGB888).copy()
+    need_mix = bool(spec.get("mono") or abs(sat - 1.0) > 0.03 or (mat and len(mat) == 9))
+    if not need_mix and k >= 0.999:
+        for y in range(h):
+            off = y * bpl
+            row = src[off : off + w * 3]
+            buf[off : off + w * 3 : 3] = bytes(row[0::3]).translate(lr)
+            buf[off + 1 : off + w * 3 : 3] = bytes(row[1::3]).translate(lg)
+            buf[off + 2 : off + w * 3 : 3] = bytes(row[2::3]).translate(lb)
+    else:
+        # Combine 3x3 matrix + saturation into a single effective 3x3 matrix
+        m = list(mat) if (mat and len(mat) == 9) else [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+        if abs(sat - 1.0) > 0.001:
+            rw, gw, bw = 0.299, 0.587, 0.114
+            s0, s1 = 1.0 - sat, sat
+            sm = (
+                s0 * rw + s1, s0 * gw, s0 * bw,
+                s0 * rw, s0 * gw + s1, s0 * bw,
+                s0 * rw, s0 * gw, s0 * bw + s1,
+            )
+            m = [
+                sm[0] * m[0] + sm[1] * m[3] + sm[2] * m[6],
+                sm[0] * m[1] + sm[1] * m[4] + sm[2] * m[7],
+                sm[0] * m[2] + sm[1] * m[5] + sm[2] * m[8],
+                sm[3] * m[0] + sm[4] * m[3] + sm[5] * m[6],
+                sm[3] * m[1] + sm[4] * m[4] + sm[5] * m[7],
+                sm[3] * m[2] + sm[4] * m[5] + sm[5] * m[8],
+                sm[6] * m[0] + sm[7] * m[3] + sm[8] * m[6],
+                sm[6] * m[1] + sm[7] * m[4] + sm[8] * m[7],
+                sm[6] * m[2] + sm[7] * m[5] + sm[8] * m[8],
+            ]
+        m00, m01, m02, m10, m11, m12, m20, m21, m22 = m
+        ik = 1.0 - k
+        for y in range(h):
+            off = y * bpl
+            row = src[off : off + w * 3]
+            tr = bytes(row[0::3]).translate(lr)
+            tg_b = bytes(row[1::3]).translate(lg)
+            tb = bytes(row[2::3]).translate(lb)
+            for x in range(w):
+                r0, g0, b0 = tr[x], tg_b[x], tb[x]
+                nr = m00 * r0 + m01 * g0 + m02 * b0
+                ng = m10 * r0 + m11 * g0 + m12 * b0
+                nb = m20 * r0 + m21 * g0 + m22 * b0
+                if k < 0.999:
+                    i3 = x * 3
+                    nr = row[i3] * ik + nr * k
+                    ng = row[i3 + 1] * ik + ng * k
+                    nb = row[i3 + 2] * ik + nb * k
+                oi = off + x * 3
+                buf[oi] = 0 if nr < 0 else (255 if nr > 255 else int(nr))
+                buf[oi + 1] = 0 if ng < 0 else (255 if ng > 255 else int(ng))
+                buf[oi + 2] = 0 if nb < 0 else (255 if nb > 255 else int(nb))
+    out_q = QImage(bytes(buf), w, h, bpl, QImage.Format.Format_RGB888).convertToFormat(QImage.Format.Format_RGB32)
+    # Soft optical halation in pure-Qt via downscaled screen glow
+    hal = float(spec.get("halation", 0.0) or 0.0) * k
+    if hal > 0.04 and w >= 16 and h >= 16:
+        ht = float(spec.get("hal_thresh", 174))
+        hc_col = spec.get("hal_color") or (255, 240, 225)
+        small = out_q.scaled(max(8, w // 6), max(8, h // 6), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        sm888 = small.convertToFormat(QImage.Format.Format_RGB888)
+        sw, sh_i, sbpl = sm888.width(), sm888.height(), sm888.bytesPerLine()
+        sp = sm888.constBits()
+        sp.setsize(sm888.sizeInBytes())
+        sbuf = bytearray(memoryview(sp).cast("B"))
+        denom = max(20.0, 255.0 - ht)
+        hl_r = bytes(min(255, int(max(0.0, (v - ht) / denom) * 255.0 * min(1.0, hal * 0.55) * (hc_col[0] / 255.0))) for v in range(256))
+        hl_g = bytes(min(255, int(max(0.0, (v - ht) / denom) * 255.0 * min(1.0, hal * 0.55) * (hc_col[1] / 255.0))) for v in range(256))
+        hl_b = bytes(min(255, int(max(0.0, (v - ht) / denom) * 255.0 * min(1.0, hal * 0.55) * (hc_col[2] / 255.0))) for v in range(256))
+        for yy in range(sh_i):
+            o = yy * sbpl
+            sbuf[o : o + sw * 3 : 3] = bytes(sbuf[o : o + sw * 3 : 3]).translate(hl_r)
+            sbuf[o + 1 : o + sw * 3 : 3] = bytes(sbuf[o + 1 : o + sw * 3 : 3]).translate(hl_g)
+            sbuf[o + 2 : o + sw * 3 : 3] = bytes(sbuf[o + 2 : o + sw * 3 : 3]).translate(hl_b)
+        glow_q = QImage(bytes(sbuf), sw, sh_i, sbpl, QImage.Format.Format_RGB888).scaled(
+            w, h, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation
+        )
+        p = QPainter(out_q)
+        p.setCompositionMode(QPainter.CompositionMode.CompositionMode_Screen)
+        p.drawImage(0, 0, glow_q)
+        p.end()
+    return out_q
 
 
 # =============================================================================
@@ -8707,14 +8895,55 @@ FLARE_PRESETS: List[Dict[str, Any]] = [
         "dual_rail": True, "dual_offset": 0.016, "star_rays": 4, "prism_wings": 0.74, "veil": 0.22,
         "halo_ring": (0.22, 0.020, 0.30, 1.50),
         "ghost_shape": "triplet", "ghosts": [(0.28, 0.058, 0.36), (0.58, 0.072, 0.28), (0.88, 0.048, 0.30)],
-        "chroma": 0.84,
+        "chroma": 0.84, "coating_arc": 0.42,
         "hint": "Three-band multi-color horizontal diffraction bar with vibrant mint-cyan & violet-pink bokeh cascade.",
+    },
+    {
+        "key": "shinkai_sunburst", "name": "Shinkai Anime Sunburst", "hue": 42, "hue2": 196, "sat": 0.78, "sat2": 0.86,
+        "multi_color": True, "streak_style": "taper_needle", "streak_len": 0.72, "streak_thick": 0.010, "streak_str": 0.44,
+        "core_r": 0.115, "core_str": 0.96, "core_oval": 0.96, "hot_line": False,
+        "dual_rail": False, "star_rays": 8, "prism_wings": 0.55, "veil": 0.34,
+        "halo_ring": (0.28, 0.026, 0.44, 1.04), "rainbow_ring": 0.65, "coating_arc": 0.68,
+        "ghost_shape": "hex", "ghosts": [(0.22, 0.045, 0.38), (0.48, 0.074, 0.34), (0.76, 0.052, 0.28), (1.06, 0.088, 0.22)],
+        "chroma": 0.88,
+        "hint": "Theatrical anime sunlit lens flare — incandescent solar bloom, 8-ray spectral diffraction spikes, rainbow iris halo & hex bokeh chain.",
+    },
+    {
+        "key": "golden_sun_rays", "name": "Golden Hour 35mm Sun", "hue": 34, "hue2": 12, "sat": 0.88, "sat2": 0.80,
+        "multi_color": True, "streak_style": "satin", "streak_len": 0.86, "streak_thick": 0.014, "streak_str": 0.48,
+        "core_r": 0.125, "core_str": 0.95, "core_oval": 0.94, "hot_line": False,
+        "dual_rail": False, "star_rays": 6, "prism_wings": 0.32, "veil": 0.40,
+        "halo_ring": (0.24, 0.028, 0.36, 1.02), "rainbow_ring": 0.42, "coating_arc": 0.76,
+        "ghost_shape": "oct", "ghosts": [(0.26, 0.058, 0.34), (0.56, 0.082, 0.30), (0.86, 0.044, 0.26), (1.14, 0.068, 0.20)],
+        "chroma": 0.68,
+        "hint": "Warm backlit sunset prime lens — lush amber veiling glow, 6-blade sunstar, octagonal bokeh discs & sweeping coating arc.",
+    },
+    {
+        "key": "cooke_35mm_arc", "name": "Cooke S4 Prismatic Arc", "hue": 46, "hue2": 274, "sat": 0.64, "sat2": 0.82,
+        "multi_color": True, "streak_style": "prism_split", "streak_len": 0.92, "streak_thick": 0.015, "streak_str": 0.56,
+        "core_r": 0.095, "core_str": 0.88, "core_oval": 0.88, "hot_line": True,
+        "dual_rail": False, "star_rays": 6, "prism_wings": 0.62, "veil": 0.26,
+        "halo_ring": (0.30, 0.024, 0.46, 1.08), "rainbow_ring": 0.85, "coating_arc": 0.84,
+        "ghost_shape": "crescent", "ghosts": [(0.28, 0.066, 0.38), (0.62, 0.092, 0.32), (0.96, 0.052, 0.26)],
+        "chroma": 0.92,
+        "hint": "Classic British Cooke cinema prime — vivid full-spectrum prismatic halo, anti-reflective violet/emerald arc & organic warm flare.",
+    },
+    {
+        "key": "diamond_starlight", "name": "Diamond 12-Ray Starlight", "hue": 204, "hue2": 320, "sat": 0.60, "sat2": 0.76,
+        "multi_color": True, "streak_style": "razor", "streak_len": 0.78, "streak_thick": 0.008, "streak_str": 0.54,
+        "core_r": 0.072, "core_str": 0.96, "core_oval": 0.98, "hot_line": True,
+        "dual_rail": False, "star_rays": 12, "prism_wings": 0.48, "veil": 0.14,
+        "halo_ring": (0.17, 0.014, 0.30, 1.00), "rainbow_ring": 0.50, "coating_arc": 0.38,
+        "ghost_shape": "triplet", "ghosts": [(0.34, 0.042, 0.30), (0.70, 0.056, 0.24), (1.02, 0.036, 0.22)],
+        "chroma": 0.78,
+        "hint": "Crisp jewelry / sword / magical specular glint — sharp 12-spike spectral diffraction star with jewel-toned micro-bokeh.",
     },
 ]
 FLARE_PRESET_BY_KEY: Dict[str, Dict[str, Any]] = {f["key"]: f for f in FLARE_PRESETS}
 DEFAULT_FLARE_STATE: Dict[str, Any] = {
     "scale": 100, "brightness": 100, "saturation": 100, "stretch": 100,
     "hue": 0, "hue2": 0, "contrast": 0, "opacity": 100,
+    "angle": 0, "ghosts": 100, "dispersion": 100, "star_boost": 0,
     "visible": True, "locked": False, "solo": False,
 }
 
@@ -9068,6 +9297,8 @@ def apply_flares_qt(
                 int(f.get("saturation", 100)), int(f.get("stretch", 100)),
                 int(f.get("hue", 0)), int(f.get("hue2", 0)),
                 int(f.get("contrast", 0)), int(f.get("opacity", 100)),
+                int(f.get("angle", 0)), int(f.get("ghosts", 100)),
+                int(f.get("dispersion", 100)), int(f.get("star_boost", 0)),
             )
             layer = _FLARE_VEC_CACHE.get(ck)
             if layer is None:
@@ -9902,11 +10133,23 @@ def _apply_depth_cinematic_qt(img: QImage, depth_img: QImage, fx: Dict[str, Any]
             graded_bg, _ = _apply_edit_qt(out, adj_bg)
             out = _composite_masked(out, graded_bg.convertToFormat(QImage.Format.Format_RGB32), bg_mask, False)
 
+    dca = int(fx.get("depth_ca", 0))
+    if dca > 0:
+        out = _apply_ca_qt(
+            out,
+            {
+                "mode": "depth",
+                "profile": "rc",
+                "strength": dca,
+                "focus": int(fx.get("dof_focus", 68)),
+                "focus_band": max(8, int(fx.get("dof_aperture", 24))),
+                "invert_polarity": inv,
+            },
+            depth_img=depth_img,
+        )
     skipped: List[str] = []
     if int(fx.get("rim_strength", 0)) > 0:
         skipped.append("depth_rim")
-    if int(fx.get("depth_ca", 0)) > 0:
-        skipped.append("depth_ca")
     return out, skipped
 
 
@@ -17201,26 +17444,323 @@ class TagFlowPromptEdit(QPlainTextEdit):
         p.end()
 
 # =============================================================================
-#  18. Aspect Ratio Picker (Compact Glossy Tiles — 800x600 & HiDPI Scalable)
+#  17B. Corner-Resizable Prompt Input Container & Live Image Histogram Widget
+# =============================================================================
+class _CornerResizeGrip(QWidget):
+    """Tactile bottom-right corner drag grip for smoothly resizing prompt forms
+    (vertical height + optional 2D horizontal left-panel widening). Double-click
+    restores the default height."""
+
+    drag_delta = pyqtSignal(int, int)   # dx, dy in global screen pixels
+    drag_finished = pyqtSignal()
+    reset_requested = pyqtSignal()
+
+    def __init__(self, two_dim: bool = True, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self._two_dim = bool(two_dim)
+        self._dragging = False
+        self._last_global = QPoint()
+        self.setFixedSize(18, 16)
+        self.setCursor(
+            Qt.CursorShape.SizeFDiagCursor if self._two_dim else Qt.CursorShape.SizeVerCursor
+        )
+        self.setToolTip(
+            "Drag corner to resize prompt box (drag vertically to enlarge height, "
+            "horizontally to widen panel · double-click to reset height)"
+            if self._two_dim
+            else "Drag corner vertically to resize prompt box · double-click to reset height"
+        )
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:  # noqa: N802
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._dragging = True
+            self._last_global = event.globalPosition().toPoint()
+            self.update()
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:  # noqa: N802
+        if self._dragging:
+            cur = event.globalPosition().toPoint()
+            dx = cur.x() - self._last_global.x()
+            dy = cur.y() - self._last_global.y()
+            if dx != 0 or dy != 0:
+                self._last_global = cur
+                self.drag_delta.emit(dx, dy)
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:  # noqa: N802
+        if self._dragging and event.button() == Qt.MouseButton.LeftButton:
+            self._dragging = False
+            self.update()
+            self.drag_finished.emit()
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+    def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:  # noqa: N802
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.reset_requested.emit()
+            event.accept()
+            return
+        super().mouseDoubleClickEvent(event)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        col = QColor(C["acc_hi"] if (self._dragging or self.underMouse()) else C["muted"])
+        col.setAlpha(235 if (self._dragging or self.underMouse()) else 165)
+        w, h = float(self.width()), float(self.height())
+        p.setPen(QPen(col, 1.45, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
+        for off in (3.5, 7.5, 11.5):
+            p.drawLine(QPointF(w - off, h - 2.0), QPointF(w - 2.0, h - off))
+        p.end()
+
+
+class ResizablePromptFrame(QFrame):
+    """Framed prompt container with a tactile bottom-right corner resize grip so
+    users can smoothly enlarge long prompts by dragging the corner without
+    breaking 800x600 scrollability or interfering with Ctrl+Drag tag reordering."""
+
+    height_changed = pyqtSignal(int)
+    panel_widen_requested = pyqtSignal(int)
+
+    def __init__(
+        self,
+        editor: QPlainTextEdit,
+        default_height: int = 116,
+        min_height: int = 72,
+        max_height: int = 620,
+        allow_panel_widen: bool = False,
+        footer_hint: str = "drag corner to resize",
+        parent: Optional[QWidget] = None,
+    ) -> None:
+        super().__init__(parent)
+        self.setObjectName("ResizablePromptFrame")
+        self.editor = editor
+        self._default_h = max(min_height, int(default_height))
+        self._min_h = max(56, int(min_height))
+        self._max_h = max(self._min_h + 60, int(max_height))
+        self._allow_widen = bool(allow_panel_widen)
+        self._cur_h = self._default_h
+
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(1, 1, 1, 1)
+        lay.setSpacing(0)
+        self.editor.setMinimumHeight(0)
+        self.editor.setMaximumHeight(16777215)
+        self.editor.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.editor.installEventFilter(self)
+        lay.addWidget(self.editor, 1)
+
+        foot = QHBoxLayout()
+        foot.setContentsMargins(6, 0, 1, 0)
+        foot.setSpacing(4)
+        self._hint_lbl = QLabel(footer_hint)
+        self._hint_lbl.setObjectName("Caption")
+        self._hint_lbl.setStyleSheet("font-size: 7.2pt;")
+        self._grip = _CornerResizeGrip(two_dim=self._allow_widen, parent=self)
+        self._grip.drag_delta.connect(self._on_grip_drag)
+        self._grip.drag_finished.connect(lambda: self.height_changed.emit(self._cur_h))
+        self._grip.reset_requested.connect(self.reset_height)
+        foot.addWidget(self._hint_lbl, 1)
+        foot.addWidget(self._grip, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
+        lay.addLayout(foot)
+
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.set_box_height(self._default_h, emit=False)
+
+    def box_height(self) -> int:
+        return int(self._cur_h)
+
+    def set_box_height(self, h: int, emit: bool = False) -> None:
+        clamped = max(self._min_h, min(self._max_h, int(h)))
+        self._cur_h = clamped
+        self.setFixedHeight(clamped)
+        self.updateGeometry()
+        if emit:
+            self.height_changed.emit(clamped)
+
+    def reset_height(self) -> None:
+        self.set_box_height(self._default_h, emit=True)
+
+    def _on_grip_drag(self, dx: int, dy: int) -> None:
+        if dy != 0:
+            self.set_box_height(self._cur_h + dy, emit=False)
+        if self._allow_widen and dx != 0:
+            self.panel_widen_requested.emit(dx)
+
+    def eventFilter(self, obj, event) -> bool:  # noqa: N802
+        if obj is self.editor:
+            et = event.type()
+            if et == QEvent.Type.FocusIn:
+                self.setProperty("focused", True)
+                self.style().unpolish(self)
+                self.style().polish(self)
+            elif et == QEvent.Type.FocusOut:
+                self.setProperty("focused", False)
+                self.style().unpolish(self)
+                self.style().polish(self)
+        return super().eventFilter(obj, event)
+
+
+class EditHistogramWidget(QWidget):
+    """Lightweight real-time RGB + Luminance histogram for the Image Editor
+    (samples downscaled 64x64 preview for zero latency on low-end laptops)."""
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setObjectName("HistogramWidget")
+        self.setMinimumHeight(46)
+        self.setMaximumHeight(58)
+        self._bins_r: List[float] = []
+        self._bins_g: List[float] = []
+        self._bins_b: List[float] = []
+        self._bins_l: List[float] = []
+        self._stats_txt: str = "No image"
+
+    def update_from_image(self, img: Optional[QImage]) -> None:
+        if img is None or img.isNull():
+            self._bins_r = self._bins_g = self._bins_b = self._bins_l = []
+            self._stats_txt = "No image"
+            self.update()
+            return
+        small = img.scaled(64, 64, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.FastTransformation)
+        rgb = small.convertToFormat(QImage.Format.Format_RGB888)
+        w, h, bpl = rgb.width(), rgb.height(), rgb.bytesPerLine()
+        ptr = rgb.constBits()
+        if ptr is None:
+            return
+        ptr.setsize(rgb.sizeInBytes())
+        data = memoryview(ptr).cast("B")
+        nb = 48
+        hr = [0] * nb
+        hg = [0] * nb
+        hb = [0] * nb
+        hl = [0] * nb
+        clip_lo = 0
+        clip_hi = 0
+        total = max(1, w * h)
+        scale_b = (nb - 1) / 255.0
+        for y in range(h):
+            off = y * bpl
+            row = data[off : off + w * 3]
+            for x in range(0, w * 3, 3):
+                r, g, b = row[x], row[x + 1], row[x + 2]
+                l = (r * 77 + g * 150 + b * 29) >> 8
+                hr[int(r * scale_b)] += 1
+                hg[int(g * scale_b)] += 1
+                hb[int(b * scale_b)] += 1
+                hl[int(l * scale_b)] += 1
+                if l <= 4:
+                    clip_lo += 1
+                elif l >= 251:
+                    clip_hi += 1
+        peak = max(1, max(max(hr), max(hg), max(hb), max(hl)))
+        self._bins_r = [v / peak for v in hr]
+        self._bins_g = [v / peak for v in hg]
+        self._bins_b = [v / peak for v in hb]
+        self._bins_l = [v / peak for v in hl]
+        self._stats_txt = f"Blk {clip_lo * 100 // total}% · Wht {clip_hi * 100 // total}%"
+        self.update()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        r = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+        p.setBrush(QColor(C["deep"]))
+        p.setPen(QPen(QColor(C["line"]), 1.0))
+        p.drawRoundedRect(r, 4.0, 4.0)
+        # Subtle zone guide verticals (25% / 50% / 75%)
+        gpen = QPen(QColor(C["line"]), 0.7, Qt.PenStyle.DotLine)
+        p.setPen(gpen)
+        for frac in (0.25, 0.5, 0.75):
+            gx = r.left() + r.width() * frac
+            p.drawLine(QPointF(gx, r.top() + 2), QPointF(gx, r.bottom() - 2))
+        if self._bins_l:
+            n = len(self._bins_l)
+            inner = r.adjusted(2.0, 4.0, -2.0, -2.0)
+            dx = inner.width() / max(1, n - 1)
+            for bins, rgba in (
+                (self._bins_r, (235, 76, 76, 78)),
+                (self._bins_g, (74, 212, 118, 74)),
+                (self._bins_b, (76, 158, 245, 82)),
+            ):
+                path = QPainterPath()
+                path.moveTo(inner.left(), inner.bottom())
+                for i, v in enumerate(bins):
+                    path.lineTo(inner.left() + i * dx, inner.bottom() - v * inner.height())
+                path.lineTo(inner.right(), inner.bottom())
+                path.closeSubpath()
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(QColor(*rgba))
+                p.drawPath(path)
+            lpath = QPainterPath()
+            for i, v in enumerate(self._bins_l):
+                pt = QPointF(inner.left() + i * dx, inner.bottom() - v * inner.height())
+                if i == 0:
+                    lpath.moveTo(pt)
+                else:
+                    lpath.lineTo(pt)
+            lcol = QColor(C["text_hi"])
+            lcol.setAlpha(185)
+            p.setBrush(Qt.BrushStyle.NoBrush)
+            p.setPen(QPen(lcol, 1.15))
+            p.drawPath(lpath)
+        p.setFont(_font(max(6.2, 6.8 * ui_scale())))
+        p.setPen(QColor(C["muted"]))
+        p.drawText(r.adjusted(4, 1, -4, -1), Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight, self._stats_txt)
+        p.end()
+
+
+# =============================================================================
+#  18. Unified Aspect Ratio & Resolution Picker (v17.0 — All Orientations
+#      Together + Shift+Click Multi-Select Random Resolution Pool!)
 # =============================================================================
 class AspectButton(QAbstractButton):
-    """Compact glossy aspect tile with luminous selected state."""
+    """Compact glossy aspect tile displaying orientation badge, ratio & WxH px.
+    Supports Shift+Click multi-selection with a numbered pool badge."""
 
-    def __init__(self, key: str, w: int, h: int, parent: Optional[QWidget] = None) -> None:
+    tile_clicked = pyqtSignal(str, bool)  # key, shift_held
+
+    def __init__(self, key: str, w: int, h: int, group: str = "square", parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.key = key
         self.w_px = w
         self.h_px = h
+        self.group = group
+        self._pool_index: int = 0   # >0 when >1 preset is selected in random pool
         self.setCheckable(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setMinimumWidth(0)
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
-        self.setMinimumHeight(max(26, int(round(32 * ui_scale()))))
-        self.setToolTip(f"{key}  \u2014  {w} \u00d7 {h} px")
+        self.setMinimumHeight(max(25, int(round(30 * ui_scale()))))
+        orient_lbl = "Square" if group == "square" else ("Landscape" if group == "land" else "Portrait")
+        self.setToolTip(
+            f"{key} ({orient_lbl})  \u2014  {w} \u00d7 {h} px\n"
+            "Click: select single preset  \u2022  Shift+Click: add/remove in Random Pool"
+        )
+
+    def set_pool_index(self, idx: int) -> None:
+        v = max(0, int(idx))
+        if v != self._pool_index:
+            self._pool_index = v
+            self.update()
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:  # noqa: N802
+        if event.button() == Qt.MouseButton.LeftButton:
+            shift = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
+            self.tile_clicked.emit(self.key, shift)
+            event.accept()
+            return
+        super().mousePressEvent(event)
 
     def sizeHint(self) -> QSize:  # noqa: N802
         s = ui_scale()
-        return QSize(max(44, int(round(58 * s))), max(26, int(round(32 * s))))
+        return QSize(max(44, int(round(58 * s))), max(25, int(round(30 * s))))
 
     def paintEvent(self, event) -> None:  # noqa: N802
         p = QPainter(self)
@@ -17242,7 +17782,7 @@ class AspectButton(QAbstractButton):
         tkey = resolve_theme_key(C.get("key", "seestation"))
         rad = {"seestation": 6.0, "kreatendo": 8.5, "mint": 5.5, "oriental": 0.0}.get(tkey, 1.0)
         p.setBrush(QBrush(grad))
-        p.setPen(QPen(QColor(C["acc_edge"] if checked else C["line_hi"]), 1.25 if checked else 0.9))
+        p.setPen(QPen(QColor(C["acc_edge"] if checked else C["line_hi"]), 1.35 if checked else 0.9))
         if tkey == "gold":
             p.drawPath(_chamfer_path(r, 3.5))
         else:
@@ -17251,9 +17791,9 @@ class AspectButton(QAbstractButton):
             p.setPen(Qt.PenStyle.NoPen)
             if tkey == "kreatendo":
                 kg = QLinearGradient(r.left() + 6, 0, r.right() - 6, 0)
-                kg.setColorAt(0.0, QColor("#29c7ff"))
-                kg.setColorAt(0.5, QColor("#e8fbff"))
-                kg.setColorAt(1.0, QColor("#2ce0b5"))
+                kg.setColorAt(0.0, QColor("#1aa6e0"))
+                kg.setColorAt(0.5, QColor("#d9f2fc"))
+                kg.setColorAt(1.0, QColor("#1c9c6b"))
                 p.setBrush(kg)
                 p.drawRoundedRect(QRectF(r.left() + 6.0, r.bottom() - 3.0, max(4.0, r.width() - 12.0), 2.2), 1.1, 1.1)
             elif tkey == "seestation":
@@ -17272,16 +17812,29 @@ class AspectButton(QAbstractButton):
             else:
                 p.setBrush(QBrush(QColor(C["acc_spec"])))
                 p.drawRect(QRectF(r.left() + 4.0, r.top() + 1.0, max(4.0, r.width() - 8.0), 2.0))
+        # Subtle orientation micro-glyph (left side): square / landscape bar / portrait bar
+        glyph_col = QColor(C["acc_text"] if checked else C["muted"])
+        glyph_col.setAlpha(210 if checked else 145)
+        p.setPen(QPen(glyph_col, 1.0))
+        p.setBrush(Qt.BrushStyle.NoBrush)
+        gx = r.left() + 4.5
+        gy = r.top() + r.height() * 0.28
+        if self.group == "land":
+            p.drawRect(QRectF(gx, gy + 1.0, 6.2, 4.2))
+        elif self.group == "port":
+            p.drawRect(QRectF(gx + 1.0, gy - 0.5, 4.2, 6.2))
+        else:
+            p.drawRect(QRectF(gx + 0.6, gy + 0.4, 5.2, 5.2))
         s = ui_scale()
         top_h = r.height() * 0.54
-        p.setFont(_font(max(7.2, 8.4 * s), True))
+        p.setFont(_font(max(7.1, 8.2 * s), True))
         p.setPen(QColor(C["acc_text"] if checked else C["text_hi"]))
         p.drawText(
-            QRectF(r.left() + 2, r.top() + 1, r.width() - 4, top_h),
+            QRectF(r.left() + 9, r.top() + 1, max(12.0, r.width() - 14), top_h),
             Qt.AlignmentFlag.AlignCenter,
             self.key,
         )
-        p.setFont(_font(max(6.2, 6.9 * s)))
+        p.setFont(_font(max(6.0, 6.7 * s)))
         p.setPen(QColor(C["acc_text"] if checked else C["muted"]))
         dim_txt = f"{self.w_px}\u00d7{self.h_px}"
         dim_el = QFontMetrics(p.font()).elidedText(dim_txt, Qt.TextElideMode.ElideRight, max(16, int(r.width() - 4)))
@@ -17290,118 +17843,155 @@ class AspectButton(QAbstractButton):
             Qt.AlignmentFlag.AlignCenter,
             dim_el,
         )
+        # Random-pool index dot when multiple presets are Shift-selected
+        if checked and self._pool_index > 0:
+            br = QRectF(r.right() - 12.0, r.top() + 1.5, 10.5, 10.5)
+            p.setPen(Qt.PenStyle.NoPen)
+            p.setBrush(QColor(C["warn"] if not is_light_theme() else "#1c9c6b"))
+            p.drawEllipse(br)
+            p.setFont(_font(6.0, True))
+            p.setPen(QColor("#110a01" if not is_light_theme() else "#f4fff9"))
+            p.drawText(br, Qt.AlignmentFlag.AlignCenter, str(self._pool_index))
         p.end()
 
 
 class AspectPicker(QWidget):
-    """Grid of aspect tiles. The landscape and portrait families are swapped
-    through the LAND / PORT segmented switch (plain switching buttons:
-    exactly one side is always active and they never toggle themselves off);
-    the square tile is always visible."""
+    """Unified aspect-ratio & resolution picker displaying ALL orientations
+    (Square, Landscape & Portrait) together with Shift+Click multi-selection
+    for random resolution picking per generated image."""
 
     changed = pyqtSignal(str)
-    orient_clicked = pyqtSignal(str)  # "land" / "port" — user clicks only
+    selection_changed = pyqtSignal(list)
+    orient_clicked = pyqtSignal(str)  # kept for legacy signal compatibility
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
-        self._group = "land"
+        self._selected_keys: List[str] = ["1:1"]
         self._grid = QGridLayout(self)
         self._grid.setContentsMargins(0, 0, 0, 0)
         self._grid.setHorizontalSpacing(3)
         self._grid.setVerticalSpacing(3)
-        self._btn_group = QButtonGroup(self)
-        self._btn_group.setExclusive(True)
         self._buttons: Dict[str, AspectButton] = {}
-        for a in ASPECTS:
-            b = AspectButton(a["key"], a["w"], a["h"])
-            b.setVisible(a["group"] == "square")
-            self._btn_group.addButton(b)
+
+        # Ordered unified display: Row 0-1 Square + Landscape (6 tiles), Row 2-3 Portrait (5 tiles + Pool/1x slot)
+        ordered = (
+            [a for a in ASPECTS if a["group"] == "square"]
+            + [a for a in ASPECTS if a["group"] == "land"]
+            + [a for a in ASPECTS if a["group"] == "port"]
+        )
+        cols = 3
+        for idx, a in enumerate(ordered):
+            b = AspectButton(a["key"], a["w"], a["h"], group=a["group"])
+            b.tile_clicked.connect(self._on_tile_clicked)
             self._buttons[a["key"]] = b
-        self._btn_group.buttonClicked.connect(lambda b: self.changed.emit(b.key))
-        self._rebuild()
-        # Orientation segmented pair (placed in the compact aspect mode bar).
-        # v11.0.1 FIX: LAND / PORT used to be two INDEPENDENT checkable
-        # toggles — clicking the active one turned it OFF, and clicking PORT
-        # did nothing except flipping its own on/off check mark. They are now
-        # plain switching buttons wired into ONE exclusive QButtonGroup:
-        # exactly one side is always lit, clicking the lit side keeps it lit,
-        # and any click simply swaps the visible tile family.
-        self.orient_land = QToolButton()
-        self.orient_land.setObjectName("Small")
-        self.orient_land.setText("LAND")
-        self.orient_land.setCheckable(True)
-        self.orient_land.setMinimumWidth(0)
-        self.orient_land.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
-        self.orient_land.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.orient_land.setToolTip("Show landscape aspect tiles")
-        self.orient_port = QToolButton()
-        self.orient_port.setObjectName("Small")
-        self.orient_port.setText("PORT")
-        self.orient_port.setCheckable(True)
-        self.orient_port.setMinimumWidth(0)
-        self.orient_port.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
-        self.orient_port.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.orient_port.setToolTip("Show portrait aspect tiles")
-        self._orient_group = QButtonGroup(self)
-        self._orient_group.setExclusive(True)
-        self._orient_group.addButton(self.orient_land)
-        self._orient_group.addButton(self.orient_port)
-        self._orient_group.buttonClicked.connect(self._on_orient_clicked)
-        self.orient_land.setChecked(True)
+            self._grid.addWidget(b, idx // cols, idx % cols)
 
-    def _on_orient_clicked(self, btn: QAbstractButton) -> None:
-        group = "port" if btn is self.orient_port else "land"
-        if group != self._group:
-            self._group = group
-            self._rebuild()
-        self.orient_clicked.emit(group)
+        # 12th slot: compact Random-Pool status / 1x collapse button (fills 4x3 grid symmetrically!)
+        self.pool_btn = QToolButton()
+        self.pool_btn.setObjectName("Small")
+        self.pool_btn.setText("Shift+Clk")
+        self.pool_btn.setMinimumWidth(0)
+        self.pool_btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
+        self.pool_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.pool_btn.setToolTip(
+            "Hold Shift and click multiple resolution presets to build a Random Pool.\n"
+            "Click here while a pool is active to collapse back to a single preset."
+        )
+        self.pool_btn.clicked.connect(self.collapse_to_single)
+        self._grid.addWidget(self.pool_btn, len(ordered) // cols, len(ordered) % cols)
 
-    def set_group(self, group: str) -> None:
-        """Programmatically show a tile family ("land" / "port") without
-        emitting orient_clicked (no user gesture happened)."""
-        if group not in ("land", "port"):
+        self._sync_visuals()
+
+    def _on_tile_clicked(self, key: str, shift: bool) -> None:
+        if key not in self._buttons:
             return
-        target = self.orient_port if group == "port" else self.orient_land
-        if not target.isChecked():
-            target.setChecked(True)  # exclusive pair flips the other off itself
-        if self._group != group:
-            self._group = group
-            self._rebuild()
+        if shift:
+            if key in self._selected_keys:
+                if len(self._selected_keys) > 1:
+                    self._selected_keys.remove(key)
+            else:
+                self._selected_keys.append(key)
+        else:
+            self._selected_keys = [key]
+        self._sync_visuals()
+        self.changed.emit(self._selected_keys[0])
+        self.selection_changed.emit(list(self._selected_keys))
 
-    def set_portrait(self, on: bool) -> None:
-        self.set_group("port" if on else "land")
-
-    def _rebuild(self) -> None:
-        while self._grid.count():
-            item = self._grid.takeAt(0)
-            w = item.widget()
-            if w is not None:
-                self._grid.removeWidget(w)
-        keys = [a["key"] for a in ASPECTS if a["group"] in ("square", self._group)]
-        key_set = set(keys)
+    def _sync_visuals(self) -> None:
+        multi = len(self._selected_keys) > 1
         for k, b in self._buttons.items():
-            b.setVisible(k in key_set)
-        n = len(keys)
-        cols = 3 if n == 6 else 4
-        for i, k in enumerate(keys):
-            self._grid.addWidget(self._buttons[k], i // cols, i % cols)
+            on = k in self._selected_keys
+            b.setChecked(on)
+            b.set_pool_index((self._selected_keys.index(k) + 1) if (multi and on) else 0)
+        if multi:
+            names = ", ".join(
+                f"{k} ({ASPECT_BY_KEY[k]['w']}\u00d7{ASPECT_BY_KEY[k]['h']})"
+                for k in self._selected_keys if k in ASPECT_BY_KEY
+            )
+            self.pool_btn.setText(f"\u2684 {len(self._selected_keys)} \u00d7 1")
+            self.pool_btn.setToolTip(
+                f"Random Resolution Pool ({len(self._selected_keys)} selected):\n{names}\n\n"
+                "Each generated image randomly chooses one preset from this pool.\n"
+                "Click to reset back to a single preset."
+            )
+        else:
+            self.pool_btn.setText("\u2684 Shift")
+            self.pool_btn.setToolTip(
+                "Hold Shift and click presets to select multiple resolutions for random picking."
+            )
+
+    def collapse_to_single(self) -> None:
+        if len(self._selected_keys) <= 1:
+            return
+        self._selected_keys = [self._selected_keys[0]]
+        self._sync_visuals()
+        self.changed.emit(self._selected_keys[0])
+        self.selection_changed.emit(list(self._selected_keys))
+
+    def selected_keys(self) -> List[str]:
+        return list(self._selected_keys)
+
+    def is_multi(self) -> bool:
+        return len(self._selected_keys) > 1
+
+    def pick_random(self) -> Dict[str, Any]:
+        pool = [ASPECT_BY_KEY[k] for k in self._selected_keys if k in ASPECT_BY_KEY]
+        if not pool:
+            return ASPECT_BY_KEY["1:1"]
+        return random.choice(pool) if len(pool) > 1 else pool[0]
 
     def current(self) -> Dict[str, Any]:
-        for k, b in self._buttons.items():
-            if b.isChecked():
+        for k in self._selected_keys:
+            if k in ASPECT_BY_KEY:
                 return ASPECT_BY_KEY[k]
         return ASPECT_BY_KEY["1:1"]
+
+    def set_selected_keys(self, keys: Sequence[str], emit: bool = True) -> None:
+        cleaned: List[str] = []
+        for k in keys:
+            ks = str(k or "").strip()
+            if ks in ASPECT_BY_KEY and ks not in cleaned:
+                cleaned.append(ks)
+        if not cleaned:
+            cleaned = ["1:1"]
+        self._selected_keys = cleaned
+        self._sync_visuals()
+        if emit:
+            self.changed.emit(self._selected_keys[0])
+            self.selection_changed.emit(list(self._selected_keys))
 
     def set_current(self, key: str) -> None:
         a = ASPECT_BY_KEY.get(key)
         if a is None:
             return
-        if a["group"] == "port" and self._group != "port":
-            self.set_portrait(True)
-        elif a["group"] == "land" and self._group != "land":
-            self.set_portrait(False)
-        self._buttons[a["key"]].setChecked(True)
-        self.changed.emit(a["key"])
+        self.set_selected_keys([a["key"]], emit=True)
+
+    # Compatibility no-ops (all orientations are now always displayed together)
+    def set_group(self, _group: str) -> None:
+        return
+
+    def set_portrait(self, _on: bool) -> None:
+        return
 
 
 # =============================================================================
@@ -20988,27 +21578,52 @@ class PreferencesMemoryDialog(QDialog):
         r_row.addWidget(self.del_entry_btn)
         il.addLayout(r_row)
 
+        rh = QHBoxLayout()
+        rh.setSpacing(4)
+        rh.addWidget(make_label("USER PROMPT  (Original Request sent to LLM)", "Kicker"), 1)
+        rh.addWidget(make_button("COPY", lambda: QApplication.clipboard().setText(self.req_edit.toPlainText()), small=True))
+        il.addLayout(rh)
+        self.req_edit = QPlainTextEdit()
+        self.req_edit.setObjectName("SmallEdit")
+        self.req_edit.setPlaceholderText("Original user request that produced these two T2I prompts (included as <UserPrompt> in LLM examples)…")
+        self.req_edit.setMinimumHeight(46)
+        self.req_edit.setMaximumHeight(84)
+        self.req_edit.textChanged.connect(self._mark_entry_dirty)
+        il.addWidget(self.req_edit, 0)
+
         gh = QHBoxLayout()
         gh.setSpacing(4)
-        gh.addWidget(make_label("GOOD PROMPT  (Preferred)", "Kicker"), 1)
+        gh.addWidget(make_label("GOOD PROMPT  (Preferred T2I)", "Kicker"), 1)
         gh.addWidget(make_button("COPY", lambda: QApplication.clipboard().setText(self.good_edit.toPlainText()), small=True))
         il.addLayout(gh)
         self.good_edit = QPlainTextEdit()
         self.good_edit.setObjectName("SmallEdit")
-        self.good_edit.setReadOnly(True)
-        self.good_edit.setMinimumHeight(68)
+        self.good_edit.setMinimumHeight(64)
+        self.good_edit.textChanged.connect(self._mark_entry_dirty)
         il.addWidget(self.good_edit, 1)
 
         bh = QHBoxLayout()
         bh.setSpacing(4)
-        bh.addWidget(make_label("BAD PROMPT  (Rejected)", "Caption"), 1)
+        bh.addWidget(make_label("BAD PROMPT  (Rejected T2I)", "Caption"), 1)
         bh.addWidget(make_button("COPY", lambda: QApplication.clipboard().setText(self.bad_edit.toPlainText()), small=True))
         il.addLayout(bh)
         self.bad_edit = QPlainTextEdit()
         self.bad_edit.setObjectName("SmallEdit")
-        self.bad_edit.setReadOnly(True)
-        self.bad_edit.setMinimumHeight(68)
+        self.bad_edit.setMinimumHeight(64)
+        self.bad_edit.textChanged.connect(self._mark_entry_dirty)
         il.addWidget(self.bad_edit, 1)
+
+        ed_row = QHBoxLayout()
+        ed_row.setSpacing(4)
+        self.save_entry_btn = make_button("SAVE CHANGES", self._save_entry_edits, small=True, accent=True,
+                                          tip="Save edits to User Prompt, Good Prompt & Bad Prompt")
+        self.save_entry_btn.setEnabled(False)
+        self.add_entry_btn = make_button("+ ADD PAIR", self._add_manual_pair, small=True,
+                                         tip="Manually add a new preference example with User Prompt, Good & Bad")
+        ed_row.addWidget(self.save_entry_btn)
+        ed_row.addWidget(self.add_entry_btn)
+        ed_row.addStretch(1)
+        il.addLayout(ed_row)
 
         sp.addWidget(insp)
         sp.setStretchFactor(0, 2)
@@ -21041,6 +21656,7 @@ class PreferencesMemoryDialog(QDialog):
         )
         pl.addWidget(self.prune_btn)
         pl.addStretch(1)
+        pl.addWidget(make_button("IMPORT\u2026", self._import_db, small=True))
         pl.addWidget(make_button("EXPORT\u2026", self._export_db, small=True))
         pl.addWidget(make_button("CLEAR DB", self._clear_db, small=True))
         pl.addWidget(make_button("CLOSE", self.accept, small=True))
@@ -21598,9 +22214,15 @@ class SelfImprovingArenaWidget(QWidget):
         if feedback:
             self.vote_feedback.setText(feedback)
 
-    def set_header(self, model_lbl: str, seed: str, mem_count: int) -> None:
+    def set_header(self, model_lbl: str, seed: str, mem_count: int, request: str = "") -> None:
         seed_part = f"Same Seed: {seed}" if seed else "Same Seed: pending"
         self.seed_lbl.setText(f"{model_lbl}  \u00b7  {seed_part}  \u00b7  Memory: {mem_count} pair(s)")
+        req = " ".join(str(request or "").split()).strip()
+        if hasattr(self, "request_lbl"):
+            self.request_lbl.setVisible(bool(req))
+            if req:
+                self.request_lbl.setText(f"User Request: {req}")
+                self.request_lbl.setToolTip(req)
 
     def tick_animation(self) -> None:
         if self.pane_a.canvas._state in ("streaming", "queued", "rendering"):
@@ -27351,10 +27973,7 @@ class MainWindow(QMainWindow):
         self.deck_offline_lbl.setStyleSheet("font-weight: bold;")
         self.deck_offline_retry_btn = make_button(
             "Retry", self.queue.retry_network_now, small=True,
-            tip="Test internet connection now and resume held tasks",
-            icon_key="reconnect", icon_size=12,
-        )
-        dob.addWidget(self.deck_offline_lbl, 1)
+            tip="Test internet connection now and resume hel.addWidget(self.deck_offline_lbl, 1)")
         dob.addWidget(self.deck_offline_retry_btn, 0)
         self.deck_offline_bar.setVisible(False)
         lay.addWidget(self.deck_offline_bar)
@@ -34310,6 +34929,304 @@ class MainWindow(QMainWindow):
         ]
         for idx, (_ik, name, _tip) in enumerate(self._tab_specs):
             actions.append((f"Tab: {name}  (Ctrl+{idx + 1})", "TAB", lambda i=idx: self.tabs.setCurrentIndex(i)))
+        for tkey in THEME_ORDER:
+            actions.append((f"Theme: {THEMES[tkey]['name']}", "THEME", lambda tk=tkey: self._select_theme_by_key(tk)))
+        dlg = CommandPaletteDialog(actions, self)
+        if dlg.exec() == QDialog.DialogCode.Accepted:
+            dlg.execute_choice()
+
+    def _refresh_arena_memory_badges(self) -> None:
+        stack = self._active_model_key
+        entries = PREF_MEMORY.load(stack)
+        mlbl = PREF_MEMORY_LABELS.get(stack, stack.upper())
+        if hasattr(self, "si_mem_summary"):
+            self.si_mem_summary.setText(f"Memory [{mlbl}]: {len(entries)} preference pair(s)")
+        if hasattr(self, "arena_widget"):
+            self.arena_widget.set_header(mlbl, str(self._arena_round.get("seed") or ""), len(entries))
+
+    def open_preferences_memory_dialog(self) -> None:
+        stack = self._active_model_key
+        ctx_len = int(self.si_ctx_spin.value()) if hasattr(self, "si_ctx_spin") else DEFAULT_LLM_CONTEXT_LENGTH
+        dlg = PreferencesMemoryDialog(PREF_MEMORY, stack, context_length=ctx_len, parent=self)
+        dlg.memory_changed.connect(lambda _s="": self._refresh_arena_memory_badges())
+        dlg.exec()
+        self._refresh_arena_memory_badges()
+
+    def llm_self_improve_forge(self) -> None:
+        """Forge two distinct content prompts (<prompt_a> & <prompt_b>) shaped by
+        per-model PreferencesMemory, then optionally render both with the same seed."""
+        base_url = self.llm_url_edit.text().strip().rstrip("/")
+        model = self.llm_model_combo.currentText().strip()
+        user_req = self.si_user_edit.toPlainText().strip() if hasattr(self, "si_user_edit") else ""
+        if not user_req:
+            user_req = self.llm_user_edit.toPlainText().strip()
+        if not base_url or not model:
+            self.tabs.setCurrentIndex(TAB_LLM)
+            self.llm_status.setText("Configure LLM API URL and Model first before running Self-Improving Arena.")
+            self.toast.notify("Configure LLM URL & Model first", "warn")
+            return
+        if not user_req:
+            self.tabs.setCurrentIndex(TAB_LLM)
+            if hasattr(self, "llm_si_section"):
+                self.llm_si_section.set_expanded(True)
+            self.llm_status.setText("Enter a scene/concept request in the Self-Improving A/B box first.")
+            return
+
+        stack = self._active_model_key
+        entries = PREF_MEMORY.load(stack)
+        ctx_len = int(self.si_ctx_spin.value()) if hasattr(self, "si_ctx_spin") else DEFAULT_LLM_CONTEXT_LENGTH
+        max_out = int(self.llm_maxtok_spin.value()) if hasattr(self, "llm_maxtok_spin") else 0
+        pack = build_self_improving_system_prompt(
+            stack, entries, user_req, context_length=ctx_len, max_output_tokens=max_out
+        )
+        raw_seed = self.si_seed_edit.text().strip() if hasattr(self, "si_seed_edit") else ""
+        seed = raw_seed if raw_seed else str(random.randint(100000, 2147483647))
+
+        self._arena_round = {
+            "stack": stack,
+            "request": user_req,
+            "seed": seed,
+            "prompt_a": "",
+            "prompt_b": "",
+            "job_a": None,
+            "job_b": None,
+            "path_a": "",
+            "path_b": "",
+            "voted": None,
+            "rating": None,
+            "saved_entry_id": None,
+        }
+        self._arena_job_slots.clear()
+        if hasattr(self, "arena_widget"):
+            self.arena_widget.set_vote_enabled(False)
+            self.arena_widget.set_vote_ui(None, "Streaming two distinct prompts from PreferencesMemory…")
+            self.arena_widget.set_rating_ui(None)
+            self.arena_widget.pane_a.set_status("streaming", "Streaming Candidate A…")
+            self.arena_widget.pane_b.set_status("streaming", "Streaming Candidate B…")
+            self.arena_widget.pane_a.set_prompt_text("")
+            self.arena_widget.pane_b.set_prompt_text("")
+            self._refresh_arena_memory_badges()
+            self.right_tabs.setCurrentIndex(2)
+        ANIM_CLOCK.set_active("arena_live", True)
+
+        self._start_llm_stream(
+            task_kind="self_improve",
+            base_url=base_url,
+            api_key=self.llm_key_edit.text().strip(),
+            model=model,
+            system=str(pack["system_prompt"]),
+            user_text=user_req,
+            temperature=self.llm_temp_spin.value(),
+            top_p=self.llm_topp_spin.value(),
+            clear_existing=False,
+            status_start=(
+                f"Self-Improving A/B Forge ({pack['included']}/{pack['total']} memory pairs, "
+                f"~{pack['used_tokens']:,}/{ctx_len:,} tok)…"
+            ),
+        )
+
+    def _arena_on_llm_completed(self, prompts: List[str], dt: float, tok_s: str, tps: float) -> None:
+        if len(prompts) < 2:
+            ANIM_CLOCK.set_active("arena_live", False)
+            msg = f"Need 2 prompts (<prompt_a> & <prompt_b>), received {len(prompts)}."
+            self.llm_status.setText(msg)
+            if hasattr(self, "arena_widget"):
+                self.arena_widget.pane_a.set_status("error", msg)
+                self.arena_widget.pane_b.set_status("error", msg)
+                self.arena_widget.vote_feedback.setText(msg)
+            return
+        pa, pb = prompts[0].strip(), prompts[1].strip()
+        self._arena_round["prompt_a"] = pa
+        self._arena_round["prompt_b"] = pb
+        self.llm_status.setText(f"Arena A/B prompts forged in {dt:.1f}s ({tok_s}, {tps:.1f} tok/s)")
+        if hasattr(self, "arena_widget"):
+            self.arena_widget.pane_a.set_prompt_text(pa)
+            self.arena_widget.pane_b.set_prompt_text(pb)
+            self.arena_widget.set_vote_enabled(True)
+            self.arena_widget.vote_feedback.setText("Rendering A & B with the same seed… you can vote once ready.")
+        if hasattr(self, "si_auto_render_cb") and self.si_auto_render_cb.isChecked():
+            self._arena_enqueue_slot("A")
+            self._arena_enqueue_slot("B")
+        else:
+            ANIM_CLOCK.set_active("arena_live", False)
+            if hasattr(self, "arena_widget"):
+                self.arena_widget.pane_a.set_status("idle", "Prompt A ready (auto-render off)")
+                self.arena_widget.pane_b.set_status("idle", "Prompt B ready (auto-render off)")
+
+    def _arena_enqueue_slot(self, slot: str) -> None:
+        raw_p = str(self._arena_round.get("prompt_a" if slot == "A" else "prompt_b") or "").strip()
+        if not raw_p:
+            return
+        seed = str(self._arena_round.get("seed") or "").strip()
+        use_tpl = bool(self.si_apply_tpl_cb.isChecked()) if hasattr(self, "si_apply_tpl_cb") else True
+        saved_tpl = self.active_template
+        try:
+            if not use_tpl:
+                self.active_template = None
+            payload, meta = self.build_payload(prompt_override=raw_p, n_override=1)
+        finally:
+            self.active_template = saved_tpl
+        if seed:
+            payload.setdefault("params", {})["seed"] = seed
+            meta["seed"] = seed
+        meta["arena_slot"] = slot
+        meta["arena_raw_prompt"] = raw_p
+        job = self.queue.enqueue(payload, meta)
+        self._arena_round["job_a" if slot == "A" else "job_b"] = job.local_id
+        self._arena_job_slots[job.local_id] = slot
+        if hasattr(self, "arena_widget"):
+            pane = self.arena_widget.pane_a if slot == "A" else self.arena_widget.pane_b
+            pane.set_status("rendering", f"Queued #{job.local_id} (seed {seed})…")
+        self._maybe_reveal_mini_queue()
+
+    def _arena_retry_slot(self, slot: str) -> None:
+        if slot in ("A", "B"):
+            self._arena_enqueue_slot(slot)
+
+    def _arena_on_image_ready(self, slot: str, path: str, _meta: Dict[str, Any]) -> None:
+        self._arena_round["path_a" if slot == "A" else "path_b"] = path
+        if hasattr(self, "arena_widget"):
+            pane = self.arena_widget.pane_a if slot == "A" else self.arena_widget.pane_b
+            pane.set_image(path)
+            both_ready = bool(self._arena_round.get("path_a") and self._arena_round.get("path_b"))
+            if both_ready:
+                ANIM_CLOCK.set_active("arena_live", False)
+                self.arena_widget.vote_feedback.setText("Both candidates ready — pick A, B, or TIE!")
+        self.gallery_tab.mark_dirty()
+        self.gallery.refresh(self.store.list_recent(include_output=True))
+        self._update_summary()
+        SOUNDS.play("done")
+
+    def _arena_save_candidate(self, path: str) -> None:
+        if not path or not os.path.isfile(path):
+            return
+        try:
+            saved = self.store.save_to_output(path)
+            self.gallery_tab.mark_dirty()
+            self.refresh_gallery(select=saved)
+            self.toast.notify(f"Saved Arena winner -> {os.path.basename(saved)}", "ok")
+            SOUNDS.play("saved")
+        except Exception as exc:  # noqa: BLE001
+            self.toast.notify(f"Save failed: {exc}", "err")
+
+    def _arena_on_vote(self, vote: str) -> None:
+        pa = str(self._arena_round.get("prompt_a") or "").strip()
+        pb = str(self._arena_round.get("prompt_b") or "").strip()
+        if not pa or not pb:
+            return
+        stack = str(self._arena_round.get("stack") or self._active_model_key)
+        prev_id = self._arena_round.get("saved_entry_id")
+        if prev_id:
+            PREF_MEMORY.delete_entry(stack, str(prev_id))
+            self._arena_round["saved_entry_id"] = None
+        self._arena_round["voted"] = vote
+        if vote == "tie":
+            self.arena_widget.set_vote_ui("tie", "Tie recorded — skipped saving to PreferencesMemory.")
+            self._refresh_arena_memory_badges()
+            return
+        good, bad = (pa, pb) if vote == "A" else (pb, pa)
+        entry = PREF_MEMORY.add_pair(
+            stack,
+            good,
+            bad,
+            rating=self._arena_round.get("rating"),
+            request=str(self._arena_round.get("request") or ""),
+        )
+        if entry is not None:
+            self._arena_round["saved_entry_id"] = entry.get("id")
+            r_str = f" ({entry['rating']}★)" if entry.get("rating") else ""
+            self.arena_widget.set_vote_ui(vote, f"Saved {vote} > {'B' if vote == 'A' else 'A'}{r_str} to PreferencesMemory!")
+            self.toast.notify(f"Preference saved ({vote} wins{r_str})", "ok")
+            SOUNDS.play("saved")
+        self._refresh_arena_memory_badges()
+
+    def _arena_on_rating_changed(self, rating: Any) -> None:
+        rv = rating if (isinstance(rating, int) and 1 <= rating <= 5) else None
+        self._arena_round["rating"] = rv
+        eid = self._arena_round.get("saved_entry_id")
+        if eid and self._arena_round.get("voted") in ("A", "B"):
+            stack = str(self._arena_round.get("stack") or self._active_model_key)
+            PREF_MEMORY.update_rating(stack, str(eid), rv)
+            self._refresh_arena_memory_badges()
+
+    # ------------------------------------------------------------------ Shutdown
+    def closeEvent(self, event) -> None:  # noqa: N802
+        ANIM_CLOCK.stop_all()
+        try:
+            ANIM_CLOCK.ticked.disconnect(self._on_anim_clock_tick)
+        except Exception:  # noqa: BLE001
+            pass
+        STUDIO_LOG.unsubscribe(self._log_bridge.logged.emit)
+        self._server_status_timer.stop()
+        self._telemetry_timer.stop()
+        self._slide_timer.stop()
+        if hasattr(self, "_flash_timer"):
+            self._flash_timer.stop()
+        if hasattr(self, "gen_btn"):
+            self.gen_btn.stop_animations()
+        self.save_now()
+        self.save_llm_now()
+        save_history(self.history)
+        if self.bridge is not None:
+            self.bridge.stop()
+        if self.st_server is not None:
+            self.st_server.stop()
+        if self._llm_worker is not None and self._llm_worker.isRunning():
+            self._llm_worker.stop()
+            self._llm_worker.wait(800)
+        if self._llm_models_worker is not None and self._llm_models_worker.isRunning():
+            self._llm_models_worker.stop()
+            self._llm_models_worker.wait(600)
+        for w in list(self._aesthetic_workers):
+            w.request_cancel()
+            w.wait(500)
+        self.gallery_tab.shutdown()
+        for th in list(self._tasks):
+            th.wait(250)
+        self.queue.shutdown()
+        super().closeEvent(event)
+
+
+# =============================================================================
+#  26. Application Entry Point (v16.0 — 800x600 Ready + Low-End Laptop Tuned)
+# =============================================================================
+def main() -> int:
+    app = QApplication(sys.argv)
+    app.setApplicationName(APP_NAME)
+    app.setApplicationVersion(APP_VERSION)
+    app.setStyle("Fusion")
+    install_themed_cursors(app)
+    win = MainWindow()
+    scr = QGuiApplication.primaryScreen()
+    if scr is not None:
+        av = scr.availableGeometry()
+        if av.width() <= 840 or av.height() <= 620:
+            # 800x600 / netbook display: fit cleanly inside available geometry with zero clipping
+            init_w = max(640, min(av.width() - 4, 796))
+            init_h = max(460, min(av.height() - 4, 572))
+            win.resize(init_w, init_h)
+            left_w = max(248, min(312, int(init_w * 0.40)))
+            win.split.setSizes([left_w, max(260, init_w - left_w)])
+        else:
+            init_w = max(760, min(1240, av.width() - 28))
+            init_h = max(540, min(780, av.height() - 40))
+            win.resize(init_w, init_h)
+        win.move(
+            av.left() + max(0, (av.width() - init_w) // 2),
+            av.top() + max(0, (av.height() - init_h) // 2),
+        )
+    else:
+        win.resize(1024, 680)
+    win.show()
+    CURSOR_ENGINE.refresh_widget_tree(win)
+    QTimer.singleShot(0, win._on_workspace_resized)
+    return app.exec()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+((f"Tab: {name}  (Ctrl+{idx + 1})", "TAB", lambda i=idx: self.tabs.setCurrentIndex(i)))
         for tkey in THEME_ORDER:
             actions.append((f"Theme: {THEMES[tkey]['name']}", "THEME", lambda tk=tkey: self._select_theme_by_key(tk)))
         dlg = CommandPaletteDialog(actions, self)
