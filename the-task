@@ -1,35 +1,18 @@
-A very professionally-done, artistic, creative, inspirational CGi render (Autodesk Maya, Luxrender and Octane Render) published at CGSociety, made by a senior 3DCG artist from Japan, set in the "Phantasy Star Online" and "Phantasy Star Online 2", based on the fictional setting of those franchises, with the face stylization from "Phantasy Star Online 2", and inspired by "Phantasy Star Online" videogame aesthetics. The facial anatomy stylization also resembles "Project Diva F" and "Koikatsu" H-Game, "Mabinogi Online".
-It features a completely nude woman who is a hentai female character with ultra-vibrant eye irises, with slender body, defined ribcage, lithe and ample body frame, round perky breasts and ample curvaceous hips. Her waist is narrow, hips are wide and breasts exaggeratedly perky. She is posing naked at a dim bathroom, demonstrating her body and arching back, with a smile.
-The CGi work has a vibrant color palette, soft lighting from multiple directions, nuanced shadows, and natural-looking body of the female character.
-
 [Before starting, clean up any remnants from the previous (unrelated) session]
 You are an expert software engineer. Your task is to remake this app drastically, doing a major update to improve it generally, fixing any possile issues with UI, implementing the most efficient and optimal UI layout, improving the existing themes while keeping everything well-optimized, fixing/preventing glitches, giving it professionally-done and refined look.
 
-Also fix:
-  File "D:\Documents\python\testing\hl.py", line 37386, in <module>
-    raise SystemExit(main())
-  File "D:\Documents\python\testing\hl.py", line 37357, in main
-    win = MainWindow()
-  File "D:\Documents\python\testing\hl.py", line 26561, in __init__
-    self._build_ui()
-  File "D:\Documents\python\testing\hl.py", line 26610, in _build_ui
-    self.left = self._build_left()
-  File "D:\Documents\python\testing\hl.py", line 26876, in _build_left
-    self._build_horde_tab(),
-  File "D:\Documents\python\testing\hl.py", line 28837, in _build_horde_tab
-    lay.addWidget(self._horde_group("UI Scale, Theme & Sound Mode", build_sounds, expanded=True))
-  File "D:\Documents\python\testing\hl.py", line 28575, in _horde_group
-    build(gl)
-  File "D:\Documents\python\testing\hl.py", line 28804, in build_sounds
-    sfx_flow = FlowContainer(hgap=3, vgap=3)
-TypeError: FlowContainer.__init__() got an unexpected keyword argument 'hgap'
+Also, move the LLM API settings to the settings tab. Inside the LLM tab itself, implement three inner tabs to divide the features between (forge prompt / VLM / self-improving), for a better navigation. Make sure the system prompt for "self-improving" is also present in here and is editable (with possibility to restore default). Overall, make everything better organized in the layout, with better visibility and navigation.
+Also make sure the prompt input form in the first tab is adjustable and can be resized (enlarged) by dragging its corner, to make sure a long prompt will be visible properly
+Also make all the interactive scrolling bars (for vertical scrolling where it is present) more wide, to make its draggable element easier to point the mouse cursor at.
+Additionally, implement "Timeless Place": a nostalgic-feel, atmospheric, serene and a bit surrealistic theme inspired by: aesthetics of "Ico" and "Shadow of the Colossus" games by Team Ico, and by the mood and aesthetics of "Haibane Renmei" anime show; it also has just a bit of polished, refined modern aesthetic of the games "Cytus" and "Sdorica" (their UIs, etc.). Keep the UI design non-flat. This theme is moderately dark, but mostly following the Ico and Haibane Renmei mood, with "art house" genre feel in it. Do NOT mention anywhere any of the franchises names listed here.
 
 Generally, study the app properly to find out what you can improve or adjust. Feel free to make any changes for the better and more professionally-done implementation of the app.
 
-Constraints: Python 3.10.0, single-file .py (with its data in the subfolders), good optimization for low-end laptops, good visibility (can work even in 800x600 screen resolution); assets (vector graphics and sounds) are stored in the same py; made for East Asia users (though the language stays English only); five UI themes (improve eath further with more distinctive designs): Deus Ex HR golden style / Asia-inspired black and red / Sony-inspired UI / A theme inspired by Nintendo software UIs (Nintendo Wii/Wii U/DS/3DS aesthetics with their distinctive feel and colorful accents, light theme) / "Mint Serenity" theme which is dark but also with use of green colors, nature-inspired, and inspired by Linux Mint distro's desktop designs; professional standards of software engineering quality, up to 100k lines of code, up to 3 megabytes in size of the py file.
+Constraints: Python 3.10.0, single-file .py (with its data in the subfolders), good optimization for low-end laptops, good visibility (can work even in 800x600 screen resolution); assets (vector graphics and sounds) are stored in the same py; made for East Asia users (though the language stays English only); six UI themes (improve eath further with more distinctive designs): Deus Ex HR golden style / Asia-inspired black and red / Sony-inspired UI / A theme inspired by Nintendo software UIs (Nintendo Wii/Wii U/DS/3DS aesthetics with their distinctive feel and colorful accents, light theme) / "Mint Serenity" theme which is dark but also with use of green colors, nature-inspired, and inspired by Linux Mint distro's desktop designs / "Timeless Place" that you will add; professional standards of software engineering quality, up to 100k lines of code, up to 3 megabytes in size of the py file.
 Don't stop until everything is implemented properly. The web app shall have only a summary of work done, written in plain text, and nothing else.
 
 The old version code:
+
 
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
@@ -227,7 +210,7 @@ except Exception:  # pragma: no cover - non-Windows platforms
 #  1. Constants, Workspace Paths & Legacy Migration
 # =============================================================================
 APP_NAME = "Horde Studio Lite"
-APP_VERSION = "19.0.0"
+APP_VERSION = "20.0.0"
 CLIENT_AGENT = f"HordeStudioLite:{APP_VERSION}:local-desktop"
 HORDE_URL = "https://stablehorde.net/api/v2"
 ANON_KEY = "0000000000"
@@ -1864,6 +1847,42 @@ THEMES: Dict[str, Dict[str, str]] = {
 }
 
 THEME_ORDER: Tuple[str, ...] = ("seestation", "gold", "oriental", "kreatendo", "mint")
+
+# v20.0 Visual Theme Metadata — signature swatch palettes & architectural tags
+# powering the interactive Visual Theme Gallery Switcher and bespoke theme chrome.
+THEME_META: Dict[str, Dict[str, Any]] = {
+    "seestation": {
+        "short": "SeeStation",
+        "tagline": "Sony XMB · PS4 Lightbar · OLED Sapphire",
+        "swatches": ("#06142e", "#0078e0", "#5cc8ff", "#d4f2ff"),
+        "badge": "CONSOLE",
+    },
+    "gold": {
+        "short": "Sarif Gold",
+        "tagline": "Deus Ex HR · Chamfered Carbon & Amber",
+        "swatches": ("#120e07", "#8f5a07", "#de9614", "#ffd24c"),
+        "badge": "CYBER HUD",
+    },
+    "oriental": {
+        "short": "Oriental",
+        "tagline": "Kuro-Urushi Lacquer · Vermilion · Kintsugi",
+        "swatches": ("#050505", "#990000", "#ff1c14", "#d8a84e"),
+        "badge": "LACQUER",
+    },
+    "kreatendo": {
+        "short": "Kreatendo",
+        "tagline": "Wii / Wii U / 3DS Porcelain · Colorful Accents",
+        "swatches": ("#ffffff", "#009ce0", "#16b877", "#f5a600", "#e84152"),
+        "badge": "LIGHT UI",
+    },
+    "mint": {
+        "short": "Mint Serenity",
+        "tagline": "Linux Mint Cinnamon · Evergreen & Leaf Green",
+        "swatches": ("#151f19", "#327f3b", "#87cf3e", "#4ec7b8"),
+        "badge": "NATURE",
+    },
+}
+
 C: Dict[str, str] = dict(THEMES["seestation"])
 
 # v19 unified dropdown scale system: 1.00 == clean 100% baseline (9.6pt base font —
@@ -2147,23 +2166,36 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
                 p.drawEllipse(QPointF(w * mx, h * my), mr * 2.1, mr * 2.1)
                 p.setBrush(QColor(235, 250, 255, ma))
                 p.drawEllipse(QPointF(w * mx, h * my), mr, mr)
+            # PS4 vertical glass reflection sheen + DualShock top lightbar bloom
+            pillar = QLinearGradient(w * 0.62, 0, w * 0.84, h)
+            pillar.setColorAt(0.0, QColor(120, 212, 255, 22))
+            pillar.setColorAt(0.55, QColor(0, 112, 209, 10))
+            pillar.setColorAt(1.0, QColor(0, 0, 0, 0))
+            p.setPen(Qt.PenStyle.NoPen)
+            p.setBrush(pillar)
+            p.drawPolygon(QPolygonF([
+                QPointF(w * 0.64, 0), QPointF(w * 0.80, 0),
+                QPointF(w * 0.66, h), QPointF(w * 0.50, h),
+            ]))
             top_bar = QLinearGradient(0, 0, w, 0)
             top_bar.setColorAt(0.0, QColor(0, 140, 255, 0))
-            top_bar.setColorAt(0.5, QColor(135, 220, 255, 108))
+            top_bar.setColorAt(0.25, QColor(56, 178, 255, 108))
+            top_bar.setColorAt(0.50, QColor(176, 236, 255, 152))
+            top_bar.setColorAt(0.75, QColor(56, 178, 255, 108))
             top_bar.setColorAt(1.0, QColor(0, 140, 255, 0))
-            p.setPen(QPen(QBrush(top_bar), 1.8))
+            p.setPen(QPen(QBrush(top_bar), 2.1))
             p.drawLine(QPointF(16, 2), QPointF(w - 16, 2))
             if w >= 220 and h >= 140:
-                bx, by = w - 82.0, h - 22.0
+                bx, by = w - 84.0, h - 24.0
                 p.setBrush(Qt.BrushStyle.NoBrush)
-                p.setPen(QPen(QColor(86, 224, 148, 52), 1.4))
+                p.setPen(QPen(QColor(86, 228, 152, 66), 1.45))
                 p.drawPolygon(QPolygonF([QPointF(bx, by + 9), QPointF(bx + 5, by), QPointF(bx + 10, by + 9)]))
-                p.setPen(QPen(QColor(242, 108, 108, 52), 1.4))
+                p.setPen(QPen(QColor(246, 110, 110, 66), 1.45))
                 p.drawEllipse(QPointF(bx + 23, by + 4.5), 4.6, 4.6)
-                p.setPen(QPen(QColor(104, 186, 255, 56), 1.4))
+                p.setPen(QPen(QColor(106, 194, 255, 72), 1.45))
                 p.drawLine(QPointF(bx + 36, by + 0.5), QPointF(bx + 44, by + 8.5))
                 p.drawLine(QPointF(bx + 44, by + 0.5), QPointF(bx + 36, by + 8.5))
-                p.setPen(QPen(QColor(224, 126, 232, 52), 1.4))
+                p.setPen(QPen(QColor(228, 130, 238, 66), 1.45))
                 p.drawRect(QRectF(bx + 54, by + 0.5, 8.5, 8.5))
         elif k == "oriental":
             bg.setColorAt(0.0, QColor("#090909"))
@@ -2172,23 +2204,24 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
             p.fillRect(0, 0, w, h, bg)
             mx_c, my_c = w * 0.78, h * 0.24
             aura = QRadialGradient(mx_c, my_c, max(w, h) * 0.46)
-            aura.setColorAt(0.0, QColor(230, 0, 0, 44))
-            aura.setColorAt(0.32, QColor(145, 0, 0, 18))
-            aura.setColorAt(0.70, QColor(40, 0, 0, 6))
+            aura.setColorAt(0.0, QColor(235, 10, 8, 52))
+            aura.setColorAt(0.32, QColor(145, 0, 0, 20))
+            aura.setColorAt(0.70, QColor(40, 0, 0, 7))
             aura.setColorAt(1.0, QColor(0, 0, 0, 0))
             p.fillRect(0, 0, w, h, aura)
             if w >= 200 and h >= 140:
                 mr = min(w, h) * 0.17
                 p.setPen(Qt.PenStyle.NoPen)
-                p.setBrush(QColor(0, 0, 0, 220))
+                p.setBrush(QColor(0, 0, 0, 224))
                 p.drawEllipse(QPointF(mx_c, my_c), mr * 0.86, mr * 0.86)
                 p.setBrush(Qt.BrushStyle.NoBrush)
-                p.setPen(QPen(QColor(245, 16, 10, 58), 1.8))
-                p.drawEllipse(QPointF(mx_c, my_c), mr * 0.90, mr * 0.90)
-                p.setPen(QPen(QColor(255, 220, 212, 30), 0.9))
-                p.drawEllipse(QPointF(mx_c, my_c), mr * 1.10, mr * 1.10)
-            # Subtle Kumiko diamond stars + Seigaiha traditional East-Asian wave-arc weave
-            p.setPen(QPen(QColor(225, 16, 12, 18), 0.75))
+                # Ceremonial vermilion Enso eclipse ring + Kintsugi gold halo
+                p.setPen(QPen(QColor(248, 18, 12, 74), 2.1))
+                p.drawArc(QRectF(mx_c - mr * 0.90, my_c - mr * 0.90, mr * 1.80, mr * 1.80), 32 * 16, 316 * 16)
+                p.setPen(QPen(QColor(222, 174, 84, 38), 1.0))
+                p.drawEllipse(QPointF(mx_c, my_c), mr * 1.11, mr * 1.11)
+            # Subtle Kumiko Asanoha stars + Kintsugi Seigaiha traditional wave-arc weave
+            p.setPen(QPen(QColor(225, 16, 12, 20), 0.75))
             p.setBrush(Qt.BrushStyle.NoBrush)
             step = 44.0
             for gy in range(0, int(h // step) + 2):
@@ -2202,46 +2235,59 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
                         p.drawLine(QPointF(cx - d * 0.68, cy - d * 0.68), QPointF(cx + d * 0.68, cy + d * 0.68))
                         p.drawLine(QPointF(cx + d * 0.68, cy - d * 0.68), QPointF(cx - d * 0.68, cy + d * 0.68))
                     elif (gx * 2 + gy) % 5 == 0 and gy > 1:
-                        # Whisper-faint Kintsugi gold Seigaiha concentric arc
-                        p.setPen(QPen(QColor(216, 168, 78, 16), 0.7))
+                        p.setPen(QPen(QColor(220, 172, 82, 20), 0.75))
                         for rr in (10.0, 16.0):
                             p.drawArc(QRectF(cx - rr, cy - rr, rr * 2.0, rr * 2.0), 20 * 16, 140 * 16)
-                        p.setPen(QPen(QColor(225, 16, 12, 18), 0.75))
+                        p.setPen(QPen(QColor(225, 16, 12, 20), 0.75))
             slash = QLinearGradient(w * 0.14, h * 0.92, w * 0.92, h * 0.10)
             slash.setColorAt(0.0, QColor(240, 0, 0, 0))
-            slash.setColorAt(0.45, QColor(255, 20, 14, 34))
-            slash.setColorAt(0.55, QColor(255, 220, 210, 52))
+            slash.setColorAt(0.45, QColor(255, 22, 16, 40))
+            slash.setColorAt(0.55, QColor(255, 224, 212, 62))
             slash.setColorAt(1.0, QColor(240, 0, 0, 0))
-            p.setPen(QPen(QBrush(slash), 1.7))
+            p.setPen(QPen(QBrush(slash), 1.8))
             p.drawLine(QPointF(w * 0.12, h * 0.94), QPointF(w * 0.92, h * 0.08))
-            p.setPen(QPen(QColor(240, 10, 6, 95), 2.0))
+            # Top Torii-lacquer vermilion beam + parallel Kintsugi 24k gold hairline
+            p.setPen(QPen(QColor(245, 16, 10, 132), 2.2))
             p.drawLine(QPointF(0, 1.5), QPointF(w, 1.5))
-            p.setPen(QPen(QColor(214, 168, 84, 48), 0.9))
+            p.setPen(QPen(QColor(222, 174, 84, 72), 0.95))
             p.drawLine(QPointF(18, 5.5), QPointF(w - 18, 5.5))
             p.setPen(Qt.PenStyle.NoPen)
-            p.setBrush(QColor(255, 20, 14, 155))
-            p.drawPolygon(QPolygonF([QPointF(0, 0), QPointF(16, 0), QPointF(0, 16)]))
-            p.setBrush(QColor(180, 0, 0, 130))
-            p.drawPolygon(QPolygonF([QPointF(w, h), QPointF(w - 14, h), QPointF(w, h - 14)]))
+            p.setBrush(QColor(255, 22, 16, 178))
+            p.drawPolygon(QPolygonF([QPointF(0, 0), QPointF(17, 0), QPointF(0, 17)]))
+            p.setBrush(QColor(196, 8, 6, 148))
+            p.drawPolygon(QPolygonF([QPointF(w, h), QPointF(w - 15, h), QPointF(w, h - 15)]))
+            # Authentic bottom-right Hanko vermilion lacquer chop seal emblem
+            if w >= 220 and h >= 140:
+                sx, sy, ssz = w - 42.0, h - 42.0, 22.0
+                p.setBrush(QColor(214, 12, 8, 48))
+                p.setPen(QPen(QColor(250, 34, 26, 128), 1.35))
+                p.drawRect(QRectF(sx, sy, ssz, ssz))
+                p.setPen(QPen(QColor(224, 178, 88, 96), 0.85))
+                p.drawRect(QRectF(sx + 3.0, sy + 3.0, ssz - 6.0, ssz - 6.0))
+                p.setPen(QPen(QColor(255, 86, 76, 136), 1.35))
+                p.drawLine(QPointF(sx + 5.0, sy + 7.8), QPointF(sx + ssz - 5.0, sy + 7.8))
+                p.drawLine(QPointF(sx + 6.4, sy + 11.2), QPointF(sx + ssz - 6.4, sy + 11.2))
+                p.drawLine(QPointF(sx + 8.4, sy + 7.8), QPointF(sx + 8.4, sy + ssz - 5.0))
+                p.drawLine(QPointF(sx + ssz - 8.4, sy + 7.8), QPointF(sx + ssz - 8.4, sy + ssz - 5.0))
         elif k == "kreatendo":
             # Nintendo Wii / Wii U / DS / 3DS LIGHT ceramic porcelain & sky-channel canvas
-            bg.setColorAt(0.0, QColor("#f7fbff"))
-            bg.setColorAt(0.48, QColor("#ebf4fd"))
-            bg.setColorAt(1.0, QColor("#dceaf8"))
+            bg.setColorAt(0.0, QColor("#fafdff"))
+            bg.setColorAt(0.48, QColor("#ecf5fe"))
+            bg.setColorAt(1.0, QColor("#dcebf9"))
             p.fillRect(0, 0, w, h, bg)
             # Joyful translucent Wii U WaraWara-style pastel atmospheric glows
             l_glow = QRadialGradient(w * 0.14, h * 0.14, max(w, h) * 0.68)
-            l_glow.setColorAt(0.0, QColor(0, 178, 245, 42))
-            l_glow.setColorAt(0.45, QColor(90, 205, 255, 16))
+            l_glow.setColorAt(0.0, QColor(0, 178, 245, 48))
+            l_glow.setColorAt(0.45, QColor(90, 205, 255, 18))
             l_glow.setColorAt(1.0, QColor(255, 255, 255, 0))
             p.fillRect(0, 0, w, h, l_glow)
-            r_glow = QRadialGradient(w * 0.86, h * 0.82, max(w, h) * 0.56)
-            r_glow.setColorAt(0.0, QColor(34, 204, 130, 34))
-            r_glow.setColorAt(0.50, QColor(255, 190, 46, 14))
+            r_glow = QRadialGradient(w * 0.86, h * 0.82, max(w, h) * 0.58)
+            r_glow.setColorAt(0.0, QColor(28, 206, 132, 42))
+            r_glow.setColorAt(0.50, QColor(255, 190, 46, 18))
             r_glow.setColorAt(1.0, QColor(255, 255, 255, 0))
             p.fillRect(0, 0, w, h, r_glow)
             # Classic Wii Menu clean horizontal silver-sky pinstripe scanlines
-            p.setPen(QPen(QColor(135, 178, 218, 28), 1.0))
+            p.setPen(QPen(QColor(135, 178, 218, 30), 1.0))
             for sy in range(8, h, 10):
                 p.drawLine(0, sy, w, sy)
             # Glossy white ceramic dome reflection sweep across top viewport
@@ -2252,82 +2298,90 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
             arc.lineTo(-24, 0)
             arc.closeSubpath()
             hg = QLinearGradient(0, 0, 0, h * 0.32)
-            hg.setColorAt(0.0, QColor(255, 255, 255, 165))
+            hg.setColorAt(0.0, QColor(255, 255, 255, 178))
             hg.setColorAt(1.0, QColor(255, 255, 255, 0))
             p.setPen(Qt.PenStyle.NoPen)
             p.setBrush(hg)
             p.drawPath(arc)
-            # Soft rounded Wii Channel / 3DS HOME grid tile cards
+            # Soft rounded Wii Channel / 3DS HOME grid tile cards with subtle corner gems
             tile_step = 72
-            p.setBrush(QColor(255, 255, 255, 52))
-            p.setPen(QPen(QColor(115, 175, 224, 42), 1.0))
             for gy in range(18, h - 24, tile_step):
                 for gx in range(18, w - 24, tile_step):
-                    if ((gx // tile_step) + (gy // tile_step)) % 3 == 0:
-                        p.drawRoundedRect(QRectF(gx, gy, 46, 32), 9.0, 9.0)
-            # Colorful playful Wii U / 3DS floating bubbles
+                    idx_t = (gx // tile_step) + (gy // tile_step)
+                    if idx_t % 3 == 0:
+                        p.setBrush(QColor(255, 255, 255, 62))
+                        p.setPen(QPen(QColor(115, 175, 224, 48), 1.0))
+                        p.drawRoundedRect(QRectF(gx, gy, 46, 32), 9.5, 9.5)
+                        accent_cols = ((0, 156, 224, 58), (22, 184, 119, 58), (245, 166, 0, 62), (232, 65, 82, 52))
+                        p.setPen(Qt.PenStyle.NoPen)
+                        p.setBrush(QColor(*accent_cols[(idx_t // 3) % 4]))
+                        p.drawRoundedRect(QRectF(gx + 5, gy + 24, 14, 3.2), 1.6, 1.6)
+            # Colorful playful Wii U / 3DS floating glass bubbles
             p.setPen(Qt.PenStyle.NoPen)
             for bx_f, by_f, br, rgba in (
-                (0.12, 0.24, 5.0, (0, 168, 232, 46)),
-                (0.84, 0.20, 4.4, (25, 184, 122, 46)),
-                (0.24, 0.78, 3.8, (255, 184, 28, 48)),
-                (0.76, 0.74, 4.2, (235, 92, 108, 40)),
-                (0.52, 0.16, 3.2, (0, 155, 224, 38)),
+                (0.12, 0.24, 5.4, (0, 168, 232, 54)),
+                (0.84, 0.20, 4.8, (25, 184, 122, 54)),
+                (0.24, 0.78, 4.2, (255, 184, 28, 56)),
+                (0.76, 0.74, 4.5, (235, 76, 94, 48)),
+                (0.52, 0.16, 3.5, (110, 106, 232, 42)),
             ):
                 p.setBrush(QColor(*rgba))
                 p.drawEllipse(QPointF(w * bx_f, h * by_f), br, br)
-            # Luminous top Wii Disc-Slot Aqua + Miiverse Mint lightbar
+                p.setBrush(QColor(255, 255, 255, 140))
+                p.drawEllipse(QPointF(w * bx_f - br * 0.3, h * by_f - br * 0.3), br * 0.32, br * 0.32)
+            # Luminous top Wii Disc-Slot Aqua + Miiverse Mint + Star Gold lightbar
             rail = QLinearGradient(0, 0, w, 0)
             rail.setColorAt(0.0, QColor(0, 166, 235, 0))
-            rail.setColorAt(0.20, QColor(0, 166, 235, 185))
-            rail.setColorAt(0.50, QColor(56, 206, 255, 230))
-            rail.setColorAt(0.80, QColor(25, 184, 122, 180))
-            rail.setColorAt(1.0, QColor(25, 184, 122, 0))
-            p.setPen(QPen(QBrush(rail), 2.4))
+            rail.setColorAt(0.18, QColor(0, 166, 235, 195))
+            rail.setColorAt(0.46, QColor(56, 206, 255, 235))
+            rail.setColorAt(0.72, QColor(25, 184, 122, 195))
+            rail.setColorAt(0.88, QColor(245, 166, 0, 155))
+            rail.setColorAt(1.0, QColor(232, 65, 82, 0))
+            p.setPen(QPen(QBrush(rail), 2.5))
             p.drawLine(QPointF(14, 2.0), QPointF(w - 14, 2.0))
             # Crisp DS / 3DS Dual-Screen + D-Pad + colorful Nintendo ABXY badge bottom-right
             if w >= 220 and h >= 140:
-                bx, by = w - 92.0, h - 28.0
+                bx, by = w - 94.0, h - 29.0
                 p.setPen(Qt.PenStyle.NoPen)
-                p.setBrush(QColor(115, 152, 190, 95))
+                p.setBrush(QColor(115, 152, 190, 108))
                 p.drawRoundedRect(QRectF(bx + 8, by + 2, 5.2, 16.0), 1.6, 1.6)
                 p.drawRoundedRect(QRectF(bx + 2.6, by + 7.4, 16.0, 5.2), 1.6, 1.6)
-                p.setBrush(QColor(255, 255, 255, 130))
-                p.setPen(QPen(QColor(0, 150, 219, 135), 1.4))
+                p.setBrush(QColor(255, 255, 255, 150))
+                p.setPen(QPen(QColor(0, 150, 219, 155), 1.45))
                 p.drawRoundedRect(QRectF(bx + 26, by + 1, 20, 10), 2.8, 2.8)
-                p.setPen(QPen(QColor(25, 184, 122, 135), 1.3))
+                p.setPen(QPen(QColor(25, 184, 122, 155), 1.35))
                 p.drawRoundedRect(QRectF(bx + 29, by + 13, 14, 8), 2.4, 2.4)
                 p.setPen(Qt.PenStyle.NoPen)
-                p.setBrush(QColor(0, 150, 219, 155))
-                p.drawEllipse(QPointF(bx + 59, by + 5.0), 2.5, 2.5)
-                p.setBrush(QColor(224, 62, 74, 155))
-                p.drawEllipse(QPointF(bx + 65, by + 10.5), 2.5, 2.5)
-                p.setBrush(QColor(235, 162, 0, 165))
-                p.drawEllipse(QPointF(bx + 59, by + 16.0), 2.5, 2.5)
-                p.setBrush(QColor(20, 170, 104, 160))
-                p.drawEllipse(QPointF(bx + 53, by + 10.5), 2.5, 2.5)
+                p.setBrush(QColor(0, 150, 219, 175))
+                p.drawEllipse(QPointF(bx + 59, by + 5.0), 2.7, 2.7)
+                p.setBrush(QColor(232, 65, 82, 175))
+                p.drawEllipse(QPointF(bx + 65.5, by + 10.5), 2.7, 2.7)
+                p.setBrush(QColor(245, 166, 0, 185))
+                p.drawEllipse(QPointF(bx + 59, by + 16.0), 2.7, 2.7)
+                p.setBrush(QColor(20, 178, 110, 180))
+                p.drawEllipse(QPointF(bx + 52.5, by + 10.5), 2.7, 2.7)
         elif k == "mint":
             # Linux Mint Cinnamon / Mint-Y-Dark nature-inspired evergreen-charcoal botanical canvas
-            bg.setColorAt(0.0, QColor("#18241d"))
-            bg.setColorAt(0.46, QColor("#121a16"))
+            bg.setColorAt(0.0, QColor("#18251d"))
+            bg.setColorAt(0.46, QColor("#121b16"))
             bg.setColorAt(1.0, QColor("#0a100d"))
             p.fillRect(0, 0, w, h, bg)
             # Serene canopy leaf-green atmospheric glow + soft alpine-jade mist
             m1 = QRadialGradient(w * 0.18, h * 0.15, max(w, h) * 0.72)
-            m1.setColorAt(0.0, QColor(112, 212, 118, 52))
-            m1.setColorAt(0.42, QColor(54, 145, 76, 20))
+            m1.setColorAt(0.0, QColor(120, 214, 102, 58))
+            m1.setColorAt(0.42, QColor(54, 148, 76, 22))
             m1.setColorAt(1.0, QColor(0, 0, 0, 0))
             p.fillRect(0, 0, w, h, m1)
-            m2 = QRadialGradient(w * 0.86, h * 0.84, max(w, h) * 0.56)
-            m2.setColorAt(0.0, QColor(76, 199, 184, 34))
-            m2.setColorAt(0.50, QColor(42, 120, 88, 14))
+            m2 = QRadialGradient(w * 0.86, h * 0.84, max(w, h) * 0.58)
+            m2.setColorAt(0.0, QColor(78, 199, 184, 38))
+            m2.setColorAt(0.50, QColor(42, 122, 88, 16))
             m2.setColorAt(1.0, QColor(0, 0, 0, 0))
             p.fillRect(0, 0, w, h, m2)
             # Flowing organic botanical leaf-vein ribbons
             for y0, lift, col_rgba, lw in (
-                (0.76, 0.23, (135, 207, 62, 34), 1.6),
-                (0.84, 0.18, (112, 212, 118, 28), 1.25),
-                (0.22, -0.12, (76, 199, 184, 24), 1.1),
+                (0.76, 0.23, (135, 207, 62, 40), 1.65),
+                (0.84, 0.18, (112, 212, 118, 30), 1.25),
+                (0.22, -0.12, (76, 199, 184, 28), 1.15),
             ):
                 stem = QPainterPath()
                 stem.moveTo(-16, h * y0)
@@ -2342,33 +2396,43 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
             # Gentle firefly / forest dew points
             p.setPen(Qt.PenStyle.NoPen)
             for mx, my, mr, is_mint in (
-                (0.14, 0.24, 2.3, True), (0.33, 0.70, 1.8, False), (0.60, 0.26, 2.5, True),
-                (0.77, 0.48, 1.8, False), (0.85, 0.21, 2.2, True), (0.46, 0.80, 1.7, False),
+                (0.14, 0.24, 2.4, True), (0.33, 0.70, 1.9, False), (0.60, 0.26, 2.6, True),
+                (0.77, 0.48, 1.9, False), (0.85, 0.21, 2.3, True), (0.46, 0.80, 1.8, False),
             ):
-                p.setBrush(QColor(135, 207, 62, 38) if is_mint else QColor(125, 224, 190, 26))
-                p.drawEllipse(QPointF(w * mx, h * my), mr * 2.1, mr * 2.1)
-                p.setBrush(QColor(232, 255, 228, 66) if is_mint else QColor(220, 250, 240, 48))
+                p.setBrush(QColor(135, 207, 62, 44) if is_mint else QColor(125, 224, 190, 30))
+                p.drawEllipse(QPointF(w * mx, h * my), mr * 2.2, mr * 2.2)
+                p.setBrush(QColor(232, 255, 228, 72) if is_mint else QColor(220, 250, 240, 52))
                 p.drawEllipse(QPointF(w * mx, h * my), mr, mr)
             # Crisp Cinnamon Mint-Y top leaf hairline bar
             rail = QLinearGradient(0, 0, w, 0)
             rail.setColorAt(0.0, QColor(105, 207, 114, 0))
-            rail.setColorAt(0.24, QColor(105, 207, 114, 135))
-            rail.setColorAt(0.50, QColor(214, 255, 202, 175))
-            rail.setColorAt(0.76, QColor(76, 199, 184, 115))
-            rail.setColorAt(1.0, QColor(76, 199, 184, 0))
-            p.setPen(QPen(QBrush(rail), 1.9))
+            rail.setColorAt(0.22, QColor(135, 207, 62, 152))
+            rail.setColorAt(0.50, QColor(214, 255, 202, 185))
+            rail.setColorAt(0.78, QColor(78, 199, 184, 130))
+            rail.setColorAt(1.0, QColor(78, 199, 184, 0))
+            p.setPen(QPen(QBrush(rail), 2.0))
             p.drawLine(QPointF(16, 2.0), QPointF(w - 16, 2.0))
-            # Subtle bottom-right Mint Leaf emblem watermark
+            # Iconic Linux Mint Cinnamon twin-leaf botanical watermark bottom-right
             if w >= 220 and h >= 140:
-                bx, by = w - 44.0, h - 38.0
+                bx, by = w - 50.0, h - 42.0
+                leaf2 = QPainterPath()
+                leaf2.moveTo(bx + 8, by + 26)
+                leaf2.cubicTo(bx - 4, by + 18, bx - 4, by + 6, bx + 7, by + 4)
+                leaf2.cubicTo(bx + 14, by + 10, bx + 14, by + 20, bx + 8, by + 26)
+                p.setBrush(QColor(78, 199, 184, 38))
+                p.setPen(QPen(QColor(102, 222, 202, 82), 1.15))
+                p.drawPath(leaf2)
                 leaf = QPainterPath()
-                leaf.moveTo(bx, by + 24)
-                leaf.cubicTo(bx, by + 4, bx + 11, by, bx + 28, by)
-                leaf.cubicTo(bx + 28, by + 17, bx + 17, by + 24, bx, by + 24)
-                p.setBrush(QColor(105, 207, 114, 42))
-                p.setPen(QPen(QColor(152, 232, 146, 92), 1.35))
+                leaf.moveTo(bx + 6, by + 28)
+                leaf.cubicTo(bx + 6, by + 6, bx + 17, by + 1, bx + 34, by + 1)
+                leaf.cubicTo(bx + 34, by + 19, bx + 23, by + 28, bx + 6, by + 28)
+                p.setBrush(QColor(120, 212, 74, 52))
+                p.setPen(QPen(QColor(164, 240, 128, 116), 1.4))
                 p.drawPath(leaf)
-                p.drawLine(QPointF(bx + 4, by + 20), QPointF(bx + 22, by + 4))
+                p.setPen(QPen(QColor(225, 255, 218, 98), 1.1))
+                p.drawLine(QPointF(bx + 10, by + 24), QPointF(bx + 28, by + 6))
+                p.drawLine(QPointF(bx + 17, by + 17), QPointF(bx + 17, by + 10))
+                p.drawLine(QPointF(bx + 21, by + 13), QPointF(bx + 27, by + 13))
         else:
             # Sarif Gold: Deus Ex: HR Neo-Baroque Cyber-Renaissance carbon & amber
             bg.setColorAt(0.0, QColor("#141007"))
@@ -2376,8 +2440,8 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
             bg.setColorAt(1.0, QColor("#040301"))
             p.fillRect(0, 0, w, h, bg)
             glow = QRadialGradient(w * 0.50, h * 0.36, max(w, h) * 0.72)
-            glow.setColorAt(0.0, QColor(240, 174, 34, 42))
-            glow.setColorAt(0.52, QColor(140, 88, 12, 16))
+            glow.setColorAt(0.0, QColor(245, 178, 36, 48))
+            glow.setColorAt(0.52, QColor(145, 90, 12, 18))
             glow.setColorAt(1.0, QColor(0, 0, 0, 0))
             p.fillRect(0, 0, w, h, glow)
             step = 34.0
@@ -2392,28 +2456,39 @@ def paint_theme_backdrop(painter: QPainter, rect: QRect, theme_key: Optional[str
                     hval = (r_i * 31 + c_i * 17) & 15
                     if hval in (0, 5, 11):
                         poly = QPolygonF([QPointF(x0, y0), QPointF(x0 + step, y0), QPointF(x0 + step * 0.5, y0 + row_h)])
-                        p.setPen(QPen(QColor(235, 175, 48, 20), 0.7))
-                        p.setBrush(QColor(245, 188, 52, 14 if hval == 0 else 8))
+                        p.setPen(QPen(QColor(238, 178, 50, 24), 0.7))
+                        p.setBrush(QColor(248, 190, 54, 16 if hval == 0 else 9))
                         p.drawPolygon(poly)
                     elif hval == 9:
                         poly = QPolygonF([QPointF(x0 + step * 0.5, y0), QPointF(x0 + step, y0 + row_h), QPointF(x0, y0 + row_h)])
-                        p.setPen(QPen(QColor(186, 136, 36, 16), 0.6))
-                        p.setBrush(QColor(196, 142, 34, 7))
+                        p.setPen(QPen(QColor(190, 138, 36, 18), 0.6))
+                        p.setBrush(QColor(200, 146, 36, 8))
                         p.drawPolygon(poly)
-            # Subtle Sarif Neo-Baroque telemetry hex reticle bottom-right
+            # Sarif Industries dual-ring Neo-Baroque telemetry hex reticle bottom-right
             if w >= 240 and h >= 160:
-                hx, hy, hr = w - 34.0, h - 32.0, 18.0
+                hx, hy, hr = w - 36.0, h - 34.0, 19.0
                 hex_pts = [
                     QPointF(hx + hr * math.cos(math.radians(60 * k_i - 30)), hy + hr * math.sin(math.radians(60 * k_i - 30)))
                     for k_i in range(6)
                 ]
-                p.setBrush(QColor(245, 186, 42, 16))
-                p.setPen(QPen(QColor(255, 206, 68, 66), 1.1))
+                p.setBrush(QColor(245, 186, 42, 24))
+                p.setPen(QPen(QColor(255, 208, 70, 88), 1.25))
                 p.drawPolygon(QPolygonF(hex_pts))
+                hex_in = [
+                    QPointF(hx + 11.5 * math.cos(math.radians(60 * k_i - 30)), hy + 11.5 * math.sin(math.radians(60 * k_i - 30)))
+                    for k_i in range(6)
+                ]
                 p.setBrush(Qt.BrushStyle.NoBrush)
-                p.setPen(QPen(QColor(255, 218, 108, 48), 0.85))
-                p.drawEllipse(QPointF(hx, hy), 6.5, 6.5)
-                p.drawLine(QPointF(hx - 26, hy), QPointF(hx - 11, hy))
+                p.setPen(QPen(QColor(255, 224, 122, 62), 0.85))
+                p.drawPolygon(QPolygonF(hex_in))
+                p.drawEllipse(QPointF(hx, hy), 4.2, 4.2)
+                p.drawLine(QPointF(hx - 30, hy), QPointF(hx - 12, hy))
+                p.drawLine(QPointF(hx, hy - 25), QPointF(hx, hy - 12))
+                # Precision gold HUD ruler ticks along top rail
+                p.setPen(QPen(QColor(255, 204, 68, 46), 1.0))
+                for tx in range(44, max(45, w - 44), 36):
+                    th = 4.5 if (tx // 36) % 3 == 0 else 2.5
+                    p.drawLine(QPointF(tx, 6.0), QPointF(tx, 6.0 + th))
             p.setPen(QPen(QColor(245, 196, 66, 108), 1.6))
             c = 16.0
             p.drawLine(QPointF(6, 6 + c), QPointF(6, 6))
@@ -2517,7 +2592,7 @@ def tab_rail_height(scale: float = 1.0, icon_px: Optional[int] = None) -> int:
     return max(26, px + 10)
 
 
-_GLYPH_CACHE_VER = "v18"
+_GLYPH_CACHE_VER = "v20"
 _GLYPHS_READY: Set[str] = set()
 _GLYPH_PATH_REGISTERED = False
 
@@ -2678,8 +2753,7 @@ QSplitter#VSplit::handle:hover {{
 QLabel#Kicker {{
     color: {C['kicker']};
     font-size: {f_xs}pt;
-    font-weight: 600;
-    letter-spacing: {U['kick_ls']};
+    font-weight: 700;
 }}
 QLabel#Caption {{
     color: {C['muted']};
@@ -2813,7 +2887,6 @@ QPushButton, QToolButton {{
     padding: {pv}px {ph}px;
     font-weight: bold;
     font-size: {f_sm}pt;
-    letter-spacing: {U['btn_ls']};
 }}
 QPushButton:hover, QToolButton:hover {{
     background: {_qgrad(C['btn_hov_hi'], C['btn_hov_mid'], C['btn_hov_lo'])};
@@ -3377,8 +3450,24 @@ QLabel#TabRibbon {{
     color: {C['text_hi']};
     font-size: {f_rib}pt;
     font-weight: 700;
-    letter-spacing: {U['kick_ls']};
     padding: 2px 7px;
+}}
+QFrame#SoundModeCard, QFrame#PerfCard {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['plate_hi']}, stop:1 {C['plate_lo']});
+    border: 1px solid {C['line_hi']};
+    border-left: 3px solid {C['acc_mid']};
+    border-radius: {U['rad_md']};
+}}
+QToolButton#ScaleChip {{
+    padding: {pvs_val}px {phs_val}px;
+    font-size: {f_xs}pt;
+    font-weight: 700;
+    border-radius: {U['rad_pill']};
+}}
+QToolButton#ScaleChip:checked {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['acc_hi']}, stop:0.5 {C['acc_mid']}, stop:1 {C['acc_lo']});
+    color: {C['acc_text']};
+    border: 1px solid {C['acc_edge']};
 }}
 QPushButton#StopBtn, QToolButton#StopBtn {{
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #eb4b4b, stop:0.5 #c22323, stop:1 #821111);
@@ -3387,7 +3476,6 @@ QPushButton#StopBtn, QToolButton#StopBtn {{
     border-radius: {U['rad_md']};
     padding: {pvs_val}px {ph}px;
     font-weight: bold;
-    letter-spacing: 0.4px;
 }}
 QPushButton#StopBtn:hover, QToolButton#StopBtn:hover {{
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ff6363, stop:0.5 #db2e2e, stop:1 #9c1717);
@@ -3672,10 +3760,27 @@ QProgressBar::chunk {
     border-radius: 5px;
     background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #0058b8, stop:0.55 #1f9dff, stop:1 #9edaff);
 }
-QCheckBox::indicator { border-radius: 4px; border: 1px solid #3b6396; }
+QCheckBox::indicator { border-radius: 4px; border: 1px solid #3b6396; background: #050d1c; }
+QCheckBox::indicator:hover { border: 1px solid #6cc6ff; }
 QCheckBox::indicator:checked { background: #1488f5; border: 1px solid #bce4ff; }
-QMenu { border-radius: 8px; border: 1px solid #3c699e; background: #071224; }
-QMenu::item:selected { border-radius: 5px; background: #0c4d96; }
+QRadioButton::indicator {
+    width: 14px; height: 14px; border-radius: 7px;
+    border: 1px solid #3f6a9e; background: #050d1c;
+}
+QRadioButton::indicator:hover { border: 1px solid #75ccff; }
+QRadioButton::indicator:checked {
+    border: 1px solid #d4f1ff;
+    background: qradialgradient(cx:0.40,cy:0.35,radius:0.70, stop:0 #ffffff, stop:0.35 #66c9ff, stop:0.80 #0070d1, stop:1 #032c61);
+}
+QFrame#SoundModeCard, QFrame#PerfCard {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #112340, stop:1 #081224);
+    border: 1px solid #2b4c78;
+    border-top: 1px solid #5987c2;
+    border-left: 3px solid #4cb5ff;
+    border-radius: 8px;
+}
+QMenu { border-radius: 8px; border: 1px solid #3c699e; border-top: 2px solid #5cc6ff; background: #071224; }
+QMenu::item:selected { border-radius: 5px; background: #0c4d96; color: #ffffff; }
 QScrollBar::handle:vertical, QScrollBar::handle:horizontal { border-radius: 5px; }
 QSplitter#RootSplitter::handle {
     background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
@@ -3708,14 +3813,14 @@ QToolTip {
     border-radius: 0px;
 }
 QPushButton, QToolButton {
-    border-radius: 0px; border: 1px solid #303030; border-top: 1px solid #545454;
+    border-radius: 0px; border: 1px solid #303030; border-top: 1px solid #545454; border-left: 2px solid #424242;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
         stop:0 #202020, stop:0.46 #141414, stop:0.54 #0c0c0c, stop:1 #050505);
 }
 QPushButton:hover, QToolButton:hover {
-    border: 1px solid #ff1410; border-left: 2px solid #ff1410;
+    border: 1px solid #ff1c14; border-top: 1px solid #ff6b62; border-left: 2px solid #ff1c14;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-        stop:0 #2e2e2e, stop:0.46 #1d1d1d, stop:0.54 #121212, stop:1 #090909);
+        stop:0 #2d1414, stop:0.46 #1c0e0e, stop:0.54 #120909, stop:1 #080505);
 }
 QPushButton:pressed, QToolButton:pressed {
     border: 1px solid #e00000;
@@ -3818,9 +3923,26 @@ QProgressBar::chunk {
     background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #850000, stop:0.6 #e60000, stop:1 #ff4d42);
 }
 QCheckBox::indicator { border-radius: 0px; border: 1px solid #4e4e4e; background: #060606; }
+QCheckBox::indicator:hover { border: 1px solid #ff382c; }
 QCheckBox::indicator:checked { background: #e00000; border: 1px solid #ffd8d2; }
-QMenu { border-radius: 0px; border: 1px solid #990000; border-top: 2px solid #ff1410; background: #090909; }
-QMenu::item:selected { border-left: 3px solid #ff1410; background: #202020; color: #ffffff; }
+QRadioButton::indicator {
+    width: 13px; height: 13px; border-radius: 0px;
+    border: 1px solid #525252; background: #050505;
+}
+QRadioButton::indicator:hover { border: 1px solid #ff281e; }
+QRadioButton::indicator:checked {
+    border: 1px solid #ffd8d2;
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #ff3026, stop:0.55 #d40000, stop:1 #6e0000);
+}
+QFrame#SoundModeCard, QFrame#PerfCard {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #140808, stop:1 #070707);
+    border: 1px solid #2e2e2e;
+    border-top: 1px solid #d8a84e;
+    border-left: 3px solid #ff1a12;
+    border-radius: 0px;
+}
+QMenu { border-radius: 0px; border: 1px solid #990000; border-top: 2px solid #ff1410; border-bottom: 1px solid #d8a84e; background: #090909; }
+QMenu::item:selected { border-left: 3px solid #ff1410; background: #260a09; color: #ffffff; }
 QScrollBar::handle:vertical { border-radius: 0px; border-left: 2px solid #e60000; }
 QScrollBar::handle:horizontal { border-radius: 0px; border-top: 2px solid #e60000; }
 QSplitter#RootSplitter::handle {
@@ -3883,7 +4005,36 @@ QPushButton:checked, QToolButton:checked {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #dff4ff, stop:1 #c4e8ff);
     color: #063154;
 }
-QPushButton#Small, QToolButton#Small { border-radius: 9px; }
+QPushButton#Small, QToolButton#Small, QPushButton#Act {
+    border-radius: 8px;
+    border: 1px solid #96bddf;
+    border-top: 1px solid #ffffff;
+    border-bottom: 1px solid #7ca8cf;
+}
+QPushButton#Small:hover, QToolButton#Small:hover, QPushButton#Act:hover {
+    border: 1px solid #009ce0;
+    border-bottom: 1px solid #0078b8;
+}
+QPushButton#Small:checked, QToolButton#Small:checked {
+    border: 1px solid #008cd1;
+    border-bottom: 2px solid #14b87a;
+}
+QRadioButton::indicator {
+    width: 14px; height: 14px; border-radius: 7px;
+    border: 2px solid #82aed4; background: #ffffff;
+}
+QRadioButton::indicator:hover { border: 2px solid #009ce0; }
+QRadioButton::indicator:checked {
+    border: 2px solid #0d8c5a;
+    background: qradialgradient(cx:0.42,cy:0.38,radius:0.65, stop:0 #ffffff, stop:0.35 #26d491, stop:0.85 #14b378, stop:1 #0d8c5a);
+}
+QFrame#SoundModeCard, QFrame#PerfCard {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:1 #ebf5fe);
+    border: 1px solid #a2c5e3;
+    border-top: 2px solid #ffffff;
+    border-left: 3px solid #14b87a;
+    border-radius: 11px;
+}
 QPushButton#Accent, QToolButton#Accent, QPushButton#ActAccent {
     border-radius: 11px;
     border: 2px solid #008cd1;
@@ -4221,8 +4372,25 @@ QProgressBar::chunk {
     background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #358240, stop:0.55 #87cf3e, stop:1 #4ec7b8);
 }
 QCheckBox::indicator { border-radius: 4px; border: 2px solid #4d6b58; background: #101713; }
+QCheckBox::indicator:hover { border: 2px solid #87cf3e; }
 QCheckBox::indicator:checked { background: #64bf4d; border: 2px solid #e0ffda; }
-QMenu { border-radius: 8px; border: 1px solid #4ea854; background: #16211b; }
+QRadioButton::indicator {
+    width: 14px; height: 14px; border-radius: 7px;
+    border: 2px solid #4d6b58; background: #101713;
+}
+QRadioButton::indicator:hover { border: 2px solid #87cf3e; }
+QRadioButton::indicator:checked {
+    border: 2px solid #dffed8;
+    background: qradialgradient(cx:0.42,cy:0.38,radius:0.68, stop:0 #f4fff4, stop:0.42 #87cf3e, stop:0.85 #449e46, stop:1 #1e5226);
+}
+QFrame#SoundModeCard, QFrame#PerfCard {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #202e25, stop:1 #141e18);
+    border: 1px solid #324a3b;
+    border-top: 1px solid #598567;
+    border-left: 3px solid #87cf3e;
+    border-radius: 8px;
+}
+QMenu { border-radius: 8px; border: 1px solid #4ea854; border-top: 2px solid #87cf3e; background: #16211b; }
 QMenu::item:selected { border-radius: 5px; background: #23593a; color: #f8fff9; }
 QScrollBar::handle:vertical, QScrollBar::handle:horizontal { border-radius: 5px; }
 QSplitter#RootSplitter::handle {
@@ -4340,12 +4508,29 @@ QLineEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
     border-radius: 1px;
     border: 1px solid #4a3b1d;
     border-top: 1px solid #6e582c;
+    border-left: 2px solid #6b5424;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #060502, stop:1 #130f07);
 }
 QLineEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
     border: 1px solid #ffc93c;
     border-left: 2px solid #ffe680;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0b0803, stop:1 #1a1409);
+}
+QRadioButton::indicator {
+    width: 13px; height: 13px; border-radius: 1px;
+    border: 1px solid #755d2b; background: #0a0803;
+}
+QRadioButton::indicator:hover { border: 1px solid #ffc93c; }
+QRadioButton::indicator:checked {
+    border: 1px solid #fff0a8;
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #ffe588, stop:0.5 #de9614, stop:1 #7a4c06);
+}
+QFrame#SoundModeCard, QFrame#PerfCard {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #211a0d, stop:1 #0e0b05);
+    border: 1px solid #594620;
+    border-top: 2px solid #de9614;
+    border-left: 3px solid #ffc93c;
+    border-radius: 1px;
 }
 QListView, QListWidget { border-radius: 1px; border: 1px solid #42351a; }
 QTabWidget::pane { border-radius: 1px; border: 1px solid #47391c; border-top: 2px solid #9c7524; }
@@ -8368,6 +8553,7 @@ class SoundEngine:
     def __init__(self) -> None:
         self.mode: str = SOUND_MODE_ALL
         self.enabled: Dict[str, bool] = {ev: True for ev in self.EVENTS}
+        self._lock = threading.Lock()
         self._players: Dict[str, Any] = {}
         self._wav_bytes: "collections.OrderedDict[str, bytes]" = collections.OrderedDict()
         self._wavs_ready: Set[str] = set()
@@ -8376,6 +8562,7 @@ class SoundEngine:
         self.backend: str = "pending"
         self._last_played: Dict[str, float] = {}
         self._important_until: float = 0.0
+        self._prewarm_seq: int = 0
 
     @property
     def master(self) -> bool:
@@ -8415,15 +8602,45 @@ class SoundEngine:
                 self.enabled[ev] = bool(enabled_map[ev])
 
     def prewarm_active_theme(self) -> None:
-        """Pre-synthesize the active theme's tiny UI micro-cues (~25 KB RAM) so the
-        very first hover or click responds with zero synthesis latency."""
+        """Asynchronously pre-synthesize the active theme's tiny UI micro-cues (~25 KB RAM)
+        on a background daemon thread so startup & theme switches never stall low-end CPUs."""
         if self.mode != SOUND_MODE_ALL:
             return
         self._ensure_backend()
         if self.backend == "none":
             return
-        for ev in ("ui_hover", "ui_click", "ui_toggle_on", "ui_toggle_off", "ui_tab", "ui_menu_open", "ui_dropdown"):
-            self._ensure_wav_bytes(ev)
+        tk = resolve_theme_key(self._theme or C.get("key", "seestation"))
+        self._prewarm_seq += 1
+        seq = self._prewarm_seq
+        cues = ("ui_hover", "ui_click", "ui_toggle_on", "ui_toggle_off", "ui_tab", "ui_menu_open", "ui_dropdown")
+
+        def _worker() -> None:
+            for ev in cues:
+                if seq != self._prewarm_seq or self.mode != SOUND_MODE_ALL:
+                    return
+                self._ensure_wav_bytes(ev, theme_override=tk)
+
+        threading.Thread(target=_worker, name="StudioAudioPrewarm", daemon=True).start()
+
+    def trim_cache(self, keep_active_theme: bool = True) -> int:
+        """Release cached WAV RAM & idle QSoundEffect handles to free memory on low-end laptops."""
+        freed = 0
+        tk = resolve_theme_key(self._theme or C.get("key", "seestation"))
+        prefix = f"{self._AUDIO_VER}_{tk}_"
+        with self._lock:
+            for cid in list(self._wav_bytes.keys()):
+                if not keep_active_theme or not cid.startswith(prefix):
+                    self._wav_bytes.pop(cid, None)
+                    freed += 1
+        for pk in list(self._players.keys()):
+            if not keep_active_theme or not pk.startswith(prefix):
+                eff = self._players.pop(pk, None)
+                if eff is not None:
+                    try:
+                        eff.deleteLater()
+                    except Exception:  # noqa: BLE001
+                        pass
+        return freed
 
     def backend_label(self) -> str:
         """Human-readable active audio backend description (never stuck on 'pending')."""
@@ -8442,14 +8659,15 @@ class SoundEngine:
             return 0.08
         return max(float(n[1]) + float(n[2]) for n in notes)
 
-    def _ensure_wav_bytes(self, event: str) -> bytes:
-        """Lazily synthesize compact theme-voiced WAV payload into RAM (LRU capped)."""
-        tk = resolve_theme_key(self._theme or C.get("key", "seestation"))
+    def _ensure_wav_bytes(self, event: str, theme_override: Optional[str] = None) -> bytes:
+        """Lazily synthesize compact theme-voiced WAV payload into RAM (thread-safe LRU)."""
+        tk = resolve_theme_key(theme_override or self._theme or C.get("key", "seestation"))
         cache_id = f"{self._AUDIO_VER}_{tk}_{event}"
-        hit = self._wav_bytes.get(cache_id)
-        if hit is not None:
-            self._wav_bytes.move_to_end(cache_id)
-            return hit
+        with self._lock:
+            hit = self._wav_bytes.get(cache_id)
+            if hit is not None:
+                self._wav_bytes.move_to_end(cache_id)
+                return hit
         bank = self._THEME_NOTES.get(tk, self._THEME_NOTES["seestation"])
         notes = bank.get(event)
         if not notes:
@@ -8459,9 +8677,11 @@ class SoundEngine:
         echo_ms, echo_gain = self._THEME_ECHO.get(tk, (30.0, 0.16)) if use_echo else (0.0, 0.0)
         try:
             data = _synth_wav_bytes(notes, timbre=timbre, echo_ms=echo_ms, echo_gain=echo_gain)
-            self._wav_bytes[cache_id] = data
-            while len(self._wav_bytes) > 72:
-                self._wav_bytes.popitem(last=False)
+            cap = 36 if low_power_mode() else 72
+            with self._lock:
+                self._wav_bytes[cache_id] = data
+                while len(self._wav_bytes) > cap:
+                    self._wav_bytes.popitem(last=False)
             return data
         except Exception as exc:  # noqa: BLE001
             STUDIO_LOG.warn("SYS", f"Sound cue synthesis skipped ({cache_id}: {exc})")
@@ -8542,7 +8762,12 @@ class SoundEngine:
                     eff.setSource(QUrl.fromLocalFile(wav_path))
                     vol = 0.34 if event.startswith("ui_") else (0.44 if event == "theme" else 0.56)
                     eff.setVolume(vol)
-                    if len(self._players) > 36:
+                    if len(self._players) > (18 if low_power_mode() else 36):
+                        for old_eff in self._players.values():
+                            try:
+                                old_eff.deleteLater()
+                            except Exception:  # noqa: BLE001
+                                pass
                         self._players.clear()
                     self._players[pk] = eff
                 eff.play()
@@ -11609,12 +11834,24 @@ class SpanHighlighter(QSyntaxHighlighter):
                 col = QColor(readable_accent_for_theme(str(sp["color"])))
                 fmt.setForeground(col)
                 bg = QColor(col)
-                bg.setAlpha(40 if sp.get("kind") == "lora" else 28)
+                light = is_light_theme()
+                bg.setAlpha((46 if light else 38) if sp.get("kind") == "lora" else (32 if light else 26))
                 fmt.setBackground(bg)
                 if sp.get("kind") == "lora":
                     fmt.setFontUnderline(True)
-                    fmt.setUnderlineColor(QColor(col.red(), col.green(), col.blue(), 150))
+                    fmt.setUnderlineColor(QColor(col.red(), col.green(), col.blue(), 165))
                 self.setFormat(ov_start, ov_end - ov_start, fmt)
+        # Subtle highlight for __wildcard__ tokens (fast single-pass regex, zero lag)
+        if "__" in text:
+            w_col = QColor(readable_accent_for_theme(C["info"]))
+            w_bg = QColor(w_col)
+            w_bg.setAlpha(34 if is_light_theme() else 28)
+            w_fmt = QTextCharFormat()
+            w_fmt.setForeground(w_col)
+            w_fmt.setBackground(w_bg)
+            w_fmt.setFontWeight(QFont.Weight.DemiBold)
+            for m_w in re.finditer(r"__[^\n_][^_\n]{0,64}__", text):
+                self.setFormat(m_w.start(), m_w.end() - m_w.start(), w_fmt)
         # Ghost (locked LoRA trigger) zone: greyed-out italic, but readable
         if self._ghost_start >= 0 and self._ghost_end > self._ghost_start:
             g0 = max(self._ghost_start, block_start) - block_start
@@ -20028,20 +20265,41 @@ class _CompactStackedWidget(QStackedWidget):
 
 
 class FlowLayout(QLayout):
-    """Corporate-hardened wrapping FlowLayout (v10.0):
+    """Corporate-hardened wrapping FlowLayout (v20.0):
+    - Supports separate horizontal (`hgap`) & vertical (`vgap`) gaps plus `spacing`
     - Skips hidden child widgets cleanly (zero ghost gaps!)
-    - Clamps oversized child widths to container width (never overflows horizontally!)
+    - Two-pass row solver: vertically centers mixed-height items per wrapped row
+    - Clamps oversized child widths to container width (never overflows at 800x600!)
     - Immediate widget detach on clear_items() (zero single-frame visual ghosting!)"""
 
-    def __init__(self, parent: Optional[QWidget] = None, margin: int = 0, spacing: int = 3) -> None:
+    def __init__(
+        self,
+        parent: Optional[QWidget] = None,
+        margin: int = 0,
+        spacing: int = 3,
+        hgap: Optional[int] = None,
+        vgap: Optional[int] = None,
+    ) -> None:
         super().__init__(parent)
-        self.setContentsMargins(margin, margin, margin, margin)
-        self._hspacing = spacing
-        self._vspacing = spacing
+        m = max(0, int(margin))
+        self.setContentsMargins(m, m, m, m)
+        self._hspacing = max(0, int(spacing if hgap is None else hgap))
+        self._vspacing = max(0, int(spacing if vgap is None else vgap))
         self._items: List[Any] = []
 
     def __del__(self) -> None:
         self._items = []
+
+    def set_gaps(self, hgap: Optional[int] = None, vgap: Optional[int] = None) -> None:
+        changed = False
+        if hgap is not None and int(hgap) != self._hspacing:
+            self._hspacing = max(0, int(hgap))
+            changed = True
+        if vgap is not None and int(vgap) != self._vspacing:
+            self._vspacing = max(0, int(vgap))
+            changed = True
+        if changed:
+            self.invalidate()
 
     def addItem(self, item) -> None:  # noqa: N802
         self._items.append(item)
@@ -20091,29 +20349,45 @@ class FlowLayout(QLayout):
     def _do_layout(self, rect: QRect, test_only: bool) -> int:
         m = self.contentsMargins()
         eff = rect.adjusted(m.left(), m.top(), -m.right(), -m.bottom())
-        x, y = eff.x(), eff.y()
-        line_height = 0
         hs = self._hspacing
         vs = self._vspacing
         max_w = max(24, eff.width())
+
+        # Pass 1: group visible items into wrapped rows with exact per-row heights
+        rows: List[Tuple[int, List[Tuple[Any, int, int, int]]]] = []
+        cur_row: List[Tuple[Any, int, int, int]] = []
+        x = eff.x()
+        row_h = 0
         for item in self._items:
             wid = item.widget()
             if wid is not None and wid.isHidden():
                 continue
             sh = item.sizeHint()
-            iw = min(max(16, sh.width()), max_w)
-            ih = max(16, sh.height())
-            next_x = x + iw + hs
-            if x > eff.x() and (x + iw) > (eff.x() + max_w) and line_height > 0:
+            ms = item.minimumSize()
+            iw = min(max(16, sh.width(), ms.width()), max_w)
+            ih = max(16, sh.height(), ms.height())
+            if cur_row and (x + iw) > (eff.x() + max_w):
+                rows.append((row_h, cur_row))
+                cur_row = []
                 x = eff.x()
-                y = y + line_height + vs
-                next_x = x + iw + hs
-                line_height = 0
+                row_h = 0
+            cur_row.append((item, x, iw, ih))
+            x += iw + hs
+            row_h = max(row_h, ih)
+        if cur_row:
+            rows.append((row_h, cur_row))
+
+        # Pass 2: place rows and vertically center shorter items cleanly inside each row
+        y = eff.y()
+        for r_idx, (rh, items) in enumerate(rows):
+            if r_idx > 0:
+                y += vs
             if not test_only:
-                item.setGeometry(QRect(QPoint(x, y), QSize(iw, ih)))
-            x = next_x
-            line_height = max(line_height, ih)
-        return y + line_height - rect.y() + m.bottom()
+                for item, ix, iw, ih in items:
+                    iy = y + max(0, (rh - ih) // 2)
+                    item.setGeometry(QRect(QPoint(ix, iy), QSize(iw, ih)))
+            y += rh
+        return max(m.top() + m.bottom(), y - rect.y() + m.bottom())
 
     def clear_items(self) -> None:
         """Remove and immediately detach every widget in the flow."""
@@ -20127,17 +20401,49 @@ class FlowLayout(QLayout):
 
 
 class FlowContainer(QWidget):
-    """Self-sizing wrapping FlowLayout host widget that cleanly expands vertically
-    when resized narrower (so folder rails, swatch strips & toolbars NEVER clip
-    or force horizontal scrollbars on 800x600 displays)."""
+    """Self-sizing wrapping FlowLayout host widget (v20.0) that cleanly expands
+    vertically when resized narrower (zero horizontal clipping at 800x600),
+    accepts both `spacing` and explicit `hgap`/`vgap` keyword arguments, exposes
+    `add_widget()` / `addWidget()` / `clear_items()`, and caches wrapped height
+    to eliminate redundant layout cascades during splitter drag."""
 
-    def __init__(self, margin: int = 0, spacing: int = 3, parent: Optional[QWidget] = None) -> None:
+    def __init__(
+        self,
+        margin: int = 0,
+        spacing: int = 3,
+        parent: Optional[QWidget] = None,
+        *,
+        hgap: Optional[int] = None,
+        vgap: Optional[int] = None,
+    ) -> None:
         super().__init__(parent)
         self.setObjectName("Transparent")
-        self.flow = FlowLayout(self, margin=margin, spacing=spacing)
+        self.flow = FlowLayout(self, margin=margin, spacing=spacing, hgap=hgap, vgap=vgap)
+        self._last_flow_w: int = -1
+        self._last_flow_h: int = -1
         sp = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         sp.setHeightForWidth(True)
         self.setSizePolicy(sp)
+
+    def add_widget(self, widget: QWidget) -> QWidget:
+        """Append a child widget into the wrapping flow and trigger a clean relayout."""
+        self.flow.addWidget(widget)
+        self._last_flow_h = -1
+        self.updateGeometry()
+        return widget
+
+    def addWidget(self, widget: QWidget) -> None:  # noqa: N802
+        self.add_widget(widget)
+
+    def clear_items(self) -> None:
+        self.flow.clear_items()
+        self._last_flow_h = -1
+        self.updateGeometry()
+
+    def set_gaps(self, hgap: Optional[int] = None, vgap: Optional[int] = None) -> None:
+        self.flow.set_gaps(hgap=hgap, vgap=vgap)
+        self._last_flow_h = -1
+        self.updateGeometry()
 
     def hasHeightForWidth(self) -> bool:  # noqa: N802
         return True
@@ -20155,7 +20461,139 @@ class FlowContainer(QWidget):
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
-        self.updateGeometry()
+        w = max(40, self.width())
+        h = self.heightForWidth(w)
+        if w != self._last_flow_w and h != self._last_flow_h:
+            self._last_flow_w = w
+            self._last_flow_h = h
+            self.updateGeometry()
+        else:
+            self._last_flow_w = w
+            self._last_flow_h = h
+
+
+class ThemeSwatchCard(QAbstractButton):
+    """Interactive visual theme preview tile (v20.0) rendered in pure QPainter vector graphics:
+    displays each flagship theme's authentic surface gradient, frame silhouette, multi-accent
+    palette dots, title, and active indicator inside a responsive FlowContainer."""
+
+    def __init__(self, theme_key: str, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.theme_key = resolve_theme_key(theme_key)
+        self._hovered = False
+        self.setCheckable(True)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setMouseTracking(True)
+        pal = THEMES[self.theme_key]
+        meta = THEME_META.get(self.theme_key, {})
+        self.setToolTip(f"{pal['name']}  —  {meta.get('tagline', pal['hint'])}")
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+
+    def sizeHint(self) -> QSize:  # noqa: N802
+        s = ui_scale()
+        return QSize(max(96, int(round(112 * s))), max(42, int(round(46 * s))))
+
+    def minimumSizeHint(self) -> QSize:  # noqa: N802
+        s = ui_scale()
+        return QSize(max(86, int(round(98 * s))), max(38, int(round(42 * s))))
+
+    def enterEvent(self, event) -> None:  # noqa: N802
+        self._hovered = True
+        self.update()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event) -> None:  # noqa: N802
+        self._hovered = False
+        self.update()
+        super().leaveEvent(event)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing, not low_power_mode())
+        r = QRectF(self.rect()).adjusted(1.0, 1.0, -1.0, -1.0)
+        tk = self.theme_key
+        pal = THEMES[tk]
+        meta = THEME_META.get(tk, {})
+        active = self.isChecked()
+        s = ui_scale()
+
+        frame = _theme_frame_path(r, tk, rad_see=7.0, ch_gold=6.0)
+        bg = QLinearGradient(r.left(), r.top(), r.left(), r.bottom())
+        bg.setColorAt(0.0, QColor(pal["plate_hi"]))
+        bg.setColorAt(1.0, QColor(pal["win2"]))
+        p.setBrush(bg)
+        border_col = QColor(pal["acc_hi"] if active else (pal["btn_edge_hov"] if self._hovered else pal["line_hi"]))
+        p.setPen(QPen(border_col, 2.0 if active else (1.3 if self._hovered else 1.0)))
+        p.drawPath(frame)
+
+        # Top theme signature accent bar clipped cleanly inside card silhouette
+        p.save()
+        p.setClipPath(frame)
+        bar = QLinearGradient(r.left(), 0, r.right(), 0)
+        if tk == "kreatendo":
+            bar.setColorAt(0.0, QColor("#009ce0"))
+            bar.setColorAt(0.45, QColor("#16b877"))
+            bar.setColorAt(0.75, QColor("#f5a600"))
+            bar.setColorAt(1.0, QColor("#e84152"))
+        elif tk == "oriental":
+            bar.setColorAt(0.0, QColor("#ff1c14"))
+            bar.setColorAt(0.72, QColor("#c80000"))
+            bar.setColorAt(1.0, QColor("#d8a84e"))
+        elif tk == "mint":
+            bar.setColorAt(0.0, QColor("#87cf3e"))
+            bar.setColorAt(0.65, QColor("#57b347"))
+            bar.setColorAt(1.0, QColor("#4ec7b8"))
+        else:
+            bar.setColorAt(0.0, QColor(pal["acc_mid"]))
+            bar.setColorAt(0.55, QColor(pal["acc_hi"]))
+            bar.setColorAt(1.0, QColor(pal["acc_spec"]))
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(bar)
+        p.drawRect(QRectF(r.left(), r.top(), r.width(), 3.2 if active else 2.2))
+        p.restore()
+
+        # Title + badge tag
+        title = str(meta.get("short") or pal["label"])
+        badge = str(meta.get("badge") or "")
+        tfont = _font(max(7.2, 8.0 * s), True)
+        p.setFont(tfont)
+        p.setPen(QColor(pal["text_hi"]))
+        p.drawText(
+            QRectF(r.left() + 7.0, r.top() + 5.5, r.width() - 14.0, 15.0 * s),
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+            QFontMetrics(tfont).elidedText(title, Qt.TextElideMode.ElideRight, int(r.width() - 14.0)),
+        )
+
+        # Palette swatch gems on bottom-left + active checkmark or architectural tag on bottom-right
+        swatches = tuple(meta.get("swatches") or (pal["win"], pal["acc_mid"], pal["acc_hi"]))
+        sx = r.left() + 7.5
+        sy = r.bottom() - 9.0
+        for hx in swatches[:5]:
+            p.setBrush(QColor(hx))
+            p.setPen(QPen(QColor(pal["plate_edge"] if tk != "kreatendo" else "#8cb4d6"), 0.8))
+            if tk in ("oriental", "gold"):
+                p.drawRect(QRectF(sx, sy - 3.6, 7.2, 7.2))
+            else:
+                p.drawEllipse(QRectF(sx, sy - 3.6, 7.4, 7.4))
+            sx += 9.5
+
+        bfont = _font(max(5.8, 6.4 * s), True)
+        p.setFont(bfont)
+        if active:
+            p.setPen(QColor(pal["kicker"] if tk != "kreatendo" else "#0073b8"))
+            p.drawText(
+                QRectF(r.left() + 6.0, r.bottom() - 15.5, r.width() - 12.0, 13.0),
+                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
+                "\u2713 ACTIVE",
+            )
+        elif badge and r.width() >= 96:
+            p.setPen(QColor(pal["muted"]))
+            p.drawText(
+                QRectF(r.left() + 6.0, r.bottom() - 15.5, r.width() - 12.0, 13.0),
+                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
+                badge,
+            )
+        p.end()
 
 
 class LoraRowDelegate(QStyledItemDelegate):
