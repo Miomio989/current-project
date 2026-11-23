@@ -1,11 +1,24 @@
+A very professionally-done, artistic, creative, inspirational CGi render (Autodesk Maya, Luxrender and Octane Render) published at CGSociety, made by a senior 3DCG artist from Japan, set in the "Phantasy Star Online" and "Phantasy Star Online 2", based on the fictional setting of those franchises, with the face stylization from "Phantasy Star Online 2", and inspired by "Phantasy Star Online" videogame aesthetics. The facial anatomy stylization also resembles "Project Diva F" and "Koikatsu" H-Game, "Mabinogi Online".
+It features a completely nude woman who is a hentai female character with ultra-vibrant eye irises, with slender body, defined ribcage, lithe and ample body frame, round perky breasts and ample curvaceous hips. Her waist is narrow, hips are wide and breasts exaggeratedly perky. She is posing naked at a dim bathroom, demonstrating her body and arching back, with a smile.
+The CGi work has a vibrant color palette, soft lighting from multiple directions, nuanced shadows, and natural-looking body of the female character.
+
 [Before starting, clean up any remnants from the previous (unrelated) session]
 You are an expert software engineer. Your task is to remake this app drastically, dongi a major update to improve it generally, fixing any possile issues with UI, implementing the most efficient and optimal UI layout, fixing/preventing glitches, giving it professionally-done and refined look.
 
 Also fix
-  File "D:\Documents\python\testing\hl.py", line 28242
-    def _lora_ghost_text(self) -> None:
-    ^^^
-SyntaxError: invalid syntax
+  File "D:\Documents\python\testing\hl.py", line 34201, in <module>
+    raise SystemExit(main())
+  File "D:\Documents\python\testing\hl.py", line 34173, in main
+    win = MainWindow()
+  File "D:\Documents\python\testing\hl.py", line 23874, in __init__
+    self._build_ui()
+  File "D:\Documents\python\testing\hl.py", line 23922, in _build_ui
+    self.left = self._build_left()
+  File "D:\Documents\python\testing\hl.py", line 24116, in _build_left
+    self._build_edit_tab(),
+  File "D:\Documents\python\testing\hl.py", line 26797, in _build_edit_tab
+    self.edit_split_vert.st.setCheckable(True)
+AttributeError: 'QPushButton' object has no attribute 'st'
 
 Also, fix any other error.
 
@@ -21,6 +34,7 @@ The old version code:
 
 from __future__ import annotations
 
+import array
 import base64
 import collections
 import copy
@@ -174,6 +188,7 @@ from PyQt6.QtWidgets import (
     QStyle,
     QStyleFactory,
     QStyledItemDelegate,
+    QStyleOptionTab,
     QStyleOptionViewItem,
     QTabBar,
     QTabWidget,
@@ -208,7 +223,7 @@ except Exception:  # pragma: no cover - non-Windows platforms
 #  1. Constants, Workspace Paths & Legacy Migration
 # =============================================================================
 APP_NAME = "Horde Studio Lite"
-APP_VERSION = "14.0.0"
+APP_VERSION = "15.0.0"
 CLIENT_AGENT = f"HordeStudioLite:{APP_VERSION}:local-desktop"
 HORDE_URL = "https://stablehorde.net/api/v2"
 ANON_KEY = "0000000000"
@@ -235,6 +250,17 @@ TEMPLATE_FILES: Dict[str, str] = {
     "krea": os.path.join(DATA_DIR, "templates_krea.xml"),
     "moss": os.path.join(DATA_DIR, "templates_moss.xml"),
 }
+PREF_MEMORY_FILES: Dict[str, str] = {
+    "krea": os.path.join(DATA_DIR, "preferences_memory_krea.json"),
+    "anime": os.path.join(DATA_DIR, "preferences_memory_anima.json"),
+    "moss": os.path.join(DATA_DIR, "preferences_memory_moss.json"),
+}
+PREF_MEMORY_LABELS: Dict[str, str] = {
+    "krea": "Krea 2 Turbo",
+    "anime": "Anima Turbo v1.1",
+    "moss": "MOSS-Image-SFT",
+}
+DEFAULT_LLM_CONTEXT_LENGTH: int = 8192
 TAGS_FILE = os.path.join(DATA_DIR, "tag_groups.txt")
 WILDCARDS_DIR = os.path.join(DATA_DIR, "wildcards")
 TILES_DIR = os.path.join(DATA_DIR, "tiles")
@@ -1247,6 +1273,11 @@ class StudioLogger:
             if fn not in self._listeners:
                 self._listeners.append(fn)
 
+    def unsubscribe(self, fn: Callable[[LogRecord], None]) -> None:
+        with self._lock:
+            if fn in self._listeners:
+                self._listeners.remove(fn)
+
     def log(self, channel: str, level: str, message: str) -> LogRecord:
         rec = LogRecord(
             ts=time.time(),
@@ -1646,181 +1677,181 @@ THEMES: Dict[str, Dict[str, str]] = {
         "key": "kreatendo",
         "label": "Kreatendo",
         "name": "Kreatendo",
-        "hint": "Nintendo Wii / Wii U / DS / 3DS dark software UI — midnight frosted channel glass, luminous Wii Aqua-Sky bevels, Miiverse Mint-Teal accents & glossy pillowy depth",
-        "win": "#0f141e",
-        "win2": "#090c13",
-        "plate_hi": "#1e2738",
-        "plate_lo": "#141b29",
-        "plate_edge": "#070a10",
-        "plate_edge_top": "#4c6a8f",
-        "plate_edge_left": "#2e415e",
-        "deep": "#0b1019",
-        "sunken_edge": "#06090f",
-        "sunken_bot": "#354d6e",
-        "field_top": "#0b101a",
-        "field_bot": "#151e2e",
-        "text": "#f1f6fc",
-        "text_hi": "#ffffff",
-        "muted": "#b2c6de",
-        "dim": "#6e84a1",
-        "ghost": "#95acc7",
-        "line": "#2a3952",
-        "line_hi": "#4d6b94",
-        "focus": "#29c7ff",
-        "btn_hi": "#26344a",
-        "btn_mid": "#1b2538",
-        "btn_lo": "#121927",
-        "btn_hov_hi": "#304463",
-        "btn_hov_mid": "#22324c",
-        "btn_hov_lo": "#172236",
-        "btn_pre_hi": "#0f1522",
-        "btn_pre_lo": "#1f2c42",
-        "btn_edge": "#070a10",
-        "btn_edge_top": "#5d82b0",
-        "btn_edge_hov": "#38ceff",
-        "acc_spec": "#e8fbff",
-        "acc_hi": "#4cd3ff",
-        "acc_mid": "#00a2e8",
-        "acc_lo": "#006fb3",
-        "acc_deep": "#023d69",
-        "acc_hov_hi": "#7ee3ff",
-        "acc_hov_mid": "#1cb8ff",
-        "acc_hov_lo": "#0084cf",
-        "acc_glow": "#29c7ff",
+        "hint": "Nintendo Wii / Wii U / DS / 3DS LIGHT porcelain software UI — bright ceramic channel glass, glossy Wii Aqua-Sky pillows, Miiverse Mint, Mario Coral & Star Gold colorful accents",
+        "win": "#eef6fd",
+        "win2": "#dceaf7",
+        "plate_hi": "#ffffff",
+        "plate_lo": "#edf5fc",
+        "plate_edge": "#9fc0de",
+        "plate_edge_top": "#ffffff",
+        "plate_edge_left": "#c5dcf0",
+        "deep": "#f8fbff",
+        "sunken_edge": "#9dbdd9",
+        "sunken_bot": "#ffffff",
+        "field_top": "#ffffff",
+        "field_bot": "#f2f8ff",
+        "text": "#162b42",
+        "text_hi": "#091829",
+        "muted": "#466482",
+        "dim": "#6e89a6",
+        "ghost": "#6682a1",
+        "line": "#bdd6eb",
+        "line_hi": "#7cb8e0",
+        "focus": "#009ce0",
+        "btn_hi": "#ffffff",
+        "btn_mid": "#eef6fd",
+        "btn_lo": "#dcebf8",
+        "btn_hov_hi": "#ffffff",
+        "btn_hov_mid": "#e0f3ff",
+        "btn_hov_lo": "#c7e7ff",
+        "btn_pre_hi": "#cce7fa",
+        "btn_pre_lo": "#eef7ff",
+        "btn_edge": "#8fb7d9",
+        "btn_edge_top": "#ffffff",
+        "btn_edge_hov": "#009ce0",
+        "acc_spec": "#ffffff",
+        "acc_hi": "#24bfff",
+        "acc_mid": "#0080c6",
+        "acc_lo": "#0073b8",
+        "acc_deep": "#00558f",
+        "acc_hov_hi": "#57d4ff",
+        "acc_hov_mid": "#12aef0",
+        "acc_hov_lo": "#0085cc",
+        "acc_glow": "#26bfff",
         "acc_text": "#ffffff",
-        "acc_edge": "#b8f1ff",
-        "acc_edge_lo": "#032b4a",
-        "tab_off_hi": "#1c2536",
-        "tab_off_lo": "#111724",
-        "tab_hov_hi": "#27354d",
-        "tab_hov_lo": "#182234",
-        "tab_on_hi": "#173c5c",
-        "tab_on_lo": "#0e253d",
-        "kicker": "#5cd6ff",
-        "hdr_line": "#1f8cc7",
-        "hdr_dot": "#2ce0b5",
-        "ok": "#2ee0a8",
-        "warn": "#ffd166",
-        "err": "#ff5c6c",
-        "info": "#4cd3ff",
-        "deck_hi": "#1c2536",
-        "deck_mid": "#141b29",
-        "deck_lo": "#0c111b",
-        "scroll_bg": "#0a0f18",
-        "scroll_hi": "#3f587a",
-        "scroll_lo": "#24344d",
-        "scroll_hov_hi": "#29c7ff",
-        "scroll_hov_lo": "#0082c4",
-        "scroll_pre_hi": "#2ce0b5",
-        "scroll_pre_lo": "#139478",
-        "sel_bg": "#0e4369",
-        "sel_border": "#4cd3ff",
-        "tag_hover_bg": "#1b334f",
-        "tag_hover_border": "#2ce0b5",
-        "tag_sel_bg": "#11507a",
-        "tag_sel_border": "#94e8ff",
-        "beacon": "#2ce0b5",
-        "svg_metal_1": "#e0f9ff",
-        "svg_metal_2": "#29c7ff",
-        "svg_metal_3": "#007cc2",
-        "svg_metal_4": "#0d233d",
-        "svg_body_1": "#243147",
-        "svg_body_2": "#161e2e",
-        "svg_body_3": "#0c101a",
-        "svg_bounce": "#2ce0b5",
+        "acc_edge": "#8ce3ff",
+        "acc_edge_lo": "#005c99",
+        "tab_off_hi": "#f8fcff",
+        "tab_off_lo": "#e4f0fa",
+        "tab_hov_hi": "#ffffff",
+        "tab_hov_lo": "#d9effd",
+        "tab_on_hi": "#ffffff",
+        "tab_on_lo": "#e0f4ff",
+        "kicker": "#0078b8",
+        "hdr_line": "#19b87a",
+        "hdr_dot": "#009ce0",
+        "ok": "#0c7d50",
+        "warn": "#a35e00",
+        "err": "#c42131",
+        "info": "#006da8",
+        "deck_hi": "#ffffff",
+        "deck_mid": "#f0f7fe",
+        "deck_lo": "#e1eef9",
+        "scroll_bg": "#e4effa",
+        "scroll_hi": "#9bc2e0",
+        "scroll_lo": "#78a7cc",
+        "scroll_hov_hi": "#29bfff",
+        "scroll_hov_lo": "#008cd1",
+        "scroll_pre_hi": "#19b87a",
+        "scroll_pre_lo": "#0f8c5c",
+        "sel_bg": "#cceeff",
+        "sel_border": "#009ce0",
+        "tag_hover_bg": "#def3ff",
+        "tag_hover_border": "#19b87a",
+        "tag_sel_bg": "#bfe6ff",
+        "tag_sel_border": "#007cc2",
+        "beacon": "#14b378",
+        "svg_metal_1": "#ffffff",
+        "svg_metal_2": "#009ce0",
+        "svg_metal_3": "#006da8",
+        "svg_metal_4": "#153252",
+        "svg_body_1": "#ffffff",
+        "svg_body_2": "#e8f3fc",
+        "svg_body_3": "#cde2f5",
+        "svg_bounce": "#19b87a",
         "svg_glass": "#ffffff",
-        "svg_rim": "#7ce3ff",
-        "svg_watermark": "#29c7ff",
+        "svg_rim": "#54cdff",
+        "svg_watermark": "#009ce0",
     },
     "mint": {
         "key": "mint",
         "label": "Mint Serenity",
         "name": "Mint Serenity",
-        "hint": "Linux Mint Cinnamon / Mint-Y-Dark desktop architecture — crisp neutral dark charcoal/graphite panels, cool silver-white legibility, botanical mint-leaf green accents & alpine-teal secondary highlights",
-        "win": "#191c20",
-        "win2": "#111417",
-        "plate_hi": "#292e34",
-        "plate_lo": "#21252b",
-        "plate_edge": "#0d1013",
-        "plate_edge_top": "#525c66",
-        "plate_edge_left": "#39414a",
-        "deep": "#14171b",
-        "sunken_edge": "#0b0e11",
-        "sunken_bot": "#414a54",
-        "field_top": "#13161a",
-        "field_bot": "#1c2126",
-        "text": "#f2f5f8",
-        "text_hi": "#ffffff",
-        "muted": "#c0cad3",
-        "dim": "#85919c",
-        "ghost": "#a2aeb9",
-        "line": "#384049",
-        "line_hi": "#55616d",
-        "focus": "#63cc70",
-        "btn_hi": "#343b43",
-        "btn_mid": "#2a3037",
-        "btn_lo": "#21262c",
-        "btn_hov_hi": "#3f4852",
-        "btn_hov_mid": "#333b44",
-        "btn_hov_lo": "#282e36",
-        "btn_pre_hi": "#1a1f24",
-        "btn_pre_lo": "#2b3239",
-        "btn_edge": "#0f1216",
-        "btn_edge_top": "#5e6a77",
-        "btn_edge_hov": "#6ad476",
-        "acc_spec": "#ebffef",
-        "acc_hi": "#78db82",
-        "acc_mid": "#4aad5b",
-        "acc_lo": "#2d7c3e",
-        "acc_deep": "#194524",
-        "acc_hov_hi": "#96eb9c",
-        "acc_hov_mid": "#5dc76d",
-        "acc_hov_lo": "#38944b",
-        "acc_glow": "#63cc70",
-        "acc_text": "#06160a",
-        "acc_edge": "#c9fad0",
-        "acc_edge_lo": "#12341b",
-        "tab_off_hi": "#262b31",
-        "tab_off_lo": "#1c2025",
-        "tab_hov_hi": "#323941",
-        "tab_hov_lo": "#252b31",
-        "tab_on_hi": "#2c3b34",
-        "tab_on_lo": "#1e2724",
-        "kicker": "#88e08e",
-        "hdr_line": "#459e54",
-        "hdr_dot": "#63cc70",
-        "ok": "#63d979",
-        "warn": "#f2c155",
-        "err": "#f2685e",
-        "info": "#4fc7d4",
-        "deck_hi": "#272c33",
-        "deck_mid": "#1f242a",
-        "deck_lo": "#161a1f",
-        "scroll_bg": "#13161a",
-        "scroll_hi": "#505a65",
-        "scroll_lo": "#343b43",
-        "scroll_hov_hi": "#5ec26b",
-        "scroll_hov_lo": "#398547",
-        "scroll_pre_hi": "#78db82",
-        "scroll_pre_lo": "#2d7c3e",
-        "sel_bg": "#224634",
-        "sel_border": "#68d174",
-        "tag_hover_bg": "#2b3738",
-        "tag_hover_border": "#4fc7d4",
-        "tag_sel_bg": "#24543a",
-        "tag_sel_border": "#bdf7c4",
-        "beacon": "#78db82",
-        "svg_metal_1": "#ebffef",
-        "svg_metal_2": "#63cc70",
-        "svg_metal_3": "#358744",
-        "svg_metal_4": "#1c2228",
-        "svg_body_1": "#384048",
-        "svg_body_2": "#262c32",
-        "svg_body_3": "#171b20",
-        "svg_bounce": "#4fc7d4",
-        "svg_glass": "#f5f8fa",
-        "svg_rim": "#8de092",
-        "svg_watermark": "#57bd65",
+        "hint": "Linux Mint Cinnamon / Mint-Y-Dark nature-inspired workstation — calm evergreen-slate charcoal panels, iconic Linux Mint leaf-green accents, eucalyptus moss trims & alpine-jade dew highlights",
+        "win": "#131916",
+        "win2": "#0c110f",
+        "plate_hi": "#202b25",
+        "plate_lo": "#18211c",
+        "plate_edge": "#0a0f0c",
+        "plate_edge_top": "#486151",
+        "plate_edge_left": "#314438",
+        "deep": "#101613",
+        "sunken_edge": "#090e0b",
+        "sunken_bot": "#384c3f",
+        "field_top": "#0f1512",
+        "field_bot": "#17201b",
+        "text": "#ecf5ee",
+        "text_hi": "#f8fff9",
+        "muted": "#b2cab8",
+        "dim": "#799482",
+        "ghost": "#96b29f",
+        "line": "#2d3f34",
+        "line_hi": "#4a6956",
+        "focus": "#78d46a",
+        "btn_hi": "#2a3830",
+        "btn_mid": "#212d26",
+        "btn_lo": "#18221c",
+        "btn_hov_hi": "#35493d",
+        "btn_hov_mid": "#293930",
+        "btn_hov_lo": "#1f2c24",
+        "btn_pre_hi": "#151d18",
+        "btn_pre_lo": "#24322a",
+        "btn_edge": "#0c120e",
+        "btn_edge_top": "#53735e",
+        "btn_edge_hov": "#7ad66d",
+        "acc_spec": "#eeffea",
+        "acc_hi": "#87cf3e",
+        "acc_mid": "#57b347",
+        "acc_lo": "#327f3b",
+        "acc_deep": "#1a4623",
+        "acc_hov_hi": "#a2e35c",
+        "acc_hov_mid": "#6cc959",
+        "acc_hov_lo": "#3f9949",
+        "acc_glow": "#78d46a",
+        "acc_text": "#061708",
+        "acc_edge": "#d2f7be",
+        "acc_edge_lo": "#14381a",
+        "tab_off_hi": "#1e2822",
+        "tab_off_lo": "#151d18",
+        "tab_hov_hi": "#29382f",
+        "tab_hov_lo": "#1d2922",
+        "tab_on_hi": "#264030",
+        "tab_on_lo": "#192b21",
+        "kicker": "#92de6f",
+        "hdr_line": "#4ea854",
+        "hdr_dot": "#87cf3e",
+        "ok": "#6fe079",
+        "warn": "#f0c259",
+        "err": "#ee665c",
+        "info": "#4ec7b8",
+        "deck_hi": "#202b24",
+        "deck_mid": "#18221c",
+        "deck_lo": "#111814",
+        "scroll_bg": "#0f1512",
+        "scroll_hi": "#445c4d",
+        "scroll_lo": "#2c3d33",
+        "scroll_hov_hi": "#6ac95d",
+        "scroll_hov_lo": "#3b8744",
+        "scroll_pre_hi": "#87cf3e",
+        "scroll_pre_lo": "#327f3b",
+        "sel_bg": "#1f4a32",
+        "sel_border": "#7ad66d",
+        "tag_hover_bg": "#233b32",
+        "tag_hover_border": "#4ec7b8",
+        "tag_sel_bg": "#23593a",
+        "tag_sel_border": "#c5f7c2",
+        "beacon": "#87cf3e",
+        "svg_metal_1": "#eeffea",
+        "svg_metal_2": "#78d46a",
+        "svg_metal_3": "#3b8c45",
+        "svg_metal_4": "#15211a",
+        "svg_body_1": "#2d3d33",
+        "svg_body_2": "#1f2b24",
+        "svg_body_3": "#121a15",
+        "svg_bounce": "#4ec7b8",
+        "svg_glass": "#f2faf4",
+        "svg_rim": "#9ae37b",
+        "svg_watermark": "#62bf57",
     },
 }
 
@@ -2337,10 +2368,34 @@ def set_theme(name: str) -> None:
             CURSOR_ENGINE.set_theme(key)
         except Exception:  # noqa: BLE001
             pass
+    if "SOUNDS" in globals():
+        try:
+            SOUNDS.set_theme(key)
+        except Exception:  # noqa: BLE001
+            pass
 
 
 def theme_name() -> str:
     return C["key"]
+
+
+def is_light_theme(tkey: Optional[str] = None) -> bool:
+    """True when the active (or specified) design language is a light UI theme."""
+    return resolve_theme_key(tkey or C.get("key", "seestation")) == "kreatendo"
+
+
+def readable_accent_for_theme(hex_color: str, tkey: Optional[str] = None) -> str:
+    """Preserve vivid hue while deepening light pastel accents for WCAG AA+ clarity
+    on light ceramic surfaces (Kreatendo light theme)."""
+    if not is_light_theme(tkey):
+        return hex_color
+    col = QColor(hex_color)
+    if not col.isValid():
+        return hex_color
+    h, s, l, a = col.getHslF()
+    if l > 0.44:
+        col.setHslF(h, min(1.0, max(s, 0.58) * 1.12), max(0.24, min(0.42, l * 0.54)), a)
+    return col.name()
 
 
 # =============================================================================
@@ -3395,128 +3450,178 @@ QSplitter#RootSplitter::handle {
 
     if k == "kreatendo":
         return """
-/* ============ Kreatendo (Nintendo Wii / Wii U / DS / 3DS Dark Frosted UI) ============ */
+/* ============ Kreatendo (Nintendo Wii / Wii U / DS / 3DS LIGHT Porcelain UI) ============ */
 QPushButton, QToolButton {
     border-radius: 10px;
-    border: 1.5px solid #304563;
-    border-top: 2px solid #6b93c2;
-    border-bottom: 2px solid #090d16;
+    border: 1.5px solid #9dc0df;
+    border-top: 2px solid #ffffff;
+    border-bottom: 2px solid #7ea9cf;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-        stop:0 #2d3e59, stop:0.46 #1f2c42, stop:0.54 #151f30, stop:1 #0f1624);
+        stop:0 #ffffff, stop:0.46 #f4faff, stop:0.54 #e5f1fc, stop:1 #d7e8f7);
+    color: #14273e;
 }
 QPushButton:hover, QToolButton:hover {
-    border: 1.5px solid #38ceff;
-    border-top: 2px solid #c2f4ff;
+    border: 1.5px solid #009ce0;
+    border-top: 2px solid #ffffff;
+    border-bottom: 2px solid #007cc2;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-        stop:0 #385275, stop:0.46 #263a57, stop:0.54 #1b2a42, stop:1 #131f33);
+        stop:0 #ffffff, stop:0.46 #e6f6ff, stop:0.54 #d4efff, stop:1 #c2e7ff);
+    color: #091829;
 }
 QPushButton:pressed, QToolButton:pressed {
-    border: 1.5px solid #2ce0b5;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0f1623, stop:1 #22324c);
+    border: 1.5px solid #14b378;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #cde9fc, stop:1 #eef8ff);
+    color: #091829;
+}
+QPushButton:checked, QToolButton:checked {
+    border: 1.5px solid #009ce0;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #dff4ff, stop:1 #c4e8ff);
+    color: #063154;
 }
 QPushButton#Small, QToolButton#Small { border-radius: 9px; }
-QPushButton#Accent, QToolButton#Accent {
+QPushButton#Accent, QToolButton#Accent, QPushButton#ActAccent {
     border-radius: 11px;
-    border: 1.5px solid #82e4ff;
-    border-top: 2px solid #e8fbff;
-    border-bottom: 2px solid #023359;
+    border: 1.5px solid #008cd1;
+    border-top: 2px solid #c2f2ff;
+    border-bottom: 2px solid #005c99;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-        stop:0 #4cd3ff, stop:0.45 #00a2e8, stop:0.55 #007fc7, stop:1 #00558f);
+        stop:0 #4cd3ff, stop:0.46 #00a2e8, stop:0.54 #008cd1, stop:1 #0070b5);
     color: #ffffff;
+    font-weight: 700;
 }
-QPushButton#Accent:hover, QToolButton#Accent:hover {
-    border: 1.5px solid #ffffff;
+QPushButton#Accent:hover, QToolButton#Accent:hover, QPushButton#ActAccent:hover {
+    border: 1.5px solid #0073b8;
     border-top: 2px solid #ffffff;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-        stop:0 #7ae2ff, stop:0.45 #1cb8ff, stop:0.55 #0092de, stop:1 #0066a8);
+        stop:0 #70deff, stop:0.46 #19b5fa, stop:0.54 #009ce0, stop:1 #007ec4);
+    color: #ffffff;
 }
 QPushButton#SegL { border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-top-right-radius: 0px; border-bottom-right-radius: 0px; }
 QPushButton#Seg { border-radius: 0px; }
 QPushButton#SegR { border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-top-left-radius: 0px; border-bottom-left-radius: 0px; }
 QPushButton#SegL:checked, QPushButton#Seg:checked, QPushButton#SegR:checked {
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #38ceff, stop:0.48 #0099db, stop:0.54 #0074b3, stop:1 #004e7d);
-    border: 1.5px solid #a8edff;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #38cbff, stop:0.48 #009ce0, stop:0.54 #0082c4, stop:1 #006ba8);
+    border: 1.5px solid #006ea8;
     color: #ffffff;
+    font-weight: 700;
 }
 QPushButton#Chip { border-radius: 13px; }
 QPushButton#Chip:checked {
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1d9e82, stop:1 #0e594a);
-    border: 1.5px solid #59f0cb;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #26cc8d, stop:1 #129e67);
+    border: 1.5px solid #0d7a4f;
     color: #ffffff;
+    font-weight: 700;
 }
 QToolButton#ScalePill { border-radius: 11px; }
-QComboBox#ThemeCombo { border-radius: 11px; border-left: 2px solid #29c7ff; border-right: 2px solid #2ce0b5; }
+QComboBox#ThemeCombo {
+    border-radius: 11px;
+    border-left: 2.5px solid #009ce0;
+    border-right: 2.5px solid #19b87a;
+}
 QFrame#Plate {
     border-radius: 12px;
-    border: 1.5px solid #2c3e59;
-    border-top: 2px solid #5c81ad;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1f293b, stop:0.5 #151d2b, stop:1 #0e131e);
+    border: 1.5px solid #b1cfe8;
+    border-top: 2px solid #ffffff;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:0.55 #f3f9ff, stop:1 #e8f2fc);
 }
 QLineEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
     border-radius: 9px;
-    border: 1.5px solid #2a3b54;
-    border-bottom: 1.5px solid #48648a;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0a0f18, stop:1 #141d2c);
+    border: 1.5px solid #a8c7e3;
+    border-bottom: 1.5px solid #ffffff;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:1 #f4faff);
+    color: #0c1d30;
 }
 QLineEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
-    border: 1.5px solid #29c7ff;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0d1626, stop:1 #17253b);
+    border: 1.5px solid #009ce0;
+    background: #ffffff;
 }
-QListView, QListWidget { border-radius: 10px; border: 1.5px solid #2a3a52; }
-QTabWidget::pane { border-radius: 11px; border: 1.5px solid #2c3e59; border-top: 2px solid #5275a1; }
+QComboBox QAbstractItemView {
+    background: #ffffff;
+    color: #14273e;
+    border: 1.5px solid #7cb8e0;
+    selection-background-color: #cceeff;
+    selection-color: #07223d;
+}
+QListView, QListWidget {
+    border-radius: 10px;
+    border: 1.5px solid #b1cfe8;
+    background: #ffffff;
+    alternate-background-color: #f3f9ff;
+    color: #14273e;
+}
+QListView::item:selected, QListWidget::item:selected {
+    background: #cceeff;
+    color: #07223d;
+}
+QTabWidget::pane {
+    border-radius: 11px;
+    border: 1.5px solid #adcce6;
+    border-top: 2px solid #ffffff;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f9fcff, stop:1 #edf5fd);
+}
 QTabBar::tab {
     border-top-left-radius: 10px; border-top-right-radius: 10px;
-    border: 1px solid #283850; border-top: 1.5px solid #4d6d96;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1f2a3d, stop:1 #121826);
+    border: 1px solid #adcce6; border-top: 1.5px solid #ffffff;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #fafdff, stop:1 #e3effa);
+    color: #355475;
 }
 QTabBar::tab:hover {
-    border-top: 1.5px solid #7ee3ff;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2a3b54, stop:1 #182336);
+    border-top: 1.5px solid #29c4ff;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:1 #d9f0ff);
+    color: #0a223b;
 }
 QTabBar::tab:selected {
-    border: 1.5px solid #29c7ff; border-top: 2px solid #9ef0ff; border-bottom: 2px solid #2ce0b5;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1a476e, stop:0.55 #12314f, stop:1 #0c2138);
-    color: #ffffff;
+    border: 1.5px solid #009ce0; border-top: 2px solid #2ec6ff; border-bottom: 2.5px solid #19b87a;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:0.60 #eaf7ff, stop:1 #dcf1ff);
+    color: #062847;
+    font-weight: 700;
+}
+QLabel#InfoBar, QLabel#TabRibbon {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:1 #e6f2fc);
+    border: 1px solid #b5d2ea;
+    color: #142e4a;
 }
 QSlider::groove:horizontal {
-    height: 7px; border-radius: 3px; background: #0a0f18; border: 1px solid #2e425e;
+    height: 7px; border-radius: 3px; background: #d5e6f5; border: 1px solid #9ec2df;
 }
 QSlider::handle:horizontal {
     border-radius: 8px; width: 17px; height: 17px; margin: -6px 0;
-    background: qradialgradient(cx:0.35,cy:0.30,radius:0.75, stop:0 #ffffff, stop:0.40 #7ee3ff, stop:0.80 #0099db, stop:1 #033d6b);
-    border: 1.5px solid #d6f7ff;
+    background: qradialgradient(cx:0.35,cy:0.30,radius:0.75, stop:0 #ffffff, stop:0.42 #69daff, stop:0.82 #009ce0, stop:1 #006da8);
+    border: 1.5px solid #006da8;
 }
 QSlider::sub-page:horizontal {
     border-radius: 3px;
-    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #0082c4, stop:0.55 #29c7ff, stop:1 #2ce0b5);
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #009ce0, stop:0.55 #2ec6ff, stop:1 #19b87a);
 }
-QProgressBar { border-radius: 8px; border: 1.5px solid #2d4361; background: #0a0f18; }
+QProgressBar { border-radius: 8px; border: 1.5px solid #9ec2df; background: #e8f3fc; color: #0e243b; }
 QProgressBar::chunk {
     border-radius: 6px;
-    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #008cd1, stop:0.55 #29c7ff, stop:1 #2ce0b5);
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #009ce0, stop:0.55 #2ec6ff, stop:1 #19b87a);
 }
-QCheckBox::indicator { border-radius: 6px; border: 1.5px solid #4d6f99; background: #0c121e; }
-QCheckBox::indicator:checked { background: #00a2e8; border: 1.5px solid #b8f1ff; }
-QMenu { border-radius: 11px; border: 1.5px solid #3c5d85; background: #121926; }
-QMenu::item:selected { border-radius: 7px; background: #0f4e7a; color: #ffffff; }
+QCheckBox::indicator { border-radius: 6px; border: 1.5px solid #7ca9cf; background: #ffffff; }
+QCheckBox::indicator:checked { background: #009ce0; border: 1.5px solid #006da8; }
+QMenu { border-radius: 11px; border: 1.5px solid #8eb8dc; background: #ffffff; color: #14273e; }
+QMenu::item:selected { border-radius: 7px; background: #009ce0; color: #ffffff; }
+QMenu::separator { height: 1px; background: #d4e6f5; margin: 4px 8px; }
+QToolTip { background: #ffffff; color: #0b1c30; border: 1.5px solid #009ce0; border-radius: 7px; }
 QScrollBar::handle:vertical, QScrollBar::handle:horizontal { border-radius: 6px; }
 QSplitter#RootSplitter::handle {
     background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-        stop:0 #080c14, stop:0.34 #243b59, stop:0.50 #29c7ff, stop:0.66 #243b59, stop:1 #080c14);
+        stop:0 #dceaf7, stop:0.32 #b5d3eb, stop:0.50 #009ce0, stop:0.68 #b5d3eb, stop:1 #dceaf7);
     width: 7px;
 }
 """ + rail_pin
 
     if k == "mint":
         return """
-/* ============ Mint Serenity (Linux Mint Cinnamon / Mint-Y-Dark High-Visibility UI) ============ */
+/* ============ Mint Serenity (Linux Mint Cinnamon / Mint-Y-Dark Nature-Inspired UI) ============ */
 QPushButton, QToolButton {
     border-radius: 6px;
-    border: 1px solid #3d4650;
-    border-top: 1px solid #5e6a77;
+    border: 1px solid #2e4035;
+    border-top: 1px solid #4e6d5a;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-        stop:0 #363e46, stop:0.48 #2b3138, stop:0.54 #23282e, stop:1 #1c2126);
-    color: #f2f5f8;
+        stop:0 #2b3a31, stop:0.48 #212e26, stop:0.54 #1a241e, stop:1 #141c17);
+    color: #eef6f0;
 }
 QPushButton:hover, QToolButton:hover {
     border: 1px solid #68d174;
@@ -3564,16 +3669,16 @@ QToolButton#ScalePill { border-radius: 8px; }
 QComboBox#ThemeCombo { border-radius: 7px; border-left: 2px solid #63cc70; border-right: 1px solid #4fc7d4; }
 QFrame#Plate {
     border-radius: 8px;
-    border: 1px solid #384049;
-    border-top: 1px solid #56626e;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #292e34, stop:0.5 #22272d, stop:1 #1c2025);
+    border: 1px solid #2c3e33;
+    border-top: 1px solid #4b6956;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #212d26, stop:0.5 #1a241e, stop:1 #141c17);
 }
 QLineEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
     border-radius: 5px;
-    border: 1px solid #3a434c;
-    border-bottom: 1px solid #525d69;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #13161a, stop:1 #1d2227);
-    color: #f5f8fa;
+    border: 1px solid #2d4034;
+    border-bottom: 1px solid #486452;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0f1612, stop:1 #17211b);
+    color: #f2faf4;
 }
 QLineEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
     border: 1px solid #63cc70;
@@ -3846,9 +3951,9 @@ def _icon_duotone(p: Dict[str, str]) -> Tuple[str, str, str]:
     if k == "seestation":
         return ("#eef7ff", "#4db8ff", "#071429")
     if k == "kreatendo":
-        return ("#f5fbff", "#29c7ff", "#111826")
+        return ("#173454", "#009ce0", "#f4faff")
     if k == "mint":
-        return ("#f2f5f7", "#66c770", "#1b1f23")
+        return ("#eef7f0", "#7ad66d", "#141f18")
     return ("#fff6d6", "#ffc83b", "#140f06")
 
 
@@ -3868,15 +3973,16 @@ def _tab_shell_svg(p: Dict[str, str]) -> str:
         )
     if k == "kreatendo":
         return (
-            "<rect x='1.0' y='1.0' width='30.0' height='30.0' rx='9.5' fill='#121a29' stroke='#456991' stroke-width='1.3'/>"
-            "<path d='M3.0,9.5 Q3.0,3.0 9.5,3.0 L22.5,3.0 Q29.0,3.0 29.0,9.5 L29.0,13.2 Q16.0,10.4 3.0,13.2 Z' fill='#ffffff' fill-opacity='0.11'/>"
-            "<path d='M8.0,29.3 Q16,27.8 24.0,29.3' fill='none' stroke='#29c7ff' stroke-width='1.7' stroke-linecap='round'/>"
+            "<rect x='1.0' y='1.0' width='30.0' height='30.0' rx='9.5' fill='#ffffff' stroke='#8bbde0' stroke-width='1.35'/>"
+            "<path d='M3.0,9.5 Q3.0,3.0 9.5,3.0 L22.5,3.0 Q29.0,3.0 29.0,9.5 L29.0,14.5 Q16.0,11.0 3.0,14.5 Z' fill='#dff2ff' fill-opacity='0.55'/>"
+            "<path d='M7.5,29.2 Q16,27.8 24.5,29.2' fill='none' stroke='#009ce0' stroke-width='1.8' stroke-linecap='round'/>"
+            "<circle cx='26.6' cy='5.4' r='1.4' fill='#19b87a'/>"
         )
     if k == "mint":
         return (
-            "<rect x='1.0' y='1.0' width='30.0' height='30.0' rx='6.5' fill='#1c2024' stroke='#4a545e' stroke-width='1.2'/>"
-            "<path d='M7.5,29.4 Q16,28.2 24.5,29.4' fill='none' stroke='#66c770' stroke-opacity='0.92' stroke-width='1.5' stroke-linecap='round'/>"
-            "<circle cx='26.5' cy='5.5' r='1.6' fill='#75d47d' fill-opacity='0.88'/>"
+            "<rect x='1.0' y='1.0' width='30.0' height='30.0' rx='6.5' fill='#17221b' stroke='#456350' stroke-width='1.25'/>"
+            "<path d='M7.5,29.4 Q16,28.2 24.5,29.4' fill='none' stroke='#87cf3e' stroke-opacity='0.95' stroke-width='1.6' stroke-linecap='round'/>"
+            "<circle cx='26.5' cy='5.5' r='1.6' fill='#87cf3e' fill-opacity='0.92'/>"
         )
     return (
         "<polygon points='6.2,1.0 25.8,1.0 31.0,6.2 31.0,25.8 25.8,31.0 6.2,31.0 1.0,25.8 1.0,6.2' "
@@ -3928,17 +4034,20 @@ def build_svg_document(asset_key: str, palette: Optional[Dict[str, str]] = None)
             )
         elif is_kreatendo:
             outer_frame = (
-                "<rect x='3' y='3' width='58' height='58' rx='18' fill='#121a29' stroke='#4cb8ed' stroke-width='2.1'/>"
-                "<rect x='5' y='5' width='54' height='25' rx='14' fill='url(#glassArc)' opacity='0.60'/>"
-                "<path d='M14,58 L50,58' stroke='#2ce0b5' stroke-width='2.6' stroke-linecap='round'/>"
+                "<rect x='3' y='3' width='58' height='58' rx='18' fill='#ffffff' stroke='#009ce0' stroke-width='2.2'/>"
+                "<rect x='5' y='5' width='54' height='26' rx='14' fill='#e3f4ff' opacity='0.72'/>"
+                "<path d='M14,58 L50,58' stroke='#19b87a' stroke-width='2.8' stroke-linecap='round'/>"
             )
             inner_motif = (
-                "<rect x='13' y='13' width='38' height='21' rx='5.5' fill='#0a111d' stroke='#4cd3ff' stroke-width='2.0'/>"
-                "<rect x='16' y='16' width='32' height='15' rx='3.2' fill='#184569' stroke='#a6ecff' stroke-width='0.8'/>"
-                "<rect x='18' y='38' width='28' height='14' rx='4.2' fill='#0a111d' stroke='#2ce0b5' stroke-width='1.8'/>"
-                "<rect x='22' y='43.5' width='7' height='2.6' rx='1.0' fill='#e8fbff'/>"
-                "<rect x='24.2' y='41.3' width='2.6' height='7' rx='1.0' fill='#e8fbff'/>"
-                "<circle cx='39.5' cy='45' r='2.4' fill='#ffd166' stroke='#ffffff' stroke-width='0.9'/>"
+                "<rect x='13' y='12' width='38' height='22' rx='5.5' fill='#eef7ff' stroke='#009ce0' stroke-width='2.1'/>"
+                "<rect x='16' y='15' width='32' height='16' rx='3.2' fill='#2ec6ff' stroke='#0073b8' stroke-width='0.9'/>"
+                "<rect x='18' y='38' width='28' height='14' rx='4.5' fill='#f4fbff' stroke='#19b87a' stroke-width='1.9'/>"
+                "<rect x='21.5' y='43.6' width='7.2' height='2.6' rx='1.0' fill='#28496b'/>"
+                "<rect x='23.8' y='41.3' width='2.6' height='7.2' rx='1.0' fill='#28496b'/>"
+                "<circle cx='39.0' cy='42.8' r='2.0' fill='#009ce0'/>"
+                "<circle cx='42.2' cy='45.4' r='2.0' fill='#e63b4b'/>"
+                "<circle cx='39.0' cy='48.0' r='2.0' fill='#f5a800'/>"
+                "<circle cx='35.8' cy='45.4' r='2.0' fill='#19b87a'/>"
             )
         elif is_mint:
             outer_frame = (
@@ -4255,17 +4364,17 @@ def build_svg_document(asset_key: str, palette: Optional[Dict[str, str]] = None)
         if is_kreatendo:
             return (
                 f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'>{defs}"
-                "<rect x='24' y='24' width='192' height='192' rx='46' fill='#111928' fill-opacity='0.82' stroke='#4cb8ed' stroke-width='2.2'/>"
-                "<path d='M34,76 C34,42 54,34 86,34 L154,34 C186,34 206,42 206,76 L206,96 Q120,76 34,96 Z' fill='#e8fbff' fill-opacity='0.07'/>"
-                "<rect x='54' y='52' width='132' height='74' rx='16' fill='#0b1321' stroke='#4cd3ff' stroke-width='2.6'/>"
-                "<rect x='64' y='62' width='112' height='54' rx='10' fill='#0095db' fill-opacity='0.22' stroke='#9eeaff' stroke-opacity='0.6' stroke-width='1.3'/>"
-                "<rect x='66' y='138' width='108' height='50' rx='14' fill='#0b1321' stroke='#2ce0b5' stroke-width='2.2'/>"
-                "<rect x='82' y='159' width='22' height='8' rx='3' fill='#e8fbff' fill-opacity='0.85'/>"
-                "<rect x='89' y='152' width='8' height='22' rx='3' fill='#e8fbff' fill-opacity='0.85'/>"
-                "<circle cx='146' cy='156' r='4.8' fill='#4cd3ff' fill-opacity='0.85'/>"
-                "<circle cx='156' cy='163' r='4.8' fill='#2ce0b5' fill-opacity='0.85'/>"
-                "<circle cx='146' cy='170' r='4.8' fill='#ffd166' fill-opacity='0.85'/>"
-                "<circle cx='136' cy='163' r='4.8' fill='#a6c8e8' fill-opacity='0.75'/>"
+                "<rect x='24' y='24' width='192' height='192' rx='46' fill='#ffffff' fill-opacity='0.78' stroke='#7cb8e0' stroke-width='2.4'/>"
+                "<path d='M34,76 C34,42 54,34 86,34 L154,34 C186,34 206,42 206,76 L206,96 Q120,76 34,96 Z' fill='#dff3ff' fill-opacity='0.55'/>"
+                "<rect x='54' y='50' width='132' height='74' rx='16' fill='#f5fbff' stroke='#009ce0' stroke-width='2.6'/>"
+                "<rect x='64' y='60' width='112' height='54' rx='10' fill='#2ec6ff' fill-opacity='0.22' stroke='#009ce0' stroke-opacity='0.55' stroke-width='1.3'/>"
+                "<rect x='66' y='138' width='108' height='50' rx='14' fill='#f5fbff' stroke='#19b87a' stroke-width='2.3'/>"
+                "<rect x='82' y='159' width='22' height='8' rx='3' fill='#466482' fill-opacity='0.78'/>"
+                "<rect x='89' y='152' width='8' height='22' rx='3' fill='#466482' fill-opacity='0.78'/>"
+                "<circle cx='146' cy='155' r='5.2' fill='#009ce0' fill-opacity='0.88'/>"
+                "<circle cx='157' cy='163' r='5.2' fill='#e63b4b' fill-opacity='0.88'/>"
+                "<circle cx='146' cy='171' r='5.2' fill='#f5a800' fill-opacity='0.90'/>"
+                "<circle cx='135' cy='163' r='5.2' fill='#19b87a' fill-opacity='0.88'/>"
                 "</svg>"
             )
         if is_mint:
@@ -4682,7 +4791,15 @@ class VectorAssetEngine:
         if cached is not None:
             self._cache.move_to_end(ckey)
             return cached
-        dpr = 3
+        scr_dpr = 1.0
+        if not low_power_mode():
+            try:
+                app_i = QApplication.instance()
+                if isinstance(app_i, QApplication) and app_i.primaryScreen() is not None:
+                    scr_dpr = float(app_i.primaryScreen().devicePixelRatio())
+            except Exception:  # noqa: BLE001
+                scr_dpr = 1.0
+        dpr = 1 if low_power_mode() else max(2, min(3, int(math.ceil(scr_dpr))))
         pm = QPixmap(w * dpr, h * dpr)
         pm.fill(Qt.GlobalColor.transparent)
         pm.setDevicePixelRatio(float(dpr))
@@ -4702,7 +4819,8 @@ class VectorAssetEngine:
         else:
             self._fallback_paint(pm, asset_key)
         self._cache[ckey] = pm
-        while len(self._cache) > 560:
+        max_entries = 280 if low_power_mode() else 480
+        while len(self._cache) > max_entries:
             self._cache.popitem(last=False)
         return pm
 
@@ -4749,14 +4867,24 @@ _EAST_ASIAN_FONT_FAMILIES: List[str] = [
 ]
 
 
+_FONT_CACHE: Dict[Tuple[float, bool, float], QFont] = {}
+
+
 def _font(size: float, bold: bool = False, spacing: float = 0.0) -> QFont:
+    key = (round(max(6.5, float(size)), 2), bool(bold), round(float(spacing), 2))
+    hit = _FONT_CACHE.get(key)
+    if hit is not None:
+        return hit
     f = QFont()
     f.setFamilies(_EAST_ASIAN_FONT_FAMILIES)
-    f.setPointSizeF(max(6.5, float(size)))
-    f.setBold(bold)
+    f.setPointSizeF(key[0])
+    f.setBold(key[1])
     f.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
-    if spacing:
-        f.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, spacing)
+    if key[2]:
+        f.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, key[2])
+    if len(_FONT_CACHE) > 256:
+        _FONT_CACHE.clear()
+    _FONT_CACHE[key] = f
     return f
 
 
@@ -5477,8 +5605,8 @@ def build_animated_svg(
     pulse = 0.5 + 0.5 * math.sin(phase * 2.0 * math.pi)
     pulse2 = 0.5 + 0.5 * math.cos(phase * 2.0 * math.pi)
     pri, acc, core = _icon_duotone(p)
-    acc2 = "#2ce0b5" if k == "kreatendo" else (p["warn"] if anim_key in ("anim_waiting", "anim_reconnecting") else p["acc_hi"])
-    gold_c = "#ffd166" if k == "kreatendo" else p["acc_spec"]
+    acc2 = "#19b87a" if k == "kreatendo" else (p["warn"] if anim_key in ("anim_waiting", "anim_reconnecting") else p["acc_hi"])
+    gold_c = "#f5a800" if k == "kreatendo" else p["acc_spec"]
 
     def _svg(inner: str) -> str:
         return f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'>{inner}</svg>"
@@ -5492,16 +5620,16 @@ def build_animated_svg(
             x2, y2 = 16.0 - 10.2 * math.cos(rad), 16.0 - 10.2 * math.sin(rad)
             sr = 0.86 + 0.20 * pulse
             return _svg(
-                f"<circle cx='16' cy='16' r='10.2' fill='none' stroke='#314b6e' stroke-opacity='0.65' stroke-width='1.5'/>"
+                f"<circle cx='16' cy='16' r='10.2' fill='none' stroke='#9cc4e4' stroke-opacity='0.85' stroke-width='1.6'/>"
                 f"<g transform='rotate({ang:.1f} 16 16)'>"
-                f"<path d='M16,5.8 A10.2,10.2 0 0 1 26.2,16' fill='none' stroke='#29c7ff' stroke-width='2.5' stroke-linecap='round'/>"
-                f"<path d='M16,26.2 A10.2,10.2 0 0 1 5.8,16' fill='none' stroke='#2ce0b5' stroke-width='2.4' stroke-linecap='round'/>"
+                f"<path d='M16,5.8 A10.2,10.2 0 0 1 26.2,16' fill='none' stroke='#009ce0' stroke-width='2.6' stroke-linecap='round'/>"
+                f"<path d='M16,26.2 A10.2,10.2 0 0 1 5.8,16' fill='none' stroke='#19b87a' stroke-width='2.5' stroke-linecap='round'/>"
                 f"</g>"
-                f"<circle cx='{x1:.2f}' cy='{y1:.2f}' r='2.7' fill='#7ee3ff' stroke='#ffffff' stroke-width='0.85'/>"
-                f"<circle cx='{x2:.2f}' cy='{y2:.2f}' r='2.5' fill='#2ce0b5' stroke='#e8fbff' stroke-width='0.85'/>"
+                f"<circle cx='{x1:.2f}' cy='{y1:.2f}' r='2.7' fill='#009ce0' stroke='#ffffff' stroke-width='0.9'/>"
+                f"<circle cx='{x2:.2f}' cy='{y2:.2f}' r='2.5' fill='#e63b4b' stroke='#ffffff' stroke-width='0.9'/>"
                 f"<g transform='translate(16 16) scale({sr:.2f}) translate(-16 -16)'>"
                 f"<polygon points='16,10.4 17.6,14.2 21.8,14.6 18.6,17.3 19.6,21.4 16,19.3 12.4,21.4 13.4,17.3 10.2,14.6 14.4,14.2' "
-                f"fill='#ffd166' stroke='#ffffff' stroke-width='0.85' stroke-linejoin='round'/>"
+                f"fill='#f5a800' stroke='#153252' stroke-width='0.8' stroke-linejoin='round'/>"
                 f"</g>"
             )
         if k == "mint":
@@ -7196,85 +7324,149 @@ SOUND_EVENT_LABELS: Dict[str, str] = {
 }
 
 
-def _synth_wav(path: str, notes: Sequence[Sequence[float]]) -> None:
-    """Render a compact 44.1 kHz 16-bit mono PCM cue. `notes` is a list of
-    (freq_hz, start_s, dur_s, gain) tuples; each voice is a warm sine (with a
-    touch of 2nd harmonic) under a 4 ms attack and an exponential decay."""
-    rate = 44100
-    total = int(rate * (max(n[1] + n[2] for n in notes) + 0.06)) + 1
+def _synth_wav(path: str, notes: Sequence[Sequence[float]], timbre: str = "glass") -> None:
+    """Fast 22.05 kHz 16-bit mono PCM synthesizer tuned for low-end laptops (4x faster
+    than 44.1 kHz byte loops). Each theme selects its own harmonic timbre profile."""
+    rate = 22050
+    total = int(rate * (max(n[1] + n[2] for n in notes) + 0.05)) + 1
     samples = [0.0] * total
     two_pi = 2.0 * math.pi
+    inv_rate = 1.0 / float(rate)
+    # Harmonic recipe per theme voice (h2, h3, decay_mult)
+    h2, h3, dmult = {
+        "glass": (0.22, 0.08, 5.2),      # Sony PlayStation crystalline glass
+        "amber": (0.34, 0.14, 4.6),      # Deus Ex HR warm cyber-amber synth
+        "koto": (0.38, 0.18, 6.4),       # Oriental Spirit plucked temple bell / koto
+        "chime": (0.18, 0.12, 6.2),      # Nintendo Wii / 3DS bright marimba bell
+        "flute": (0.14, 0.04, 4.2),      # Linux Mint Serenity soft nature woodwind/dew
+    }.get(timbre, (0.24, 0.08, 5.4))
     for freq, start, dur, gain in notes:
         i0 = int(start * rate)
         n_len = int(dur * rate)
-        decay = 5.5 / max(0.02, dur)
+        decay = dmult / max(0.02, dur)
+        w1 = two_pi * freq
+        w2 = w1 * 2.0
+        w3 = w1 * 3.0
         for i in range(n_len):
             idx = i0 + i
             if idx >= total:
                 break
-            t = i / float(rate)
-            env = min(1.0, t / 0.004) * math.exp(-t * decay)
-            wave_s = math.sin(two_pi * freq * t) + 0.28 * math.sin(two_pi * freq * 2.0 * t)
+            t = i * inv_rate
+            env = (t * 250.0 if t < 0.004 else 1.0) * math.exp(-t * decay)
+            wave_s = math.sin(w1 * t) + h2 * math.sin(w2 * t) + h3 * math.sin(w3 * t)
             samples[idx] += wave_s * env * gain
+    pcm = array.array("h", (int(max(-32000, min(32000, round(v * 30000.0)))) for v in samples))
+    if sys.byteorder != "little":
+        pcm.byteswap()
     with wave.open(path, "wb") as wf:
         wf.setnchannels(1)
         wf.setsampwidth(2)
         wf.setframerate(rate)
-        frames = bytearray(total * 2)
-        for i, v in enumerate(samples):
-            iv = int(round(max(-1.0, min(1.0, v)) * 32000.0))
-            if iv < 0:
-                iv += 65536
-            frames[i * 2] = iv & 0xFF
-            frames[i * 2 + 1] = (iv >> 8) & 0xFF
-        wf.writeframes(bytes(frames))
+        wf.writeframes(pcm.tobytes())
 
 
 class SoundEngine:
-    """Corporate-grade procedural WAV chimes stored inside this single .py file,
-    synthesized once into data/sounds/ and played through QtMultimedia or winsound."""
+    """Theme-cohesive procedural WAV chimes stored inside this single .py file,
+    synthesized lazily into data/sounds/ and played via winsound or QtMultimedia."""
 
     EVENTS: Tuple[str, ...] = ("sent", "done", "fail", "upscale", "saved", "reconnect", "offline", "llm_done")
-    _NOTES: Dict[str, List[Tuple[float, float, float, float]]] = {
-        "sent": [(880.0, 0.0, 0.085, 0.30), (1318.51, 0.078, 0.125, 0.24)],
-        "done": [(523.25, 0.0, 0.10, 0.28), (659.25, 0.088, 0.10, 0.28), (783.99, 0.176, 0.21, 0.28)],
-        "fail": [(220.0, 0.0, 0.15, 0.32), (164.81, 0.13, 0.32, 0.32)],
-        "upscale": [
-            (523.25, 0.0, 0.09, 0.24), (659.25, 0.082, 0.09, 0.24),
-            (783.99, 0.164, 0.09, 0.24), (1046.50, 0.246, 0.28, 0.28),
-        ],
-        # crisp warm studio save confirmation chime
-        "saved": [(587.33, 0.0, 0.08, 0.24), (880.00, 0.075, 0.17, 0.26)],
-        # gentle uplifting double-bell when internet reconnects
-        "reconnect": [(440.0, 0.0, 0.09, 0.22), (659.25, 0.085, 0.10, 0.24), (880.0, 0.17, 0.18, 0.22)],
-        "offline": [(329.63, 0.0, 0.11, 0.20), (261.63, 0.105, 0.20, 0.22)],
-        "llm_done": [(659.25, 0.0, 0.08, 0.20), (987.77, 0.072, 0.16, 0.22)],
+    _THEME_TIMBRE: Dict[str, str] = {
+        "seestation": "glass",
+        "gold": "amber",
+        "oriental": "koto",
+        "kreatendo": "chime",
+        "mint": "flute",
+    }
+    _THEME_NOTES: Dict[str, Dict[str, List[Tuple[float, float, float, float]]]] = {
+        "seestation": {
+            "sent": [(783.99, 0.0, 0.08, 0.26), (1174.66, 0.072, 0.13, 0.22)],
+            "done": [(523.25, 0.0, 0.10, 0.25), (659.25, 0.082, 0.11, 0.25), (987.77, 0.168, 0.22, 0.25)],
+            "fail": [(220.0, 0.0, 0.14, 0.28), (164.81, 0.12, 0.28, 0.28)],
+            "upscale": [(523.25, 0.0, 0.08, 0.22), (659.25, 0.075, 0.09, 0.22), (783.99, 0.15, 0.10, 0.22), (1174.66, 0.23, 0.26, 0.25)],
+            "saved": [(587.33, 0.0, 0.075, 0.22), (880.0, 0.07, 0.16, 0.24)],
+            "reconnect": [(440.0, 0.0, 0.085, 0.20), (659.25, 0.08, 0.10, 0.22), (880.0, 0.16, 0.18, 0.20)],
+            "offline": [(329.63, 0.0, 0.10, 0.18), (246.94, 0.095, 0.19, 0.20)],
+            "llm_done": [(659.25, 0.0, 0.075, 0.18), (987.77, 0.068, 0.16, 0.20)],
+        },
+        "gold": {
+            "sent": [(440.0, 0.0, 0.09, 0.26), (659.25, 0.075, 0.13, 0.24)],
+            "done": [(293.66, 0.0, 0.11, 0.26), (440.0, 0.088, 0.11, 0.26), (587.33, 0.175, 0.24, 0.26)],
+            "fail": [(196.0, 0.0, 0.15, 0.28), (146.83, 0.13, 0.30, 0.28)],
+            "upscale": [(293.66, 0.0, 0.09, 0.22), (440.0, 0.08, 0.09, 0.22), (587.33, 0.16, 0.10, 0.24), (880.0, 0.24, 0.28, 0.24)],
+            "saved": [(440.0, 0.0, 0.08, 0.22), (659.25, 0.075, 0.17, 0.24)],
+            "reconnect": [(329.63, 0.0, 0.09, 0.20), (440.0, 0.085, 0.10, 0.22), (659.25, 0.17, 0.19, 0.22)],
+            "offline": [(293.66, 0.0, 0.11, 0.20), (220.0, 0.10, 0.21, 0.22)],
+            "llm_done": [(440.0, 0.0, 0.08, 0.20), (587.33, 0.075, 0.17, 0.22)],
+        },
+        "oriental": {
+            # Japanese Yo pentatonic scale (D - E - G - A - B - D)
+            "sent": [(587.33, 0.0, 0.08, 0.25), (880.0, 0.07, 0.13, 0.23)],
+            "done": [(587.33, 0.0, 0.09, 0.25), (783.99, 0.08, 0.10, 0.25), (1174.66, 0.165, 0.23, 0.25)],
+            "fail": [(293.66, 0.0, 0.14, 0.28), (220.0, 0.125, 0.28, 0.28)],
+            "upscale": [(587.33, 0.0, 0.08, 0.22), (659.25, 0.075, 0.08, 0.22), (880.0, 0.15, 0.09, 0.24), (1174.66, 0.23, 0.26, 0.25)],
+            "saved": [(659.25, 0.0, 0.075, 0.22), (880.0, 0.07, 0.16, 0.24)],
+            "reconnect": [(587.33, 0.0, 0.08, 0.20), (783.99, 0.08, 0.09, 0.22), (987.77, 0.16, 0.18, 0.22)],
+            "offline": [(392.0, 0.0, 0.10, 0.20), (293.66, 0.095, 0.20, 0.22)],
+            "llm_done": [(783.99, 0.0, 0.075, 0.20), (1174.66, 0.07, 0.15, 0.22)],
+        },
+        "kreatendo": {
+            # Bright joyful Nintendo Wii / 3DS crystalline major-6th marimba chime
+            "sent": [(880.0, 0.0, 0.07, 0.26), (1318.51, 0.062, 0.12, 0.24)],
+            "done": [(659.25, 0.0, 0.085, 0.26), (880.0, 0.072, 0.09, 0.26), (1046.50, 0.145, 0.11, 0.26), (1318.51, 0.22, 0.20, 0.26)],
+            "fail": [(329.63, 0.0, 0.12, 0.26), (246.94, 0.11, 0.24, 0.26)],
+            "upscale": [(523.25, 0.0, 0.075, 0.22), (659.25, 0.068, 0.075, 0.22), (783.99, 0.136, 0.08, 0.24), (1046.50, 0.21, 0.24, 0.26)],
+            "saved": [(783.99, 0.0, 0.07, 0.22), (1046.50, 0.064, 0.15, 0.24)],
+            "reconnect": [(523.25, 0.0, 0.075, 0.20), (783.99, 0.07, 0.085, 0.22), (1046.50, 0.145, 0.16, 0.22)],
+            "offline": [(392.0, 0.0, 0.095, 0.18), (329.63, 0.09, 0.18, 0.20)],
+            "llm_done": [(783.99, 0.0, 0.07, 0.20), (1174.66, 0.065, 0.15, 0.22)],
+        },
+        "mint": {
+            # Serene Linux Mint nature-inspired acoustic dew / flute intervals
+            "sent": [(523.25, 0.0, 0.09, 0.24), (783.99, 0.082, 0.14, 0.22)],
+            "done": [(440.0, 0.0, 0.11, 0.24), (554.37, 0.095, 0.12, 0.24), (659.25, 0.19, 0.24, 0.24)],
+            "fail": [(246.94, 0.0, 0.14, 0.26), (196.0, 0.13, 0.28, 0.26)],
+            "upscale": [(440.0, 0.0, 0.09, 0.21), (554.37, 0.085, 0.09, 0.21), (659.25, 0.17, 0.10, 0.22), (880.0, 0.255, 0.26, 0.24)],
+            "saved": [(523.25, 0.0, 0.085, 0.21), (659.25, 0.078, 0.18, 0.23)],
+            "reconnect": [(392.0, 0.0, 0.09, 0.20), (523.25, 0.085, 0.10, 0.22), (659.25, 0.17, 0.19, 0.20)],
+            "offline": [(329.63, 0.0, 0.11, 0.18), (261.63, 0.105, 0.20, 0.20)],
+            "llm_done": [(554.37, 0.0, 0.085, 0.19), (880.0, 0.08, 0.17, 0.21)],
+        },
     }
 
     def __init__(self) -> None:
         self.master = True
         self.enabled: Dict[str, bool] = {e: True for e in self.EVENTS}
+        self._theme: str = "seestation"
         self._players: Dict[str, Any] = {}
         self.backend = "none"
         self._backend_ready = False
         self._wavs_ready: Set[str] = set()
 
+    def set_theme(self, theme_key: str) -> None:
+        nk = resolve_theme_key(theme_key)
+        if nk != self._theme:
+            self._theme = nk
+
     def _ensure_wav(self, event: str) -> str:
-        """Lazily synthesize one compact WAV cue on first playback (zero startup I/O)."""
-        path = os.path.join(SOUNDS_DIR, f"{event}.wav")
-        if event in self._wavs_ready and os.path.isfile(path):
+        """Lazily synthesize one compact theme-voiced WAV cue on first playback."""
+        tk = resolve_theme_key(self._theme or C.get("key", "seestation"))
+        cache_id = f"{tk}_{event}"
+        path = os.path.join(SOUNDS_DIR, f"{cache_id}.wav")
+        if cache_id in self._wavs_ready and os.path.isfile(path):
             return path
-        notes = self._NOTES.get(event)
+        bank = self._THEME_NOTES.get(tk, self._THEME_NOTES["seestation"])
+        notes = bank.get(event)
         if not notes:
             return ""
+        timbre = self._THEME_TIMBRE.get(tk, "glass")
         try:
             os.makedirs(SOUNDS_DIR, exist_ok=True)
-            if not os.path.isfile(path) or os.path.getsize(path) < 200:
-                _synth_wav(path, notes)
-            self._wavs_ready.add(event)
+            if not os.path.isfile(path) or os.path.getsize(path) < 160:
+                _synth_wav(path, notes, timbre=timbre)
+            self._wavs_ready.add(cache_id)
             return path
         except Exception as exc:  # noqa: BLE001
-            STUDIO_LOG.warn("SYS", f"Sound cue synthesis skipped ({event}: {exc})")
+            STUDIO_LOG.warn("SYS", f"Sound cue synthesis skipped ({cache_id}: {exc})")
             return ""
 
     def _ensure_backend(self) -> None:
@@ -7327,12 +7519,15 @@ class SoundEngine:
                 pass
         if self.backend == "qtmultimedia" and QSoundEffect is not None:
             try:
-                eff = self._players.get(event)
+                pk = f"{self._theme}_{event}"
+                eff = self._players.get(pk)
                 if eff is None:
                     eff = QSoundEffect()
                     eff.setSource(QUrl.fromLocalFile(wav_path))
-                    eff.setVolume(0.58)
-                    self._players[event] = eff
+                    eff.setVolume(0.56)
+                    if len(self._players) > 24:
+                        self._players.clear()
+                    self._players[pk] = eff
                 eff.play()
                 return
             except Exception:  # noqa: BLE001
@@ -8737,34 +8932,31 @@ def apply_flares_qt(
             },
             target_size=(w, h),
         )
-    if occ_mask is not None:
-        flare_acc = QImage(w, h, QImage.Format.Format_ARGB32_Premultiplied)
+    flare_acc = QImage(w, h, QImage.Format.Format_ARGB32_Premultiplied) if occ_mask is not None else None
+    if flare_acc is not None:
         flare_acc.fill(QColor(0, 0, 0, 0))
-        pf = QPainter(flare_acc)
+    pf = QPainter(flare_acc if flare_acc is not None else out)
+    try:
         pf.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
         pf.setCompositionMode(QPainter.CompositionMode.CompositionMode_Screen)
-    else:
-        flare_acc = None
-        pf = QPainter(out)
-        pf.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
-        pf.setCompositionMode(QPainter.CompositionMode.CompositionMode_Screen)
-    for f in active:
-        ck = (
-            w, h, str(f.get("preset") or ""),
-            round(float(f.get("x", 0.5)), 4), round(float(f.get("y", 0.5)), 4),
-            int(f.get("scale", 100)), int(f.get("brightness", 100)),
-            int(f.get("saturation", 100)), int(f.get("stretch", 100)),
-            int(f.get("hue", 0)), int(f.get("hue2", 0)),
-            int(f.get("contrast", 0)), int(f.get("opacity", 100)),
-        )
-        layer = _FLARE_VEC_CACHE.get(ck)
-        if layer is None:
-            layer = render_vector_flare_layer(w, h, f)
-            _FLARE_VEC_CACHE[ck] = layer
-            while len(_FLARE_VEC_CACHE) > _FLARE_VEC_CACHE_MAX:
-                _FLARE_VEC_CACHE.pop(next(iter(_FLARE_VEC_CACHE)))
-        pf.drawImage(0, 0, layer)
-    pf.end()
+        for f in active:
+            ck = (
+                w, h, str(f.get("preset") or ""),
+                round(float(f.get("x", 0.5)), 4), round(float(f.get("y", 0.5)), 4),
+                int(f.get("scale", 100)), int(f.get("brightness", 100)),
+                int(f.get("saturation", 100)), int(f.get("stretch", 100)),
+                int(f.get("hue", 0)), int(f.get("hue2", 0)),
+                int(f.get("contrast", 0)), int(f.get("opacity", 100)),
+            )
+            layer = _FLARE_VEC_CACHE.get(ck)
+            if layer is None:
+                layer = render_vector_flare_layer(w, h, f)
+                _FLARE_VEC_CACHE[ck] = layer
+                while len(_FLARE_VEC_CACHE) > _FLARE_VEC_CACHE_MAX:
+                    _FLARE_VEC_CACHE.pop(next(iter(_FLARE_VEC_CACHE)))
+            pf.drawImage(0, 0, layer)
+    finally:
+        pf.end()
     if flare_acc is not None and occ_mask is not None:
         po = QPainter(flare_acc)
         po.setCompositionMode(QPainter.CompositionMode.CompositionMode_DestinationOut)
@@ -9853,10 +10045,10 @@ class SpanHighlighter(QSyntaxHighlighter):
                 if ov_end <= ov_start:
                     continue
                 fmt = QTextCharFormat()
-                col = QColor(sp["color"])
+                col = QColor(readable_accent_for_theme(str(sp["color"])))
                 fmt.setForeground(col)
                 bg = QColor(col)
-                bg.setAlpha(34 if sp.get("kind") == "lora" else 24)
+                bg.setAlpha(40 if sp.get("kind") == "lora" else 28)
                 fmt.setBackground(bg)
                 if sp.get("kind") == "lora":
                     fmt.setFontUnderline(True)
@@ -10329,7 +10521,8 @@ class StreamingPromptParser:
       salvages any substantial in-progress prompt.
     """
 
-    _OPEN_PROMPT_RE = re.compile(r"<(prompt(?:_\d+)?|item)\b[^>]*>", flags=re.I)
+    _OPEN_PROMPT_RE = re.compile(r"<(prompt(?:_[a-z0-9]+)?|item)\b[^>]*>", flags=re.I)
+    _OPEN_PAIR_RE = re.compile(r"<(prompt(?:_[a-z0-9]+)?|candidate_[ab]|option_[ab]|[ab]|item)\b[^>]*>", flags=re.I)
     _OPEN_THINK_RE = re.compile(r"<(think|thought|reasoning|\|thought\|)\b[^>]*>", flags=re.I)
     _NUMBERED_PREFIX_RE = re.compile(r"^\s*(?:\d+[\.\)]\s*|[-*\u2022]\s*)")
     _PREAMBLE_RE = re.compile(
@@ -10340,6 +10533,7 @@ class StreamingPromptParser:
 
     def __init__(self, mode: str = "prompts") -> None:
         self.mode = mode
+        self._open_tag_re = self._OPEN_PAIR_RE if mode == "pair" else self._OPEN_PROMPT_RE
         self._in_think: bool = False
         self._think_tag: str = "think"
         self._think_buf: str = ""
@@ -10372,14 +10566,15 @@ class StreamingPromptParser:
             return [], self.current_preview()
         self._think_buf += delta
         self._drain_think_filter()
-        if self.mode != "prompts":
+        if self.mode not in ("prompts", "pair"):
             return [], self.current_preview()
         newly: List[str] = []
+        max_items = 2 if self.mode == "pair" else 10000
 
-        # 1. XML tag streaming (<prompt>...</prompt>, <prompt_1>, <item>)
-        while True:
+        # 1. XML tag streaming (<prompt>...</prompt>, <prompt_a>, <prompt_b>, <item>)
+        while len(self.emitted) < max_items:
             tail = self._visible_buf[self._scan_pos:]
-            m_open = self._OPEN_PROMPT_RE.search(tail)
+            m_open = self._open_tag_re.search(tail)
             if m_open is not None:
                 self._used_xml = True
                 tag_name = re.escape(m_open.group(1))
@@ -11119,7 +11314,10 @@ class LlmStreamWorker(QThread):
 
     def run(self) -> None:
         t0 = time.monotonic()
-        parser_mode = "prompts" if self.task_kind == "forge" else ("single" if self.task_kind == "describe" else "raw")
+        parser_mode = (
+            "pair" if self.task_kind == "self_improve"
+            else ("prompts" if self.task_kind == "forge" else ("single" if self.task_kind == "describe" else "raw"))
+        )
         parser = StreamingPromptParser(mode=parser_mode)
         exact_comp_tokens: Optional[int] = None
         exact_reason_tokens: Optional[int] = None
@@ -15049,21 +15247,26 @@ class BevelDeck(QFrame):
             p.setBrush(QBrush(QColor(C["acc_mid"])))
             p.drawPolygon(QPolygonF([QPointF(r.right() - 1, r.bottom() - 1), QPointF(r.right() - 11, r.bottom() - 1), QPointF(r.right() - 1, r.bottom() - 11)]))
         elif key == "kreatendo":
-            # Glossy Wii / Wii U frosted dome sheen + Aqua-Sky top lightbar + Miiverse Mint trim
-            gloss = QLinearGradient(r.left(), r.top(), r.left(), r.top() + 28.0)
-            gloss.setColorAt(0.0, QColor(225, 248, 255, 26))
-            gloss.setColorAt(1.0, QColor(225, 248, 255, 0))
+            # Nintendo Wii / Wii U LIGHT porcelain dome gloss + colorful Aqua/Mint/Gold top ribbon
+            gloss = QLinearGradient(r.left(), r.top(), r.left(), r.top() + 26.0)
+            gloss.setColorAt(0.0, QColor(255, 255, 255, 215))
+            gloss.setColorAt(1.0, QColor(255, 255, 255, 0))
             p.setPen(Qt.PenStyle.NoPen)
             p.setBrush(gloss)
-            p.drawRect(QRectF(r.left(), r.top(), r.width(), 28.0))
+            p.drawRect(QRectF(r.left(), r.top(), r.width(), 26.0))
             rail = QLinearGradient(r.left(), r.top(), r.right(), r.top())
-            rail.setColorAt(0.0, QColor(41, 199, 255, 0))
-            rail.setColorAt(0.20, QColor("#29c7ff"))
-            rail.setColorAt(0.50, QColor("#c8f5ff"))
-            rail.setColorAt(0.80, QColor("#2ce0b5"))
-            rail.setColorAt(1.0, QColor(44, 224, 181, 0))
-            p.setPen(QPen(QBrush(rail), 2.2))
+            rail.setColorAt(0.0, QColor(0, 156, 224, 0))
+            rail.setColorAt(0.18, QColor("#009ce0"))
+            rail.setColorAt(0.50, QColor("#2ec6ff"))
+            rail.setColorAt(0.78, QColor("#19b87a"))
+            rail.setColorAt(1.0, QColor(25, 184, 122, 0))
+            p.setPen(QPen(QBrush(rail), 2.4))
             p.drawLine(QPointF(r.left() + 10, r.top() + 1.5), QPointF(r.right() - 10, r.top() + 1.5))
+            # Playful 4-dot Nintendo ABXY micro-strip top-right
+            p.setPen(Qt.PenStyle.NoPen)
+            for idx_d, dcol in enumerate(("#009ce0", "#e63b4b", "#f5a800", "#19b87a")):
+                p.setBrush(QColor(dcol))
+                p.drawEllipse(QPointF(r.right() - 28.0 + idx_d * 6.2, r.top() + 6.5), 1.9, 1.9)
         elif key == "mint":
             # Linux Mint Cinnamon neutral graphite bevel + crisp Mint-Leaf & Alpine-Teal hairline
             arc = QPainterPath()
@@ -15174,18 +15377,19 @@ class SectionHeader(QWidget):
             p.setPen(QPen(QColor(C["acc_hi"]), 1.6))
             p.drawLine(QPointF(self.width() - 1.5, self.height() - 6.5), QPointF(self.width() - 1.5, self.height() - 1.5))
         elif key == "kreatendo":
-            # Wii / 3DS glossy Aqua pill indicator + Aqua-Sky to Miiverse Mint underline
-            p.setPen(QPen(QColor("#d6f7ff"), 0.85))
-            p.setBrush(QColor("#29c7ff"))
-            p.drawRoundedRect(QRectF(1.2, cy - 4.2, 8.4, 8.4), 4.0, 4.0)
+            # Wii / 3DS glossy Aqua pill indicator + playful Aqua-to-Mint-to-Gold underline
+            p.setPen(QPen(QColor("#0073b8"), 0.9))
+            p.setBrush(QColor("#009ce0"))
+            p.drawRoundedRect(QRectF(1.2, cy - 4.2, 8.4, 8.4), 4.2, 4.2)
             p.setPen(Qt.PenStyle.NoPen)
-            p.setBrush(QColor(255, 255, 255, 175))
+            p.setBrush(QColor(255, 255, 255, 215))
             p.drawEllipse(QRectF(2.8, cy - 3.0, 2.5, 2.5))
             rule = QLinearGradient(12.0, cy, self.width(), cy)
-            rule.setColorAt(0.0, QColor("#4cd3ff"))
-            rule.setColorAt(0.55, QColor("#2ce0b5"))
-            rule.setColorAt(1.0, QColor(44, 224, 181, 0))
-            p.setPen(QPen(QBrush(rule), 1.6))
+            rule.setColorAt(0.0, QColor("#009ce0"))
+            rule.setColorAt(0.45, QColor("#19b87a"))
+            rule.setColorAt(0.75, QColor("#f5a800"))
+            rule.setColorAt(1.0, QColor(245, 168, 0, 0))
+            p.setPen(QPen(QBrush(rule), 1.75))
             p.drawLine(QPointF(12.0, self.height() - 1.4), QPointF(self.width(), self.height() - 1.4))
         elif key == "mint":
             # Linux Mint Cinnamon leaf bud + Mint-Leaf to Alpine-Teal hairline
@@ -17570,7 +17774,7 @@ class LoraRowDelegate(QStyledItemDelegate):
             painter.setOpacity(1.0)
 
         enabled = bool(entry.get("enabled", True))
-        fcol = QColor(lora_folder_color(entry.get("folder", "Improve-Overall")))
+        fcol = QColor(readable_accent_for_theme(lora_folder_color(entry.get("folder", "Improve-Overall"))))
         if not enabled:
             fcol.setAlpha(90)
 
@@ -17808,7 +18012,7 @@ class ActiveLoraSlidersBar(QWidget):
             rl = QHBoxLayout(row_w)
             rl.setContentsMargins(0, 0, 0, 0)
             rl.setSpacing(4)
-            fcol = lora_folder_color(e.get("folder", "Slider"))
+            fcol = readable_accent_for_theme(lora_folder_color(e.get("folder", "Slider")))
             nm = ElideLabel(str(e.get("name") or f"#{e.get('id')}"))
             nm.setMinimumWidth(52)
             nm.setMaximumWidth(104)
@@ -18645,6 +18849,7 @@ class RecentStripGallery(QListWidget):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
+        self._thumb_lru: "collections.OrderedDict[Tuple[str, float], Tuple[QPixmap, Dict[str, Any]]]" = collections.OrderedDict()
         self.setViewMode(QListView.ViewMode.IconMode)
         self.setFlow(QListView.Flow.LeftToRight)
         self.setWrapping(False)
@@ -18655,28 +18860,62 @@ class RecentStripGallery(QListWidget):
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setUniformItemSizes(True)
         self.setSpacing(3)
-        self.setFixedHeight(66)
+        self.setFixedHeight(64)
         self.setItemDelegate(ThumbDelegate(self))
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
-    def refresh(self, paths: List[str], select: Optional[str] = None) -> None:
-        """Rebuild the strip from `paths` (newest first).
+    def wheelEvent(self, event) -> None:  # noqa: N802
+        dy = event.angleDelta().y()
+        dx = event.angleDelta().x()
+        step = dx if dx else dy
+        if step:
+            sb = self.horizontalScrollBar()
+            sb.setValue(sb.value() - int(step * 0.45))
+            event.accept()
+            return
+        super().wheelEvent(event)
 
-        v11: signals are BLOCKED during the rebuild — the old implementation
-        fired currentItemChanged(None) mid-clear, which wiped the viewer via
-        show_image(None) right after a fresh render was focused. Optionally
-        selects (and scrolls to) `select` so the newest image is the focused
-        one, and reports whether the selection landed."""
+    def _load_cached_thumb(self, path: str) -> Optional[Tuple[QPixmap, Dict[str, Any]]]:
+        try:
+            mtime = os.path.getmtime(path)
+        except OSError:
+            return None
+        ck = (path, mtime)
+        hit = self._thumb_lru.get(ck)
+        if hit is not None:
+            self._thumb_lru.move_to_end(ck)
+            meta = dict(hit[1])
+            meta["_has_depth"] = has_depth_map(path)
+            return hit[0], meta
+        reader = QImageReader(path)
+        reader.setAutoTransform(True)
+        sz = reader.size()
+        if sz.isValid() and (sz.width() > 116 or sz.height() > 116):
+            sc = min(116.0 / max(1, sz.width()), 116.0 / max(1, sz.height()))
+            reader.setScaledSize(QSize(max(1, int(round(sz.width() * sc))), max(1, int(round(sz.height() * sc)))))
+        img = reader.read()
+        if img.isNull():
+            return None
+        pm = QPixmap.fromImage(img)
+        if pm.isNull():
+            return None
+        meta = read_image_metadata(path)
+        meta["_has_depth"] = has_depth_map(path)
+        self._thumb_lru[ck] = (pm, dict(meta))
+        while len(self._thumb_lru) > 40:
+            self._thumb_lru.popitem(last=False)
+        return pm, meta
+
+    def refresh(self, paths: List[str], select: Optional[str] = None) -> None:
+        """Rebuild the strip from `paths` (newest first) using scaled-on-decode
+        LRU thumbnails so low-end laptops stay instant with zero UI stutter."""
         self.blockSignals(True)
         self.clear()
         for path in paths[:TEMP_CAPACITY]:
-            pm = QPixmap(path)
-            if pm.isNull():
+            loaded = self._load_cached_thumb(path)
+            if loaded is None:
                 continue
-            if pm.width() > 116 or pm.height() > 116:
-                pm = pm.scaled(116, 116, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-            meta = read_image_metadata(path)
-            meta["_has_depth"] = has_depth_map(path)
+            pm, meta = loaded
             it = QListWidgetItem()
             it.setData(self.ROLE_PATH, path)
             it.setData(self.ROLE_META, meta)
@@ -21081,6 +21320,78 @@ class SelfImprovingArenaWidget(QWidget):
 # =============================================================================
 #  25. Main Workstation Window (800x600 Optimized East-Asian Chrome)
 # =============================================================================
+
+class CommandPaletteDialog(QDialog):
+    """Lightweight on-demand Ctrl+K Quick Command Palette for rapid laptop
+    navigation across tabs, all 5 UI themes, tools, and generation actions."""
+
+    def __init__(self, actions: Sequence[Tuple[str, str, Callable[[], None]]], parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Quick Command Palette")
+        self.setModal(True)
+        self.setMinimumWidth(360)
+        self.resize(440, 340)
+        self._actions = list(actions)
+        self._filtered: List[Tuple[str, str, Callable[[], None]]] = []
+        self._chosen: Optional[Callable[[], None]] = None
+
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(10, 10, 10, 10)
+        lay.setSpacing(6)
+
+        self.search = QLineEdit()
+        self.search.setPlaceholderText("Type command, tab, or theme name…  (Enter = run, Esc = close)")
+        self.search.setClearButtonEnabled(True)
+        self.search.textChanged.connect(self._refilter)
+        self.search.returnPressed.connect(self._run_selected)
+        lay.addWidget(self.search)
+
+        self.list_w = QListWidget()
+        self.list_w.setAlternatingRowColors(True)
+        self.list_w.itemDoubleClicked.connect(lambda _it: self._run_selected())
+        lay.addWidget(self.list_w, 1)
+
+        hint = make_label("Arrows = navigate  •  Enter = execute  •  Esc = dismiss", "Caption")
+        lay.addWidget(hint)
+        self.search.installEventFilter(self)
+        self._refilter("")
+        self.search.setFocus()
+
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:  # noqa: N802
+        if obj is self.search and event.type() == QEvent.Type.KeyPress:
+            key = event.key()
+            if key in (Qt.Key.Key_Down, Qt.Key.Key_Up) and self.list_w.count() > 0:
+                cur = self.list_w.currentRow()
+                nxt = (cur + (1 if key == Qt.Key.Key_Down else -1)) % self.list_w.count()
+                self.list_w.setCurrentRow(nxt)
+                return True
+        return super().eventFilter(obj, event)
+
+    def _refilter(self, text: str) -> None:
+        q = text.strip().lower()
+        self.list_w.clear()
+        self._filtered = []
+        for title, badge, fn in self._actions:
+            hay = f"{title} {badge}".lower()
+            if q and not all(tok in hay for tok in q.split()):
+                continue
+            self._filtered.append((title, badge, fn))
+            it = QListWidgetItem(f"[{badge}]  {title}")
+            self.list_w.addItem(it)
+        if self.list_w.count() > 0:
+            self.list_w.setCurrentRow(0)
+
+    def _run_selected(self) -> None:
+        row = self.list_w.currentRow()
+        if 0 <= row < len(self._filtered):
+            self._chosen = self._filtered[row][2]
+            self.accept()
+
+    def execute_choice(self) -> None:
+        if self._chosen is not None:
+            self._chosen()
+
+
 class BatchQueueDialog(QDialog):
     """Batch Prompt Queue (v3.2): paste any number of SINGLE-LINE prompts
     (typically copied from the LLM tab or any prompt list) and queue one AI
@@ -23401,7 +23712,13 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         ensure_dirs()
-        SOUNDS._ensure_backend()  # players need a living QApplication
+        # v15.0: audio backend stays 100% lazy until first sound cue (zero startup hit)
+        self._arena_round: Dict[str, Any] = {
+            "stack": "krea", "request": "", "seed": "", "prompt_a": "", "prompt_b": "",
+            "job_a": None, "job_b": None, "path_a": "", "path_b": "",
+            "voted": None, "rating": None, "saved_entry_id": None,
+        }
+        self._arena_job_slots: Dict[int, str] = {}
         self.settings = load_settings()
         self.llm_settings = load_llm_settings()
         self.lora_lib = load_lora_library(self.settings)
@@ -23764,6 +24081,8 @@ class MainWindow(QMainWindow):
                     show_pm = not narrow_r
                     self.scale_minus_btn.setVisible(show_pm)
                     self.scale_plus_btn.setVisible(show_pm)
+                if hasattr(self, "cmd_btn"):
+                    self.cmd_btn.setVisible(rw == 0 or rw >= 340)
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
@@ -23836,8 +24155,8 @@ class MainWindow(QMainWindow):
         self.tab_ribbon.setObjectName("TabRibbon")
         self.tab_ribbon.setMinimumHeight(20)
         self.tab_ribbon.setToolTip("Active module — switch tabs with Ctrl+1..9 or click the icon rail above")
-        lay.addWidget(self.tab_ribbon, 0)
         lay.addWidget(self.tabs, 1)
+        lay.addWidget(self.tab_ribbon, 0)
         self.deck = self._build_deck()
         lay.addWidget(self.deck, 0)
         w.setMinimumWidth(212)
@@ -23868,6 +24187,12 @@ class MainWindow(QMainWindow):
         self.neg_btn.setToolTip("Show / hide model-specific Negative Prompt  (Ctrl+Shift+N)")
         self.neg_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.neg_btn.toggled.connect(self._toggle_negative)
+        self.copy_prompt_btn = QToolButton()
+        self.copy_prompt_btn.setObjectName("Small")
+        self.copy_prompt_btn.setText("COPY")
+        self.copy_prompt_btn.setToolTip("Copy positive prompt to clipboard")
+        self.copy_prompt_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.copy_prompt_btn.clicked.connect(self._copy_prompt_text)
         self.clear_btn = QToolButton()
         self.clear_btn.setObjectName("Small")
         self.clear_btn.setText("CLEAR")
@@ -23886,6 +24211,7 @@ class MainWindow(QMainWindow):
         self.prompt_tok_lbl.setToolTip("Estimated prompt token count (live)")
         hdr.add_right(self.prompt_tok_lbl)
         hdr.add_right(self.neg_btn)
+        hdr.add_right(self.copy_prompt_btn)
         hdr.add_right(self.clear_btn)
         hdr.add_right(self.hist_btn)
         lay.addWidget(hdr)
@@ -24891,6 +25217,82 @@ class MainWindow(QMainWindow):
         self.llm_raw_section.toggled.connect(lambda _b: self._llm_schedule_save())
         lay.addWidget(self.llm_raw_section)
 
+
+        # ---- v15.0 Self-Improving A/B Arena & Preferences Memory Forge ----
+        si_wrap = QWidget()
+        si_wrap.setObjectName("Transparent")
+        sil = QVBoxLayout(si_wrap)
+        sil.setContentsMargins(0, 2, 0, 2)
+        sil.setSpacing(4)
+        self.si_user_edit = QPlainTextEdit()
+        self.si_user_edit.setObjectName("SmallEdit")
+        self.si_user_edit.setPlaceholderText(
+            "Describe a scene for A/B comparison — the LLM writes two distinct content prompts "
+            "shaped by your PreferencesMemory, rendered side-by-side with the SAME seed in the Arena tab…"
+        )
+        self.si_user_edit.setMinimumHeight(48)
+        self.si_user_edit.setMaximumHeight(88)
+        self.si_user_edit.textChanged.connect(lambda: self._llm_schedule_save())
+        sil.addWidget(self.si_user_edit)
+
+        si_opts = QHBoxLayout()
+        si_opts.setSpacing(4)
+        self.si_ctx_spin = QSpinBox()
+        self.si_ctx_spin.setRange(1024, 131072)
+        self.si_ctx_spin.setSingleStep(1024)
+        self.si_ctx_spin.setPrefix("Ctx ")
+        self.si_ctx_spin.setValue(DEFAULT_LLM_CONTEXT_LENGTH)
+        self.si_ctx_spin.setToolTip("LLM context window budget for packing <PreferencesMemory> examples")
+        self.si_ctx_spin.valueChanged.connect(lambda _v: self._llm_schedule_save())
+        self.si_seed_edit = QLineEdit()
+        self.si_seed_edit.setPlaceholderText("seed (auto)")
+        self.si_seed_edit.setToolTip("Optional fixed seed shared by Candidate A & Candidate B")
+        self.si_seed_edit.textChanged.connect(lambda _t: self._llm_schedule_save())
+        si_opts.addWidget(self.si_ctx_spin, 1)
+        si_opts.addWidget(self.si_seed_edit, 1)
+        sil.addLayout(si_opts)
+
+        si_chk = QHBoxLayout()
+        si_chk.setSpacing(6)
+        self.si_auto_render_cb = QCheckBox("Auto-render A & B")
+        self.si_auto_render_cb.setChecked(True)
+        self.si_auto_render_cb.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.si_auto_render_cb.toggled.connect(lambda _v: self._llm_schedule_save())
+        self.si_apply_tpl_cb = QCheckBox("Apply active template")
+        self.si_apply_tpl_cb.setChecked(True)
+        self.si_apply_tpl_cb.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.si_apply_tpl_cb.toggled.connect(lambda _v: self._llm_schedule_save())
+        si_chk.addWidget(self.si_auto_render_cb)
+        si_chk.addWidget(self.si_apply_tpl_cb)
+        si_chk.addStretch(1)
+        sil.addLayout(si_chk)
+
+        si_btns = QHBoxLayout()
+        si_btns.setSpacing(4)
+        self.si_run_btn = make_button(
+            "FORGE A/B ARENA", self.llm_self_improve_forge, small=True, accent=True,
+            tip="Generate two distinct prompts from PreferencesMemory & compare them side-by-side in the Arena tab",
+            icon_key="spark", icon_size=12,
+        )
+        self.si_mem_btn = make_button(
+            "MEMORY DB", self.open_preferences_memory_dialog, small=True,
+            tip="Inspect, rate, edit or import/export per-model PreferencesMemory pairs",
+            icon_key="memory_db", icon_size=12,
+        )
+        self.si_open_arena_btn = make_button(
+            "OPEN ARENA", lambda: self.right_tabs.setCurrentIndex(2), small=True,
+            tip="Switch right workspace to the Self-Improving A/B Comparison Arena",
+        )
+        si_btns.addWidget(self.si_run_btn, 2)
+        si_btns.addWidget(self.si_mem_btn, 1)
+        si_btns.addWidget(self.si_open_arena_btn, 1)
+        sil.addLayout(si_btns)
+        self.si_mem_summary = ElideLabel("Memory: 0 pairs for active model")
+        self.si_mem_summary.setObjectName("Caption")
+        sil.addWidget(self.si_mem_summary)
+        self.llm_si_section = CollapsibleSection("Self-Improving A/B Arena  (Preference Learning)", si_wrap, expanded=False)
+        lay.addWidget(self.llm_si_section)
+
         fp_hdr = SectionHeader("Forged Prompts")
         fp_hdr.add_right(make_button("CLEAR LIST", self._llm_clear_output_list, small=True, tip="Clear all forged prompts from list"))
         lay.addWidget(fp_hdr)
@@ -24936,7 +25338,7 @@ class MainWindow(QMainWindow):
                 return mode
         return "natural"
 
-    def _llm_vision_task(self) -> str:
+    def _current_llm_vision_task(self) -> str:
         return "motion" if self._llm_vision_task == "motion" else "describe"
 
     def _llm_vision_mode_clicked(self, btn: QPushButton) -> None:
@@ -25057,19 +25459,31 @@ class MainWindow(QMainWindow):
     def _llm_vision_refresh_attachments(self) -> None:
         lst = self.llm_vision_attach_list
         lst.clear()
+        motion = self._llm_vision_task == "motion"
+        mode = self._llm_motion_mode_key
         for i, path in enumerate(self._llm_vision_images):
-            pm = QPixmap(path).scaled(
-                64, 56, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
-            )
+            reader = QImageReader(path)
+            reader.setAutoTransform(True)
+            rsz = reader.size()
+            if rsz.isValid() and (rsz.width() > 64 or rsz.height() > 56):
+                sc = min(64.0 / max(1, rsz.width()), 56.0 / max(1, rsz.height()))
+                reader.setScaledSize(QSize(max(1, int(round(rsz.width() * sc))), max(1, int(round(rsz.height() * sc)))))
+            qimg = reader.read()
+            pm = QPixmap.fromImage(qimg) if not qimg.isNull() else QPixmap()
             it = QListWidgetItem()
             it.setIcon(QIcon(pm) if not pm.isNull() else VECTOR_ASSETS.icon("image", 24))
-            motion = self._llm_vision_task == "motion"
+            it.setData(Qt.ItemDataRole.UserRole, path)
             if motion:
-                mode = self._llm_motion_mode_key
                 if mode == "i2va":
                     role = "first frame" if i == 0 else f"reference {i}"
                 elif mode == "fl2va":
-                    role = "f{os.path.basename(path)}\nrole: {role}"
+                    role = "first frame" if i == 0 else ("last frame" if i == 1 else f"reference {i - 1}")
+                else:
+                    role = f"reference {i + 1}"
+            else:
+                role = f"image {i + 1}"
+            it.setText(role.upper())
+            it.setToolTip(f"{os.path.basename(path)}\nrole: {role}")
             lst.addItem(it)
         # auto-suggest the best motion mode for the new attachment count
         if self._llm_vision_task == "motion":
@@ -26687,27 +27101,28 @@ class MainWindow(QMainWindow):
         lay.setContentsMargins(4, 3, 4, 4)
         lay.setSpacing(3)
 
-        # ---- Top Workstation Utility Bar (always visible, fits down to 240px!) ----
-        top_util = QHBoxLayout()
-        top_util.setSpacing(3)
+        # ---- v15.0 Global Studio Corner Bar (ALWAYS visible on Viewer / Gallery / Edit / Arena!) ----
+        # Reclaims +28px of vertical viewport space at 800x600 while keeping Panel Toggle,
+        # UI Scale, 5-Theme Switcher, Command Palette & Menu one click away everywhere.
+        self._global_corner = QWidget(self.right_tabs)
+        self._global_corner.setObjectName("Transparent")
+        gc_lay = QHBoxLayout(self._global_corner)
+        gc_lay.setContentsMargins(2, 0, 2, 1)
+        gc_lay.setSpacing(2)
+
         self.panel_btn = QToolButton()
         self.panel_btn.setObjectName("Small")
         self.panel_btn.setText("\u25C0")
-        self.panel_btn.setFixedWidth(26)
+        self.panel_btn.setFixedWidth(24)
         self.panel_btn.setCheckable(True)
         self.panel_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.panel_btn.setToolTip("Hide / show control deck  (Ctrl+L)")
         self.panel_btn.toggled.connect(self._toggle_left)
 
-        self.caption = ElideLabel("\u2014")
-        self.caption.setObjectName("InfoBar")
-        self.caption.setMinimumHeight(22)
-
-        # Interactive UI Scale controls (Ctrl+- / Ctrl+0 / Ctrl++)
         self.scale_minus_btn = QToolButton()
         self.scale_minus_btn.setObjectName("ScalePill")
         self.scale_minus_btn.setText("\u2212")
-        self.scale_minus_btn.setFixedWidth(20)
+        self.scale_minus_btn.setFixedWidth(18)
         self.scale_minus_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.scale_minus_btn.setToolTip("Scale UI down  (Ctrl+-)")
         self.scale_minus_btn.clicked.connect(lambda: self._adjust_scale(-0.05))
@@ -26720,18 +27135,18 @@ class MainWindow(QMainWindow):
         self.scale_plus_btn = QToolButton()
         self.scale_plus_btn.setObjectName("ScalePill")
         self.scale_plus_btn.setText("+")
-        self.scale_plus_btn.setFixedWidth(20)
+        self.scale_plus_btn.setFixedWidth(18)
         self.scale_plus_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.scale_plus_btn.setToolTip("Scale UI up  (Ctrl++)")
         self.scale_plus_btn.clicked.connect(lambda: self._adjust_scale(0.05))
 
         self.theme_combo = QComboBox()
         self.theme_combo.setObjectName("ThemeCombo")
-        self.theme_combo.setMinimumHeight(22)
+        self.theme_combo.setMinimumHeight(21)
         self.theme_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
-        self.theme_combo.setMinimumContentsLength(6)
-        self.theme_combo.setMinimumWidth(84)
-        self.theme_combo.setMaximumWidth(154)
+        self.theme_combo.setMinimumContentsLength(5)
+        self.theme_combo.setMinimumWidth(78)
+        self.theme_combo.setMaximumWidth(144)
         self.theme_combo.setCursor(Qt.CursorShape.PointingHandCursor)
         for key in THEME_ORDER:
             self.theme_combo.addItem(VECTOR_ASSETS.icon_for_theme("theme_badge", key, 14), str(THEMES[key]["name"]), key)
@@ -26741,22 +27156,34 @@ class MainWindow(QMainWindow):
         self.theme_combo.currentIndexChanged.connect(self._on_theme_combo_changed)
         self._sync_theme_btn()
 
+        self.cmd_btn = QToolButton()
+        self.cmd_btn.setObjectName("Small")
+        self.cmd_btn.setText("\u2318")
+        self.cmd_btn.setFixedSize(24, 21)
+        self.cmd_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.cmd_btn.setToolTip("Quick Command Palette  (Ctrl+K)")
+        self.cmd_btn.clicked.connect(self.open_command_palette)
+
         self.menu_btn = QToolButton()
         self.menu_btn.setObjectName("Small")
         self.menu_btn.setText("\u2630")
         self.menu_btn.setToolTip("Application Menu  (F10)")
         self.menu_btn.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-        self.menu_btn.setFixedSize(26, 22)
+        self.menu_btn.setFixedSize(24, 21)
         self.menu_btn.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        top_util.addWidget(self.panel_btn, 0)
-        top_util.addWidget(self.caption, 1)
-        top_util.addWidget(self.scale_minus_btn, 0)
-        top_util.addWidget(self.scale_pill_btn, 0)
-        top_util.addWidget(self.scale_plus_btn, 0)
-        top_util.addWidget(self.theme_combo, 0)
-        top_util.addWidget(self.menu_btn, 0)
-        lay.addLayout(top_util)
+        gc_lay.addWidget(self.panel_btn, 0)
+        gc_lay.addWidget(self.scale_minus_btn, 0)
+        gc_lay.addWidget(self.scale_pill_btn, 0)
+        gc_lay.addWidget(self.scale_plus_btn, 0)
+        gc_lay.addWidget(self.theme_combo, 0)
+        gc_lay.addWidget(self.cmd_btn, 0)
+        gc_lay.addWidget(self.menu_btn, 0)
+        self.right_tabs.setCornerWidget(self._global_corner, Qt.Corner.TopRightCorner)
+
+        self.caption = ElideLabel("\u2014")
+        self.caption.setObjectName("InfoBar")
+        self.caption.setMinimumHeight(20)
 
         self.viewer = ImageViewer()
         self.viewer.toggled_fit.connect(self._on_viewer_fit)
@@ -26829,7 +27256,7 @@ class MainWindow(QMainWindow):
         view_row.addWidget(self.zoom_in_btn)
         view_row.addWidget(self.fit_btn)
         view_row.addWidget(self.copy_img_btn)
-        view_row.addStretch(1)
+        view_row.addWidget(self.caption, 1)
         view_row.addWidget(self.slide_btn)
         view_row.addWidget(self.gallery_btn)
         lay.addLayout(view_row)
@@ -26900,8 +27327,17 @@ class MainWindow(QMainWindow):
         self.right_stack.addWidget(viewer_tab)     # index 0 — normal viewer
         self.right_stack.addWidget(self.edit_stage)  # index 1 — editor stage
 
+        self.arena_widget = SelfImprovingArenaWidget(self)
+        self.arena_widget.vote_cast.connect(self._arena_on_vote)
+        self.arena_widget.rating_changed.connect(self._arena_on_rating_changed)
+        self.arena_widget.inspect_image.connect(self._open_from_gallery_tab)
+        self.arena_widget.save_image.connect(self._arena_save_candidate)
+        self.arena_widget.retry_slot.connect(self._arena_retry_slot)
+        self.arena_widget.open_memory_editor.connect(self.open_preferences_memory_dialog)
+        self.arena_widget.prompts_toggled.connect(lambda _v: self._llm_schedule_save())
         self.right_tabs.addTab(self.right_stack, "Viewer")
         self.right_tabs.addTab(self.gallery_tab, "Gallery")
+        self.right_tabs.addTab(self.arena_widget, "Arena")
         self.right_tabs.setMinimumWidth(240)
         self.right_tabs.currentChanged.connect(self._on_right_tab_changed)
         return self.right_tabs
@@ -27434,6 +27870,8 @@ class MainWindow(QMainWindow):
         m.addSeparator()
         m.addAction("Save Current / Edited Copy  (Ctrl+S)", self._on_save_shortcut)
         m.addAction("Save Edited Copy As…  (Ctrl+Shift+S)", self._on_save_as_shortcut)
+        m.addAction("Quick Command Palette\u2026  (Ctrl+K)", self.open_command_palette)
+        m.addAction("Preferences Memory DB\u2026", self.open_preferences_memory_dialog)
         m.addAction("Prompt History\u2026  (Ctrl+H)", self.open_history)
         m.addAction("Keyboard Shortcuts\u2026  (F1)", self.show_shortcuts)
         m.addSeparator()
@@ -27488,6 +27926,7 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence("Ctrl+9"), self, activated=lambda: self.tabs.setCurrentIndex(TAB_EDIT))
         QShortcut(QKeySequence("Ctrl+Shift+N"), self, activated=lambda: self.neg_btn.toggle())
         QShortcut(QKeySequence("Ctrl+H"), self, activated=self.open_history)
+        QShortcut(QKeySequence("Ctrl+K"), self, activated=self.open_command_palette)
         QShortcut(QKeySequence("Ctrl+Shift+V"), self, activated=lambda: self.open_batch_queue_dialog())
         QShortcut(QKeySequence("Ctrl+R"), self, activated=self._reroll_wildcards)
         QShortcut(QKeySequence("Ctrl+L"), self, activated=lambda: self.panel_btn.toggle())
@@ -27793,10 +28232,23 @@ class MainWindow(QMainWindow):
         self._load_vision_prompt_ui()
         self._llm_vision_refresh_attachments()
         self.llm_vision_section.set_expanded(bool(ls.get("vision_visible", False)))
+        if hasattr(self, "si_user_edit"):
+            self.si_user_edit.setPlainText(str(ls.get("si_user_input") or ""))
+        if hasattr(self, "si_ctx_spin"):
+            self.si_ctx_spin.setValue(max(1024, min(131072, int(ls.get("context_length") or DEFAULT_LLM_CONTEXT_LENGTH))))
+        if hasattr(self, "si_seed_edit"):
+            self.si_seed_edit.setText(str(ls.get("si_fixed_seed") or ""))
+        if hasattr(self, "si_auto_render_cb"):
+            self.si_auto_render_cb.setChecked(bool(ls.get("si_auto_render", True)))
+        if hasattr(self, "si_apply_tpl_cb"):
+            self.si_apply_tpl_cb.setChecked(bool(ls.get("si_apply_template", True)))
+        if hasattr(self, "arena_widget"):
+            self.arena_widget.prompts_btn.setChecked(bool(ls.get("si_show_prompts", True)))
+            self._refresh_arena_memory_badges()
 
         # Apply layout prefs
         self.tabs.setCurrentIndex(max(0, min(self.tabs.count() - 1, int(ui.get("tab") or 0))))
-        self.right_tabs.setCurrentIndex(max(0, min(1, int(ui.get("right_tab") or 0))))
+        self.right_tabs.setCurrentIndex(max(0, min(2, int(ui.get("right_tab") or 0))))
         self.gallery_btn.setChecked(bool(ui.get("gallery_visible", True)))
         self.gallery.setVisible(self.gallery_btn.isChecked())
         self.act_strip.setChecked(self.gallery_btn.isChecked())
@@ -27982,6 +28434,12 @@ class MainWindow(QMainWindow):
             "vision_visible": self.llm_vision_section.is_expanded(),
             "vision_motion_mode": self._llm_motion_mode_key,
             "vision_motion_prompts": dict(self._llm_motion_prompts),
+            "context_length": int(self.si_ctx_spin.value()) if hasattr(self, "si_ctx_spin") else DEFAULT_LLM_CONTEXT_LENGTH,
+            "si_user_input": self.si_user_edit.toPlainText() if hasattr(self, "si_user_edit") else "",
+            "si_fixed_seed": self.si_seed_edit.text().strip() if hasattr(self, "si_seed_edit") else "",
+            "si_auto_render": bool(self.si_auto_render_cb.isChecked()) if hasattr(self, "si_auto_render_cb") else True,
+            "si_apply_template": bool(self.si_apply_tpl_cb.isChecked()) if hasattr(self, "si_apply_tpl_cb") else True,
+            "si_show_prompts": bool(self.arena_widget.prompts_btn.isChecked()) if hasattr(self, "arena_widget") else True,
         }
         save_llm_settings(self.llm_settings)
 
@@ -28025,6 +28483,8 @@ class MainWindow(QMainWindow):
         self._rebuild_lora_ui()
         self._update_deck_badges()
         self._update_generate_subtext()
+        if hasattr(self, "arena_widget"):
+            self._refresh_arena_memory_badges()
         self._refresh_fixed_label()
         self._refresh_st_cache()
         self._schedule_save()
@@ -28256,85 +28716,6 @@ class MainWindow(QMainWindow):
         # ---- The LIST (filter + search + sort applied) -------------------------
         keep_uid: Optional[str] = self._lora_detail_uid()  # capture BEFORE clear()
         q = self._lora_search.strip().lower()
-        sort_mode = str(self.lora_sort_combo.curr------------------
-    def _lora_ghost_text(self) -> str:
-        """Trigger words of the active LoRAs, in order, shown as locked ghost text."""
-        parts: List[str] = []
-        seen: Set[str] = set()
-        for entry in self._active_lora_entries():
-            trig = lora_selected_trigger(entry)
-            low = trig.lower()
-            if trig and low not in seen:
-                seen.add(low)
-                parts.append(trig)
-        return ", ".join(parts)
-
-    def _refresh_lora_ghost(self) -> None:
-        ghost = self._lora_ghost_text()
-        self.prompt_edit.set_ghost(ghost)
-        g0, g1 = self.prompt_edit.ghost_range()
-        self.prompt_hl.set_ghost_range(g0, g1)
-        self._rehighlight(self.prompt_hl, "_prompt_hl_busy")
-        self._update_preview()
-
-    def _with_lora_triggers(self, prompt: str) -> str:
-        """Append active LoRA trigger words not already present in the prompt."""
-        base = prompt.rstrip()
-        low = base.lower()
-        additions: List[str] = []
-        for entry in self._active_lora_entries():
-            trig = lora_selected_trigger(entry)
-            if trig and trig.lower() not in low:
-                additions.append(trig)
-        if not additions:
-            return base
-        if not base:
-            return ", ".join(additions)
-        return base + ", " + ", ".join(additions)
-
-    def _folder_icon_key(self, folder: str) -> str:
-        return _LORA_FOLDER_ICON_KEYS.get(folder, "folder_generic")
-
-    def _rebuild_lora_ui(self) -> None:
-        view_key = self._lora_view_key()
-        stack = self._browsed_lora_stack()
-        folders = self._lora_stack_folders(view_key)
-        if self._lora_folder_filter not in folders and self._lora_folder_filter != "ALL":
-            self._lora_folder_filter = "ALL"
-
-        # Stack switcher follows the browsed stack (v4.2: ANIMA / KREA 2 / MOSS-S)
-        btn = self.lora_stack_btns.get(view_key if view_key in LORA_STACK_KEYS else "krea")
-        if btn is not None:
-            btn.setChecked(True)
-
-        # Folder chip strip (one line, scrolls horizontally, per-folder counts)
-        self.lora_folder_flow.clear_items()
-        self.lora_folder_btns: Dict[str, FolderChipButton] = {}
-        chips: List[Tuple[str, str, str]] = [("ALL", C["acc_hi"], f"ALL \u00b7 {len(stack)}")]
-        for f in folders:
-            cnt = sum(1 for e in stack if e.get("folder") == f)
-            chips.append((f, lora_folder_color(f), f"{f} \u00b7 {cnt}"))
-        for fname, fcol, flabel in chips:
-            icon_key = "" if fname == "ALL" else self._folder_icon_key(fname)
-            chip = FolderChipButton(flabel, fcol, icon_key)
-            chip.setChecked(fname == self._lora_folder_filter)
-            chip.clicked.connect(lambda _c=False, f=fname: self._select_lora_folder(f))
-            if fname != "ALL":
-                chip.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-                chip.customContextMenuRequested.connect(
-                    lambda pos, f=fname, ch=None: self._lora_folder_menu(f)
-                )
-            self.lora_folder_group.addButton(chip)
-            self.lora_folder_flow.addWidget(chip)
-            self.lora_folder_btns[fname] = chip
-        if hasattr(self, "lora_folder_wrap"):
-            self.lora_folder_wrap.updateGeometry()
-            w_strip = max(180, self.lora_folder_strip.viewport().width() or 260)
-            want_h = min(82, max(28, self.lora_folder_flow.heightForWidth(w_strip) + 4))
-            self.lora_folder_strip.setFixedHeight(want_h)
-        # ---- The LIST (filter + search + sort applied) -------------------------
-        keep_uid: Optional[str] = self._lora_detail_uid()  # capture BEFORE clear()
-        q = self._lora_search.strip().lower()
         sort_mode = str(self.lora_sort_combo.currentData() or "added") if hasattr(self, "lora_sort_combo") else "added"
         enabled_only = self.lora_enabled_only_btn.isChecked() if hasattr(self, "lora_enabled_only_btn") else False
         entries = list(stack)
@@ -28382,29 +28763,6 @@ class MainWindow(QMainWindow):
                     tip += f"\nTrigger: {trig}"
                 if entry.get("notes"):
                     tip += f"\nNotes: {entry['notes']}"
-                it.setToolTip(tip)
-                self.lora_list.addItem(it)
-                visible_entries.append(entry)
-                if keep_uid is not None and str(entry.get("uid") or "") == keep_uid:
-                    select_row = shown
-                shown += 1
-        finally:
-            self.lora_list.setUpdatesEnabled(True)
-        self.lora_list.set_entries(visible_entries)
-        self.lora_list.show_folder_names = self._lora_folder_filter == "ALL"
-        if select_row >= 0:
-            self.lora_list.setCurrentRow(select_row)
-        self._show_lora_details()
-        # The details dock only occupies space when a LoRA is actually selected
-        has_sel = self._lora_detail_entry() is not None
-        self.lora_detail.setVisible(has_sel)
-
-        # Count badge + status caption
-        total_ids = sum(1 for e in stack if e.get("id"))
-        self.lora_count_label.setText(f"{shown}/{total_ids}")
-        if shown == 0:
-            self.lora_status.setText(
-   
                 it.setToolTip(tip)
                 self.lora_list.addItem(it)
                 visible_entries.append(entry)
@@ -29225,6 +29583,10 @@ class MainWindow(QMainWindow):
             STUDIO_LOG.warn("LLM", f"{kind} returned no usable prompts ({tok_s})")
             return
 
+        if kind == "self_improve":
+            self._arena_on_llm_completed(prompts, dt, tok_s, tps)
+            SOUNDS.play("llm_done")
+            return
         if kind == "motion":
             txt = prompts[0]
             warn = "" if "integrated_multimodal_description" in txt else " (missing core fields — check system prompt)"
@@ -30101,6 +30463,8 @@ class MainWindow(QMainWindow):
         self._sync_viewer_and_anim_clock(c, eta)
 
     def _on_anim_clock_tick(self, frame: int) -> None:
+        if hasattr(self, "arena_widget") and self.right_tabs.currentIndex() == 2:
+            self.arena_widget.tick_animation()
         """Repaint only active animated surfaces at 16 FPS (0% CPU when idle)."""
         try:
             if hasattr(self, "queue_view") and self.queue_view.isVisible():
@@ -30274,6 +30638,11 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------ Results, Toasts & Aesthetics
     def on_image_ready(self, path: str, meta: Dict[str, Any]) -> None:
+        # Self-Improving A/B Arena candidate outputs: display side-by-side in Arena!
+        arena_slot = str(meta.get("arena_slot") or "")
+        if arena_slot in ("A", "B"):
+            self._arena_on_image_ready(arena_slot, path, meta)
+            return
         # Depth-map attachments: show + refresh badges; no aesthetic scoring
         if meta.get("depth_job"):
             dsrc = str(meta.get("depth_source") or "")
@@ -30304,7 +30673,7 @@ class MainWindow(QMainWindow):
         # appear too. refresh() no longer wipes the viewer mid-rebuild. The
         # output Gallery tab is left alone when the user is browsing it (the
         # toast + filmstrip still notify); the edit stage keeps its takeover.
-        if self.right_tabs.currentIndex() != 1:
+        if self.right_tabs.currentIndex() not in (1, 2):
             self.right_tabs.setCurrentIndex(0)
         self.show_image(path)
         self.gallery_tab.mark_dirty()
@@ -32669,6 +33038,11 @@ class MainWindow(QMainWindow):
                 st_w["result"] = {"ok": False, "error": job.message or job.state}
             st_w["event"].set()
 
+        # Handle Arena candidate failures gracefully
+        a_slot = self._arena_job_slots.pop(job.local_id, None)
+        if a_slot in ("A", "B") and job.state != STATE_DONE and hasattr(self, "arena_widget"):
+            pane = self.arena_widget.pane_a if a_slot == "A" else self.arena_widget.pane_b
+            pane.set_status("error", job.message or job.state)
         # Surface plain generation failures as toasts (tile groups stay in the queue view)
         if job.kind in (KIND_GEN, KIND_DEPTH) and job.state == STATE_FAILED:
             self.toast.notify(f"Job #{job.local_id} failed \u2014 {elide(job.message, 60)}", "err")
@@ -33012,6 +33386,24 @@ class MainWindow(QMainWindow):
             sh_w.update()
         for fc_w in self.findChildren(FolderChipButton):
             fc_w.update()
+        for rep_cls in (TilePlanPreview, TileCanvasPreview, ArenaImagePane):
+            for child_w in self.findChildren(rep_cls):
+                child_w.update()
+        if hasattr(self, "lora_list"):
+            self.lora_list.viewport().update()
+        if hasattr(self, "prompt_hl"):
+            self._rehighlight(self.prompt_hl, "_prompt_hl_busy")
+        if hasattr(self, "neg_hl"):
+            self._rehighlight(self.neg_hl, "_neg_hl_busy")
+        if hasattr(self, "prompt_sliders_bar"):
+            self.prompt_sliders_bar.rebuild(self._current_lora_stack())
+        if hasattr(self, "arena_widget"):
+            self.arena_widget.mem_btn.setIcon(VECTOR_ASSETS.icon("memory_db", 12))
+        if hasattr(self, "si_run_btn"):
+            self.si_run_btn.setIcon(VECTOR_ASSETS.icon("spark", 12))
+        if hasattr(self, "si_mem_btn"):
+            self.si_mem_btn.setIcon(VECTOR_ASSETS.icon("memory_db", 12))
+        SOUNDS.set_theme(theme_name())
         self._reapply_dynamic_styles()
 
     def _on_ctrl_enter_shortcut(self) -> None:
@@ -33511,9 +33903,265 @@ class MainWindow(QMainWindow):
             lambda err: self.dry_label.setText(f"Estimate failed: {err}"),
         )
 
+
+    # ------------------------------------------------------------------ v15.0 Quick Actions, Command Palette & Self-Improving Arena
+    def _copy_prompt_text(self) -> None:
+        txt = self.prompt_edit.user_text().strip()
+        if not txt:
+            self._flash_summary("Prompt is empty.")
+            return
+        QApplication.clipboard().setText(txt)
+        self._flash_summary(f"Copied prompt ({len(txt)} chars)")
+
+    def open_command_palette(self) -> None:
+        """Open lightweight on-demand Ctrl+K Quick Command Palette."""
+        actions: List[Tuple[str, str, Callable[[], None]]] = [
+            ("Generate Image  (Ctrl+Enter)", "ACTION", lambda: self.on_generate()),
+            ("Batch Prompt Queue  (Ctrl+Shift+V)", "ACTION", self.open_batch_queue_dialog),
+            ("Save Current / Edited Copy  (Ctrl+S)", "ACTION", self._on_save_shortcut),
+            ("Copy Positive Prompt", "ACTION", self._copy_prompt_text),
+            ("Open Preferences Memory DB", "ARENA", self.open_preferences_memory_dialog),
+            ("Forge Self-Improving A/B Pair", "ARENA", self.llm_self_improve_forge),
+            ("Open Prompt History  (Ctrl+H)", "TOOL", self.open_history),
+            ("Toggle Low-Power Laptop Mode", "PERF", lambda: self._on_low_power_toggled(not low_power_mode())),
+            ("Toggle Control Deck  (Ctrl+L)", "VIEW", lambda: self.panel_btn.toggle()),
+            ("Toggle Recent Filmstrip  (Ctrl+G)", "VIEW", lambda: self.gallery_btn.toggle()),
+            ("Toggle Fullscreen  (F11)", "VIEW", self._toggle_fullscreen),
+            ("Reset UI Scale to 100%  (Ctrl+0)", "VIEW", self._reset_scale),
+            ("Switch Right View -> Viewer", "VIEW", lambda: self.right_tabs.setCurrentIndex(0)),
+            ("Switch Right View -> Gallery", "VIEW", lambda: self.right_tabs.setCurrentIndex(1)),
+            ("Switch Right View -> Self-Improving Arena", "VIEW", lambda: self.right_tabs.setCurrentIndex(2)),
+        ]
+        for idx, (_ik, name, _tip) in enumerate(self._tab_specs):
+            actions.append((f"Tab: {name}  (Ctrl+{idx + 1})", "TAB", lambda i=idx: self.tabs.setCurrentIndex(i)))
+        for tkey in THEME_ORDER:
+            actions.append((f"Theme: {THEMES[tkey]['name']}", "THEME", lambda tk=tkey: self._select_theme_by_key(tk)))
+        dlg = CommandPaletteDialog(actions, self)
+        if dlg.exec() == QDialog.DialogCode.Accepted:
+            dlg.execute_choice()
+
+    def _refresh_arena_memory_badges(self) -> None:
+        stack = self._active_model_key
+        entries = PREF_MEMORY.load(stack)
+        mlbl = PREF_MEMORY_LABELS.get(stack, stack.upper())
+        if hasattr(self, "si_mem_summary"):
+            self.si_mem_summary.setText(f"Memory [{mlbl}]: {len(entries)} preference pair(s)")
+        if hasattr(self, "arena_widget"):
+            self.arena_widget.set_header(mlbl, str(self._arena_round.get("seed") or ""), len(entries))
+
+    def open_preferences_memory_dialog(self) -> None:
+        stack = self._active_model_key
+        ctx_len = int(self.si_ctx_spin.value()) if hasattr(self, "si_ctx_spin") else DEFAULT_LLM_CONTEXT_LENGTH
+        dlg = PreferencesMemoryDialog(PREF_MEMORY, stack, context_length=ctx_len, parent=self)
+        dlg.memory_changed.connect(lambda _s="": self._refresh_arena_memory_badges())
+        dlg.exec()
+        self._refresh_arena_memory_badges()
+
+    def llm_self_improve_forge(self) -> None:
+        """Forge two distinct content prompts (<prompt_a> & <prompt_b>) shaped by
+        per-model PreferencesMemory, then optionally render both with the same seed."""
+        base_url = self.llm_url_edit.text().strip().rstrip("/")
+        model = self.llm_model_combo.currentText().strip()
+        user_req = self.si_user_edit.toPlainText().strip() if hasattr(self, "si_user_edit") else ""
+        if not user_req:
+            user_req = self.llm_user_edit.toPlainText().strip()
+        if not base_url or not model:
+            self.tabs.setCurrentIndex(TAB_LLM)
+            self.llm_status.setText("Configure LLM API URL and Model first before running Self-Improving Arena.")
+            self.toast.notify("Configure LLM URL & Model first", "warn")
+            return
+        if not user_req:
+            self.tabs.setCurrentIndex(TAB_LLM)
+            if hasattr(self, "llm_si_section"):
+                self.llm_si_section.set_expanded(True)
+            self.llm_status.setText("Enter a scene/concept request in the Self-Improving A/B box first.")
+            return
+
+        stack = self._active_model_key
+        entries = PREF_MEMORY.load(stack)
+        ctx_len = int(self.si_ctx_spin.value()) if hasattr(self, "si_ctx_spin") else DEFAULT_LLM_CONTEXT_LENGTH
+        max_out = int(self.llm_maxtok_spin.value()) if hasattr(self, "llm_maxtok_spin") else 0
+        pack = build_self_improving_system_prompt(
+            stack, entries, user_req, context_length=ctx_len, max_output_tokens=max_out
+        )
+        raw_seed = self.si_seed_edit.text().strip() if hasattr(self, "si_seed_edit") else ""
+        seed = raw_seed if raw_seed else str(random.randint(100000, 2147483647))
+
+        self._arena_round = {
+            "stack": stack,
+            "request": user_req,
+            "seed": seed,
+            "prompt_a": "",
+            "prompt_b": "",
+            "job_a": None,
+            "job_b": None,
+            "path_a": "",
+            "path_b": "",
+            "voted": None,
+            "rating": None,
+            "saved_entry_id": None,
+        }
+        self._arena_job_slots.clear()
+        if hasattr(self, "arena_widget"):
+            self.arena_widget.set_vote_enabled(False)
+            self.arena_widget.set_vote_ui(None, "Streaming two distinct prompts from PreferencesMemory…")
+            self.arena_widget.set_rating_ui(None)
+            self.arena_widget.pane_a.set_status("streaming", "Streaming Candidate A…")
+            self.arena_widget.pane_b.set_status("streaming", "Streaming Candidate B…")
+            self.arena_widget.pane_a.set_prompt_text("")
+            self.arena_widget.pane_b.set_prompt_text("")
+            self._refresh_arena_memory_badges()
+            self.right_tabs.setCurrentIndex(2)
+        ANIM_CLOCK.set_active("arena_live", True)
+
+        self._start_llm_stream(
+            task_kind="self_improve",
+            base_url=base_url,
+            api_key=self.llm_key_edit.text().strip(),
+            model=model,
+            system=str(pack["system_prompt"]),
+            user_text=user_req,
+            temperature=self.llm_temp_spin.value(),
+            top_p=self.llm_topp_spin.value(),
+            clear_existing=False,
+            status_start=(
+                f"Self-Improving A/B Forge ({pack['included']}/{pack['total']} memory pairs, "
+                f"~{pack['used_tokens']:,}/{ctx_len:,} tok)…"
+            ),
+        )
+
+    def _arena_on_llm_completed(self, prompts: List[str], dt: float, tok_s: str, tps: float) -> None:
+        if len(prompts) < 2:
+            ANIM_CLOCK.set_active("arena_live", False)
+            msg = f"Need 2 prompts (<prompt_a> & <prompt_b>), received {len(prompts)}."
+            self.llm_status.setText(msg)
+            if hasattr(self, "arena_widget"):
+                self.arena_widget.pane_a.set_status("error", msg)
+                self.arena_widget.pane_b.set_status("error", msg)
+                self.arena_widget.vote_feedback.setText(msg)
+            return
+        pa, pb = prompts[0].strip(), prompts[1].strip()
+        self._arena_round["prompt_a"] = pa
+        self._arena_round["prompt_b"] = pb
+        self.llm_status.setText(f"Arena A/B prompts forged in {dt:.1f}s ({tok_s}, {tps:.1f} tok/s)")
+        if hasattr(self, "arena_widget"):
+            self.arena_widget.pane_a.set_prompt_text(pa)
+            self.arena_widget.pane_b.set_prompt_text(pb)
+            self.arena_widget.set_vote_enabled(True)
+            self.arena_widget.vote_feedback.setText("Rendering A & B with the same seed… you can vote once ready.")
+        if hasattr(self, "si_auto_render_cb") and self.si_auto_render_cb.isChecked():
+            self._arena_enqueue_slot("A")
+            self._arena_enqueue_slot("B")
+        else:
+            ANIM_CLOCK.set_active("arena_live", False)
+            if hasattr(self, "arena_widget"):
+                self.arena_widget.pane_a.set_status("idle", "Prompt A ready (auto-render off)")
+                self.arena_widget.pane_b.set_status("idle", "Prompt B ready (auto-render off)")
+
+    def _arena_enqueue_slot(self, slot: str) -> None:
+        raw_p = str(self._arena_round.get("prompt_a" if slot == "A" else "prompt_b") or "").strip()
+        if not raw_p:
+            return
+        seed = str(self._arena_round.get("seed") or "").strip()
+        use_tpl = bool(self.si_apply_tpl_cb.isChecked()) if hasattr(self, "si_apply_tpl_cb") else True
+        saved_tpl = self.active_template
+        try:
+            if not use_tpl:
+                self.active_template = None
+            payload, meta = self.build_payload(prompt_override=raw_p, n_override=1)
+        finally:
+            self.active_template = saved_tpl
+        if seed:
+            payload.setdefault("params", {})["seed"] = seed
+            meta["seed"] = seed
+        meta["arena_slot"] = slot
+        meta["arena_raw_prompt"] = raw_p
+        job = self.queue.enqueue(payload, meta)
+        self._arena_round["job_a" if slot == "A" else "job_b"] = job.local_id
+        self._arena_job_slots[job.local_id] = slot
+        if hasattr(self, "arena_widget"):
+            pane = self.arena_widget.pane_a if slot == "A" else self.arena_widget.pane_b
+            pane.set_status("rendering", f"Queued #{job.local_id} (seed {seed})…")
+        self._maybe_reveal_mini_queue()
+
+    def _arena_retry_slot(self, slot: str) -> None:
+        if slot in ("A", "B"):
+            self._arena_enqueue_slot(slot)
+
+    def _arena_on_image_ready(self, slot: str, path: str, _meta: Dict[str, Any]) -> None:
+        self._arena_round["path_a" if slot == "A" else "path_b"] = path
+        if hasattr(self, "arena_widget"):
+            pane = self.arena_widget.pane_a if slot == "A" else self.arena_widget.pane_b
+            pane.set_image(path)
+            both_ready = bool(self._arena_round.get("path_a") and self._arena_round.get("path_b"))
+            if both_ready:
+                ANIM_CLOCK.set_active("arena_live", False)
+                self.arena_widget.vote_feedback.setText("Both candidates ready — pick A, B, or TIE!")
+        self.gallery_tab.mark_dirty()
+        self.gallery.refresh(self.store.list_recent(include_output=True))
+        self._update_summary()
+        SOUNDS.play("done")
+
+    def _arena_save_candidate(self, path: str) -> None:
+        if not path or not os.path.isfile(path):
+            return
+        try:
+            saved = self.store.save_to_output(path)
+            self.gallery_tab.mark_dirty()
+            self.refresh_gallery(select=saved)
+            self.toast.notify(f"Saved Arena winner -> {os.path.basename(saved)}", "ok")
+            SOUNDS.play("saved")
+        except Exception as exc:  # noqa: BLE001
+            self.toast.notify(f"Save failed: {exc}", "err")
+
+    def _arena_on_vote(self, vote: str) -> None:
+        pa = str(self._arena_round.get("prompt_a") or "").strip()
+        pb = str(self._arena_round.get("prompt_b") or "").strip()
+        if not pa or not pb:
+            return
+        stack = str(self._arena_round.get("stack") or self._active_model_key)
+        prev_id = self._arena_round.get("saved_entry_id")
+        if prev_id:
+            PREF_MEMORY.delete_entry(stack, str(prev_id))
+            self._arena_round["saved_entry_id"] = None
+        self._arena_round["voted"] = vote
+        if vote == "tie":
+            self.arena_widget.set_vote_ui("tie", "Tie recorded — skipped saving to PreferencesMemory.")
+            self._refresh_arena_memory_badges()
+            return
+        good, bad = (pa, pb) if vote == "A" else (pb, pa)
+        entry = PREF_MEMORY.add_pair(
+            stack,
+            good,
+            bad,
+            rating=self._arena_round.get("rating"),
+            request=str(self._arena_round.get("request") or ""),
+        )
+        if entry is not None:
+            self._arena_round["saved_entry_id"] = entry.get("id")
+            r_str = f" ({entry['rating']}★)" if entry.get("rating") else ""
+            self.arena_widget.set_vote_ui(vote, f"Saved {vote} > {'B' if vote == 'A' else 'A'}{r_str} to PreferencesMemory!")
+            self.toast.notify(f"Preference saved ({vote} wins{r_str})", "ok")
+            SOUNDS.play("saved")
+        self._refresh_arena_memory_badges()
+
+    def _arena_on_rating_changed(self, rating: Any) -> None:
+        rv = rating if (isinstance(rating, int) and 1 <= rating <= 5) else None
+        self._arena_round["rating"] = rv
+        eid = self._arena_round.get("saved_entry_id")
+        if eid and self._arena_round.get("voted") in ("A", "B"):
+            stack = str(self._arena_round.get("stack") or self._active_model_key)
+            PREF_MEMORY.update_rating(stack, str(eid), rv)
+            self._refresh_arena_memory_badges()
+
     # ------------------------------------------------------------------ Shutdown
     def closeEvent(self, event) -> None:  # noqa: N802
         ANIM_CLOCK.stop_all()
+        try:
+            ANIM_CLOCK.ticked.disconnect(self._on_anim_clock_tick)
+        except Exception:  # noqa: BLE001
+            pass
+        STUDIO_LOG.unsubscribe(self._log_bridge.logged.emit)
         self._server_status_timer.stop()
         self._telemetry_timer.stop()
         self._slide_timer.stop()
@@ -33545,7 +34193,7 @@ class MainWindow(QMainWindow):
 
 
 # =============================================================================
-#  26. Application Entry Point (v14.0 — 800x600 Ready + Low-End Laptop Tuned)
+#  26. Application Entry Point (v15.0 — 800x600 Ready + Low-End Laptop Tuned)
 # =============================================================================
 def main() -> int:
     app = QApplication(sys.argv)
@@ -33564,25 +34212,6 @@ def main() -> int:
             win.resize(init_w, init_h)
             left_w = max(248, min(312, int(init_w * 0.40)))
             win.split.setSizes([left_w, max(260, init_w - left_w)])
-        else:
-            init_w = max(760, min(1240, av.width() - 28))
-            init_h = max(540, min(780, av.height() - 40))
-            win.resize(init_w, init_h)
-        win.move(
-            av.left() + max(0, (av.width() - init_w) // 2),
-            av.top() + max(0, (av.height() - init_h) // 2),
-        )
-    else:
-        win.resize(1024, 680)
-    win.show()
-    CURSOR_ENGINE.refresh_widget_tree(win)
-    QTimer.singleShot(0, win._on_workspace_resized)
-    return app.exec()
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
-it.setSizes([left_w, max(260, init_w - left_w)])
         else:
             init_w = max(760, min(1240, av.width() - 28))
             init_h = max(540, min(780, av.height() - 40))
