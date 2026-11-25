@@ -1,25 +1,31 @@
 [Before starting, clean up any remnants from the previous (unrelated) session]
 You are an expert software engineer. Your task is to remake this app drastically, doing a major update to improve it generally, fixing any possile issues with UI, implementing the most efficient and optimal UI layout, improving the existing themes while keeping everything well-optimized, fixing/preventing glitches, giving it professionally-done and refined look.
 
-Fix the error
-  File "D:\Documents\python\testing\hl.py", line 39758, in <module>
+  File "D:\Documents\python\testing\hl.py", line 40569, in <module>
     raise SystemExit(main())
-  File "D:\Documents\python\testing\hl.py", line 39729, in main
+  File "D:\Documents\python\testing\hl.py", line 40537, in main
     win = MainWindow()
-  File "D:\Documents\python\testing\hl.py", line 28717, in __init__
+  File "D:\Documents\python\testing\hl.py", line 29087, in __init__
     self._build_ui()
-  File "D:\Documents\python\testing\hl.py", line 28766, in _build_ui
+  File "D:\Documents\python\testing\hl.py", line 29136, in _build_ui
     self.left = self._build_left()
-  File "D:\Documents\python\testing\hl.py", line 29026, in _build_left
-    self._build_prompt_tab(),
-  File "D:\Documents\python\testing\hl.py", line 29149, in _build_prompt_tab
-    self.prompt_frame.panel_widen_requested.connect(self._on_prompt_panel_widen)
-AttributeError: 'MainWindow' object has no attribute '_on_prompt_panel_widen'
+  File "D:\Documents\python\testing\hl.py", line 29411, in _build_left
+    self._build_horde_tab(),
+  File "D:\Documents\python\testing\hl.py", line 31531, in _build_horde_tab
+    lay.addWidget(self._horde_group("Appearance, 7 Themes & Sound Scheme", build_sounds, expanded=True))
+  File "D:\Documents\python\testing\hl.py", line 31387, in _horde_group
+    build(gl)
+  File "D:\Documents\python\testing\hl.py", line 31466, in build_sounds
+    self.sound_master_sl = _ResettableSlider(85)
+  File "D:\Documents\python\testing\hl.py", line 18664, in __init__
+    super().__init__(orientation, parent)
+TypeError: arguments did not match any overloaded call:
+  QSlider(parent: QWidget|None = None): argument 1 has unexpected type 'int'
+  QSlider(orientation: Qt.Orientation, /, parent: QWidget|None = None): argument 1 has unexpected type 'int'
+  
 
 Make everything better organized in the layout, with better visibility and navigation. Make any other improvements/adjustments for the LLM tab.
 Also make sure the prompt input form in the first tab is adjustable and can be resized (enlarged) by dragging its corner, to make sure a long prompt will be visible properly
-Additionally, rename the "Timeless Place" into "Timeless Feel": a nostalgic-feel, atmospheric, serene and a bit surrealistic theme inspired by: aesthetics of "Ico" and "Shadow of the Colossus" games by Team Ico, and by the mood and aesthetics of "Haibane Renmei" anime show; it also has just a bit of polished, refined modern aesthetic of the games "Cytus" and "Sdorica" (their UIs, etc.). Keep the UI design non-flat. This theme is moderately dark, but mostly following the Ico and Haibane Renmei mood, with "art house" genre feel in it. Do NOT mention anywhere any of the franchises names listed here.
-Additionally, add a new "Prestige" theme, which is inspired by the Apple's software UI designs; inspiration from the software and the visual designs of: late-2000s macOS (non-flat design, old-school Apple style), osX, iOS. Make the theme look and feel like it were developed and designed by Apple for their devices, native for iOS devices with the typical design stylistical approach, the very philosophy of iOS/osX, following the highest quality standards of Apple in everything. Make everything look and feel like in iOS but with non-flat style, light theme (balanced, not too bright, suitable for a display in a dark room as well), old-school approach from 2000s. Keep everything well-optimized.
 Implement sound effects for everything relevant ("primary" sounds for important notifications, the softer "secondary" sounds for UI interactive elements like in a videogame main menu UIs), with separate/distinctive sound sets per theme, implementing everything inside the py file. Every set of a sound is a continuation of the core art direction of the corresponding theme: sounds like in PS3/PS Vita firmware UIs for SeeStation; Nintendo-like UI sounds for Kreatendo; very relaxed and harmonious, nature-inspired effects for "Mint Serenity"; mysterious and echoing, slightly eerie Ico/SotC-like SFX, and Haibane-like piano sounds for Timeless Feel, etc. - think of it as sound effect sets shipped with "Windows Plus" themes for Windows 98, when various themes had their own styles for system sounds.
 
 Generally, study the app properly to find out what you can improve or adjust. Feel free to make any changes for the better and more professionally-done implementation of the app. Do NOT stop your work until everything is perfected.
@@ -40,6 +46,7 @@ import array
 import base64
 import collections
 import copy
+import ctypes
 import http.client
 import io
 import json
@@ -227,7 +234,7 @@ except Exception:  # pragma: no cover - non-Windows platforms
 #  1. Constants, Workspace Paths & Legacy Migration
 # =============================================================================
 APP_NAME = "Horde Studio Lite"
-APP_VERSION = "22.0.0"
+APP_VERSION = "23.0.0"
 CLIENT_AGENT = f"HordeStudioLite:{APP_VERSION}:local-desktop"
 HORDE_URL = "https://stablehorde.net/api/v2"
 ANON_KEY = "0000000000"
@@ -1146,6 +1153,7 @@ DEFAULT_LLM_SETTINGS: Dict[str, Any] = {
     "si_show_prompts": True,
     "llm_concept_height": 88,
     "si_concept_height": 76,
+    "si_sys_height": 136,
     "vlm_sys_visible": False,
 }
 
@@ -1454,12 +1462,14 @@ THEME_ALIASES: Dict[str, str] = {
     "aqua": "prestige",
     "snow_leopard": "prestige",
     "classic_aqua": "prestige",
+    "sarif": "gold",
+    "sarif_gold": "gold",
 }
 
 
 def resolve_theme_key(name: str) -> str:
-    """Resolve legacy or alias theme keys safely to a canonical flagship key."""
-    raw = str(name or "").strip().lower()
+    """Resolve legacy, display-name, or alias theme keys safely to a canonical flagship key."""
+    raw = str(name or "").strip().lower().replace(" ", "_").replace("-", "_")
     raw = THEME_ALIASES.get(raw, raw)
     return raw if raw in THEMES else "seestation"
 
@@ -2134,15 +2144,15 @@ THEME_META: Dict[str, Dict[str, Any]] = {
     },
     "timeless": {
         "short": "Timeless Feel",
-        "tagline": "Twilight Stone · Sunlit Ochre · Celadon Mist",
-        "swatches": ("#24262c", "#7f6030", "#e4c685", "#91c1b6", "#f6efe0"),
+        "tagline": "Nostalgic Twilight Stone · Sunlit Ochre · Celadon Mist",
+        "swatches": ("#202227", "#7f6030", "#e6c888", "#91c1b6", "#faf4e6"),
         "badge": "ART HOUSE",
     },
     "prestige": {
         "short": "Prestige",
-        "tagline": "Classic OS X & iOS · Brushed Silver & Aqua Glass",
-        "swatches": ("#cdd3dc", "#e4e8ef", "#6eb4f8", "#2b7ce0", "#1b222c"),
-        "badge": "CLASSIC OS",
+        "tagline": "Late-2000s OS X & Classic iOS · Satin Aluminum & Aqua",
+        "swatches": ("#c9d0da", "#e5e9f0", "#7ec0fb", "#2677dc", "#18212e"),
+        "badge": "AQUA OS",
     },
 }
 
@@ -3128,7 +3138,7 @@ def _ensure_theme_control_glyphs(theme_key: str) -> Dict[str, str]:
 
 
 def build_stylesheet(scale: float = 1.0) -> str:
-    """Corporate East-Asian workstation stylesheet (v21.0 — 6 Flagship Themes, 800x600 & HiDPI).
+    """Corporate East-Asian & Workstation stylesheet (v23.0 — 7 Flagship Themes, 800x600 & HiDPI).
     LRU-cached per (theme, scale, low_power) for instant zero-lag theme & scale switching."""
     s = max(SCALE_MIN, min(SCALE_MAX, float(scale)))
     _ensure_theme_control_glyphs(C["key"])
@@ -3891,89 +3901,20 @@ QAbstractSpinBox::up-button:focus, QAbstractSpinBox::down-button:focus {{
 
 
 def theme_extras_qss(f_xs: float = 8.0, pv: int = 3, ph: int = 8, pvs: Optional[int] = None) -> str:
-    """Deep per-theme architectural QSS for all 7 flagship themes (v22.0):
+    """Deep per-theme architectural QSS for all 7 flagship themes (v23.0):
     SeeStation / Oriental Spirit / Sarif Gold / Kreatendo / Mint Serenity / Timeless Feel / Prestige."""
     U = THEME_UI.get(C.get("key", "seestation"), THEME_UI["seestation"])
     k = resolve_theme_key(C.get("key", "seestation"))
     f_rib = max(7.0, round(float(f_xs) + 0.4, 1))
     pvs_val = max(1, int(pv) - 1) if pvs is None else max(1, int(pvs))
     phs_val = max(4, int(ph) - 2)
-    rail_pin = f"""
-/* ---- Icon Tab Rail Compact Geometry (zero-scroll 800x600 guarantee) ---- */
-QTabWidget#IconTabs > QTabBar::tab, QWidget#IconTabs QTabBar#IconRailBar::tab {{
-    padding: 2px 1px;
-    margin: 0px;
-    min-width: 14px;
-    border-radius: {U['rad_tab']};
-}}
-QWidget#IconTabs QTabBar#IconRailBar {{
-    background: {C['win']};
-}}
-QTabWidget#IconTabs::pane {{
-    margin-top: -1px;
-}}
-QLabel#TabRibbon {{
-    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-        stop:0 {C['plate_hi']}, stop:0.55 {C['plate_lo']}, stop:1 {C['deep']});
-    border-top: 1px solid {C['line']};
-    border-bottom: 1px solid {C['hdr_line']};
-    border-left: 3px solid {C['acc_hi']};
-    color: {C['text_hi']};
-    font-size: {f_rib}pt;
-    font-weight: 700;
-    padding: 2px 7px;
-}}
+    base_cards = f"""
+/* ---- Default Studio Card & Container Layer (overridable by each theme block) ---- */
 QFrame#SoundModeCard, QFrame#PerfCard {{
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['plate_hi']}, stop:1 {C['plate_lo']});
     border: 1px solid {C['line_hi']};
     border-left: 3px solid {C['acc_mid']};
     border-radius: {U['rad_md']};
-}}
-QToolButton#ScaleChip {{
-    padding: {pvs_val}px {phs_val}px;
-    font-size: {f_xs}pt;
-    font-weight: 700;
-    border-radius: {U['rad_pill']};
-}}
-QToolButton#ScaleChip:checked {{
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['acc_hi']}, stop:0.5 {C['acc_mid']}, stop:1 {C['acc_lo']});
-    color: {C['acc_text']};
-    border: 1px solid {C['acc_edge']};
-}}
-QPushButton#StopBtn, QToolButton#StopBtn {{
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #eb4b4b, stop:0.5 #c22323, stop:1 #821111);
-    color: #ffffff;
-    border: 1px solid #ff9999;
-    border-radius: {U['rad_md']};
-    padding: {pvs_val}px {ph}px;
-    font-weight: bold;
-}}
-QPushButton#StopBtn:hover, QToolButton#StopBtn:hover {{
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ff6363, stop:0.5 #db2e2e, stop:1 #9c1717);
-    border: 1px solid #ffd9d9;
-}}
-QPushButton#StopBtn:disabled, QToolButton#StopBtn:disabled {{
-    background: {C['btn_lo']};
-    color: {C['dim']};
-    border: 1px solid {C['line']};
-}}
-QToolButton#HudStopBtn {{
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #eb4b4b, stop:0.5 #c22323, stop:1 #821111);
-    color: #ffffff;
-    border: 1px solid #ff9999;
-    border-radius: {U['rad_md']};
-    padding: 1px {phs_val}px;
-    font-size: {f_xs}pt;
-    font-weight: 700;
-}}
-QToolButton#HudStopBtn:hover {{
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ff6363, stop:0.5 #db2e2e, stop:1 #9c1717);
-    border: 1px solid #ffd9d9;
-}}
-QToolButton#HudStopBtn:disabled {{
-    background: {C['btn_lo']};
-    color: {C['dim']};
-    border: 1px solid {C['line']};
 }}
 QFrame#StreamHud {{
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['field_top']}, stop:1 {C['field_bot']});
@@ -4051,11 +3992,6 @@ QFrame#ResizablePromptFrame {{
 QFrame#ResizablePromptFrame[focused="true"] {{
     {U['focus_ring']}
 }}
-QFrame#ResizablePromptFrame QPlainTextEdit {{
-    background: transparent;
-    border: none;
-    border-radius: 0px;
-}}
 QFrame#ResizablePromptFrame QWidget#PromptResizeFooter {{
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['plate_lo']}, stop:1 {C['deep']});
     border-top: 1px solid {C['line']};
@@ -4067,6 +4003,16 @@ QFrame#MemBanner {{
     border: 1px solid {C['line_hi']};
     border-left: 3px solid {C['acc_mid']};
     border-radius: {U['rad_md']};
+}}
+QListWidget#FlareList {{
+    border-radius: {U['rad_md']};
+    border: 1px solid {C['line']};
+    background: {C['deep']};
+}}
+QWidget#HistogramWidget {{
+    border: 1px solid {C['line']};
+    border-radius: {U['rad_md']};
+    background: {C['deep']};
 }}
 QFrame#ArenaCard {{
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['plate_hi']}, stop:1 {C['plate_lo']});
@@ -4125,8 +4071,80 @@ QToolButton#StarBtn:checked {{
     border: 2px solid {'#b86e00' if is_light_theme() else '#ffd04d'};
 }}
 """
+    rail_pin = f"""
+/* ---- Structural Layout Invariants (pinned AFTER theme overrides: zero focus glitches) ---- */
+QTabWidget#IconTabs > QTabBar::tab, QWidget#IconTabs QTabBar#IconRailBar::tab {{
+    padding: 2px 1px;
+    margin: 0px;
+    min-width: 14px;
+    border-radius: {U['rad_tab']};
+}}
+QWidget#IconTabs QTabBar#IconRailBar {{
+    background: {C['win']};
+}}
+QTabWidget#IconTabs::pane {{
+    margin-top: -1px;
+}}
+QLabel#TabRibbon {{
+    font-size: {f_rib}pt;
+    font-weight: 700;
+    padding: 2px 7px;
+}}
+QToolButton#ScaleChip {{
+    padding: {pvs_val}px {phs_val}px;
+    font-size: {f_xs}pt;
+    font-weight: 700;
+    border-radius: {U['rad_pill']};
+}}
+QToolButton#ScaleChip:checked {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 {C['acc_hi']}, stop:0.5 {C['acc_mid']}, stop:1 {C['acc_lo']});
+    color: {C['acc_text']};
+    border: 1px solid {C['acc_edge']};
+}}
+QPushButton#StopBtn, QToolButton#StopBtn {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #eb4b4b, stop:0.5 #c22323, stop:1 #821111);
+    color: #ffffff;
+    border: 1px solid #ff9999;
+    border-radius: {U['rad_md']};
+    padding: {pvs_val}px {ph}px;
+    font-weight: bold;
+}}
+QPushButton#StopBtn:hover, QToolButton#StopBtn:hover {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ff6363, stop:0.5 #db2e2e, stop:1 #9c1717);
+    border: 1px solid #ffd9d9;
+}}
+QPushButton#StopBtn:disabled, QToolButton#StopBtn:disabled {{
+    background: {C['btn_lo']};
+    color: {C['dim']};
+    border: 1px solid {C['line']};
+}}
+QToolButton#HudStopBtn {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #eb4b4b, stop:0.5 #c22323, stop:1 #821111);
+    color: #ffffff;
+    border: 1px solid #ff9999;
+    border-radius: {U['rad_md']};
+    padding: 1px {phs_val}px;
+    font-size: {f_xs}pt;
+    font-weight: 700;
+}}
+QToolButton#HudStopBtn:hover {{
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ff6363, stop:0.5 #db2e2e, stop:1 #9c1717);
+    border: 1px solid #ffd9d9;
+}}
+QToolButton#HudStopBtn:disabled {{
+    background: {C['btn_lo']};
+    color: {C['dim']};
+    border: 1px solid {C['line']};
+}}
+QFrame#ResizablePromptFrame QPlainTextEdit,
+QFrame#ResizablePromptFrame QPlainTextEdit:focus {{
+    background: transparent;
+    border: none;
+    border-radius: 0px;
+}}
+"""
     if k == "seestation":
-        return """
+        return base_cards + """
 /* ============ SeeStation (Sony / SCE Japan Studio Console UI) ============ */
 QTabWidget#RightTabs::pane {
     border: 1px solid #213c63;
@@ -4292,12 +4310,35 @@ QRadioButton::indicator:checked {
     border: 1px solid #d4f1ff;
     background: qradialgradient(cx:0.40,cy:0.35,radius:0.70, stop:0 #ffffff, stop:0.35 #66c9ff, stop:0.80 #0070d1, stop:1 #032c61);
 }
-QFrame#SoundModeCard, QFrame#PerfCard {
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #112340, stop:1 #081224);
-    border: 1px solid #2b4c78;
-    border-top: 1px solid #5987c2;
+QFrame#SoundModeCard, QFrame#PerfCard, QFrame#LlmApiBanner, QFrame#VlmResultCard, QFrame#MemBanner {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #122647, stop:1 #081326);
+    border: 1px solid #2d5182;
+    border-top: 1px solid #6396d4;
     border-left: 3px solid #4cb5ff;
     border-radius: 8px;
+}
+QFrame#ResizablePromptFrame {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #061022, stop:0.86 #0b1a34, stop:1 #0e203e);
+    border: 1px solid #2b4e7d;
+    border-top: 1px solid #040914;
+    border-bottom: 1px solid #4879b3;
+    border-radius: 8px;
+}
+QFrame#ResizablePromptFrame[focused="true"] {
+    border: 1px solid #66cbff;
+    border-bottom: 2px solid #8ce0ff;
+}
+QFrame#ResizablePromptFrame QWidget#PromptResizeFooter {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0e213f, stop:1 #071226);
+    border-top: 1px solid #254570;
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+}
+QTabWidget#LlmSubTabs::pane {
+    border: 1px solid #274875;
+    border-top: 2px solid #4db6ff;
+    border-radius: 8px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0c1b36, stop:1 #061022);
 }
 QMenu { border-radius: 8px; border: 1px solid #3c699e; border-top: 2px solid #5cc6ff; background: #071224; }
 QMenu::item:selected { border-radius: 5px; background: #0c4d96; color: #ffffff; }
@@ -4311,7 +4352,7 @@ QSplitter#RootSplitter::handle {
 """ + rail_pin
 
     if k == "oriental":
-        return """
+        return base_cards + """
 /* ============ Oriental Spirit (Kuro-Urushi Lacquer & Vermilion) ============ */
 QTabWidget#RightTabs::pane {
     border: 1px solid #262626;
@@ -4455,12 +4496,34 @@ QRadioButton::indicator:checked {
     border: 1px solid #ffd8d2;
     background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #ff3026, stop:0.55 #d40000, stop:1 #6e0000);
 }
-QFrame#SoundModeCard, QFrame#PerfCard {
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #140808, stop:1 #070707);
-    border: 1px solid #2e2e2e;
+QFrame#SoundModeCard, QFrame#PerfCard, QFrame#LlmApiBanner, QFrame#VlmResultCard, QFrame#MemBanner {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #150606, stop:1 #070707);
+    border: 1px solid #351616;
     border-top: 1px solid #d8a84e;
     border-left: 3px solid #ff1a12;
     border-radius: 0px;
+}
+QFrame#ResizablePromptFrame {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #060606, stop:0.88 #0e0c0c, stop:1 #160909);
+    border: 1px solid #363636;
+    border-top: 1px solid #020202;
+    border-bottom: 1px solid #751816;
+    border-radius: 0px;
+}
+QFrame#ResizablePromptFrame[focused="true"] {
+    border: 1px solid #ff2218;
+    border-bottom: 2px solid #d8a84e;
+}
+QFrame#ResizablePromptFrame QWidget#PromptResizeFooter {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #150808, stop:1 #080808);
+    border-top: 1px solid #3a1414;
+    border-radius: 0px;
+}
+QTabWidget#LlmSubTabs::pane {
+    border: 1px solid #2b2b2b;
+    border-top: 2px solid #ff1c14;
+    border-radius: 0px;
+    background: #080808;
 }
 QMenu { border-radius: 0px; border: 1px solid #990000; border-top: 2px solid #ff1410; border-bottom: 1px solid #d8a84e; background: #090909; }
 QMenu::item:selected { border-left: 3px solid #ff1410; background: #260a09; color: #ffffff; }
@@ -4474,7 +4537,7 @@ QSplitter#RootSplitter::handle {
 """ + rail_pin
 
     if k == "kreatendo":
-        return """
+        return base_cards + """
 /* ============ Kreatendo (Nintendo Wii / Wii U / DS / 3DS LIGHT Porcelain UI) ============ */
 QTabWidget#RightTabs::pane {
     border: 2px solid #9dc0df;
@@ -4716,6 +4779,33 @@ QProgressBar::chunk {
 }
 QCheckBox::indicator { border-radius: 6px; border: 2px solid #7ca9cf; background: #ffffff; }
 QCheckBox::indicator:checked { background: #009ce0; border: 2px solid #006da8; }
+QFrame#SoundModeCard, QFrame#PerfCard, QFrame#LlmApiBanner, QFrame#VlmResultCard, QFrame#MemBanner {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:1 #e8f5fe);
+    border: 2px solid #9bc3e2;
+    border-left: 4px solid #009ce0;
+    border-radius: 10px;
+}
+QFrame#ResizablePromptFrame {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #ffffff, stop:0.88 #f7fbff, stop:1 #ebf5fe);
+    border: 2px solid #96bfe0;
+    border-radius: 10px;
+}
+QFrame#ResizablePromptFrame[focused="true"] {
+    border: 2px solid #009ce0;
+    border-bottom: 3px solid #16b877;
+}
+QFrame#ResizablePromptFrame QWidget#PromptResizeFooter {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #edf7ff, stop:1 #dceefa);
+    border-top: 1px solid #b5d4ec;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+QTabWidget#LlmSubTabs::pane {
+    border: 2px solid #9bc3e2;
+    border-top: 2px solid #009ce0;
+    border-radius: 10px;
+    background: #f5fbff;
+}
 QMenu { border-radius: 11px; border: 2px solid #8eb8dc; background: #ffffff; color: #14273e; }
 QMenu::item:selected { border-radius: 7px; background: #009ce0; color: #ffffff; }
 QMenu::separator { height: 1px; background: #d4e6f5; margin: 4px 8px; }
@@ -4730,7 +4820,7 @@ QSplitter#RootSplitter::handle {
 """ + rail_pin
 
     if k == "mint":
-        return """
+        return base_cards + """
 /* ============ Mint Serenity (Linux Mint Cinnamon / Mint-Y-Dark Evergreen Nature UI) ============ */
 QTabWidget#RightTabs::pane {
     border: 1px solid #2e4537;
@@ -4905,12 +4995,35 @@ QRadioButton::indicator:checked {
     border: 2px solid #dffed8;
     background: qradialgradient(cx:0.42,cy:0.38,radius:0.68, stop:0 #f4fff4, stop:0.42 #87cf3e, stop:0.85 #449e46, stop:1 #1e5226);
 }
-QFrame#SoundModeCard, QFrame#PerfCard {
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #202e25, stop:1 #141e18);
-    border: 1px solid #324a3b;
-    border-top: 1px solid #598567;
+QFrame#SoundModeCard, QFrame#PerfCard, QFrame#LlmApiBanner, QFrame#VlmResultCard, QFrame#MemBanner {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #203026, stop:1 #131e18);
+    border: 1px solid #35503f;
+    border-top: 1px solid #608f6f;
     border-left: 3px solid #87cf3e;
     border-radius: 8px;
+}
+QFrame#ResizablePromptFrame {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #101914, stop:0.86 #17231c, stop:1 #1c2b22);
+    border: 1px solid #35503f;
+    border-top: 1px solid #0b110e;
+    border-bottom: 1px solid #527c61;
+    border-radius: 7px;
+}
+QFrame#ResizablePromptFrame[focused="true"] {
+    border: 1px solid #87cf3e;
+    border-bottom: 2px solid #4ec7b8;
+}
+QFrame#ResizablePromptFrame QWidget#PromptResizeFooter {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1d2d23, stop:1 #121c16);
+    border-top: 1px solid #314b3b;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+QTabWidget#LlmSubTabs::pane {
+    border: 1px solid #35503f;
+    border-top: 2px solid #87cf3e;
+    border-radius: 8px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #18251d, stop:1 #111a14);
 }
 QMenu { border-radius: 8px; border: 1px solid #4ea854; border-top: 2px solid #87cf3e; background: #16211b; }
 QMenu::item:selected { border-radius: 5px; background: #23593a; color: #f8fff9; }
@@ -4924,7 +5037,7 @@ QSplitter#RootSplitter::handle {
 """ + rail_pin
 
     if k == "timeless":
-        return """
+        return base_cards + """
 /* ============ Timeless Feel (Nostalgic Art-House Twilight Limestone, Sunlit Ochre & Celadon Mist) ============ */
 QFrame#Plate, QFrame#StudioTabPane {
     border-radius: 6px;
@@ -5137,11 +5250,41 @@ QRadioButton::indicator:checked {
     border: 2px solid #f7ebd0;
     background: qradialgradient(cx:0.42,cy:0.38,radius:0.68, stop:0 #fff9ea, stop:0.48 #dfc07d, stop:0.88 #8d6d38, stop:1 #4a371a);
 }
-QFrame#SoundModeCard, QFrame#PerfCard {
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2e2f34, stop:1 #1e2025);
-    border: 1px solid #4c4a46;
-    border-top: 1px solid #7e7563;
-    border-left: 3px solid #dfc07d;
+QFrame#SoundModeCard, QFrame#PerfCard, QFrame#LlmApiBanner, QFrame#VlmResultCard, QFrame#MemBanner {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #323339, stop:0.55 #24262c, stop:1 #1b1d22);
+    border: 1px solid #52504b;
+    border-top: 1px solid #8b806a;
+    border-left: 3px solid #e4c685;
+    border-right: 1px solid #4f635e;
+    border-radius: 6px;
+}
+QFrame#ResizablePromptFrame {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #15171c, stop:0.86 #212329, stop:1 #27282e);
+    border: 1px solid #49494f;
+    border-top: 1px solid #101216;
+    border-bottom: 1px solid #6e6757;
+    border-radius: 6px;
+}
+QFrame#ResizablePromptFrame[focused="true"] {
+    border: 1px solid #e4c685;
+    border-bottom: 2px solid #91c1b6;
+}
+QFrame#ResizablePromptFrame QWidget#PromptResizeFooter {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2a2b31, stop:1 #1c1e23);
+    border-top: 1px solid #4a4843;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+QTabWidget#LlmSubTabs::pane {
+    border: 1px solid #4c4b4e;
+    border-top: 2px solid #cfa961;
+    border-radius: 6px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #23252b, stop:1 #17191e);
+}
+QFrame#StreamHud {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1b1d22, stop:1 #26282e);
+    border: 1px solid #54514a;
+    border-left: 2px solid #91c1b6;
     border-radius: 6px;
 }
 QMenu {
@@ -5168,7 +5311,7 @@ QSplitter#RootSplitter::handle {
 """ + rail_pin
 
     if k == "prestige":
-        return """
+        return base_cards + """
 /* ============ Prestige (Late-2000s OS X & Classic iOS Non-Flat Brushed Aluminum & Glossy Aqua) ============ */
 QFrame#Plate, QFrame#StudioTabPane {
     border-radius: 9px;
@@ -5408,11 +5551,42 @@ QRadioButton::indicator:checked {
         stop:0 #ffffff, stop:0.32 #d9eeff, stop:0.52 #3c8ee8, stop:0.88 #1e64c2, stop:1 #13458c);
 }
 QFrame#SoundModeCard, QFrame#PerfCard, QFrame#LlmApiBanner, QFrame#VlmResultCard, QFrame#MemBanner {
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #eaedf3, stop:1 #d4dbe6);
-    border: 1px solid #8f99ab;
-    border-top: 1px solid #f7f9fc;
-    border-left: 3px solid #2b7ce0;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #edf0f6, stop:0.50 #dee3ec, stop:1 #cfd7e3);
+    border: 1px solid #8994a8;
+    border-top: 1px solid #f8fafe;
+    border-bottom: 1px solid #79859a;
+    border-left: 3px solid #2677dc;
     border-radius: 8px;
+}
+QFrame#ResizablePromptFrame {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #e5eaf2, stop:0.14 #edf1f7, stop:0.88 #f3f6fa, stop:1 #e4e9f2);
+    border: 1px solid #8692a6;
+    border-top: 1px solid #707c91;
+    border-bottom: 1px solid #f5f8fc;
+    border-radius: 7px;
+}
+QFrame#ResizablePromptFrame[focused="true"] {
+    border: 2px solid #2b7de0;
+    background: #f4f7fb;
+}
+QFrame#ResizablePromptFrame QWidget#PromptResizeFooter {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #dfe5ef, stop:0.52 #cfd7e4, stop:1 #c1cad9);
+    border-top: 1px solid #98a3b5;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+QTabWidget#LlmSubTabs::pane {
+    border: 1px solid #8c97aa;
+    border-top: 2px solid #2b7ce0;
+    border-radius: 8px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #e2e7f0, stop:1 #cfd6e3);
+}
+QFrame#StreamHud {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #e7ecf4, stop:1 #d6dde9);
+    border: 1px solid #8a95a8;
+    border-top: 1px solid #f5f8fc;
+    border-left: 3px solid #2b7ce0;
+    border-radius: 7px;
 }
 QMenu {
     border-radius: 8px;
@@ -5455,7 +5629,7 @@ QSplitter#RootSplitter::handle {
 }
 """ + rail_pin
 
-    return """
+    return base_cards + """
 /* ============ Sarif Gold (Deus Ex: Human Revolution Carbon-Amber HUD) ============ */
 QTabWidget#RightTabs::pane {
     border: 1px solid #564522;
@@ -5580,12 +5754,34 @@ QRadioButton::indicator:checked {
     border: 1px solid #fff0a8;
     background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #ffe588, stop:0.5 #de9614, stop:1 #7a4c06);
 }
-QFrame#SoundModeCard, QFrame#PerfCard {
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #211a0d, stop:1 #0e0b05);
-    border: 1px solid #594620;
+QFrame#SoundModeCard, QFrame#PerfCard, QFrame#LlmApiBanner, QFrame#VlmResultCard, QFrame#MemBanner {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #231b0d, stop:1 #0e0b05);
+    border: 1px solid #5e4921;
     border-top: 2px solid #de9614;
     border-left: 3px solid #ffc93c;
     border-radius: 1px;
+}
+QFrame#ResizablePromptFrame {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0a0804, stop:0.86 #161108, stop:1 #1e170b);
+    border: 1px solid #54421e;
+    border-top: 1px solid #040301;
+    border-bottom: 1px solid #8a6c2d;
+    border-radius: 1px;
+}
+QFrame#ResizablePromptFrame[focused="true"] {
+    border: 1px solid #ffc93c;
+    border-bottom: 2px solid #ffe488;
+}
+QFrame#ResizablePromptFrame QWidget#PromptResizeFooter {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1d1609, stop:1 #0f0b05);
+    border-top: 1px solid #4a3a1a;
+    border-radius: 0px;
+}
+QTabWidget#LlmSubTabs::pane {
+    border: 1px solid #52411f;
+    border-top: 2px solid #de9614;
+    border-radius: 1px;
+    background: #100c06;
 }
 QListView, QListWidget { border-radius: 1px; border: 1px solid #42351a; }
 QTabWidget::pane { border-radius: 1px; border: 1px solid #47391c; border-top: 2px solid #9c7524; }
@@ -6850,7 +7046,7 @@ def _font(size: float, bold: bool = False, spacing: float = 0.0) -> QFont:
 
 
 # =============================================================================
-#  5B. Theme-Cohesive Custom Vector Mouse Cursor Engine (ALL States x 6 Themes)
+#  5B. Theme-Cohesive Custom Vector Mouse Cursor Engine (ALL States x 7 Themes)
 # =============================================================================
 # Every standard Qt cursor role PLUS specialized studio tool cursors is rendered
 # from bespoke, theme-stylized multi-layer SVG vector geometry stored directly
@@ -7349,7 +7545,7 @@ def build_cursor_svg(role: str, theme_key: Optional[str] = None) -> str:
 class VectorCursorEngine:
     """DPR-aware, LRU-cached theme-cohesive custom vector cursor engine.
     Renders sharp SVG cursors (with pure QPainter vector fallback if QtSvg is
-    absent) for every cursor state across all 5 themes."""
+    absent) for every cursor state across all 7 themes."""
 
     _CUSTOM_PROP = "_hsl_cursor_role"
 
@@ -9455,7 +9651,7 @@ def resolve_sound_mode(raw: Any, legacy_enabled: Optional[bool] = None) -> str:
     return SOUND_MODE_ALL
 
 
-# Multi-timbre acoustic recipe table:
+# Multi-timbre acoustic recipe table (v23.0 — 18 acoustic & tactile voices):
 # (h2, h3, h4, decay_mult, detune_ratio, attack_sec, p3_ratio, noise_decay)
 _DSP_TIMBRE_RECIPES: Dict[str, Tuple[float, float, float, float, float, float, float, float]] = {
     "glass":      (0.24, 0.13, 0.06, 5.0, 1.0018, 0.0028, 3.000, 170.0),
@@ -9464,14 +9660,18 @@ _DSP_TIMBRE_RECIPES: Dict[str, Tuple[float, float, float, float, float, float, f
     "hud_relay":  (0.32, 0.18, 0.08, 6.8, 1.0032, 0.0014, 2.992, 215.0),
     "koto":       (0.44, 0.25, 0.14, 6.8, 0.9978, 0.0016, 2.756, 215.0),
     "woodblock":  (0.12, 0.28, 0.06, 9.2, 0.9960, 0.0010, 2.540, 280.0),
+    "suzu":       (0.30, 0.22, 0.16, 4.6, 1.0062, 0.0014, 2.920, 210.0),
     "chime":      (0.27, 0.15, 0.10, 5.8, 1.0006, 0.0018, 3.000, 195.0),
     "wii_pop":    (0.16, 0.08, 0.04, 7.2, 1.0004, 0.0015, 3.000, 220.0),
     "flute":      (0.14, 0.05, 0.02, 3.8, 1.0014, 0.0082, 3.000, 110.0),
     "dewdrop":    (0.10, 0.04, 0.01, 5.6, 1.0005, 0.0022, 3.000, 160.0),
-    "piano":      (0.36, 0.16, 0.07, 3.5, 1.0026, 0.0042, 3.003, 145.0),
-    "cavern":     (0.22, 0.14, 0.08, 2.8, 1.0042, 0.0110, 2.740, 92.0),
-    "aqua":       (0.20, 0.09, 0.04, 5.4, 1.0012, 0.0022, 3.000, 185.0),
-    "aqua_click": (0.14, 0.07, 0.03, 8.8, 1.0005, 0.0010, 2.998, 260.0),
+    "kalimba":    (0.26, 0.11, 0.05, 6.2, 1.0012, 0.0018, 2.940, 195.0),
+    "piano":      (0.38, 0.17, 0.07, 3.4, 1.0028, 0.0038, 3.004, 150.0),
+    "cavern":     (0.22, 0.14, 0.09, 2.6, 1.0046, 0.0115, 2.735, 88.0),
+    "ethereal":   (0.18, 0.15, 0.10, 3.1, 1.0034, 0.0065, 2.998, 120.0),
+    "aqua":       (0.21, 0.09, 0.04, 5.4, 1.0012, 0.0022, 3.000, 185.0),
+    "aqua_click": (0.14, 0.07, 0.03, 9.0, 1.0005, 0.0010, 2.998, 265.0),
+    "aqua_bell":  (0.28, 0.12, 0.05, 4.4, 1.0016, 0.0024, 3.001, 175.0),
 }
 
 
@@ -9481,12 +9681,13 @@ def _synth_wav_bytes(
     echo_ms: float = 0.0,
     echo_gain: float = 0.0,
     echo_taps: int = 1,
+    gain_scale: float = 1.0,
 ) -> bytes:
-    """Fast 22.05 kHz 16-bit mono embedded multi-timbre DSP synthesizer (v22.0, zero external files).
+    """Fast 22.05 kHz 16-bit mono embedded multi-timbre DSP synthesizer (v23.0, zero external files).
     Supports 4-tuple notes (freq, start, dur, gain), 6-tuple glide+transient notes
     (freq_start, start, dur, gain, freq_end, noise_mix), and 7-tuple notes with an
-    optional per-note timbre voice name (e.g. felt-piano + echoing stone-hall cavern,
-    koto + woodblock, glass + xmb_tick, aqua + aqua_click).
+    optional per-note timbre voice name (e.g. felt-piano + echoing stone-hall cavern +
+    ethereal bell, koto + woodblock + suzu, glass + xmb_tick, aqua + aqua_click + aqua_bell).
     """
     rate = 22050
     max_end = max(float(n[1]) + float(n[2]) for n in notes)
@@ -9591,9 +9792,10 @@ def _synth_wav_bytes(
                     lp_s = 0.62 * src + 0.38 * lp_s
                     samples[idx] += lp_s * g_tap
 
+    g_out = max(0.0, min(1.35, float(gain_scale)))
     pcm = array.array(
         "h",
-        (int(max(-31600, min(31600, round(math.tanh(v * 1.08) * 28200.0)))) for v in samples),
+        (int(max(-31600, min(31600, round(math.tanh(v * 1.08) * 28200.0 * g_out)))) for v in samples),
     )
     if sys.byteorder != "little":
         pcm.byteswap()
@@ -9625,7 +9827,7 @@ class SoundEngine:
     - Single-voice priority guard protects active notification chimes from hover interruption
     """
 
-    _AUDIO_VER = "v5"
+    _AUDIO_VER = "v6"
     EVENTS: Tuple[str, ...] = (
         "startup", "sent", "done", "fail", "upscale", "saved",
         "reconnect", "offline", "llm_done", "arena_vote",
@@ -9828,10 +10030,10 @@ class SoundEngine:
             "ui_resize":       [(659.25, 0.0, 0.028, 0.062, 783.99, 0.08, "dewdrop")],
         },
         "timeless": {
-            # Timeless Feel — warm nostalgic felt-piano phrases & mysterious, echoing stone-hall resonances
-            "startup":         [(293.66, 0.0, 0.24, 0.18, 293.66, 0.03, "cavern"), (440.0, 0.085, 0.24, 0.19, 440.0, 0.03, "piano"), (523.25, 0.180, 0.26, 0.18, 523.25, 0.03, "piano"), (659.25, 0.285, 0.42, 0.17, 659.25, 0.04, "cavern")],
-            "sent":            [(392.0, 0.0, 0.14, 0.20, 440.0, 0.05, "cavern"), (587.33, 0.095, 0.24, 0.20, 587.33, 0.03, "piano")],
-            "done":            [(329.63, 0.0, 0.18, 0.20, 329.63, 0.03, "piano"), (440.0, 0.105, 0.19, 0.20, 440.0, 0.03, "piano"), (587.33, 0.210, 0.25, 0.21, 587.33, 0.03, "piano"), (659.25, 0.315, 0.38, 0.18, 659.25, 0.05, "cavern")],
+            # Timeless Feel — warm nostalgic felt-piano phrases, ethereal glass bells & echoing stone-hall resonances
+            "startup":         [(293.66, 0.0, 0.26, 0.18, 293.66, 0.03, "cavern"), (440.0, 0.090, 0.25, 0.19, 440.0, 0.03, "piano"), (523.25, 0.185, 0.28, 0.18, 523.25, 0.03, "piano"), (659.25, 0.290, 0.44, 0.16, 659.25, 0.04, "ethereal")],
+            "sent":            [(392.0, 0.0, 0.14, 0.20, 440.0, 0.05, "cavern"), (587.33, 0.095, 0.25, 0.20, 587.33, 0.03, "piano")],
+            "done":            [(329.63, 0.0, 0.18, 0.20, 329.63, 0.03, "piano"), (440.0, 0.105, 0.20, 0.20, 440.0, 0.03, "piano"), (587.33, 0.210, 0.26, 0.21, 587.33, 0.03, "piano"), (659.25, 0.315, 0.40, 0.17, 659.25, 0.04, "ethereal")],
             "fail":            [(246.94, 0.0, 0.20, 0.22, 220.0, 0.07, "cavern"), (174.61, 0.145, 0.36, 0.22, 164.81, 0.06, "cavern")],
             "upscale":         [(293.66, 0.0, 0.13, 0.19, 293.66, 0.03, "piano"), (392.0, 0.095, 0.14, 0.19, 392.0, 0.03, "piano"), (493.88, 0.190, 0.16, 0.20, 493.88, 0.03, "piano"), (739.99, 0.290, 0.36, 0.19, 739.99, 0.05, "cavern")],
             "saved":           [(440.0, 0.0, 0.14, 0.19, 440.0, 0.03, "piano"), (659.25, 0.095, 0.27, 0.20, 659.25, 0.04, "cavern")],
@@ -9859,9 +10061,9 @@ class SoundEngine:
         },
         "prestige": {
             # Prestige — late-2000s OS X & classic iOS tactile precision clicks, warm crystalline Aqua glass & tri-tone bells
-            "startup":         [(523.25, 0.0, 0.13, 0.19), (783.99, 0.055, 0.16, 0.19), (1046.50, 0.115, 0.28, 0.20)],
-            "sent":            [(880.0, 0.0, 0.055, 0.21, 987.77, 0.07, "aqua_click"), (1318.51, 0.048, 0.135, 0.21)],
-            "done":            [(659.25, 0.0, 0.085, 0.21), (987.77, 0.072, 0.095, 0.22), (1318.51, 0.146, 0.24, 0.22)],
+            "startup":         [(523.25, 0.0, 0.14, 0.19, 523.25, 0.02, "aqua_bell"), (783.99, 0.058, 0.17, 0.19, 783.99, 0.02, "aqua_bell"), (1046.50, 0.120, 0.30, 0.20, 1046.50, 0.02, "aqua_bell")],
+            "sent":            [(880.0, 0.0, 0.052, 0.21, 987.77, 0.07, "aqua_click"), (1318.51, 0.046, 0.140, 0.21, 1318.51, 0.02, "aqua_bell")],
+            "done":            [(659.25, 0.0, 0.082, 0.21, 659.25, 0.02, "aqua_bell"), (987.77, 0.070, 0.095, 0.22, 987.77, 0.02, "aqua_bell"), (1318.51, 0.144, 0.26, 0.22, 1318.51, 0.02, "aqua_bell")],
             "fail":            [(293.66, 0.0, 0.11, 0.23, 261.63, 0.06), (220.0, 0.095, 0.22, 0.23)],
             "upscale":         [(587.33, 0.0, 0.075, 0.20), (880.0, 0.062, 0.085, 0.21), (1174.66, 0.128, 0.22, 0.22)],
             "saved":           [(783.99, 0.0, 0.060, 0.20), (1174.66, 0.052, 0.165, 0.21)],
@@ -9892,6 +10094,8 @@ class SoundEngine:
     def __init__(self) -> None:
         self.mode: str = SOUND_MODE_ALL
         self.enabled: Dict[str, bool] = {ev: True for ev in self.EVENTS}
+        self.master_volume: float = 0.85
+        self.ui_sfx_volume: float = 0.78
         self._lock = threading.Lock()
         self._players: Dict[str, Any] = {}
         self._wav_bytes: "collections.OrderedDict[str, bytes]" = collections.OrderedDict()
@@ -9899,6 +10103,8 @@ class SoundEngine:
         self._theme: str = "seestation"
         self._backend_ready: bool = False
         self.backend: str = "pending"
+        self._winmm_playsound: Any = None
+        self._winmm_pinned_buf: Any = None
         self._last_played: Dict[str, float] = {}
         self._important_until: float = 0.0
         self._prewarm_seq: int = 0
@@ -9927,10 +10133,35 @@ class SoundEngine:
         self.mode = resolve_sound_mode(mode)
         return self.mode
 
+    def set_volumes(self, master_vol: float, ui_vol: float) -> None:
+        """Set Master (0..1) and secondary UI SFX (0..1) playback gains with zero stutter."""
+        mv = max(0.0, min(1.0, float(master_vol)))
+        uv = max(0.0, min(1.0, float(ui_vol)))
+        changed = (abs(mv - self.master_volume) > 0.004) or (abs(uv - self.ui_sfx_volume) > 0.004)
+        self.master_volume = mv
+        self.ui_sfx_volume = uv
+        if changed:
+            with self._lock:
+                self._wav_bytes.clear()
+                self._wavs_ready.clear()
+            for pk, eff in list(self._players.items()):
+                try:
+                    ev = pk.split("_", 2)[-1]
+                    eff.setVolume(self._effective_gain(ev))
+                except Exception:  # noqa: BLE001
+                    pass
+
+    def _effective_gain(self, event: str) -> float:
+        base = 0.65 if event.startswith("ui_") else (0.82 if event == "theme" else 1.0)
+        sub = self.ui_sfx_volume if event in self.UI_SFX_EVENTS else 1.0
+        return max(0.0, min(1.2, self.master_volume * sub * base))
+
     def set_prefs(
         self,
         master_or_mode: Any,
         enabled_map: Optional[Dict[str, bool]] = None,
+        master_volume: Optional[float] = None,
+        ui_sfx_volume: Optional[float] = None,
     ) -> None:
         if isinstance(master_or_mode, str):
             self.mode = resolve_sound_mode(master_or_mode)
@@ -9939,6 +10170,11 @@ class SoundEngine:
         for ev in self.EVENTS:
             if enabled_map and ev in enabled_map:
                 self.enabled[ev] = bool(enabled_map[ev])
+        if master_volume is not None or ui_sfx_volume is not None:
+            self.set_volumes(
+                self.master_volume if master_volume is None else float(master_volume),
+                self.ui_sfx_volume if ui_sfx_volume is None else float(ui_sfx_volume),
+            )
 
     def prewarm_active_theme(self) -> None:
         """Asynchronously pre-synthesize the active theme's tiny UI micro-cues (~32 KB RAM)
@@ -9987,8 +10223,10 @@ class SoundEngine:
     def backend_label(self) -> str:
         """Human-readable active audio backend description (never stuck on 'pending')."""
         self._ensure_backend()
+        if self.backend == "winmm_ram":
+            return "Windows WinMM RAM Audio (zero disk I/O)"
         if self.backend == "winsound":
-            return "Windows RAM Audio (winsound \u00b7 zero disk I/O)"
+            return "Windows Native Audio (winsound async)"
         if self.backend == "qtmultimedia":
             return "QtMultimedia Audio Engine (cached in data/sounds/)"
         return "Silent (no platform audio backend detected)"
@@ -10004,7 +10242,8 @@ class SoundEngine:
     def _ensure_wav_bytes(self, event: str, theme_override: Optional[str] = None) -> bytes:
         """Lazily synthesize compact theme-voiced WAV payload into RAM (thread-safe LRU)."""
         tk = resolve_theme_key(theme_override or self._theme or C.get("key", "seestation"))
-        cache_id = f"{self._AUDIO_VER}_{tk}_{event}"
+        gain_key = int(round(self._effective_gain(event) * 100.0))
+        cache_id = f"{self._AUDIO_VER}_{tk}_{event}_{gain_key}"
         with self._lock:
             hit = self._wav_bytes.get(cache_id)
             if hit is not None:
@@ -10028,10 +10267,17 @@ class SoundEngine:
         else:
             echo_ms, echo_gain, echo_taps = (0.0, 0.0, 1)
         try:
+            # Apply volume directly into PCM for WinMM/winsound (QSoundEffect uses setVolume)
+            pcm_gain = 1.0 if self.backend == "qtmultimedia" else self._effective_gain(event)
             data = _synth_wav_bytes(
-                notes, timbre=timbre, echo_ms=echo_ms, echo_gain=echo_gain, echo_taps=echo_taps
+                notes,
+                timbre=timbre,
+                echo_ms=echo_ms,
+                echo_gain=echo_gain,
+                echo_taps=echo_taps,
+                gain_scale=pcm_gain,
             )
-            cap = 40 if low_power_mode() else 84
+            cap = 44 if low_power_mode() else 96
             with self._lock:
                 self._wav_bytes[cache_id] = data
                 while len(self._wav_bytes) > cap:
@@ -10042,9 +10288,10 @@ class SoundEngine:
             return b""
 
     def _ensure_wav(self, event: str) -> str:
-        """Lazily write versioned WAV cache file on disk ONLY for non-memory backends."""
+        """Lazily write versioned WAV cache file on disk ONLY for file-backed audio backends."""
         tk = resolve_theme_key(self._theme or C.get("key", "seestation"))
-        cache_id = f"{self._AUDIO_VER}_{tk}_{event}"
+        gain_key = 100 if self.backend == "qtmultimedia" else int(round(self._effective_gain(event) * 100.0))
+        cache_id = f"{self._AUDIO_VER}_{tk}_{event}_{gain_key}"
         path = os.path.join(SOUNDS_DIR, f"{cache_id}.wav")
         if cache_id in self._wavs_ready and os.path.isfile(path):
             return path
@@ -10053,30 +10300,20 @@ class SoundEngine:
             return ""
         try:
             os.makedirs(SOUNDS_DIR, exist_ok=True)
-            if not os.path.isfile(path) or os.path.getsize(path) < 120:
-                tmp = path + ".tmp"
-                with open(tmp, "wb") as fp:
-                    fp.write(data)
-                os.replace(tmp, path)
+            tmp = path + ".tmp"
+            with open(tmp, "wb") as fp:
+                fp.write(data)
+            os.replace(tmp, path)
             self._wavs_ready.add(cache_id)
             return path
         except Exception as exc:  # noqa: BLE001
             STUDIO_LOG.warn("SYS", f"Sound cue file write skipped ({cache_id}: {exc})")
             return ""
 
-    def _ensure_backend(self) -> None:
-        """Lazy audio backend bootstrap — prefers zero-overhead winsound RAM playback
-        on Windows and loads QtMultimedia only on demand (zero FFmpeg startup drag)."""
+    def _try_load_qtmultimedia(self) -> bool:
         global QSoundEffect, _HAS_QTMULTIMEDIA
-        if self._backend_ready:
-            return
-        self._backend_ready = True
-        if _HAS_WINSOUND and winsound is not None:
-            self.backend = "winsound"
-            return
         if QApplication.instance() is None:
-            self._backend_ready = False
-            return
+            return False
         if _HAS_QTMULTIMEDIA is None:
             try:
                 from PyQt6.QtMultimedia import QSoundEffect as _QSE  # type: ignore
@@ -10086,24 +10323,76 @@ class SoundEngine:
             except Exception:  # noqa: BLE001
                 QSoundEffect = None
                 _HAS_QTMULTIMEDIA = False
-        if _HAS_QTMULTIMEDIA and QSoundEffect is not None:
+        return bool(_HAS_QTMULTIMEDIA and QSoundEffect is not None)
+
+    def _ensure_backend(self) -> None:
+        """Lazy audio backend bootstrap — prefers zero-disk-I/O Windows WinMM pinned-RAM
+        async playback (avoiding CPython winsound's SND_MEMORY|SND_ASYNC RuntimeError),
+        with seamless fallback to winsound SND_FILENAME and on-demand QtMultimedia."""
+        if self._backend_ready:
+            return
+        self._backend_ready = True
+        if sys.platform == "win32":
+            try:
+                winmm = getattr(ctypes, "windll", None)
+                if winmm is not None:
+                    fn = winmm.winmm.PlaySoundW
+                    fn.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint]
+                    fn.restype = ctypes.c_int
+                    self._winmm_playsound = fn
+                    self.backend = "winmm_ram"
+                    return
+            except Exception:  # noqa: BLE001
+                self._winmm_playsound = None
+            if _HAS_WINSOUND and winsound is not None:
+                self.backend = "winsound"
+                return
+        if QApplication.instance() is None:
+            self._backend_ready = False
+            return
+        if self._try_load_qtmultimedia():
             self.backend = "qtmultimedia"
         else:
             self.backend = "none"
 
     def _dispatch_playback(self, event: str) -> None:
+        if self.master_volume <= 0.005:
+            return
+        if event in self.UI_SFX_EVENTS and self.ui_sfx_volume <= 0.005:
+            return
         self._ensure_backend()
-        if self.backend == "winsound" and _HAS_WINSOUND and winsound is not None:
+        # 1. Windows WinMM direct pinned-RAM async playback (zero disk I/O, zero RuntimeError!)
+        if self.backend == "winmm_ram" and self._winmm_playsound is not None:
             data = self._ensure_wav_bytes(event)
             if data:
                 try:
+                    # Keep strong reference to active C buffer until replaced so WinMM never reads freed memory
+                    buf = ctypes.create_string_buffer(data, len(data))
+                    with self._lock:
+                        prev_buf = self._winmm_pinned_buf
+                        self._winmm_pinned_buf = buf
+                    # SND_MEMORY (0x4) | SND_ASYNC (0x1) | SND_NODEFAULT (0x2)
+                    ok = self._winmm_playsound(ctypes.addressof(buf), None, 0x0007)
+                    _ = prev_buf  # release previous buffer cleanly after new async sound starts
+                    if ok:
+                        return
+                except Exception:  # noqa: BLE001
+                    pass
+        # 2. Windows winsound file-backed async fallback (legal in CPython winsound)
+        if _HAS_WINSOUND and winsound is not None:
+            wav_path = self._ensure_wav(event)
+            if wav_path:
+                try:
                     winsound.PlaySound(
-                        data,
-                        winsound.SND_MEMORY | winsound.SND_ASYNC | winsound.SND_NODEFAULT,
+                        wav_path,
+                        winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NODEFAULT,
                     )
                     return
                 except Exception:  # noqa: BLE001
                     pass
+        # 3. Cross-platform QtMultimedia fallback (lazy-loaded on demand)
+        if self.backend != "qtmultimedia" and self._try_load_qtmultimedia():
+            self.backend = "qtmultimedia"
         if self.backend == "qtmultimedia" and QSoundEffect is not None:
             wav_path = self._ensure_wav(event)
             if not wav_path:
@@ -10114,8 +10403,6 @@ class SoundEngine:
                 if eff is None:
                     eff = QSoundEffect()
                     eff.setSource(QUrl.fromLocalFile(wav_path))
-                    vol = 0.34 if event.startswith("ui_") else (0.44 if event == "theme" else 0.56)
-                    eff.setVolume(vol)
                     if len(self._players) > (18 if low_power_mode() else 36):
                         for old_eff in self._players.values():
                             try:
@@ -10124,6 +10411,7 @@ class SoundEngine:
                                 pass
                         self._players.clear()
                     self._players[pk] = eff
+                eff.setVolume(max(0.0, min(1.0, self._effective_gain(event) * 0.68)))
                 eff.play()
                 return
             except Exception:  # noqa: BLE001
@@ -10159,6 +10447,18 @@ class SoundEngine:
         self._last_played[event] = now
         self._important_until = max(self._important_until, now + min(0.55, self._cue_duration(event) + 0.08))
         self._dispatch_playback(event)
+
+    def shutdown(self) -> None:
+        """Stop any in-flight async audio cleanly before process exit."""
+        self._prewarm_seq += 1
+        if self._winmm_playsound is not None:
+            try:
+                self._winmm_playsound(None, None, 0)
+            except Exception:  # noqa: BLE001
+                pass
+        with self._lock:
+            self._winmm_pinned_buf = None
+            self._wav_bytes.clear()
 
 
 SOUNDS = SoundEngine()
@@ -10339,6 +10639,24 @@ class UiSfxEventFilter(QObject):
                             child = obj.childAt(event.position().toPoint())
                             if not isinstance(child, QAbstractButton):
                                 self._engine.play_ui("ui_toggle_off" if par.is_expanded() else "ui_toggle_on")
+                return False
+
+            # 7. Splitter handles (subtle tactile resize tick on drag finish)
+            if obj.__class__.__name__ == "QSplitterHandle":
+                if et == QEvent.Type.MouseButtonRelease and isinstance(event, QMouseEvent):
+                    if event.button() == Qt.MouseButton.LeftButton:
+                        self._engine.play_ui("ui_resize")
+                return False
+
+            # 8. List / Gallery / Queue views (soft click when picking an item)
+            if isinstance(obj, QAbstractItemView) or isinstance(obj.parentWidget(), QAbstractItemView):
+                if et == QEvent.Type.MouseButtonPress and isinstance(event, QMouseEvent):
+                    if event.button() == Qt.MouseButton.LeftButton:
+                        view = obj if isinstance(obj, QAbstractItemView) else obj.parentWidget()
+                        if isinstance(view, QAbstractItemView):
+                            pt = event.position().toPoint()
+                            if view.indexAt(pt).isValid():
+                                self._engine.play_ui("ui_click")
                 return False
 
         except RuntimeError:
@@ -18394,7 +18712,7 @@ class _ResettableSlider(QSlider):
 
 
 class BevelDeck(QFrame):
-    """Sculpted, LRU-pixmap-cached command deck with unmistakable architecture across all 5 themes:
+    """Sculpted, LRU-pixmap-cached command deck with unmistakable architecture across all 7 themes:
     - SeeStation: Sony PS4 sapphire OLED glass + XMB dual silk wave + cyan lightbar
     - Sarif Gold: Deus Ex: HR chamfered carbon plate + isometric facets + gold HUD brackets
     - Oriental Spirit: Kuro-Urushi neutral jet-black altar + vermilion Torii lintels + kintsugi gold hairline
@@ -18538,13 +18856,28 @@ class BevelDeck(QFrame):
                 p.drawLine(QPointF(r.left() + 8, r.top() + 1.5), QPointF(r.right() - 8, r.top() + 1.5))
             elif key == "prestige":
                 if not lp:
-                    gloss = QLinearGradient(r.left(), r.top(), r.left(), r.top() + 26.0)
-                    gloss.setColorAt(0.0, QColor(255, 255, 255, 165))
+                    gloss = QLinearGradient(r.left(), r.top(), r.left(), r.top() + 28.0)
+                    gloss.setColorAt(0.0, QColor(255, 255, 255, 172))
                     gloss.setColorAt(1.0, QColor(255, 255, 255, 0))
                     p.setPen(Qt.PenStyle.NoPen)
                     p.setBrush(gloss)
-                    p.drawRect(QRectF(r.left(), r.top(), r.width(), 26.0))
-                p.setPen(QPen(QColor(255, 255, 255, 215), 1.0))
+                    p.drawRect(QRectF(r.left(), r.top(), r.width(), 28.0))
+                    # Classic late-2000s OS X subtle brushed-aluminum horizontal hairlines
+                    p.setPen(QPen(QColor(255, 255, 255, 26), 1.0))
+                    for py in range(int(r.top()) + 6, int(r.bottom()) - 4, 5):
+                        p.drawLine(int(r.left()) + 6, py, int(r.right()) - 6, py)
+                    # Signature miniature glass aqua status jewels on top-right hardware bezel
+                    if r.width() >= 180:
+                        for j_i, j_col in enumerate(("#e56761", "#e6b44c", "#50b868")):
+                            jx = r.right() - 28.0 + j_i * 7.5
+                            jy = r.top() + 6.5
+                            p.setPen(QPen(QColor(110, 122, 140, 145), 0.7))
+                            p.setBrush(QColor(j_col))
+                            p.drawEllipse(QPointF(jx, jy), 2.15, 2.15)
+                            p.setPen(Qt.PenStyle.NoPen)
+                            p.setBrush(QColor(255, 255, 255, 165))
+                            p.drawEllipse(QPointF(jx - 0.55, jy - 0.65), 0.75, 0.75)
+                p.setPen(QPen(QColor(255, 255, 255, 222), 1.0))
                 p.drawLine(QPointF(r.left() + 8, r.top() + 1.0), QPointF(r.right() - 8, r.top() + 1.0))
                 rail = QLinearGradient(r.left(), r.top(), r.right(), r.top())
                 rail.setColorAt(0.0, QColor(43, 124, 224, 0))
@@ -18587,7 +18920,7 @@ class BevelDeck(QFrame):
 
 
 class SectionHeader(QWidget):
-    """Crisp technical section header with distinctive per-theme emblem & rule across all 5 themes."""
+    """Crisp technical section header with distinctive per-theme emblem & rule across all 7 themes."""
 
     def __init__(self, title: str, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -19556,7 +19889,7 @@ class IgnitionGenerateButton(QPushButton):
         p.drawLine(QPointF(r.left() + max(2.0, ch), r.top() + 1.2), QPointF(r.right() - max(2.0, ch), r.top() + 1.2))
         p.restore()
 
-        # 8. Signature outer trim accents across all 6 themes
+        # 8. Signature outer trim accents across all 7 themes
         if tkey == "seestation":
             p.setPen(QPen(QColor(C["acc_spec"]), 1.5))
             uw = min(52.0, r.width() * 0.22)
@@ -20653,6 +20986,7 @@ class ResizablePromptFrame(QFrame):
 
     height_changed = pyqtSignal(int)
     panel_widen_requested = pyqtSignal(int)
+    panel_reset_requested = pyqtSignal()
 
     def __init__(
         self,
@@ -20684,31 +21018,35 @@ class ResizablePromptFrame(QFrame):
         self.editor.installEventFilter(self)
         lay.addWidget(self.editor, 1)
 
-        footer_bar = QWidget(self)
-        footer_bar.setObjectName("PromptResizeFooter")
-        foot = QHBoxLayout(footer_bar)
+        self._footer_bar = QWidget(self)
+        self._footer_bar.setObjectName("PromptResizeFooter")
+        self._footer_bar.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self._footer_bar.customContextMenuRequested.connect(self._open_size_preset_menu)
+        foot = QHBoxLayout(self._footer_bar)
         foot.setContentsMargins(6, 0, 1, 0)
         foot.setSpacing(4)
         self._hint_lbl = ElideLabel(footer_hint)
         self._hint_lbl.setObjectName("Caption")
         self._hint_lbl.setStyleSheet("font-size: 7.2pt;")
-        self._quick_btn = QToolButton(footer_bar)
+        self._quick_btn = QToolButton(self._footer_bar)
         self._quick_btn.setObjectName("Small")
         self._quick_btn.setText("⤢")
         self._quick_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._quick_btn.setToolTip("Toggle expanded / standard prompt box height")
+        self._quick_btn.setToolTip(
+            "Toggle expanded / standard prompt box height (right-click footer for exact size presets)"
+        )
         self._quick_btn.setFixedSize(20, 16)
         self._quick_btn.clicked.connect(self.toggle_expand_height)
-        self._grip = _CornerResizeGrip(two_dim=self._allow_widen, parent=footer_bar)
+        self._grip = _CornerResizeGrip(two_dim=self._allow_widen, parent=self._footer_bar)
         self._grip.drag_started.connect(self._on_grip_start)
         self._grip.drag_offset.connect(self._on_grip_offset)
         self._grip.drag_delta.connect(self._on_grip_delta)
         self._grip.drag_finished.connect(self._on_grip_finish)
-        self._grip.reset_requested.connect(self.reset_height)
+        self._grip.reset_requested.connect(self.reset_size)
         foot.addWidget(self._hint_lbl, 1)
         foot.addWidget(self._quick_btn, 0, Qt.AlignmentFlag.AlignVCenter)
         foot.addWidget(self._grip, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
-        lay.addWidget(footer_bar)
+        lay.addWidget(self._footer_bar)
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.set_box_height(self._default_h, emit=False)
@@ -20717,6 +21055,8 @@ class ResizablePromptFrame(QFrame):
         self._grip.apply_scale(scale)
         s = max(SCALE_MIN, min(SCALE_MAX, float(scale)))
         self._quick_btn.setFixedSize(max(18, int(round(20 * s))), max(15, int(round(17 * s))))
+        self._hint_lbl.setStyleSheet(f"font-size: {max(6.4, round(7.2 * s, 1))}pt;")
+        self._grip.update()
 
     def box_height(self) -> int:
         return int(self._cur_h)
@@ -20734,22 +21074,50 @@ class ResizablePromptFrame(QFrame):
         if self._cur_h >= self._default_h + 70:
             self.set_box_height(self._default_h, emit=True)
         else:
-            self.set_box_height(min(self._max_h, max(self._default_h + 130, 260)), emit=True)
+            self.set_box_height(min(self._max_h, max(self._default_h + 150, 280)), emit=True)
+        SOUNDS.play_ui("ui_resize")
 
     def reset_height(self) -> None:
         self.set_box_height(self._default_h, emit=True)
         self._hint_lbl.setText(self._base_hint)
+
+    def reset_size(self) -> None:
+        self.reset_height()
+        if self._allow_widen:
+            self.panel_reset_requested.emit()
+        SOUNDS.play_ui("ui_resize")
+
+    def _open_size_preset_menu(self, pos: QPoint) -> None:
+        m = QMenu(self)
+        presets = [
+            ("Compact", max(self._min_h, int(self._default_h * 0.78))),
+            ("Standard", self._default_h),
+            ("Tall (Long Prompt)", min(self._max_h, max(self._default_h + 140, 264))),
+            ("Extra Tall (Essay Prompt)", min(self._max_h, max(self._default_h + 280, 420))),
+        ]
+        for label, px in presets:
+            act = m.addAction(f"{label}  ({px} px)")
+            act.triggered.connect(lambda _c=False, h_px=px: (self.set_box_height(h_px, emit=True), SOUNDS.play_ui("ui_resize")))
+        if self._allow_widen:
+            m.addSeparator()
+            act_rst = m.addAction("Reset Box Height & Left Panel Width")
+            act_rst.triggered.connect(self.reset_size)
+        m.exec(self._footer_bar.mapToGlobal(pos))
 
     def _on_grip_start(self) -> None:
         self._drag_base_h = self._cur_h
 
     def _on_grip_offset(self, _tot_dx: int, tot_dy: int) -> None:
         self.set_box_height(self._drag_base_h + tot_dy, emit=False)
-        self._hint_lbl.setText(f"{self._base_hint}  ·  {self._cur_h} px")
+        if self._allow_widen:
+            self._hint_lbl.setText(f"Resizing  \u00b7  {self.width()} \u00d7 {self._cur_h} px")
+        else:
+            self._hint_lbl.setText(f"Resizing  \u00b7  {self._cur_h} px")
 
     def _on_grip_delta(self, dx: int, _dy: int) -> None:
         if self._allow_widen and dx != 0:
             self.panel_widen_requested.emit(dx)
+            self._hint_lbl.setText(f"Resizing  \u00b7  {self.width()} \u00d7 {self._cur_h} px")
 
     def _on_grip_finish(self) -> None:
         self._hint_lbl.setText(self._base_hint)
@@ -21262,7 +21630,7 @@ class _IconTabBarStyle(QProxyStyle):
 
 class _AutoFitIconTabBar(QTabBar):
     """Zero-scroll, auto-distributing icon tab bar with theme-signature active
-    bar across all 5 themes PLUS live Queue activity badge & Edit dirty dot."""
+    bar across all 7 themes PLUS live Queue activity badge & Edit dirty dot."""
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -21518,7 +21886,7 @@ class _AutoFitIconTabBar(QTabBar):
 
 
 class ModuleContextRibbon(QWidget):
-    """Signature 5-theme architectural active-module banner docked beneath the icon rail.
+    """Signature 7-theme architectural active-module banner docked beneath the icon rail.
     Splits 'TITLE  ·  context  ·  Ctrl+N' into a luminous title, contextual hint, and
     right-aligned sculpted keycap pill while remaining 100% drop-in compatible with ElideLabel."""
 
@@ -21892,6 +22260,14 @@ class _AutoFitTextTabBar(QTabBar):
             group_w = isz + gap + tw
             start_x = inner.left() + max(0, (inner.width() - group_w) // 2)
             iy = inner.top() + (inner.height() - isz) // 2
+            if selected and tk_cur == "prestige":
+                # Subtle frosted glass halo keeps crisp dark-navy glyph icons vivid on glossy Aqua blue tabs
+                p.save()
+                p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(QColor(255, 255, 255, 212))
+                p.drawRoundedRect(QRectF(start_x - 2.0, iy - 1.5, isz + 4.0, isz + 3.0), 4.0, 4.0)
+                p.restore()
             icon.paint(p, QRect(start_x, iy, isz, isz), Qt.AlignmentFlag.AlignCenter, mode, state)
             p.setPen(txt_col)
             p.drawText(
@@ -24346,10 +24722,10 @@ class ShortcutsDialog(QDialog):
     """F1 quick-reference card for every keyboard shortcut."""
 
     _ROWS: List[Tuple[str, str]] = [
-        ("Ctrl + Enter", "Queue a generation — or Forge prompts when the LLM tab is active"),
+        ("Ctrl + Enter", "Queue a generation — or run active LLM sub-tab (Forge / Vision / Self-Improve)"),
         ("Esc (in LLM tab)", "Immediately stop any active LLM / VLM stream or /models request"),
         ("Ctrl + Shift + V", "Batch Prompt Queue — paste single-line prompts, queue all of them"),
-        ("Ctrl + 1 \u2026 9", "Jump to Prompt / Templates / Tags / LoRA / LLM / Queue / Horde / Upscale / Edit"),
+        ("Ctrl + 1 \u2026 9", "Jump to Prompt / Templates / Tags / LoRA / LLM / Queue / Settings / Upscale / Edit"),
         ("Ctrl + Shift + N", "Show / hide the model-specific negative prompt"),
         ("Ctrl + H", "Open Prompt History"),
         ("Ctrl + R", "Re-roll wildcards"),
@@ -24358,7 +24734,7 @@ class ShortcutsDialog(QDialog):
         ("Ctrl + S", "Save current render — or in Edit Studio, save edited image separately to outputs/"),
         ("Ctrl + Shift + S", "Export edited image separately As… (PNG / WebP / JPEG)"),
         ("Ctrl + K", "Open Quick Command Palette (jump to any tab, theme, UI scale % or sound mode)"),
-        ("Ctrl + Shift + T", "Cycle all 5 themes (SeeStation / Sarif Gold / Oriental Spirit / Kreatendo / Mint Serenity)"),
+        ("Ctrl + Shift + T", "Cycle all 7 themes (SeeStation / Sarif Gold / Oriental Spirit / Kreatendo / Mint Serenity / Timeless Feel / Prestige)"),
         ("Ctrl + + / Ctrl + - / Ctrl + 0", "Step UI Scale % dropdown presets (75%\u2013150%) or reset to 100%"),
         ("F11", "Fullscreen"),
         ("F10", "Application menu"),
@@ -28843,6 +29219,9 @@ class MainWindow(QMainWindow):
         if hasattr(self, "edit_subtabs"):
             self.edit_subtabs.tabBar().updateGeometry()
             self.edit_subtabs.tabBar().update()
+        if hasattr(self, "llm_subtabs"):
+            self.llm_subtabs.tabBar().updateGeometry()
+            self.llm_subtabs.tabBar().update()
 
     def _sync_edit_stage_density(self) -> None:
         """Adapt Edit Stage tool & overlay buttons between compact icon-only
@@ -29018,6 +29397,12 @@ class MainWindow(QMainWindow):
                 act.blockSignals(True)
                 act.setChecked(tk == active)
                 act.blockSignals(False)
+        for tk, card in getattr(self, "_theme_swatch_cards", {}).items():
+            if card.isChecked() != (tk == active):
+                card.blockSignals(True)
+                card.setChecked(tk == active)
+                card.blockSignals(False)
+            card.update()
 
     def _on_theme_combo_changed(self, _ix: int) -> None:
         key = str(self.theme_combo.currentData() or "")
@@ -29180,6 +29565,7 @@ class MainWindow(QMainWindow):
         )
         self.prompt_frame.height_changed.connect(lambda _h: self._schedule_save())
         self.prompt_frame.panel_widen_requested.connect(self._on_prompt_panel_widen)
+        self.prompt_frame.panel_reset_requested.connect(self._on_prompt_panel_reset)
         lay.addWidget(self.prompt_frame, 0)
 
         # Active template strip
@@ -29812,15 +30198,22 @@ class MainWindow(QMainWindow):
         self.llm_api_banner.setObjectName("LlmApiBanner")
         ab_lay = QHBoxLayout(self.llm_api_banner)
         ab_lay.setContentsMargins(7, 3, 4, 3)
-        ab_lay.setSpacing(5)
+        ab_lay.setSpacing(4)
         self.llm_api_banner_lbl = ElideLabel("LLM API not configured — set URL & Model in Settings")
         self.llm_api_banner_lbl.setObjectName("Caption")
+        self.llm_banner_refresh_btn = make_button(
+            "", self.llm_fetch_models, small=True,
+            icon_key="reset", icon_size=12,
+            tip="Fetch / refresh available models from configured LLM API endpoint",
+        )
+        self.llm_banner_refresh_btn.setFixedWidth(26)
         self.llm_api_settings_btn = make_button(
             "API Settings", self._open_llm_api_settings, small=True,
             icon_key="tab_horde", icon_size=12,
             tip="Open LLM / VLM API URL, Key, Model & Sampling settings in the Settings tab",
         )
         ab_lay.addWidget(self.llm_api_banner_lbl, 1)
+        ab_lay.addWidget(self.llm_banner_refresh_btn, 0)
         ab_lay.addWidget(self.llm_api_settings_btn, 0)
         rlay.addWidget(self.llm_api_banner, 0)
 
@@ -29837,9 +30230,14 @@ class MainWindow(QMainWindow):
         forge_scroll, flay = self._scroll_tab()
 
         fhdr = SectionHeader("Concept / Instruction")
+        self.llm_concept_tok_lbl = QLabel("0 tok")
+        self.llm_concept_tok_lbl.setObjectName("Chip")
+        self.llm_concept_tok_lbl.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
+        self.llm_concept_tok_lbl.setToolTip("Estimated token count of your concept / instruction")
+        fhdr.add_right(self.llm_concept_tok_lbl)
         fhdr.add_right(make_button(
             "FROM ED",
-            lambda: self.llm_user_edit.setPlainText(self.prompt_edit.toPlainText()),
+            lambda: self.llm_user_edit.setPlainText(self.prompt_edit.editable_text()),
             small=True, compress=True,
             tip="Copy current Prompt Editor text into the Concept box",
         ))
@@ -29848,7 +30246,7 @@ class MainWindow(QMainWindow):
 
         self.llm_user_edit = QPlainTextEdit()
         self.llm_user_edit.setPlaceholderText("Scene, characters, mood, or number of variations\u2026  (Ctrl+Enter = Forge)")
-        self.llm_user_edit.textChanged.connect(lambda: self._llm_schedule_save())
+        self.llm_user_edit.textChanged.connect(self._on_llm_concept_changed)
         self.llm_user_edit.installEventFilter(self)
         self.llm_concept_frame = ResizablePromptFrame(
             self.llm_user_edit,
@@ -30310,6 +30708,7 @@ class MainWindow(QMainWindow):
             allow_panel_widen=False,
             footer_hint="drag corner to resize  \u00b7  <PreferencesMemory> auto-appended",
         )
+        self.si_sys_frame.height_changed.connect(lambda _h: self._llm_schedule_save())
         sisl.addWidget(self.si_sys_frame)
 
         self.si_sys_section = CollapsibleSection("Self-Improving System Prompt", si_sys_wrap, expanded=True)
@@ -30393,6 +30792,48 @@ class MainWindow(QMainWindow):
         self._update_si_sys_badge()
         return root
 
+    def _on_prompt_panel_widen(self, dx: int) -> None:
+        """Smoothly widen or narrow the left control deck when dragging the 2D corner grip
+        on the Prompt input frame, while guaranteeing the right Viewer/Gallery never clips
+        even at 800x600 screen resolution."""
+        if dx == 0 or not hasattr(self, "split"):
+            return
+        sizes = self.split.sizes()
+        if len(sizes) < 2:
+            return
+        total = sizes[0] + sizes[1]
+        if total <= 0:
+            return
+        min_left = max(212, self.left.minimumWidth() if hasattr(self, "left") else 212)
+        min_right = 248 if self.width() <= 840 else 300
+        max_left = max(min_left, total - min_right)
+        new_left = max(min_left, min(max_left, sizes[0] + int(dx)))
+        if new_left != sizes[0]:
+            self.split.setSizes([new_left, max(min_right, total - new_left)])
+            self._schedule_workspace_resize()
+            self._schedule_save()
+
+    def _on_prompt_panel_reset(self) -> None:
+        """Restore comfortable balanced split width after double-clicking the 2D corner grip."""
+        if not hasattr(self, "split"):
+            return
+        sizes = self.split.sizes()
+        if len(sizes) < 2:
+            return
+        total = sizes[0] + sizes[1]
+        if total <= 0:
+            return
+        target_left = max(248, min(336, int(total * (0.40 if self.width() <= 840 else 0.34))))
+        self.split.setSizes([target_left, max(248, total - target_left)])
+        self._schedule_workspace_resize()
+        self._schedule_save()
+
+    def _on_llm_concept_changed(self) -> None:
+        if hasattr(self, "llm_concept_tok_lbl") and hasattr(self, "llm_user_edit"):
+            tok = estimate_tokens(self.llm_user_edit.toPlainText().strip())
+            self.llm_concept_tok_lbl.setText(f"{tok} tok")
+        self._llm_schedule_save()
+
     def _on_llm_subtab_changed(self, _idx: int) -> None:
         self._llm_schedule_save()
 
@@ -30402,7 +30843,7 @@ class MainWindow(QMainWindow):
         if hasattr(self, "llm_api_settings_section"):
             self.llm_api_settings_section.set_expanded(True)
             if hasattr(self, "settings_scroll"):
-                QTimer.singleShot(20, lambda: self.settings_scroll.ensureWidgetVisible(self.llm_api_settings_section, 8, 24))
+                QTimer.singleShot(25, lambda: self.settings_scroll.ensureWidgetVisible(self.llm_api_settings_section, 8, 28))
         if hasattr(self, "llm_url_edit") and not self.llm_url_edit.text().strip():
             self.llm_url_edit.setFocus()
         elif hasattr(self, "llm_model_combo"):
@@ -30416,6 +30857,7 @@ class MainWindow(QMainWindow):
         model = self.llm_model_combo.currentText().strip() if hasattr(self, "llm_model_combo") else ""
         vmodel = self.llm_vision_model_combo.currentText().strip() if hasattr(self, "llm_vision_model_combo") else ""
         stream = bool(self.llm_stream_cb.isChecked()) if hasattr(self, "llm_stream_cb") else True
+        temp = self.llm_temp_spin.value() if hasattr(self, "llm_temp_spin") else 0.75
         if not url or not model:
             self.llm_api_banner_lbl.setText("API not configured — open Settings to set URL & Model")
             self.llm_api_banner_lbl.setStyleSheet(f"color: {C['warn']}; font-weight: bold;")
@@ -30425,10 +30867,14 @@ class MainWindow(QMainWindow):
         parts = [model]
         if vmodel and vmodel != model:
             parts.append(f"VLM: {vmodel}")
+        parts.append(f"T={temp:.2f}")
         parts.append("SSE" if stream else "Batch")
         self.llm_api_banner_lbl.setText(" \u00b7 ".join(parts))
         self.llm_api_banner_lbl.setStyleSheet(f"color: {C['text_hi']}; font-weight: bold;")
-        self.llm_api_banner_lbl.setToolTip(f"Endpoint: {host}\nModel: {model}\nVision override: {vmodel or '(main model)'}")
+        self.llm_api_banner_lbl.setToolTip(
+            f"Endpoint: {host}\nModel: {model}\nVision override: {vmodel or '(main model)'}\n"
+            f"Temp: {temp:.2f}  |  Mode: {'SSE Stream' if stream else 'Batch'}"
+        )
 
     def _on_si_sys_edited(self) -> None:
         self._update_si_sys_badge()
@@ -30982,91 +31428,399 @@ class MainWindow(QMainWindow):
 
     def _build_horde_tab(self) -> QWidget:
         scroll, lay = self._scroll_tab()
-        lay.addWidget(SectionHeader("Account & Cluster"))
-        self.key_label = ElideLabel()
-        self.key_label.setObjectName("InfoBar")
-        lay.addWidget(self.key_label)
-        self.account_label = make_label("Account not checked yet.", "Caption")
-        self.account_label.setWordWrap(True)
-        lay.addWidget(self.account_label)
-        r = QHBoxLayout()
-        r.setSpacing(3)
-        r.addWidget(make_button("ACCOUNT", self.check_account, small=True, accent=True, compress=True,
-                                tip="Query AI Horde /find_user for username & kudos"), 1)
-        r.addWidget(make_button("RELOAD", self.reload_key, small=True, compress=True,
-                                tip="Re-read data/key.txt (picks up external edits)"), 1)
-        r.addWidget(make_button("KEY.TXT", lambda: open_path(KEY_FILE), small=True, compress=True,
-                                tip="Open data/key.txt in your default editor"), 1)
-        lay.addLayout(r)
+        self.settings_scroll = scroll
 
-        # v11.1: API key management directly in the settings UI — the key is
-        # hidden while typing (revealable), written straight into data/key.txt,
-        # and anonymous access is a first-class switchable mode. No key is ever
-        # hardcoded in the app: only the default anonymous key ships as the
-        # fallback for blank storage.
-        self.api_key_edit = QLineEdit()
-        self.api_key_edit.setEchoMode(QLineEdit.EchoMode.Password)
-        self.api_key_edit.setPlaceholderText(f"{ANON_KEY}  (anonymous)")
-        self.api_key_edit.setToolTip(
-            "Your Stable Horde / AI Horde API key (register free at\n"
-            "https://stablehorde.net/register). Stored in data/key.txt.\n"
-            "Hidden while typing — press SHOW to reveal it.\n"
-            "Enter or focus-leaving saves automatically."
-        )
-        self.api_key_edit.setText(self.api_key)
-        self.api_key_edit.editingFinished.connect(self._save_api_key_from_edit)
-        self.api_key_edit.setMinimumWidth(0)
-        self.api_key_reveal_btn = QToolButton()
-        self.api_key_reveal_btn.setObjectName("Small")
-        self.api_key_reveal_btn.setText("SHOW")
-        self.api_key_reveal_btn.setCheckable(True)
-        self.api_key_reveal_btn.setFixedWidth(58)
-        self.api_key_reveal_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.api_key_reveal_btn.setToolTip("Reveal / hide the typed key")
-        self.api_key_reveal_btn.toggled.connect(self._on_api_key_reveal)
-        krow1 = QHBoxLayout()
-        krow1.setSpacing(3)
-        krow1.addWidget(self.api_key_edit, 1)
-        krow1.addWidget(self.api_key_reveal_btn, 0)
-        lay.addLayout(krow1)
-        krow2 = QHBoxLayout()
-        krow2.setSpacing(3)
-        krow2.addWidget(make_button("PASTE", self._paste_api_key, small=True, compress=True,
-                                    tip="Paste the key from the clipboard and save it"), 1)
-        krow2.addWidget(make_button("SAVE", self._save_api_key_from_edit, small=True, accent=True, compress=True,
-                                    tip="Write the key to data/key.txt and apply it"), 1)
-        krow2.addWidget(make_button("CLEAR", self._clear_api_key, small=True, compress=True,
-                                    tip="Remove the stored key — back to anonymous access"), 1)
-        lay.addLayout(krow2)
-        self.anon_check = QCheckBox("Anonymous mode (ignore stored key)")
-        self.anon_check.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.anon_check.setToolTip(
-            "Always send the default anonymous key 0000000000 with every request,\n"
-            "even when a personal key is stored in data/key.txt.\n"
-            "Anonymous = shared queue with the lowest priority."
-        )
-        self.anon_check.toggled.connect(self._on_anon_key_toggled)
-        lay.addWidget(self.anon_check)
-        keynote = make_label(
-            "Key file: data/key.txt  •  register free at https://stablehorde.net/register  •  "
-            "anonymous = lowest queue priority",
-            "Caption",
-        )
-        keynote.setWordWrap(True)
-        lay.addWidget(keynote)
+        # ---- 1. Appearance, 7-Theme Swatch Gallery, UI Scale & Theme Sound Scheme ----
+        def build_sounds(g: QVBoxLayout) -> None:
+            # Interactive Visual 7-Theme Swatch Gallery
+            g.addWidget(make_label("Flagship Theme Gallery (7 Themes · Click to Apply):", "Kicker"))
+            self._theme_swatch_flow = FlowContainer(hgap=4, vgap=4)
+            self._theme_swatch_cards: Dict[str, ThemeSwatchCard] = {}
+            self._theme_swatch_group = QButtonGroup(self)
+            self._theme_swatch_group.setExclusive(True)
+            for tkey in THEME_ORDER:
+                card = ThemeSwatchCard(tkey)
+                card.clicked.connect(lambda _c=False, tk=tkey: self._select_theme_by_key(tk))
+                self._theme_swatch_group.addButton(card)
+                self._theme_swatch_cards[tkey] = card
+                self._theme_swatch_flow.add_widget(card)
+            g.addWidget(self._theme_swatch_flow)
 
-        self.hb_label = make_label("Cluster status: checking\u2026", "Caption")
-        self.hb_label.setWordWrap(True)
-        lay.addWidget(self.hb_label)
-        self.model_status_labels: Dict[str, QLabel] = {}
-        for name in MODELS:
-            lb = make_label(f"{name}: \u2026", "Caption")
-            lb.setWordWrap(True)
-            self.model_status_labels[name] = lb
-            lay.addWidget(lb)
-        lay.addWidget(make_button("REFRESH STATUS", self.refresh_horde, small=True))
+            # Synced Theme dropdown + UI Scale % dropdown + Theme Chime Audition button
+            top_g = QGridLayout()
+            top_g.setHorizontalSpacing(5)
+            top_g.setVerticalSpacing(4)
+            self.settings_theme_combo = QComboBox()
+            self.settings_theme_combo.setCursor(Qt.CursorShape.PointingHandCursor)
+            for tkey in THEME_ORDER:
+                self.settings_theme_combo.addItem(
+                    VECTOR_ASSETS.icon_for_theme("theme_badge", tkey, 14),
+                    str(THEMES[tkey]["name"]),
+                    tkey,
+                )
+            self.settings_theme_combo.currentIndexChanged.connect(self._on_settings_theme_combo_changed)
+            self.settings_theme_chime_btn = make_button(
+                "\u266A Chime", lambda: SOUNDS.preview("startup"), small=True,
+                tip="Audition the active theme's signature sound scheme launch chime",
+            )
+            self.settings_scale_combo = QComboBox()
+            self.settings_scale_combo.setCursor(Qt.CursorShape.PointingHandCursor)
+            for pct in UI_SCALE_PRESETS:
+                self.settings_scale_combo.addItem(f"{pct}%", pct)
+            self.settings_scale_combo.setToolTip("Select interface scale percentage (75%\u2013150%)")
+            self.settings_scale_combo.currentIndexChanged.connect(self._on_settings_scale_combo_changed)
+            top_g.addWidget(make_label("UI Theme", "Caption"), 0, 0)
+            top_g.addWidget(self.settings_theme_combo, 0, 1)
+            top_g.addWidget(self.settings_theme_chime_btn, 0, 2)
+            top_g.addWidget(make_label("UI Scale", "Caption"), 1, 0)
+            top_g.addWidget(self.settings_scale_combo, 1, 1, 1, 2)
+            top_g.setColumnStretch(1, 1)
+            g.addLayout(top_g)
 
-        # Browser Bridge (VPN Tunnel) — the companion userscript ships separately
+            # Three-option audio policy + dual volume mixer card
+            mode_card = QFrame()
+            mode_card.setObjectName("SoundModeCard")
+            mc_lay = QVBoxLayout(mode_card)
+            mc_lay.setContentsMargins(7, 6, 7, 6)
+            mc_lay.setSpacing(3)
+            mc_lay.addWidget(make_label("Sound Scheme Policy (Per-Theme Audio)", "Kicker"))
+            self.sound_mode_group = QButtonGroup(self)
+            self.sound_mode_group.setExclusive(True)
+            self.sound_mode_radios: Dict[str, QRadioButton] = {}
+            for mkey, mlabel, mtip in SOUND_MODES:
+                rb = QRadioButton(mlabel)
+                rb.setCursor(Qt.CursorShape.PointingHandCursor)
+                rb.setToolTip(mtip)
+                rb.toggled.connect(lambda checked, mk=mkey: self._on_sound_mode_radio(mk, checked))
+                self.sound_mode_group.addButton(rb)
+                self.sound_mode_radios[mkey] = rb
+                mc_lay.addWidget(rb)
+            self.sound_mode_desc = make_label("", "Caption")
+            self.sound_mode_desc.setWordWrap(True)
+            mc_lay.addWidget(self.sound_mode_desc)
+
+            vol_g = QGridLayout()
+            vol_g.setHorizontalSpacing(5)
+            vol_g.setVerticalSpacing(2)
+            self.sound_master_sl = _ResettableSlider(85)
+            self.sound_master_sl.setRange(0, 100)
+            self.sound_master_sl.setValue(int(round(SOUNDS.master_volume * 100)))
+            self.sound_master_sl.setToolTip("Master sound volume (double-click to reset to 85%)")
+            self.sound_master_val = make_label(f"{self.sound_master_sl.value()}%", "Value")
+            self.sound_master_val.setFixedWidth(34)
+            self.sound_master_val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            self.sound_ui_sl = _ResettableSlider(78)
+            self.sound_ui_sl.setRange(0, 100)
+            self.sound_ui_sl.setValue(int(round(SOUNDS.ui_sfx_volume * 100)))
+            self.sound_ui_sl.setToolTip("Secondary UI menu SFX volume relative to master (double-click to reset to 78%)")
+            self.sound_ui_val = make_label(f"{self.sound_ui_sl.value()}%", "Value")
+            self.sound_ui_val.setFixedWidth(34)
+            self.sound_ui_val.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            self.sound_master_sl.valueChanged.connect(self._on_sound_volumes_changed)
+            self.sound_ui_sl.valueChanged.connect(self._on_sound_volumes_changed)
+            vol_g.addWidget(make_label("Master Vol", "Caption"), 0, 0)
+            vol_g.addWidget(self.sound_master_sl, 0, 1)
+            vol_g.addWidget(self.sound_master_val, 0, 2)
+            vol_g.addWidget(make_label("UI SFX Vol", "Caption"), 1, 0)
+            vol_g.addWidget(self.sound_ui_sl, 1, 1)
+            vol_g.addWidget(self.sound_ui_val, 1, 2)
+            vol_g.setColumnStretch(1, 1)
+            mc_lay.addLayout(vol_g)
+            g.addWidget(mode_card)
+
+            # Soft videogame-menu UI SFX audition strip for active theme
+            g.addWidget(make_label("Preview Active Theme Secondary UI SFX:", "Caption"))
+            sfx_flow = FlowContainer(hgap=3, vgap=3)
+            for sfx_key in (
+                "ui_hover", "ui_click", "ui_toggle_on", "ui_toggle_off",
+                "ui_tab", "ui_subtab", "ui_menu_open", "ui_dropdown",
+                "ui_slider", "ui_dialog_open", "ui_copy", "ui_delete", "ui_resize", "theme",
+            ):
+                b_sfx = make_button(
+                    UI_SFX_LABELS[sfx_key],
+                    lambda e=sfx_key: SOUNDS.preview(e),
+                    small=True,
+                    tip=f"Audition active theme's '{UI_SFX_LABELS[sfx_key]}' secondary UI SFX",
+                )
+                sfx_flow.add_widget(b_sfx)
+            g.addWidget(sfx_flow)
+
+            # Primary notification individual toggles + TEST buttons
+            g.addWidget(make_label("Primary Notification Events:", "Caption"))
+            self.sound_event_checks: Dict[str, QCheckBox] = {}
+            sgrid = QGridLayout()
+            sgrid.setHorizontalSpacing(6)
+            sgrid.setVerticalSpacing(3)
+            for i, ev in enumerate(SOUND_EVENT_LABELS):
+                cb = QCheckBox(SOUND_EVENT_LABELS[ev])
+                cb.setCursor(Qt.CursorShape.PointingHandCursor)
+                cb.toggled.connect(lambda _v: self._on_sound_prefs_changed())
+                self.sound_event_checks[ev] = cb
+                sgrid.addWidget(cb, i, 0)
+                sgrid.addWidget(make_button("TEST", lambda e=ev: SOUNDS.preview(e), small=True), i, 1)
+            sgrid.setColumnStretch(0, 1)
+            g.addLayout(sgrid)
+            self.sound_backend_lbl = make_label(
+                f"Engine: {SOUNDS.backend_label()} \u2022 {len(THEME_ORDER)} themes \u00d7 {len(SOUNDS.ALL_EVENTS)} embedded DSP cues",
+                "Caption",
+            )
+            self.sound_backend_lbl.setWordWrap(True)
+            g.addWidget(self.sound_backend_lbl)
+
+        lay.addWidget(self._horde_group("Appearance, 7 Themes & Sound Scheme", build_sounds, expanded=True))
+
+        # ---- 2. OpenAI-Compatible LLM / VLM API Settings (shared by Forge, Vision & Arena) ----
+        def build_llm_api(g: QVBoxLayout) -> None:
+            prow = QHBoxLayout()
+            prow.setSpacing(3)
+            for plbl, purl, ptip in (
+                ("LM Studio", "http://127.0.0.1:1234/v1", "Local LM Studio OpenAI-compatible server"),
+                ("Ollama", "http://127.0.0.1:11434/v1", "Local Ollama OpenAI-compatible server"),
+                ("OpenRouter", "https://openrouter.ai/api/v1", "OpenRouter unified cloud LLM/VLM gateway"),
+                ("OpenAI", "https://api.openai.com/v1", "Official OpenAI API endpoint"),
+            ):
+                pb = make_button(
+                    plbl,
+                    lambda u=purl: self._apply_llm_endpoint_preset(u),
+                    small=True, compress=True, tip=f"Fill {ptip}\n{purl}",
+                )
+                prow.addWidget(pb, 1)
+            g.addLayout(prow)
+
+            lg = QGridLayout()
+            lg.setHorizontalSpacing(5)
+            lg.setVerticalSpacing(4)
+
+            self.llm_url_edit = QLineEdit()
+            self.llm_url_edit.setPlaceholderText("http://127.0.0.1:1234/v1  or  https://openrouter.ai/api/v1")
+            self.llm_url_edit.setToolTip("OpenAI-compatible /v1 API base URL (used for Prompt Forge, Vision VLM & Self-Improving Arena)")
+            self.llm_url_edit.textChanged.connect(self._on_llm_api_field_changed)
+
+            self.llm_key_edit = QLineEdit()
+            self.llm_key_edit.setEchoMode(QLineEdit.EchoMode.Password)
+            self.llm_key_edit.setPlaceholderText("Optional Bearer API key (leave blank for local servers)")
+            self.llm_key_edit.textChanged.connect(self._on_llm_api_field_changed)
+            self.llm_key_reveal_btn = QToolButton()
+            self.llm_key_reveal_btn.setObjectName("Small")
+            self.llm_key_reveal_btn.setText("SHOW")
+            self.llm_key_reveal_btn.setCheckable(True)
+            self.llm_key_reveal_btn.setFixedWidth(52)
+            self.llm_key_reveal_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.llm_key_reveal_btn.setToolTip("Show / hide LLM API key")
+            self.llm_key_reveal_btn.toggled.connect(self._on_llm_key_reveal)
+            kbox = QHBoxLayout()
+            kbox.setSpacing(3)
+            kbox.addWidget(self.llm_key_edit, 1)
+            kbox.addWidget(self.llm_key_reveal_btn, 0)
+
+            self.llm_model_combo = QComboBox()
+            self.llm_model_combo.setEditable(True)
+            self.llm_model_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+            self.llm_model_combo.setMinimumContentsLength(8)
+            self.llm_model_combo.setToolTip("Primary LLM model ID for Prompt Forge & Self-Improving Arena")
+            self.llm_model_combo.editTextChanged.connect(self._on_llm_api_field_changed)
+            self.llm_models_btn = make_button(
+                "FETCH", self.llm_fetch_models, small=True, accent=True,
+                tip="Query /models on the configured endpoint to populate the model lists",
+            )
+            mbox = QHBoxLayout()
+            mbox.setSpacing(3)
+            mbox.addWidget(self.llm_model_combo, 1)
+            mbox.addWidget(self.llm_models_btn, 0)
+
+            self.llm_vision_model_combo = QComboBox()
+            self.llm_vision_model_combo.setEditable(True)
+            self.llm_vision_model_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+            self.llm_vision_model_combo.setMinimumContentsLength(8)
+            self.llm_vision_model_combo.setToolTip("Optional dedicated Vision (VLM) model override — leave blank to use the primary model")
+            self.llm_vision_model_combo.editTextChanged.connect(self._on_llm_api_field_changed)
+
+            lg.addWidget(make_label("API URL", "Caption"), 0, 0)
+            lg.addWidget(self.llm_url_edit, 0, 1)
+            lg.addWidget(make_label("API Key", "Caption"), 1, 0)
+            lg.addLayout(kbox, 1, 1)
+            lg.addWidget(make_label("Model", "Caption"), 2, 0)
+            lg.addLayout(mbox, 2, 1)
+            lg.addWidget(make_label("Vision VLM", "Caption"), 3, 0)
+            lg.addWidget(self.llm_vision_model_combo, 3, 1)
+            lg.setColumnStretch(1, 1)
+            g.addLayout(lg)
+
+            # Sampling controls row
+            sg = QGridLayout()
+            sg.setHorizontalSpacing(5)
+            sg.setVerticalSpacing(4)
+            self.llm_temp_spin = QDoubleSpinBox()
+            self.llm_temp_spin.setRange(0.0, 2.0)
+            self.llm_temp_spin.setSingleStep(0.05)
+            self.llm_temp_spin.setDecimals(2)
+            self.llm_temp_spin.setValue(0.75)
+            self.llm_temp_spin.setPrefix("T ")
+            self.llm_temp_spin.setToolTip("Sampling temperature (0.0 = deterministic, 0.7–0.9 = creative)")
+            self.llm_temp_spin.valueChanged.connect(self._on_llm_api_field_changed)
+
+            self.llm_topp_spin = QDoubleSpinBox()
+            self.llm_topp_spin.setRange(0.05, 1.0)
+            self.llm_topp_spin.setSingleStep(0.02)
+            self.llm_topp_spin.setDecimals(2)
+            self.llm_topp_spin.setValue(0.92)
+            self.llm_topp_spin.setPrefix("P ")
+            self.llm_topp_spin.setToolTip("Nucleus sampling top-p")
+            self.llm_topp_spin.valueChanged.connect(self._on_llm_api_field_changed)
+
+            self.llm_maxtok_spin = QSpinBox()
+            self.llm_maxtok_spin.setRange(0, 32768)
+            self.llm_maxtok_spin.setSingleStep(256)
+            self.llm_maxtok_spin.setSpecialValueText("auto")
+            self.llm_maxtok_spin.setPrefix("Max ")
+            self.llm_maxtok_spin.setToolTip("Max completion tokens (0 = server default / auto)")
+            self.llm_maxtok_spin.valueChanged.connect(self._on_llm_api_field_changed)
+
+            sg.addWidget(self.llm_temp_spin, 0, 0)
+            sg.addWidget(self.llm_topp_spin, 0, 1)
+            sg.addWidget(self.llm_maxtok_spin, 0, 2)
+            g.addLayout(sg)
+
+            srow_l = QHBoxLayout()
+            srow_l.setSpacing(4)
+            self.llm_stream_cb = QCheckBox("Live SSE Streaming")
+            self.llm_stream_cb.setChecked(True)
+            self.llm_stream_cb.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.llm_stream_cb.setToolTip("Stream tokens live via Server-Sent Events (uncheck for single-shot batch JSON)")
+            self.llm_stream_cb.toggled.connect(self._on_llm_api_field_changed)
+            srow_l.addWidget(self.llm_stream_cb, 1)
+            srow_l.addWidget(make_button(
+                "OPEN LLM \u25B8", lambda: self.tabs.setCurrentIndex(TAB_LLM), small=True,
+                icon_key="tab_llm", icon_size=12,
+                tip="Return to LLM Studio tab (Ctrl+5)",
+            ))
+            g.addLayout(srow_l)
+
+            self.llm_settings_status = make_label(
+                "Stored in data/llm_settings.json \u2022 shared by Forge, Vision (VLM) & Self-Improving Arena.",
+                "Caption",
+            )
+            self.llm_settings_status.setWordWrap(True)
+            g.addWidget(self.llm_settings_status)
+
+        self.llm_api_settings_section = self._horde_group("LLM / VLM API Settings", build_llm_api, expanded=False)
+        lay.addWidget(self.llm_api_settings_section)
+
+        # ---- 3. AI Horde Account & Cluster ----
+        def build_account(g: QVBoxLayout) -> None:
+            self.key_label = ElideLabel()
+            self.key_label.setObjectName("InfoBar")
+            g.addWidget(self.key_label)
+            self.account_label = make_label("Account not checked yet.", "Caption")
+            self.account_label.setWordWrap(True)
+            g.addWidget(self.account_label)
+            r = QHBoxLayout()
+            r.setSpacing(3)
+            r.addWidget(make_button("ACCOUNT", self.check_account, small=True, accent=True, compress=True,
+                                    tip="Query AI Horde /find_user for username & kudos"), 1)
+            r.addWidget(make_button("RELOAD", self.reload_key, small=True, compress=True,
+                                    tip="Re-read data/key.txt (picks up external edits)"), 1)
+            r.addWidget(make_button("KEY.TXT", lambda: open_path(KEY_FILE), small=True, compress=True,
+                                    tip="Open data/key.txt in your default editor"), 1)
+            g.addLayout(r)
+
+            self.api_key_edit = QLineEdit()
+            self.api_key_edit.setEchoMode(QLineEdit.EchoMode.Password)
+            self.api_key_edit.setPlaceholderText(f"{ANON_KEY}  (anonymous)")
+            self.api_key_edit.setToolTip(
+                "Your Stable Horde / AI Horde API key (register free at\n"
+                "https://stablehorde.net/register). Stored in data/key.txt.\n"
+                "Hidden while typing — press SHOW to reveal it.\n"
+                "Enter or focus-leaving saves automatically."
+            )
+            self.api_key_edit.setText(self.api_key)
+            self.api_key_edit.editingFinished.connect(self._save_api_key_from_edit)
+            self.api_key_edit.setMinimumWidth(0)
+            self.api_key_reveal_btn = QToolButton()
+            self.api_key_reveal_btn.setObjectName("Small")
+            self.api_key_reveal_btn.setText("SHOW")
+            self.api_key_reveal_btn.setCheckable(True)
+            self.api_key_reveal_btn.setFixedWidth(58)
+            self.api_key_reveal_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.api_key_reveal_btn.setToolTip("Reveal / hide the typed key")
+            self.api_key_reveal_btn.toggled.connect(self._on_api_key_reveal)
+            krow1 = QHBoxLayout()
+            krow1.setSpacing(3)
+            krow1.addWidget(self.api_key_edit, 1)
+            krow1.addWidget(self.api_key_reveal_btn, 0)
+            g.addLayout(krow1)
+            krow2 = QHBoxLayout()
+            krow2.setSpacing(3)
+            krow2.addWidget(make_button("PASTE", self._paste_api_key, small=True, compress=True,
+                                        tip="Paste the key from the clipboard and save it"), 1)
+            krow2.addWidget(make_button("SAVE", self._save_api_key_from_edit, small=True, accent=True, compress=True,
+                                        tip="Write the key to data/key.txt and apply it"), 1)
+            krow2.addWidget(make_button("CLEAR", self._clear_api_key, small=True, compress=True,
+                                        tip="Remove the stored key — back to anonymous access"), 1)
+            g.addLayout(krow2)
+            self.anon_check = QCheckBox("Anonymous mode (ignore stored key)")
+            self.anon_check.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.anon_check.setToolTip(
+                "Always send the default anonymous key 0000000000 with every request,\n"
+                "even when a personal key is stored in data/key.txt.\n"
+                "Anonymous = shared queue with the lowest priority."
+            )
+            self.anon_check.toggled.connect(self._on_anon_key_toggled)
+            g.addWidget(self.anon_check)
+            keynote = make_label(
+                "Key file: data/key.txt  •  register free at https://stablehorde.net/register  •  "
+                "anonymous = lowest queue priority",
+                "Caption",
+            )
+            keynote.setWordWrap(True)
+            g.addWidget(keynote)
+
+            self.hb_label = make_label("Cluster status: checking\u2026", "Caption")
+            self.hb_label.setWordWrap(True)
+            g.addWidget(self.hb_label)
+            self.model_status_labels: Dict[str, QLabel] = {}
+            for name in MODELS:
+                lb = make_label(f"{name}: \u2026", "Caption")
+                lb.setWordWrap(True)
+                self.model_status_labels[name] = lb
+                g.addWidget(lb)
+            g.addWidget(make_button("REFRESH STATUS", self.refresh_horde, small=True))
+
+        lay.addWidget(self._horde_group("AI Horde Account & Cluster", build_account, expanded=True))
+
+        # ---- 4. Request Options ----
+        def build_opts(g: QVBoxLayout) -> None:
+            self.opt_checks: Dict[str, QCheckBox] = {}
+            labels = [
+                ("nsfw", "Enable NSFW (skip censoring workers)"),
+                ("censor_nsfw", "Censor NSFW results"),
+                ("replacement_filter", "Replace unsafe words"),
+                ("shared", "Share images with Horde / LAION"),
+                ("slow_workers", "Allow slow workers"),
+                ("extra_slow_workers", "Allow extra-slow workers"),
+                ("trusted_workers", "Trusted workers only"),
+                ("validated_backends", "Validated backends only"),
+                ("allow_downgrade", "Allow kudos downgrade"),
+                ("disable_batching", "Disable worker batching"),
+            ]
+            for key, text in labels:
+                cb = QCheckBox(text)
+                cb.toggled.connect(lambda _v: self._schedule_save())
+                self.opt_checks[key] = cb
+                g.addWidget(cb)
+            g.addWidget(make_button("RESET DEFAULTS", self.reset_options, small=True))
+
+        lay.addWidget(self._horde_group("Request Options", build_opts, expanded=False))
+
+        # ---- 5. Alchemy Interrogation ----
+        def build_alch(g: QVBoxLayout) -> None:
+            self.aesthetic_check = QCheckBox("Auto aesthetic score (Alchemy)")
+            self.aesthetic_check.toggled.connect(lambda _v: self._schedule_save())
+            g.addWidget(self.aesthetic_check)
+
+        lay.addWidget(self._horde_group("Alchemy Interrogation", build_alch, expanded=False))
+
+        # ---- 6. Browser Bridge (VPN Tunnel) ----
         def build_bridge(g: QVBoxLayout) -> None:
             self.bridge_check = QCheckBox("Route through browser VPN tunnel")
             self.bridge_check.toggled.connect(self._on_bridge_toggled)
@@ -31095,7 +31849,7 @@ class MainWindow(QMainWindow):
 
         lay.addWidget(self._horde_group("Browser Bridge (VPN Tunnel)", build_bridge, expanded=False))
 
-        # SillyTavern A1111 local server
+        # ---- 7. SillyTavern Local Server ----
         def build_st(g: QVBoxLayout) -> None:
             self.st_check = QCheckBox("Run local A1111 server (SillyTavern)")
             self.st_check.toggled.connect(self._on_st_toggled)
@@ -31121,128 +31875,7 @@ class MainWindow(QMainWindow):
 
         lay.addWidget(self._horde_group("SillyTavern Local Server", build_st, expanded=False))
 
-        # Request options
-        def build_opts(g: QVBoxLayout) -> None:
-            self.opt_checks: Dict[str, QCheckBox] = {}
-            labels = [
-                ("nsfw", "Enable NSFW (skip censoring workers)"),
-                ("censor_nsfw", "Censor NSFW results"),
-                ("replacement_filter", "Replace unsafe words"),
-                ("shared", "Share images with Horde / LAION"),
-                ("slow_workers", "Allow slow workers"),
-                ("extra_slow_workers", "Allow extra-slow workers"),
-                ("trusted_workers", "Trusted workers only"),
-                ("validated_backends", "Validated backends only"),
-                ("allow_downgrade", "Allow kudos downgrade"),
-                ("disable_batching", "Disable worker batching"),
-            ]
-            for key, text in labels:
-                cb = QCheckBox(text)
-                cb.toggled.connect(lambda _v: self._schedule_save())
-                self.opt_checks[key] = cb
-                g.addWidget(cb)
-            g.addWidget(make_button("RESET DEFAULTS", self.reset_options, small=True))
-
-        lay.addWidget(self._horde_group("Request Options", build_opts, expanded=False))
-
-        # Alchemy
-        def build_alch(g: QVBoxLayout) -> None:
-            self.aesthetic_check = QCheckBox("Auto aesthetic score (Alchemy)")
-            self.aesthetic_check.toggled.connect(lambda _v: self._schedule_save())
-            g.addWidget(self.aesthetic_check)
-
-        lay.addWidget(self._horde_group("Alchemy Interrogation", build_alch, expanded=False))
-
-        # Workspace Appearance, UI Scale % Dropdown & 3-Mode Theme Audio (v19.0)
-        def build_sounds(g: QVBoxLayout) -> None:
-            # Quick synced Theme + UI Scale % dropdown row
-            top_g = QGridLayout()
-            top_g.setHorizontalSpacing(6)
-            top_g.setVerticalSpacing(4)
-            self.settings_theme_combo = QComboBox()
-            self.settings_theme_combo.setCursor(Qt.CursorShape.PointingHandCursor)
-            for tkey in THEME_ORDER:
-                self.settings_theme_combo.addItem(
-                    VECTOR_ASSETS.icon_for_theme("theme_badge", tkey, 14),
-                    str(THEMES[tkey]["name"]),
-                    tkey,
-                )
-            self.settings_theme_combo.currentIndexChanged.connect(self._on_settings_theme_combo_changed)
-            self.settings_scale_combo = QComboBox()
-            self.settings_scale_combo.setCursor(Qt.CursorShape.PointingHandCursor)
-            for pct in UI_SCALE_PRESETS:
-                self.settings_scale_combo.addItem(f"{pct}%", pct)
-            self.settings_scale_combo.setToolTip("Select interface scale percentage (75%\u2013150%)")
-            self.settings_scale_combo.currentIndexChanged.connect(self._on_settings_scale_combo_changed)
-            top_g.addWidget(make_label("UI Theme", "Caption"), 0, 0)
-            top_g.addWidget(self.settings_theme_combo, 0, 1)
-            top_g.addWidget(make_label("UI Scale", "Caption"), 1, 0)
-            top_g.addWidget(self.settings_scale_combo, 1, 1)
-            top_g.setColumnStretch(1, 1)
-            g.addLayout(top_g)
-
-            # Three-option audio policy selector card
-            mode_card = QFrame()
-            mode_card.setObjectName("SoundModeCard")
-            mc_lay = QVBoxLayout(mode_card)
-            mc_lay.setContentsMargins(7, 6, 7, 6)
-            mc_lay.setSpacing(3)
-            mc_lay.addWidget(make_label("Sound Mode (Theme-Voiced Audio)", "Kicker"))
-            self.sound_mode_group = QButtonGroup(self)
-            self.sound_mode_group.setExclusive(True)
-            self.sound_mode_radios: Dict[str, QRadioButton] = {}
-            for mkey, mlabel, mtip in SOUND_MODES:
-                rb = QRadioButton(mlabel)
-                rb.setCursor(Qt.CursorShape.PointingHandCursor)
-                rb.setToolTip(mtip)
-                rb.toggled.connect(lambda checked, mk=mkey: self._on_sound_mode_radio(mk, checked))
-                self.sound_mode_group.addButton(rb)
-                self.sound_mode_radios[mkey] = rb
-                mc_lay.addWidget(rb)
-            self.sound_mode_desc = make_label("", "Caption")
-            self.sound_mode_desc.setWordWrap(True)
-            mc_lay.addWidget(self.sound_mode_desc)
-            g.addWidget(mode_card)
-
-            # Soft videogame-menu UI SFX audition strip for active theme
-            g.addWidget(make_label("Preview Active Theme UI Menu SFX:", "Caption"))
-            sfx_flow = FlowContainer(hgap=3, vgap=3)
-            for sfx_key in ("ui_hover", "ui_click", "ui_toggle_on", "ui_toggle_off", "ui_tab", "ui_menu_open", "ui_dropdown", "theme"):
-                b_sfx = make_button(
-                    UI_SFX_LABELS[sfx_key],
-                    lambda e=sfx_key: SOUNDS.preview(e),
-                    small=True,
-                    tip=f"Audition active theme's '{UI_SFX_LABELS[sfx_key]}' UI SFX",
-                )
-                sfx_flow.add_widget(b_sfx)
-            g.addWidget(sfx_flow)
-
-            # Important notification individual toggles + TEST buttons
-            g.addWidget(make_label("Important Notification Events:", "Caption"))
-            self.sound_event_checks: Dict[str, QCheckBox] = {}
-            sgrid = QGridLayout()
-            sgrid.setHorizontalSpacing(6)
-            sgrid.setVerticalSpacing(3)
-            for i, ev in enumerate(SOUND_EVENT_LABELS):
-                cb = QCheckBox(SOUND_EVENT_LABELS[ev])
-                cb.setCursor(Qt.CursorShape.PointingHandCursor)
-                cb.toggled.connect(lambda _v: self._on_sound_prefs_changed())
-                self.sound_event_checks[ev] = cb
-                sgrid.addWidget(cb, i, 0)
-                sgrid.addWidget(make_button("TEST", lambda e=ev: SOUNDS.preview(e), small=True), i, 1)
-            sgrid.setColumnStretch(0, 1)
-            g.addLayout(sgrid)
-            self.sound_backend_lbl = make_label(
-                f"Engine: {SOUNDS.backend_label()} \u2022 5 themes \u00d7 18 embedded DSP cues",
-                "Caption",
-            )
-            self.sound_backend_lbl.setWordWrap(True)
-            g.addWidget(self.sound_backend_lbl)
-
-        lay.addWidget(self._horde_group("UI Scale, Theme & Sound Mode", build_sounds, expanded=True))
-
-
-        # Queue & Network
+        # ---- 8. Queue, Performance & Kudos Estimator ----
         def build_qn(g: QVBoxLayout) -> None:
             qg = QGridLayout()
             qg.setSpacing(4)
@@ -31274,9 +31907,30 @@ class MainWindow(QMainWindow):
             g.addWidget(make_button("DRY RUN / KUDOS", self.dry_run, small=True))
             g.addWidget(self.dry_label)
 
-        lay.addWidget(self._horde_group("Queue & Kudos Estimator", build_qn, expanded=False))
+        lay.addWidget(self._horde_group("Queue, Performance & Kudos Estimator", build_qn, expanded=False))
         lay.addStretch(1)
         return scroll
+
+    def _apply_llm_endpoint_preset(self, url: str) -> None:
+        if hasattr(self, "llm_url_edit"):
+            self.llm_url_edit.setText(url)
+            self._sync_llm_api_banner()
+            self._llm_schedule_save()
+            if hasattr(self, "llm_settings_status"):
+                self.llm_settings_status.setText(f"Endpoint set to {url} — click FETCH to load models.")
+            self.toast.notify(f"LLM API URL set: {url}", "info")
+
+    def _on_llm_key_reveal(self, on: bool) -> None:
+        if hasattr(self, "llm_key_edit"):
+            self.llm_key_edit.setEchoMode(
+                QLineEdit.EchoMode.Normal if on else QLineEdit.EchoMode.Password
+            )
+        if hasattr(self, "llm_key_reveal_btn"):
+            self.llm_key_reveal_btn.setText("HIDE" if on else "SHOW")
+
+    def _on_llm_api_field_changed(self, *_args: Any) -> None:
+        self._sync_llm_api_banner()
+        self._llm_schedule_save()
 
     # ---- Tab 8: Tile Upscale ------------------------------------------------
     def _build_upscale_tab(self) -> QWidget:
@@ -33164,7 +33818,7 @@ class MainWindow(QMainWindow):
             act_snd.setToolTip(mtip)
             self._sound_menu_acts[mkey] = act_snd
 
-        theme_menu = m.addMenu("UI Theme  (5 Themes)")
+        theme_menu = m.addMenu("UI Theme  (7 Themes)")
         self._theme_menu_acts: Dict[str, Any] = {}
         for tkey in THEME_ORDER:
             act_t = theme_menu.addAction(
@@ -33236,14 +33890,17 @@ class MainWindow(QMainWindow):
     def eventFilter(self, obj, event) -> bool:  # noqa: N802
         # Ctrl+Enter fires GENERATE; Ctrl++/Ctrl+-/Ctrl+0 scale UI even when typing in editors
         if isinstance(event, QKeyEvent) and event.type() == QEvent.Type.KeyPress:
-            if obj is getattr(self, "llm_user_edit", None):
+            if obj in (getattr(self, "llm_user_edit", None), getattr(self, "si_user_edit", None)):
                 mods = event.modifiers()
                 k = event.key()
                 if k == Qt.Key.Key_Escape and self._llm_busy():
                     self.llm_stop_all()
                     return True
                 if (mods & Qt.KeyboardModifier.ControlModifier) and k in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-                    self.llm_generate()
+                    if obj is getattr(self, "si_user_edit", None):
+                        self.llm_self_improve_forge()
+                    else:
+                        self.llm_generate()
                     return True
                 if mods & Qt.KeyboardModifier.ControlModifier:
                     if k in (Qt.Key.Key_Plus, Qt.Key.Key_Equal):
@@ -33342,15 +33999,29 @@ class MainWindow(QMainWindow):
         self._on_override_toggled(self.override_check.isChecked())
         self._on_size_changed()
 
-        # ---- v19 preferences: 3-mode audio policy + legacy migration ----
+        # ---- v23 preferences: 3-mode audio policy + dual volume mixer + legacy migration ----
         ui_sounds = ui.get("sounds") or {}
         legacy_en = ui_sounds.get("enabled", True) if "enabled" in ui_sounds else None
         snd_mode = resolve_sound_mode(ui_sounds.get("mode"), legacy_enabled=legacy_en)
+        m_vol = float(ui_sounds.get("master_volume", 0.85))
+        u_vol = float(ui_sounds.get("ui_sfx_volume", 0.78))
         SOUNDS.set_prefs(
             snd_mode,
             {ev: bool(ui_sounds.get(ev, True)) for ev in SOUND_EVENT_LABELS},
+            master_volume=m_vol,
+            ui_sfx_volume=u_vol,
         )
         self._apply_sound_ui()
+        if hasattr(self, "prompt_frame") and "prompt_box_height" in ui:
+            try:
+                self.prompt_frame.set_box_height(int(ui["prompt_box_height"]), emit=False)
+            except (TypeError, ValueError):
+                pass
+        if hasattr(self, "neg_frame") and "neg_box_height" in ui:
+            try:
+                self.neg_frame.set_box_height(int(ui["neg_box_height"]), emit=False)
+            except (TypeError, ValueError):
+                pass
         if hasattr(self, "edit_brush_size"):
             eb = ui.get("edit_brush") or {}
             self.edit_brush_size.setValue(max(4, min(400, int(eb.get("size", 48)))))
@@ -33505,7 +34176,7 @@ class MainWindow(QMainWindow):
         self._load_llm_system_template_ui()
         self.llm_user_edit.setPlainText(str(ls.get("user_input") or ""))
         self.llm_sys_section.set_expanded(bool(ls.get("system_visible", False)))
-        # Vision (VLM) settings
+        # Vision (VLM) & Self-Improving sub-tab settings (v23.0 — zero dead references)
         self.llm_vision_model_combo.setEditText(str(ls.get("vision_model") or ""))
         _mp_restore = ls.get("vision_motion_prompts") or {}
         for _m in VIDEO_MOTION_MODES:
@@ -33517,9 +34188,36 @@ class MainWindow(QMainWindow):
             self._llm_motion_mode_key = _mm
         self._load_vision_prompt_ui()
         self._llm_vision_refresh_attachments()
-        self.llm_vision_section.set_expanded(bool(ls.get("vision_visible", False)))
+        if hasattr(self, "llm_vision_sys_section"):
+            self.llm_vision_sys_section.set_expanded(bool(ls.get("vlm_sys_visible", False)))
+        if hasattr(self, "llm_subtabs"):
+            sub_idx = max(0, min(self.llm_subtabs.count() - 1, int(ls.get("active_subtab") or 0)))
+            self.llm_subtabs.setCurrentIndex(sub_idx)
+        if hasattr(self, "llm_concept_frame") and "llm_concept_height" in ls:
+            try:
+                self.llm_concept_frame.set_box_height(int(ls["llm_concept_height"]), emit=False)
+            except (TypeError, ValueError):
+                pass
         if hasattr(self, "si_user_edit"):
             self.si_user_edit.setPlainText(str(ls.get("si_user_input") or ""))
+        if hasattr(self, "si_concept_frame") and "si_concept_height" in ls:
+            try:
+                self.si_concept_frame.set_box_height(int(ls["si_concept_height"]), emit=False)
+            except (TypeError, ValueError):
+                pass
+        if hasattr(self, "si_sys_edit"):
+            saved_si_sys = str(ls.get("si_system_prompt") or "").strip()
+            self.si_sys_edit.blockSignals(True)
+            self.si_sys_edit.setPlainText(saved_si_sys if saved_si_sys else DEFAULT_SELF_IMPROVING_SYSTEM_PROMPT)
+            self.si_sys_edit.blockSignals(False)
+            self._update_si_sys_badge()
+        if hasattr(self, "si_sys_frame") and "si_sys_height" in ls:
+            try:
+                self.si_sys_frame.set_box_height(int(ls["si_sys_height"]), emit=False)
+            except (TypeError, ValueError):
+                pass
+        if hasattr(self, "si_sys_section"):
+            self.si_sys_section.set_expanded(bool(ls.get("si_system_visible", True)))
         if hasattr(self, "si_ctx_spin"):
             self.si_ctx_spin.setValue(max(1024, min(131072, int(ls.get("context_length") or DEFAULT_LLM_CONTEXT_LENGTH))))
         if hasattr(self, "si_seed_edit"):
@@ -33531,6 +34229,8 @@ class MainWindow(QMainWindow):
         if hasattr(self, "arena_widget"):
             self.arena_widget.prompts_btn.setChecked(bool(ls.get("si_show_prompts", True)))
             self._refresh_arena_memory_badges()
+        self._on_llm_concept_changed()
+        self._sync_llm_api_banner()
 
         # Apply layout prefs
         self.tabs.setCurrentIndex(max(0, min(self.tabs.count() - 1, int(ui.get("tab") or 0))))
@@ -33641,12 +34341,16 @@ class MainWindow(QMainWindow):
                 "gallery_page": self.gallery_tab.current_page(),
                 "gallery_fav_only": self.gallery_tab.is_fav_only(),
                 "theme": theme_name(),
-                # v19: 3-mode audio policy ('all' | 'important' | 'none') + legacy 'enabled'
+                # v23: 3-mode audio policy + dual volume mixer + legacy 'enabled'
                 "sounds": {
                     "mode": SOUNDS.mode,
                     "enabled": SOUNDS.master,
+                    "master_volume": round(SOUNDS.master_volume, 2),
+                    "ui_sfx_volume": round(SOUNDS.ui_sfx_volume, 2),
                     **{ev: SOUNDS.enabled.get(ev, True) for ev in SOUND_EVENT_LABELS},
                 },
+                "prompt_box_height": self.prompt_frame.box_height() if hasattr(self, "prompt_frame") else 124,
+                "neg_box_height": self.neg_frame.box_height() if hasattr(self, "neg_frame") else 78,
                 "edit_delete_original": False,
                 "edit_brush": {
                     "size": self.edit_brush_size.value(),
@@ -33716,14 +34420,20 @@ class MainWindow(QMainWindow):
             "system_prompts": dict(self._llm_sys_prompts),
             "user_input": self.llm_user_edit.toPlainText(),
             "system_visible": self.llm_sys_section.is_expanded(),
+            "active_subtab": self.llm_subtabs.currentIndex() if hasattr(self, "llm_subtabs") else 0,
+            "llm_concept_height": self.llm_concept_frame.box_height() if hasattr(self, "llm_concept_frame") else 88,
             "vision_mode": self._llm_vision_mode_key,
             "vision_model": self.llm_vision_model_combo.currentText().strip(),
             "vision_prompts": dict(self._llm_vision_prompts),
-            "vision_visible": self.llm_vision_section.is_expanded(),
+            "vlm_sys_visible": bool(self.llm_vision_sys_section.is_expanded()) if hasattr(self, "llm_vision_sys_section") else False,
             "vision_motion_mode": self._llm_motion_mode_key,
             "vision_motion_prompts": dict(self._llm_motion_prompts),
             "context_length": int(self.si_ctx_spin.value()) if hasattr(self, "si_ctx_spin") else DEFAULT_LLM_CONTEXT_LENGTH,
             "si_user_input": self.si_user_edit.toPlainText() if hasattr(self, "si_user_edit") else "",
+            "si_concept_height": self.si_concept_frame.box_height() if hasattr(self, "si_concept_frame") else 76,
+            "si_system_prompt": self.si_sys_edit.toPlainText() if hasattr(self, "si_sys_edit") else DEFAULT_SELF_IMPROVING_SYSTEM_PROMPT,
+            "si_sys_height": self.si_sys_frame.box_height() if hasattr(self, "si_sys_frame") else 136,
+            "si_system_visible": bool(self.si_sys_section.is_expanded()) if hasattr(self, "si_sys_section") else True,
             "si_fixed_seed": self.si_seed_edit.text().strip() if hasattr(self, "si_seed_edit") else "",
             "si_auto_render": bool(self.si_auto_render_cb.isChecked()) if hasattr(self, "si_auto_render_cb") else True,
             "si_apply_template": bool(self.si_apply_tpl_cb.isChecked()) if hasattr(self, "si_apply_tpl_cb") else True,
@@ -34681,9 +35391,15 @@ class MainWindow(QMainWindow):
         self.llm_run_btn.setEnabled(not running)
         self.llm_vision_run_btn.setEnabled(not running)
         self.llm_models_btn.setEnabled(not running)
+        if hasattr(self, "llm_banner_refresh_btn"):
+            self.llm_banner_refresh_btn.setEnabled(not running)
+        if hasattr(self, "si_run_btn"):
+            self.si_run_btn.setEnabled(not running)
         self.llm_stop_btn.setEnabled(running)
         if hasattr(self, "llm_vision_stop_btn"):
             self.llm_vision_stop_btn.setEnabled(running)
+        if hasattr(self, "si_stop_btn"):
+            self.si_stop_btn.setEnabled(running)
         if hasattr(self, "llm_hud_stop_btn"):
             self.llm_hud_stop_btn.setEnabled(running)
             self.llm_hud_stop_btn.setVisible(running)
@@ -34732,6 +35448,8 @@ class MainWindow(QMainWindow):
             self.llm_stop_btn.setEnabled(False)
             if hasattr(self, "llm_vision_stop_btn"):
                 self.llm_vision_stop_btn.setEnabled(False)
+            if hasattr(self, "si_stop_btn"):
+                self.si_stop_btn.setEnabled(False)
             if hasattr(self, "llm_hud_stop_btn"):
                 self.llm_hud_stop_btn.setEnabled(False)
             self.llm_status.setText("Stopping request\u2026 keeping already-parsed prompts.")
@@ -34949,9 +35667,15 @@ class MainWindow(QMainWindow):
             self.llm_run_btn.setEnabled(True)
             self.llm_vision_run_btn.setEnabled(True)
             self.llm_models_btn.setEnabled(True)
+            if hasattr(self, "llm_banner_refresh_btn"):
+                self.llm_banner_refresh_btn.setEnabled(True)
+            if hasattr(self, "si_run_btn"):
+                self.si_run_btn.setEnabled(True)
             self.llm_stop_btn.setEnabled(False)
             if hasattr(self, "llm_vision_stop_btn"):
                 self.llm_vision_stop_btn.setEnabled(False)
+            if hasattr(self, "si_stop_btn"):
+                self.si_stop_btn.setEnabled(False)
             if hasattr(self, "llm_hud_stop_btn"):
                 self.llm_hud_stop_btn.setEnabled(False)
                 self.llm_hud_stop_btn.setVisible(False)
@@ -34963,9 +35687,19 @@ class MainWindow(QMainWindow):
         if self._llm_busy():
             self.llm_status.setText("Stop the active LLM request first.")
             return
+        base_url = self.llm_url_edit.text().strip()
+        if not base_url:
+            msg = "Enter an OpenAI-compatible API URL in Settings first."
+            self.llm_status.setText(msg)
+            if hasattr(self, "llm_settings_status"):
+                self.llm_settings_status.setText(msg)
+            self._open_llm_api_settings()
+            return
         self._set_llm_running_ui(True, "connecting")
         self.llm_status.setText("Fetching model list\u2026 (click STOP anytime to abort)")
-        w = LlmModelsWorker(self.llm_url_edit.text().strip(), self.llm_key_edit.text().strip(), self)
+        if hasattr(self, "llm_settings_status"):
+            self.llm_settings_status.setText("Connecting to endpoint & fetching /models\u2026")
+        w = LlmModelsWorker(base_url, self.llm_key_edit.text().strip(), self)
 
         def _done(models: List[str]) -> None:
             self._set_llm_running_ui(False, "done")
@@ -34980,15 +35714,25 @@ class MainWindow(QMainWindow):
             self.llm_vision_model_combo.addItems(models)
             if vcur:
                 self._set_combo(self.llm_vision_model_combo, vcur)
-            self.llm_status.setText(f"{len(models)} model(s) available.")
+            msg = f"{len(models)} model(s) loaded from endpoint."
+            self.llm_status.setText(msg)
+            if hasattr(self, "llm_settings_status"):
+                self.llm_settings_status.setText(msg)
+            self._sync_llm_api_banner()
+            self._llm_schedule_save()
+            SOUNDS.play("llm_done")
 
         def _err(msg: str) -> None:
             self._set_llm_running_ui(False, "error")
             self.llm_status.setText(f"Model list failed: {msg}")
+            if hasattr(self, "llm_settings_status"):
+                self.llm_settings_status.setText(f"Fetch failed: {msg}")
 
         def _stopped() -> None:
             self._set_llm_running_ui(False, "stopped")
             self.llm_status.setText("Model list request stopped.")
+            if hasattr(self, "llm_settings_status"):
+                self.llm_settings_status.setText("Model list fetch stopped.")
 
         def _clean(wk: LlmModelsWorker = w) -> None:
             if self._llm_models_worker is wk:
@@ -35007,12 +35751,19 @@ class MainWindow(QMainWindow):
         if not user:
             self.llm_status.setText("Describe your concept first.")
             return
+        base_url = self.llm_url_edit.text().strip()
+        model = self.llm_model_combo.currentText().strip()
+        if not base_url or not model:
+            self.llm_status.setText("Configure LLM API URL and Model in Settings first.")
+            self.toast.notify("Configure LLM URL & Model in Settings", "warn")
+            self._open_llm_api_settings()
+            return
         self._llm_sys_prompts[self._llm_tpl_key] = self.llm_sys_edit.toPlainText()
         self._start_llm_stream(
             task_kind="forge",
-            base_url=self.llm_url_edit.text().strip(),
+            base_url=base_url,
             api_key=self.llm_key_edit.text().strip(),
-            model=self.llm_model_combo.currentText().strip(),
+            model=model,
             system=self._llm_sys_prompts[self._llm_tpl_key],
             user_text=user,
             temperature=self.llm_temp_spin.value(),
@@ -36224,7 +36975,7 @@ class MainWindow(QMainWindow):
             f"Workspace: <code>{os.path.relpath(DATA_DIR, BASE_DIR)}</code> / "
             f"<code>{os.path.relpath(OUTPUT_DIR, BASE_DIR)}</code><br>"
             "Themes: SeeStation · Sarif Gold · Oriental Spirit · Kreatendo · Mint Serenity<br>"
-            "Includes custom vector cursors (22 states × 5 themes), animated status assets, "
+            "Includes custom vector cursors (22 states × 7 themes), animated status assets, "
             "outage-resilient crash-safe queue journaling, and non-destructive separate edit export.<br>"
             "All diagnostics stay in memory — no log files are written.",
         )
@@ -38678,6 +39429,11 @@ class MainWindow(QMainWindow):
             fc.setMinimumHeight(max(21, int(round(24 * s))))
             fc.updateGeometry()
             fc.update()
+        for rpf in self.findChildren(ResizablePromptFrame):
+            rpf.apply_scale(s)
+        for tsc in self.findChildren(ThemeSwatchCard):
+            tsc.updateGeometry()
+            tsc.update()
         for fw in self.findChildren(FlowContainer):
             fw.updateGeometry()
         if hasattr(self, "lora_list"):
@@ -38706,6 +39462,19 @@ class MainWindow(QMainWindow):
             for rt_idx, rt_ik in ((0, "image"), (1, "layers"), (2, "arena_ab")):
                 if rt_idx < self.right_tabs.count():
                     self.right_tabs.setTabIcon(rt_idx, VECTOR_ASSETS.icon(rt_ik, rt_sz))
+        if hasattr(self, "llm_subtabs"):
+            ls_sz = max(12, min(16, int(round(13 * ui_scale()))))
+            self.llm_subtabs.setIconSize(QSize(ls_sz, ls_sz))
+            for ls_idx, ls_ik in ((0, "spark"), (1, "eye"), (2, "arena_ab")):
+                if ls_idx < self.llm_subtabs.count():
+                    self.llm_subtabs.setTabIcon(ls_idx, VECTOR_ASSETS.icon(ls_ik, ls_sz))
+            self.llm_subtabs.tabBar().update()
+        if hasattr(self, "llm_api_settings_btn"):
+            self.llm_api_settings_btn.setIcon(VECTOR_ASSETS.icon("tab_horde", 12))
+        if hasattr(self, "llm_banner_refresh_btn"):
+            self.llm_banner_refresh_btn.setIcon(VECTOR_ASSETS.icon("reset", 12))
+        if hasattr(self, "si_open_arena_btn"):
+            self.si_open_arena_btn.setIcon(VECTOR_ASSETS.icon("arena_ab", 12))
         for attr, ik, sz in (
             ("hist_btn", "history", 12),
             ("copy_prompt_btn", "copy", 12),
@@ -38785,7 +39554,7 @@ class MainWindow(QMainWindow):
             sh_w.update()
         for fc_w in self.findChildren(FolderChipButton):
             fc_w.update()
-        for rep_cls in (TilePlanPreview, TileCanvasPreview, ArenaImagePane):
+        for rep_cls in (TilePlanPreview, TileCanvasPreview, ArenaImagePane, ThemeSwatchCard, _CornerResizeGrip, EditHistogramWidget):
             for child_w in self.findChildren(rep_cls):
                 child_w.update()
         if hasattr(self, "lora_list"):
@@ -38809,7 +39578,13 @@ class MainWindow(QMainWindow):
 
     def _on_ctrl_enter_shortcut(self) -> None:
         if self.tabs.currentIndex() == TAB_LLM:
-            self.llm_generate()
+            sub = self.llm_subtabs.currentIndex() if hasattr(self, "llm_subtabs") else 0
+            if sub == 1:
+                self._llm_vision_extract()
+            elif sub == 2:
+                self.llm_self_improve_forge()
+            else:
+                self.llm_generate()
         else:
             self.on_generate()
 
@@ -38888,6 +39663,8 @@ class MainWindow(QMainWindow):
             self.chip_horde.setStyleSheet(f"color: {col}; font-weight: bold;" if col else "")
         if hasattr(self, "llm_phase_badge"):
             self._update_llm_phase_badge(getattr(self, "_llm_last_phase", "idle"))
+        self._sync_llm_api_banner()
+        self._update_si_sys_badge()
         if hasattr(self, "deck_offline_retry_btn"):
             ssz = max(12, min(18, int(round(12 * ui_scale()))))
             self.deck_offline_retry_btn.setIcon(VECTOR_ASSETS.icon("reconnect", ssz))
@@ -39124,6 +39901,17 @@ class MainWindow(QMainWindow):
         self._sync_sound_controls()
         self._schedule_save()
 
+    def _on_sound_volumes_changed(self, _v: int = 0) -> None:
+        mv = (self.sound_master_sl.value() / 100.0) if hasattr(self, "sound_master_sl") else SOUNDS.master_volume
+        uv = (self.sound_ui_sl.value() / 100.0) if hasattr(self, "sound_ui_sl") else SOUNDS.ui_sfx_volume
+        if hasattr(self, "sound_master_val"):
+            self.sound_master_val.setText(f"{int(round(mv * 100))}%")
+        if hasattr(self, "sound_ui_val"):
+            self.sound_ui_val.setText(f"{int(round(uv * 100))}%")
+        SOUNDS.set_volumes(mv, uv)
+        if not self._loading:
+            self._schedule_save()
+
     def _sync_sound_controls(self) -> None:
         """Sync corner sound icon, Application Menu checkmarks & Settings backend label."""
         mode = SOUNDS.mode
@@ -39146,7 +39934,9 @@ class MainWindow(QMainWindow):
                 act.blockSignals(False)
         lbl_b = getattr(self, "sound_backend_lbl", None)
         if lbl_b is not None:
-            lbl_b.setText(f"Engine: {SOUNDS.backend_label()} \u2022 5 themes \u00d7 18 embedded DSP cues")
+            lbl_b.setText(
+                f"Engine: {SOUNDS.backend_label()} \u2022 {len(THEME_ORDER)} themes \u00d7 {len(SOUNDS.ALL_EVENTS)} embedded DSP cues"
+            )
 
     def _apply_sound_ui(self) -> None:
         mode = SOUNDS.mode
@@ -39158,6 +39948,20 @@ class MainWindow(QMainWindow):
         if hasattr(self, "sound_mode_desc"):
             self.sound_mode_desc.setText(desc_map.get(mode, ""))
         notifs_active = mode != SOUND_MODE_NONE
+        if hasattr(self, "sound_master_sl"):
+            self.sound_master_sl.blockSignals(True)
+            self.sound_master_sl.setValue(int(round(SOUNDS.master_volume * 100)))
+            self.sound_master_sl.setEnabled(notifs_active)
+            self.sound_master_sl.blockSignals(False)
+            if hasattr(self, "sound_master_val"):
+                self.sound_master_val.setText(f"{self.sound_master_sl.value()}%")
+        if hasattr(self, "sound_ui_sl"):
+            self.sound_ui_sl.blockSignals(True)
+            self.sound_ui_sl.setValue(int(round(SOUNDS.ui_sfx_volume * 100)))
+            self.sound_ui_sl.setEnabled(mode == SOUND_MODE_ALL)
+            self.sound_ui_sl.blockSignals(False)
+            if hasattr(self, "sound_ui_val"):
+                self.sound_ui_val.setText(f"{self.sound_ui_sl.value()}%")
         for ev, cb in getattr(self, "sound_event_checks", {}).items():
             cb.blockSignals(True)
             cb.setChecked(SOUNDS.enabled.get(ev, True))
@@ -39445,6 +40249,7 @@ class MainWindow(QMainWindow):
             self._flash_summary("Prompt is empty.")
             return
         QApplication.clipboard().setText(txt)
+        SOUNDS.play_ui("ui_copy")
         self._flash_summary(f"Copied prompt ({len(txt)} chars)")
 
     def open_command_palette(self) -> None:
@@ -39510,14 +40315,16 @@ class MainWindow(QMainWindow):
         if not user_req:
             user_req = self.llm_user_edit.toPlainText().strip()
         if not base_url or not model:
-            self.tabs.setCurrentIndex(TAB_LLM)
-            self.llm_status.setText("Configure LLM API URL and Model first before running Self-Improving Arena.")
-            self.toast.notify("Configure LLM URL & Model first", "warn")
+            self.llm_status.setText("Configure LLM API URL and Model in Settings before running Self-Improving Arena.")
+            self.toast.notify("Configure LLM URL & Model in Settings", "warn")
+            self._open_llm_api_settings()
             return
         if not user_req:
             self.tabs.setCurrentIndex(TAB_LLM)
-            if hasattr(self, "llm_si_section"):
-                self.llm_si_section.set_expanded(True)
+            if hasattr(self, "llm_subtabs"):
+                self.llm_subtabs.setCurrentIndex(2)
+            if hasattr(self, "si_user_edit"):
+                self.si_user_edit.setFocus()
             self.llm_status.setText("Enter a scene/concept request in the Self-Improving A/B box first.")
             return
 
@@ -39525,8 +40332,14 @@ class MainWindow(QMainWindow):
         entries = PREF_MEMORY.load(stack)
         ctx_len = int(self.si_ctx_spin.value()) if hasattr(self, "si_ctx_spin") else DEFAULT_LLM_CONTEXT_LENGTH
         max_out = int(self.llm_maxtok_spin.value()) if hasattr(self, "llm_maxtok_spin") else 0
+        custom_si_sys = self.si_sys_edit.toPlainText() if hasattr(self, "si_sys_edit") else None
         pack = build_self_improving_system_prompt(
-            stack, entries, user_req, context_length=ctx_len, max_output_tokens=max_out
+            stack,
+            entries,
+            user_req,
+            context_length=ctx_len,
+            max_output_tokens=max_out,
+            custom_base_prompt=custom_si_sys,
         )
         raw_seed = self.si_seed_edit.text().strip() if hasattr(self, "si_seed_edit") else ""
         seed = raw_seed if raw_seed else str(random.randint(100000, 2147483647))
@@ -39695,7 +40508,7 @@ class MainWindow(QMainWindow):
             r_str = f" ({entry['rating']}★)" if entry.get("rating") else ""
             self.arena_widget.set_vote_ui(vote, f"Saved {vote} > {'B' if vote == 'A' else 'A'}{r_str} to PreferencesMemory!")
             self.toast.notify(f"Preference saved ({vote} wins{r_str})", "ok")
-            SOUNDS.play("saved")
+            SOUNDS.play("arena_vote")
         self._refresh_arena_memory_badges()
 
     def _arena_on_rating_changed(self, rating: Any) -> None:
@@ -39746,11 +40559,12 @@ class MainWindow(QMainWindow):
         for th in list(self._tasks):
             th.wait(250)
         self.queue.shutdown()
+        SOUNDS.shutdown()
         super().closeEvent(event)
 
 
 # =============================================================================
-#  26. Application Entry Point (v19.0 — 800x600 Ready + Low-End Laptop Tuned)
+#  26. Application Entry Point (v23.0 — 800x600 Ready + Low-End Laptop Tuned)
 # =============================================================================
 def main() -> int:
     app = QApplication(sys.argv)
@@ -39770,6 +40584,8 @@ def main() -> int:
             win.resize(init_w, init_h)
             left_w = max(248, min(312, int(init_w * 0.40)))
             win.split.setSizes([left_w, max(260, init_w - left_w)])
+            if hasattr(win, "prompt_frame") and win.prompt_frame.box_height() > 220:
+                win.prompt_frame.set_box_height(150, emit=False)
         else:
             init_w = max(760, min(1240, av.width() - 28))
             init_h = max(540, min(780, av.height() - 40))
@@ -39783,7 +40599,8 @@ def main() -> int:
     win.show()
     CURSOR_ENGINE.refresh_widget_tree(win)
     QTimer.singleShot(0, win._on_workspace_resized)
-    QTimer.singleShot(220, SOUNDS.prewarm_active_theme)
+    QTimer.singleShot(180, SOUNDS.prewarm_active_theme)
+    QTimer.singleShot(300, lambda: SOUNDS.play("startup"))
     return app.exec()
 
 
