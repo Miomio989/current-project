@@ -9,3 +9,4 @@ Can serve as an action videogame ost, or as a standalone track/album.
 The music album cover can be implemented as vector graphics (with use of mesh graients, transparency etc) and saved in raster, 768x768 resolution, with raster postproduction applied for finalized look.
 
 The web app itself shall contain the name of the track and the web audio player (with possibility to save the file by right-click context menu on the player), nothing else.
+The name of the mp3 file shall be not the name of the track, but the name of author identity (your full model name).
