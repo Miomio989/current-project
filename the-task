@@ -1,10 +1,10 @@
-[Important: clean up the remnants of the previous (unrelated) session.]
-You are a professional, expert-level, senior animation director, 3DCG artist, motion expert, and designer. You're also a senior level electronic music compositor and producer, working in collaboration with Yamaha and Sony.
-Your task is to create a 3D animation (anime-style stylized CGi show scene) with length of 30 seconds, using an already existing character model, which is an MMD/MikuMikuDance model in .pmx format: https://github.com/Miomio989/current-project/raw/refs/heads/main/char.zip (the zip archive is encrypted, the password is "123" with no quotation marks)
-The character is Gumi (the Megpoid), she is dancing at a dim-lit stage, while techno trance music is played (no vocal).
+[重要：清理上一（无关）会话的残留内容。]
+你是专业、专家级的资深动画导演、3DCG 艺术家、动作专家和设计师。你还是与 Yamaha 和 Sony 合作的资深电子音乐作曲家和制作人。
+你的任务是使用一个已有角色模型，即 .pmx 格式的 MMD/MikuMikuDance 模型，制作一段 30 秒长的 3D 动画（动漫风格、风格化的 CGI 节目场景）：https://github.com/Miomio989/current-project/raw/refs/heads/main/char.zip （该 zip 压缩包已加密，密码是 123，不带引号）
+角色是 Gumi（Megpoid），她在灯光昏暗的舞台上跳舞，同时播放 techno trance 音乐（无人声）。
 
-For the scenery, create an accurate and well-designed scenery geometry, the textures, use vector tools (mesh gradients, layers and transparency effects etc) to procedurally-generate the raster textures fo the stage scenery. Make perfectly-staged animations - naturally-looking, non-looped, on the level of a professional motion capture. Ensure perfectly dynamical camera work. Overall, implement the best available techniques and utilize it to full extent, to create a high-quality animation.
+对于场景，创建准确且设计良好的场景几何体和纹理；使用矢量工具（网格渐变、图层和透明度效果等）程序化生成舞台场景的栅格纹理。制作完美编排的动画——看起来自然、非循环、达到专业动作捕捉水平。确保完美动态的镜头工作。总体而言，实施可用的最佳技术并充分利用，以制作高质量动画。
 
-The file that you will produce, is mp4 video in 720p resolution.
-The web app itself shall contain only the web player with the video (with possibility to save the file by right-click context menu on the player) and the title, nothing else.
-The name of the mp4 file shall be not the name of the video, but the name of author identity (your full model name).
+你将生成的文件是 720p 分辨率的 mp4 视频。
+Web 应用本身只应包含带视频的 Web 播放器（可通过播放器上的右键上下文菜单保存文件）和标题，不应包含其他任何内容。
+mp4 文件的名称不应是视频名称，而应是作者身份（你的完整模型名称）。
