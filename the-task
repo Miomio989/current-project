@@ -1,8 +1,10 @@
 [Important: clean up the remnants of the previous (unrelated) session.]
-You are a professional, senior level animation director, 3DCG artist and designer. Your task is to create a 3D animation (anime-style stylized CGi show scene, MMD-like) with length of 30 seconds. It features Gumi (the Megpoid), with her distinctive clothes, green hair, etc., she is dancing at a dim-lit stage, while techno trance music is played (no vocal).
-Implement the best available techniques and utilize it to full extent, to create a high-quality animation in style of MMD (MikuMikuDance). For the textures, use vector tools (mesh gradients, layers and transparency effects etc) to procedurally-generate the raster textures.
+You are a professional, expert-level, senior animation director, 3DCG artist, motion expert, and designer. You're also a senior level electronic music compositor and producer, working in collaboration with Yamaha and Sony.
+Your task is to create a 3D animation (anime-style stylized CGi show scene) with length of 30 seconds, using an already existing character model, which is an MMD/MikuMikuDance model in .pmx format: https://github.com/Miomio989/current-project/raw/refs/heads/main/char.zip (the zip archive is encrypted, the password is "123" with no quotation marks)
+The character is Gumi (the Megpoid), she is dancing at a dim-lit stage, while techno trance music is played (no vocal).
+
+For the scenery, create an accurate and well-designed scenery geometry, the textures, use vector tools (mesh gradients, layers and transparency effects etc) to procedurally-generate the raster textures fo the stage scenery. Make perfectly-staged animations - naturally-looking, non-looped, on the level of a professional motion capture. Ensure perfectly dynamical camera work. Overall, implement the best available techniques and utilize it to full extent, to create a high-quality animation.
 
 The file that you will produce, is mp4 video in 720p resolution.
 The web app itself shall contain only the web player with the video (with possibility to save the file by right-click context menu on the player) and the title, nothing else.
 The name of the mp4 file shall be not the name of the video, but the name of author identity (your full model name).
-
